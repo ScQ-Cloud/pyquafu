@@ -8,7 +8,7 @@ class ExecResult(object):
         self.measures = dict['measure']
         self.res = dict['res']
         self.taskid = dict['task_id']
-        self.measure_base = dict['measure_base']        
+        # self.measure_base = dict['measure_base']        
         self.basis, self.amplitudes = self.base_ampl()  
 
     def base_ampl(self):      

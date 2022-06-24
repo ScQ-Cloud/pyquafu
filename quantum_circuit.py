@@ -181,7 +181,7 @@ class QuantumCircuit(object):
             for l in range(gateQlist.shape[1]):
                 layergate = [gate.to_IOP() for gate in gateQlist[:, l] if gate != None and not isinstance(gate, Barrier)]
                 totalgates.append(layergate)
-            totalgates.append(self.measures)
+            totalgates.append(list(self.measures))
             totalgates.append(list(range(self.num)))
             self.qasm = str(totalgates)[1:-1]
 
@@ -240,29 +240,37 @@ class QuantumCircuit(object):
         return ExecResult(res)
 
     def send(self, compiler="optseq"):
-        # qc = jsonpickle.encode(self)        
-        # return qc
         if self.backend == "IOP":
-            self.compile_to_IOP(compiler=compiler)
+            self.compile_to_IOP(compiler = compiler)
         elif self.backend == "BAQIS":
             self.compile_to_qLisp()
         else:
             raise "Wrong backend"
 
-        # data = qc
-        # url = "http://q.iphy.ac.cn/scq_submit_task.php"
-        # headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
-        
-        # try:
-        #     # thread = threading.Thread(target=showbar)
-        #     # thread.start()
-        #     res = requests.post(url, headers = headers, data = data)
-        #     print(res.text)
-        #     return json.loads(res.text)
-        #     # return json.loads(res.text)['res']
-        #     # return json.loads(res.text)
-        # except requests.exceptions.ConnectionError:
-        #     print("Could not connect to server.")
+            # print(self.qasm)
+        data = {"qtasm": self.qasm, "shots": self.shots, "qubits": 10, "scan": 0, "tomo": int(self.tomo), "selected_server": 0}
+        url = "http://q.iphy.ac.cn/scq_submit_task.php"
+        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
+        data = parse.urlencode(data)
+        data = data.replace("%27", "'")
+        data = data.replace("+", "")
+        # print(self.qasm)
+        res = requests.post(url, headers = headers, data = data)
+        # print(res.json())
+
+        if res.json()["stat"] == 5002:
+            try:
+                raise RuntimeError("Excessive computation scale.")
+            except RuntimeError as e:
+                print(e)
+
+        elif res.json()["stat"] == 5001:
+            try:
+                raise RuntimeError("Invalid Circuit")
+            except RuntimeError as e:
+                print(e)
+        else:
+            return ExecResult(json.loads(res.text))
 
 
     def h(self, pos):
