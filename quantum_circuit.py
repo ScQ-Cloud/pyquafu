@@ -180,7 +180,8 @@ class QuantumCircuit(object):
             totalgates = []
             for l in range(gateQlist.shape[1]):
                 layergate = [gate.to_IOP() for gate in gateQlist[:, l] if gate != None and not isinstance(gate, Barrier)]
-                totalgates.append(layergate)
+                if len(layergate) != 0:
+                    totalgates.append(layergate)
             totalgates.append(list(self.measures))
             totalgates.append(list(range(self.num)))
             self.qasm = str(totalgates)[1:-1]
