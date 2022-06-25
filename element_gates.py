@@ -1,5 +1,5 @@
 #This is the file for  concrete element quantum gates
-from quantum_element import *
+from quantum_element import ParaTwoQubitGate, SingleQubitGate, ParaSingleQubitGate, TwoQubitGate, ControlGate, ParaTwoQubitGate
 
 class HGate(SingleQubitGate):
     def __init__(self, pos):
@@ -35,6 +35,19 @@ class iSWAP(TwoQubitGate):
 
     def to_QLisp(self):
         raise ValueError("The BAQIS backend does not support iSWAP gate currently, please use the IOP backend.")
+
+class SWAP(TwoQubitGate):
+    def __init__(self, pos):
+        super().__init__("SWAP", pos)
+
+    def to_QLisp(self):
+        raise ValueError("The BAQIS backend does not support SWAP gate currently, please use the IOP backend.")
+
+    def to_nodes(self):
+        raise ValueError("The IOP backend does not support SWAP gate currently, please use the BAQIS backend.")
+
+    def to_IOP(self):
+        raise ValueError("The IOP backend does not support SWAP gate currently, please use the BAQIS backend.")
 
 class CnotGate(ControlGate):
     def __init__(self, ctrl, targ):

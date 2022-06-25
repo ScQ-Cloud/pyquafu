@@ -1,6 +1,5 @@
 
 import copy
-      
 
 class OptSequence(object):
     def __init__(self, num, gatelist):

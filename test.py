@@ -1,27 +1,17 @@
 
 #%%--------------
 import numpy as np
-from quantum_tools import *
-from paulis import *
 from quantum_circuit import QuantumCircuit
 import copy
-
-
-
-#%%---------test for generation of qasm and draw circuit----
-import pickle
-import numpy as np
 q = QuantumCircuit(5)
 measures = [0, 1, 2, 3, 4]
-test_Ising = [["X", [i]] for i in range(5)]
-test_Ising.extend([["ZZ", [i, i+1]] for i in range(4)])
 for i in range(5):
     if i % 2 == 0:
         q.x(i)
 
 q.barrier([0])
-q.cnot(1, 2)
-q.cnot(2, 4)
+q.cnot(2, 1)
+# q.cnot(2, 4)
 q.h(0)
 q.ry(1, np.pi/2)
 q.rx(2, np.pi)
@@ -30,14 +20,36 @@ q.cz(2, 3)
 q.z(3)
 q.y(1)
 q.barrier([0, 1])
-q.iswap(0, 1)
+# q.iswap(0, 1)
 q.measure(measures, 1000)
 q.draw_circuit()
 q.set_backend("IOP")
-q.send(compiler="default")
+q.set_compiler("default")
+q.compile_to_IOP()
+# res = q.send()
 print(q.qasm)
+# print(res.res)
+
+#%%----------test for submit_task----------
+import numpy as np
+q = QuantumCircuit(5)
+measures = [0, 1, 2, 3, 4]
+test_Ising = [["X", [i]] for i in range(5)]
+test_Ising.extend([["ZZ", [i, i+1]] for i in range(4)])
+for i in range(5):
+    if i % 2 == 0:
+        q.h(i)
+
+q.measure(measures, 1000)
+q.draw_circuit()
+q.set_backend("IOP")
+res, obsexp = q.submit_task(test_Ising)
+print(obsexp)
+
 
 # #%%-----class computer simulation test for merge measure--------
+# from quantum_tools import *
+# from paulis import *
 # a = ["X", [1]]
 # b = ["X", [2]]
 # c = ["ZXY", [2, 4, 3]]

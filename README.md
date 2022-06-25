@@ -1,1 +1,1 @@
-ScQ.Kit
+# scqkit
