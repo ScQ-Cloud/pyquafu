@@ -42,29 +42,30 @@ nodes, edges = Qcover.generate_graph_data(node_num, edge_num)
 # phys_order = random.sample(range(random_qubit[0], random_qubit[0] + logical_qubits),logical_qubits)
 
 p = 1
-# # Run qcover to generate optimal parameters
-# g = Qcover.generate_weighted_graph(nodes, edges)
-# # qulacs_bc = CircuitByQiskit()
-# # qulacs_bc = CircuitByProjectq()
-# qulacs_bc = CircuitByCirq()
-# # qulacs_bc = CircuitByQulacs()
-# # qulacs_bc = CircuitByTensor()
-# optc = COBYLA(options={'tol': 1e-3, 'disp': False})
-# qc = Qcover(g, p=p, optimizer=optc, backend=qulacs_bc)
-# res = qc.run()
-# optimal_params = res['Optimal parameter value']
-# # optimal_params = np.ones(2 * p)
-# print('optimal_params:', optimal_params)
+# Run qcover to generate optimal parameters
+g = Qcover.generate_weighted_graph(nodes, edges)
+# qulacs_bc = CircuitByQiskit()
+# qulacs_bc = CircuitByProjectq()
+qulacs_bc = CircuitByCirq()
+# qulacs_bc = CircuitByQulacs()
+# qulacs_bc = CircuitByTensor()
+optc = COBYLA(options={'tol': 1e-3, 'disp': False})
+qc = Qcover(g, p=p, optimizer=optc, backend=qulacs_bc)
+res = qc.run()
+optimal_params = res['Optimal parameter value']
+# optimal_params = np.ones(2 * p)
+print('optimal_params:', optimal_params)
 
 
-# # draw weighted graph
-# new_labels = dict(map(lambda x: ((x[0], x[1]), str(x[2]['weight'])), g.edges(data=True)))
-# pos = nx.spring_layout(g)
-# nx.draw_networkx(g, pos=pos)
-# nx.draw_networkx_edge_labels(g, pos=pos, edge_labels=new_labels)
-# nx.draw_networkx_edges(g, pos, width=2, edge_color='g', arrows=False)
-# plt.show()
-params = [0.1, 0.2]
+# draw weighted graph
+new_labels = dict(map(lambda x: ((x[0], x[1]), str(x[2]['weight'])), g.edges(data=True)))
+pos = nx.spring_layout(g)
+nx.draw_networkx(g, pos=pos)
+nx.draw_networkx_edge_labels(g, pos=pos, edge_labels=new_labels)
+nx.draw_networkx_edges(g, pos, width=2, edge_color='g', arrows=False)
+plt.show()
+
+params = optimal_params
 gate='CNOT'
 # gate='iSWAP'
 qaoa = QAOACircuit(logical_qubits, physical_qubits, nodes, edges, params, p, gate=gate)
@@ -73,4 +74,5 @@ qaoa.compile_to_IOP()
 # print(qaoa.qasm, "\n")
 qaoa.circuit_from_qasm(qaoa.qasm)
 qaoa.draw_circuit()
-# qaoa.send()
+res = qaoa.send()
+print(res.res)

@@ -853,7 +853,7 @@ class QcoverCompiler:
 
     def qasm_gates_scheduled(self, iswap_gates_scheduled):
         # get qasm_gates_scheduled
-        qasm_gates_scheduled = defaultdict(list)
+        qasm_scheduled = defaultdict(list)
         k = 0
         for i in range(len(iswap_gates_scheduled)):
             layer_list = defaultdict(list)
@@ -864,7 +864,7 @@ class QcoverCompiler:
                     layer_list['two'].append(iswap_gates_scheduled[i][j])
             if len((layer_list['two'])) == 0 or len((layer_list['two'])) == 1:
                 # At most one two-qubit gate on the same layer
-                qasm_gates_scheduled[k] = iswap_gates_scheduled[i]
+                qasm_scheduled[k] = iswap_gates_scheduled[i]
                 k += 1
             else:
                 two_gates_list = defaultdict(list)
@@ -874,7 +874,7 @@ class QcoverCompiler:
                 diff_node = np.diff(sort_node)
                 if 4 not in diff_node:
                     # no adjacent two-qubit gates
-                    qasm_gates_scheduled[k] = iswap_gates_scheduled[i]
+                    qasm_scheduled[k] = iswap_gates_scheduled[i]
                     k += 1
                 else:
                     subgroup_two_gates = defaultdict(list)
@@ -888,20 +888,86 @@ class QcoverCompiler:
                             else:
                                 subgroup_two_gates['l'].append(two_gates_list[sort_node[u + 1]])
                     for s in layer_list['single']:
-                        qasm_gates_scheduled[k].append(s)
+                        qasm_scheduled[k].append(s)
                     for tl in subgroup_two_gates['l']:
-                        qasm_gates_scheduled[k].append(tl)
+                        qasm_scheduled[k].append(tl)
                     k += 1
                     for tr in subgroup_two_gates['r']:
-                        qasm_gates_scheduled[k].append(tr)
+                        qasm_scheduled[k].append(tr)
                     k += 1
-        return qasm_gates_scheduled
+        return qasm_scheduled
 
 
-    def qasm_iswap_str(self, qasm_gates_scheduled, logical_qubits):
+    def ScQ_gates_scheduled(self, opt_gates_list,logical_qubits,physical_qubits):
+        # get ScQ_gates_scheduled
+        gates_list = defaultdict(list)
+        for i in range(len(opt_gates_list)):
+            gates_list[i] = [opt_gates_list[i]]
+        rearrange_gates_scheduled = copy.deepcopy(gates_list)
+        for i in range(len(gates_list) - 1):
+            # list_bits = [i for i in range(logical_qubits)]
+            list_bits = []
+            if gates_list[i]:
+                if isinstance(gates_list[i][0][1], int):
+                    list_bits.extend([gates_list[i][0][1]])
+                if isinstance(gates_list[i][0][1], list):
+                    list_bits.extend(gates_list[i][0][1])
+            count = -1
+            for k in range(i + 1, len(gates_list)):
+                count += 1
+                if gates_list[k]:
+                    if isinstance(gates_list[k][0][1], int):
+                        two_bits = []
+                        for item in rearrange_gates_scheduled[i]:
+                            if isinstance(item[1], list):
+                                two_bits.extend(item[1])
+                        if (gates_list[k][0][1] not in list_bits) and (gates_list[k][0][1] - 1 not in two_bits) and (
+                                gates_list[k][0][1] + 1 not in two_bits):
+                            rearrange_gates_scheduled[i].append(gates_list[k][0])
+                            rearrange_gates_scheduled[k].remove(gates_list[k][0])
+                            list_bits.extend([gates_list[k][0][1]])
+                            list_bits = list(set(list_bits))
+                    if isinstance(gates_list[k][0][1], list):
+                        mi, ma = min(gates_list[k][0][1]), max(gates_list[k][0][1])
+                        if (mi not in list_bits) and (ma not in list_bits) and (
+                                mi - 1 not in list_bits) and (ma + 1 not in list_bits):
+                            rearrange_gates_scheduled[i].append(gates_list[k][0])
+                            rearrange_gates_scheduled[k].remove(gates_list[k][0])
+                            # list_bits.extend([mi, mi - 1, ma, ma + 1])
+                            list_bits.extend([mi, ma])
+                            list_bits = list(set(list_bits))
+                        else:
+                            list_bits.extend(gates_list[k][0][1])
+                            list_bits = list(set(list_bits))
+                    gates_list = copy.deepcopy(rearrange_gates_scheduled)
+                if (len(list_bits) == logical_qubits):
+                    break
+        k = 0
+        ScQ_gates_scheduled = defaultdict(list)
+        for i in range(len(rearrange_gates_scheduled)):
+            if rearrange_gates_scheduled[i]:
+                ScQ_gates_scheduled[k] = rearrange_gates_scheduled[i]
+                k += 1
+        # get ScQ_circuit
+        hq = QuantumRegister(physical_qubits, 'q')
+        ScQ_circuit = QuantumCircuit(hq)
+        for i in range(len(ScQ_gates_scheduled)):
+            for gate in ScQ_gates_scheduled[i]:
+                if gate[0] == 'H':
+                    ScQ_circuit.h(gate[1])
+                if gate[0] == 'Rz':
+                    ScQ_circuit.rz(gate[2], gate[1])
+                if gate[0] == 'Rx':
+                    ScQ_circuit.rx(gate[2], gate[1])
+                if gate[0] == 'CNOT':
+                    ScQ_circuit.cnot(gate[1][0], gate[1][1])
+            ScQ_circuit.barrier()
+        return ScQ_gates_scheduled, ScQ_circuit
+
+    def qasm_iswap_str(self, qasm_scheduled, logical_qubits):
         qubits = [i for i in range(logical_qubits)]
         measures = qubits
-        qasm_str = str(qasm_gates_scheduled.values())
+        qasm_str = str(qasm_scheduled.values())
         qasm_str = qasm_str[13:len(qasm_str) - 2]
         qasm_str = qasm_str + ',' + str(measures) + ',' + str(qubits)
         # print('qasm send:', qasm_str)
@@ -930,9 +996,10 @@ class QcoverCompiler:
             gates_list, iswap_circ = self.iswap_gates_scheduled_new(physical_qubits, final_gates_scheduled,b=4)
         else:
             print('Error: Two-qubit gate only supports CNOT and iSWAP')
-        iswap_gates_scheduled = self.iswap_finall_scheduled(gates_list, logical_qubits)
-        qasm_gates_scheduled = self.qasm_gates_scheduled(iswap_gates_scheduled)
-        qasm_str = self.qasm_iswap_str(qasm_gates_scheduled, logical_qubits)
+        # iswap_gates_scheduled = self.iswap_finall_scheduled(gates_list, logical_qubits)
+        # ScQ_gates_scheduled = self.qasm_gates_scheduled(iswap_gates_scheduled)
+        ScQ_gates_scheduled, _ = self.ScQ_gates_scheduled(gates_list, logical_qubits, physical_qubits)
+        qasm_str = self.qasm_iswap_str(ScQ_gates_scheduled, logical_qubits)
         return qasm_str
 
 
