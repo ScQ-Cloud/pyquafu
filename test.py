@@ -4,7 +4,7 @@ import numpy as np
 from quantum_circuit import QuantumCircuit
 import copy
 q = QuantumCircuit(5)
-measures = [0, 1, 2, 3, 4]
+
 for i in range(5):
     if i % 2 == 0:
         q.x(i)
@@ -20,14 +20,15 @@ q.cz(2, 3)
 q.z(3)
 q.y(1)
 q.barrier([0, 1])
-# q.iswap(0, 1)
+q.iswap(0, 1)
+measures = [0, 1, 2, 3, 4]
 q.measure(measures, 1000)
 q.draw_circuit()
 q.set_backend("IOP")
 q.set_compiler("default")
 q.compile_to_IOP()
-# res = q.send()
-print(q.qasm)
+res = q.send()
+# print(q.qasm)
 # print(res.res)
 
 #%%----------test for submit_task----------
@@ -44,6 +45,7 @@ q.measure(measures, 1000)
 q.draw_circuit()
 q.set_backend("IOP")
 res, obsexp = q.submit_task(test_Ising)
+E = sum(obsexp)
 print(obsexp)
 
 

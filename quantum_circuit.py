@@ -16,7 +16,7 @@ from transpiler.optsequence import OptSequence
 class QuantumCircuit(object):
     def __init__(self, num):
         """
-        Initial a QuantumCircuit object
+        Initialize a QuantumCircuit object
         
         Args:
             num (int): Total qubit number used
@@ -37,7 +37,7 @@ class QuantumCircuit(object):
 
     def set_backend(self, backend):
         """
-        Select the quantum device for executing task. Different computing backend provide different gate set. 
+        Select the quantum device for executing task. Different computing backends provide different gate set. 
 
         Args:
             backend (str): "IOP" or "BAQIS".
@@ -80,7 +80,7 @@ class QuantumCircuit(object):
 
     def layered_circuit(self):
         """
-        Make layered circuit from gate sequence self.gates.
+        Make layered circuit from the gate sequence self.gates.
 
         Returns: 
             A layered list with left justed circuit.
@@ -232,7 +232,7 @@ class QuantumCircuit(object):
 
     def compile_to_qLisp(self):
         """
-        Comiple the circuit to QASM that excute on BAQIS backend
+        Compile the circuit to QASM that excute on BAQIS backend
         """
         qasm_qLisp = []
         for gate in self.gates:
@@ -249,7 +249,7 @@ class QuantumCircuit(object):
 
     def compile_to_IOP(self):
         """
-        Comiple the circuit to QASM that execute on IOP backend
+        Compile the circuit to QASM that execute on IOP backend
 
         """
         if self.compiler == "optseq":
@@ -298,7 +298,7 @@ class QuantumCircuit(object):
 
     def submit_task(self, obslist=[]):
         """
-        Execute task with observable expectation measurement.
+        Execute the circuit with observable expectation measurement task.
         Args:
             obslist list(str, list[int]): List of pauli string and its position.
 
@@ -349,7 +349,7 @@ class QuantumCircuit(object):
         return exec_res, measure_results
 
     def run(self, measure_base=[]):
-        """Single run for measure task.
+        """Single run for measurement task.
 
         Args:
             measure_base (list(str, list[int])) measure base and it position.
@@ -498,7 +498,7 @@ class QuantumCircuit(object):
         fSim gate.
         
         Args:
-            q1, q2 (int): qubit the gate act.
+            q1, q2 (int): qubits the gate act.
             theta (float): parameter theta in fSim. 
             phi (float): parameter phi in fSim.
         """
@@ -515,7 +515,7 @@ class QuantumCircuit(object):
      
     def barrier(self, qlist):
         """
-        Add barrier for qubit in qlist.
+        Add barrier for qubits in qlist.
         
         Args:
             qlist (list(int)): A list contain the qubit need add barrier. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using\n
@@ -526,7 +526,7 @@ class QuantumCircuit(object):
 
     def measure(self, pos, shots, tomo = False):
         """
-        Measrent setting for experiment device.
+        Measurement setting for experiment device.
         
         Args:
             pos (int): qubits need measure.
