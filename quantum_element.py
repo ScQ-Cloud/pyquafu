@@ -4,8 +4,9 @@ from collections import Iterable
 
 class Barrier(object):
     def __init__(self, pos):
+        self.name = "barrier"
         self.__pos = pos
-    
+        
     @property
     def pos(self):
         return self.__pos

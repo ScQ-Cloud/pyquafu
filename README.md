@@ -51,4 +51,4 @@ res, obsexp = q.submit_task(test_Ising)
 E = sum(obsexp)
 ```
 ## Authors
-This project is deveploed by the quantum cloud computing team at the Beijing Academy of Quantum Information Sciences.
+This project is developed by the quantum cloud computing team at the Beijing Academy of Quantum Information Sciences.

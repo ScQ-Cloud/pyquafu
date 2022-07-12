@@ -30,10 +30,14 @@ class QuantumCircuit(object):
         self.backend = "IOP"
         self.compiler = "default"
         self.qasm = []
+        self.openqasm = ""
         self.gate_nodes = []
         self.optlist = []
         self.circuit = []
-        self.qubits = list(range(num))
+        self.qubits = list(range(num)) #default physical qubits
+        self.p2v = dict(zip(range(num), range(num))) #{physical:virtual}
+        self.v2p = dict(zip(range(num), range(num))) #{virtual:physical}
+        self.trivial_mapping = True
 
     def set_backend(self, backend):
         """
@@ -77,6 +81,12 @@ class QuantumCircuit(object):
             """
         self.compiler = compiler
     
+    def check_mapping(self):
+        self.trival_mapping = True
+        for (key, values) in self.p2v:
+            if key != values:
+                self.trival_mapping = False
+                break
 
     def layered_circuit(self):
         """
@@ -169,16 +179,16 @@ class QuantumCircuit(object):
 
         for l in range(depth):
             layergates = gateQlist[:, l]
-            maxlen = 5
+            maxlen = 3
             for i in range(num):
                 gate = layergates[i]
                 if isinstance(gate, SingleQubitGate):
                     printlist[i*2, l] = gate.name
-                    maxlen = max(maxlen, len(gate.name)+4)
+                    maxlen = max(maxlen, len(gate.name)+2)
                 elif isinstance(gate, ParaSingleQubitGate):
                     gatestr = "%s(%.3f)" %(gate.name, gate.paras)
                     printlist[i*2, l] = gatestr
-                    maxlen = max(maxlen, len(gatestr)+4)
+                    maxlen = max(maxlen, len(gatestr)+2)
                 elif isinstance(gate, TwoQubitGate):
                     q1 = min(gate.pos)
                     q2 = max(gate.pos)
@@ -190,7 +200,7 @@ class QuantumCircuit(object):
                         maxlen = max(maxlen, 5)
                         if gate.name != "CNOT":
                             printlist[q1+q2, l] = gate.name
-                            maxlen = max(maxlen, len(gate.name)+4)
+                            maxlen = max(maxlen, len(gate.name)+2)
                     else:
                         if gate.name == "SWAP":
                             printlist[gate.pos[0]*2, l] = "*"
@@ -199,7 +209,7 @@ class QuantumCircuit(object):
                             printlist[gate.pos[0]*2, l] = "#"
                             printlist[gate.pos[1]*2, l] = "#"
                             printlist[q1+q2, l] = gate.name
-                            maxlen = max(maxlen, len(gate.name)+4)                
+                            maxlen = max(maxlen, len(gate.name)+2)                
                 elif isinstance(gate, ParaTwoQubitGate):
                     q1 = min(gate.pos)
                     q2 = max(gate.pos)
@@ -211,7 +221,7 @@ class QuantumCircuit(object):
                         gatestr = ("%s(" %gate.name + ",".join(["%.3f" %para for para in gate.paras]) +")")
                     else: gatestr = "%s(%.3f)" %(gate.name, gate.paras)
                     printlist[q1+q2, l] = gatestr
-                    maxlen = max(maxlen, len(gatestr)+4)
+                    maxlen = max(maxlen, len(gatestr)+2)
 
                 elif isinstance(gate, Barrier):
                     q1 = min(gate.pos)
@@ -224,11 +234,31 @@ class QuantumCircuit(object):
         circuitstr = []
         for j in range(2*num-1):
             if j % 2 == 0:
-                circuitstr.append("".join([printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)]))
+                circuitstr.append("%d " %self.p2v[j//2] + "".join([printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)]))
             else:
-                circuitstr.append("".join([printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
+                circuitstr.append("  " + "".join([printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
         circuitstr = "\n".join(circuitstr)
         print(circuitstr)
+
+    def to_openqasm(self):
+        qasm = '''OPENQASM 2.0;\ninclude "qelib1.inc";\n'''
+        qasm += "qreg q[%d];\n" %self.num
+        for gate in self.gates:
+            if gate.name in "HXYZ":
+                qasm += "%s q[%d];\n" %(gate.name.lower(), gate.pos)
+            elif gate.name in ["Rx", "Ry", "Rz"]:
+                qasm += "%s(%s) q[%d];\n" %(gate.name.lower(), gate.paras, gate.pos)
+            elif gate.name == "CNOT":
+                qasm += "cx q[%d], q[%d];\n" %(gate.ctrl, gate.targ)
+            elif gate.name == "Cz":
+                qasm += "cz q[%d], q[%d];\n" %(gate.ctrl, gate.targ)
+            elif gate.name in ["SWAP", "iSWAP"]:
+                qasm += "%s q[%d], q[%d];\n" %(gate.name.lower(), gate.pos[0], gate.pos[1])
+            elif gate.name == "barrier":
+                qasm += "barrier " + ",".join(["q[%d]" %p for p in gate.pos]) + ";\n"; 
+                        
+        self.openqasm = qasm
+        return qasm
 
     def compile_to_qLisp(self):
         """
@@ -292,8 +322,9 @@ class QuantumCircuit(object):
                 layergate = [gate.to_IOP() for gate in gateQlist[:, l] if gate != None and not isinstance(gate, Barrier)]
                 if len(layergate) != 0:
                     totalgates.append(layergate)
-            totalgates.append(list(self.measures))
-            totalgates.append(list(range(self.num)))
+            measures_p = [self.v2p[i] for i in self.measures]
+            totalgates.append(measures_p)
+            totalgates.append(self.qubits)
             self.qasm = str(totalgates)[1:-1]
 
     def submit_task(self, obslist=[]):
@@ -404,7 +435,11 @@ class QuantumCircuit(object):
             except RuntimeError as e:
                 print(e)
         else:
-            return ExecResult(json.loads(res.text))
+            self.check_mapping()
+            if self.trivial_mapping:
+                return ExecResult(json.loads(res.text))
+            else:
+                return ExecResult(json.loads(res.text), self.p2v)
 
 
     def h(self, pos):
@@ -451,7 +486,8 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        self.gates.append(RxGate(pos, para))
+        if para != 0.:
+            self.gates.append(RxGate(pos, para))
      
     def ry(self, pos, para):
         """
@@ -461,7 +497,8 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        self.gates.append(RyGate(pos, para))
+        if para != 0.:
+            self.gates.append(RyGate(pos, para))
     
     def rz(self, pos, para):
         """
@@ -471,7 +508,8 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        self.gates.append(RzGate(pos, para))
+        if para != 0.:
+            self.gates.append(RzGate(pos, para))
     
     def cnot(self, ctrl, tar):
         """
@@ -533,6 +571,7 @@ class QuantumCircuit(object):
             shot (int): Sampling number for outcome state.
             tomo (bool): Whether do tomography.
         """
+
         self.measures = pos
         self.shots = shots
         self.tomo = tomo

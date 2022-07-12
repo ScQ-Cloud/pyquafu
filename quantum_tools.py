@@ -4,9 +4,19 @@ from functools import reduce
 import copy
 
 class ExecResult(object):
-    def __init__(self,dict):
+    def __init__(self, dict, p2v={}):
         self.measures = dict['measure']
-        self.res = dict['res']
+        if p2v:
+            self.res = dict['res']
+        else:
+            res_p = dict['res']
+            self.res = {}
+            for key in res_p:
+                new_key = ""
+                for pbit in key:
+                    new_key += str(p2v[int(pbit)])
+                self.res[new_key] = res_p[key] 
+
         self.taskid = dict['task_id']
         self.measure_base = []       
         self.basis, self.amplitudes = self.base_ampl()  
@@ -54,7 +64,6 @@ def get_ind(basis):
     biconv = 2**np.arange(len(basis))
     ind = np.dot(basis, biconv[::-1].T)
     return int(ind)
-
 
 def reduce_prob(basis, probs, bitA):
     lenrow = 2**(len(bitA))
