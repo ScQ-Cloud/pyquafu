@@ -1,6 +1,7 @@
 
 #%%--------------
 import numpy as np
+from sklearn.metrics import jaccard_score
 from quantum_circuit import QuantumCircuit
 import copy
 q = QuantumCircuit(5)
@@ -20,20 +21,32 @@ q.cz(2, 3)
 q.z(3)
 q.y(1)
 q.barrier([0, 1])
-q.iswap(0, 1)
 measures = [0, 1, 2, 3, 4]
 q.measure(measures, 1000)
 q.draw_circuit()
-q.set_backend("IOP")
-q.set_compiler("default")
-print(q.to_openqasm())
-# q.compile_to_IOP()
-# res = q.send()
-# print(q.qasm)
-# print(res.res)
+res = q.send()
+res.plot_amplitudes()
+
+#%%-------test for openqasm--------
+from quantum_circuit import QuantumCircuit
+test_ghz = """OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[4];
+h q[0];
+cx q[0],q[1];
+cx q[1],q[2];
+cx q[2],q[3];
+swap q[2],q[3];
+"""
+q = QuantumCircuit(4)
+q.from_openqasm(test_ghz)
+q.draw_circuit()
+res = q.send()
+res.plot_amplitudes()
 
 #%%----------test for submit_task----------
 import numpy as np
+from quantum_circuit import QuantumCircuit
 q = QuantumCircuit(5)
 measures = [0, 1, 2, 3, 4]
 test_Ising = [["X", [i]] for i in range(5)]
@@ -44,8 +57,9 @@ for i in range(5):
 
 q.measure(measures, 1000)
 q.draw_circuit()
-q.set_backend("IOP")
 res, obsexp = q.submit_task(test_Ising)
+res[0].plot_amplitudes()
+print(res[0].raw_res)
 E = sum(obsexp)
 print(obsexp)
 

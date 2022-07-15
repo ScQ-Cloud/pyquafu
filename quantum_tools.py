@@ -2,55 +2,52 @@
 import numpy as np
 from functools import reduce
 import copy
+import matplotlib.pyplot as plt
 
 class ExecResult(object):
-    def __init__(self, dict, p2v={}):
+    def __init__(self, dict):
         self.measures = dict['measure']
-        if p2v:
-            self.res = dict['res']
-        else:
-            res_p = dict['res']
-            self.res = {}
-            for key in res_p:
-                new_key = ""
-                for pbit in key:
-                    new_key += str(p2v[int(pbit)])
-                self.res[new_key] = res_p[key] 
-
+        self.res = dict['res']
+        self.raw_res = dict["raw"]
         self.taskid = dict['task_id']
         self.measure_base = []       
-        self.basis, self.amplitudes = self.base_ampl()  
+        self.amplitudes = self.get_amplitudes()  
 
-    def base_ampl(self):      
-        reslist = []
-        basislist = []
-
+    def get_amplitudes(self):      
+        total_counts = sum(self.res.values())
+        amplitudes = {} 
         for key in self.res:
-            reslist.append(self.res[key])
-            basislist.append(key)
-        return basislist, reslist
+            amplitudes[key] = self.res[key]/total_counts
+        
+        return amplitudes
 
     def calculate_obs(self, pos):
-        return measure_obs(self.basis, self.amplitudes, pos)
-        # return measure_obs1(pos, self.res) #measure using frequency
+        # return measure_obs(self.basis, self.amplitudes, pos)
+        return measure_obs(pos, self.res) #measure using frequency
 
-
-def reduce_probs1(bitsA, res):
+    def plot_amplitudes(self):
+        bitstrs = list(self.amplitudes.keys())
+        amps = list(self.amplitudes.values())
+        plt.bar(range(len(amps)), amps, tick_label = bitstrs)
+        plt.xticks(rotation=70)
+        plt.ylabel("amplitudes")
+         
+def reduce_probs(bitsA, res):
     """The reduced probabilities from frequency """
     dim = 2**(len(bitsA))
     probs = np.zeros(dim)
     for basestr in res:
         basis = np.array([int(i) for i in basestr])
-        ind = get_ind(basis)
+        ind = get_ind(basis[bitsA])
         probs[ind] += res[basestr]
     
     probs = probs/np.sum(probs)
     return probs
 
-def measure_obs1(bits, res):
+def measure_obs(bits, res):
     n = len(bits)
     baseobs = get_baselocal(n)
-    prob_r = reduce_probs1(bits, res)
+    prob_r = reduce_probs(bits, res)
     result = np.dot(prob_r, baseobs)
     return result
 
@@ -64,30 +61,6 @@ def get_ind(basis):
     biconv = 2**np.arange(len(basis))
     ind = np.dot(basis, biconv[::-1].T)
     return int(ind)
-
-def reduce_prob(basis, probs, bitA):
-    lenrow = 2**(len(bitA))
-    lencol = len(probs)/lenrow
-
-    mat = np.zeros((int(lenrow), int(lencol)))
-    for j in range(len(basis)):
-        base = np.array([int(i) for i in basis[j]])
-        baseA = base[bitA]
-        bitB = [i for i in range(len(base)) if i not in bitA]
-        baseB = base[bitB]
-        indA = get_ind(baseA)
-        indB = get_ind(baseB)
-        mat[indA, indB] = probs[j]
-    
-    return np.sum(mat, axis=1)
-
-
-def measure_obs(basis, probs, bits):
-    n = len(bits)
-    baseobs = get_baselocal(n)
-    prob_r = reduce_prob(basis, probs, bits)
-    result = np.dot(prob_r, baseobs)
-    return result
 
 def get_baselocal(n):
     NA = n
