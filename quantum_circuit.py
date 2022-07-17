@@ -21,24 +21,20 @@ class QuantumCircuit(object):
         Args:
             num (int): Total qubit number used
         """
-        self.num = num        
-        self.measures = [] 
+        self.num = num         
         self.shots = 1000
         self.tomo = False
         self.result = []
         self.gates = []
-        self.backend = "IOP"
+        self.backend = "ScQ-P10"
         self.compiler = "default"
         self.qasm = []
         self.openqasm = ""
         self.gate_nodes = []
         self.optlist = []
         self.circuit = []
-        self.qubits = list(range(num)) #default physical qubits
-        self.p2v = dict(zip(range(num), range(num))) #{physical:virtual}
-        self.v2p = dict(zip(range(num), range(num))) #{virtual:physical}
-        self.trivial_mapping = True
-        self.cbits = []
+        self.measures = dict(zip(range(num), range(num)))
+        self.qubits = list(range(num)) 
 
     def set_backend(self, backend):
         """
@@ -55,39 +51,6 @@ class QuantumCircuit(object):
             The backend used currently
         """
         return self.backend
-
-    # def set_compiler(self, compiler="default"):
-    #     """
-    #     Choose the compiler that convert circuit to qasm.
-
-    #     Args:
-    #         compiler (str): Complier used to generate QASM conde. 
-    #         values: 
-             
-    #          "optseq": Left just the circuit and make the layout valid for experiment device and optimized the totoal execution time. For certain layout or large scale circuit, this compiler is time cost. Considering using "default" and ajust the circuit to valid forms manually.
-
-    #          "default": Only left justed layout. You may add Barrier manually to make the circuit vaild for experiment device. You should avoid any gate
-    #             adjoint to a two-qubit gate in one layer. 
-
-    #     Example: 
-    #             q = QuantumCircuit(5)\n
-    #             q.x(0)\n
-    #             q.cnot(1, 2)\n
-    #             is not valid, you can use\n
-    #             q = QuantumCircuit(5)\n
-    #             q.barrier([0])\n
-    #             q.x(0)\n
-    #             q.cnot(1, 2)\n
-    #             This will make CNOT gate in the first layer while X gate in the second layer, which is valid for experimental device.
-    #         """
-    #     self.compiler = compiler
-    
-    def check_mapping(self):
-        self.trival_mapping = True
-        for (key, values) in self.p2v:
-            if key != values:
-                self.trival_mapping = False
-                break
 
     def layered_circuit(self):
         """
@@ -126,47 +89,6 @@ class QuantumCircuit(object):
         self.circuit = np.array(gateQlist)
         return self.circuit
 
-    # def from_qasm(self, qasm):
-    #     """
-    #     Generate layered circuit from input qasm text.
-
-    #     Args:
-    #             qasm (str): Raw qasm text for quantum device. Now only support the IOP form 
-    #     """
-    #     if self.backend == "IOP":
-    #         layer_list = eval(qasm)
-    #         depth = len(layer_list) - 2
-    #         gateQlist = np.empty((self.num, depth), dtype=QuantumGate)
-    #         gateQlist.fill(None)
-    #         for j in range(depth):
-    #             layer_gates = layer_list[j]
-    #             for layer_gate in layer_gates:
-    #                 if layer_gate[0] == "X":
-    #                     gateQlist[layer_gate[1], j] = XGate(layer_gate[1])
-    #                 elif layer_gate[0] == "Y":
-    #                     gateQlist[layer_gate[1], j] = YGate(layer_gate[1])
-    #                 elif layer_gate[0] == "Z":
-    #                     gateQlist[layer_gate[1], j] = ZGate(layer_gate[1])
-    #                 elif layer_gate[0] == "H":
-    #                     gateQlist[layer_gate[1], j] = HGate(layer_gate[1])
-    #                 elif layer_gate[0] == "Rx":
-    #                     gateQlist[layer_gate[1], j] = RxGate(layer_gate[1], layer_gate[2])
-    #                 elif layer_gate[0] == "Ry":
-    #                     gateQlist[layer_gate[1], j] = RyGate(layer_gate[1], layer_gate[2])
-    #                 elif layer_gate[0] == "Rz":
-    #                     gateQlist[layer_gate[1], j] = RzGate(layer_gate[1], layer_gate[2])
-    #                 elif layer_gate[0] == "CNOT":
-    #                     gateQlist[layer_gate[1][0], j] = CnotGate(layer_gate[1][0], layer_gate[1][1])
-    #                 elif layer_gate[0] == "Cz":
-    #                     gateQlist[layer_gate[1][0], j] = CzGate(layer_gate[1][0], layer_gate[1][1])
-    #                 elif layer_gate[0] == "iSWAP":
-    #                     gateQlist[layer_gate[1][0], j] = iSWAP([layer_gate[1][0], layer_gate[1][1]])
-    #                 elif layer_gate[0] == "SWAP":
-    #                     gateQlist[layer_gate[1][0], j] = iSWAP([layer_gate[1][0], layer_gate[1][1]])
-
-    #         self.circuit = gateQlist
-    #         self.measures = layer_list[-2]
-    #         self.qubits = layer_list[-1]
 
     def draw_circuit(self):
         """
@@ -237,17 +159,25 @@ class QuantumCircuit(object):
         circuitstr = []
         for j in range(2*num-1):
             if j % 2 == 0:
-                circuitstr.append("%d " %self.p2v[j//2] + "".join([printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)]))
+                linestr = "%d " %(j//2) + "".join([printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)])
+                if j//2 in self.measures.keys():
+                    linestr += " M->c[%d]" %self.measures[j//2]
+                circuitstr.append(linestr)
             else:
                 circuitstr.append("  " + "".join([printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
         circuitstr = "\n".join(circuitstr)
         print(circuitstr)
 
     def from_openqasm(self, openqasm):
+        """
+        Initialize the circuit from openqasm text.
+        """
+        from numpy import pi
+        import re
         self.openqasm = openqasm
         lines = self.openqasm.splitlines()
-        from numpy import pi
         self.gates = []
+        self.measures = {}
         for line in lines[2:]:
             operations_qbs = line.split(" ")
             operations = operations_qbs[0]
@@ -257,7 +187,9 @@ class QuantumCircuit(object):
             elif operations == "creg":
                 pass
             elif operations == "measure":
-                pass
+                mb = int(re.findall("\d+", operations_qbs[1])[0])
+                cb = int(re.findall("\d+", operations_qbs[3])[0])
+                self.measures[mb] = cb
             else:
                 qbs = operations_qbs[1]    
                 inds = [int(qb[2]) for qb in qbs.split(",")] 
@@ -303,9 +235,16 @@ class QuantumCircuit(object):
                         self.rz(inds[0], paras[2])
                         self.ry(inds[0], paras[0])
                         self.rz(inds[0], paras[1])
-                    
+
+        if not self.measures:
+            self.measures = dict(zip(range(self.num), range(self.num)))
 
     def to_openqasm(self):
+        """
+        Convert the circuit to openqasm text.
+        Returns: 
+            openqasm text.
+        """
         qasm = '''OPENQASM 2.0;\ninclude "qelib1.inc";\n'''
         qasm += "qreg q[%d];\n" %self.num
         # qasm += "creg meas[%d];\n" %len(self.measures)
@@ -323,90 +262,22 @@ class QuantumCircuit(object):
             elif gate.name == "barrier":
                 qasm += "barrier " + ",".join(["q[%d]" %p for p in gate.pos]) + ";\n"; 
 
-        # for j in range(len(self.measures)):
-        #     qasm += "measure q[%d] -> meas[%d];\n" %(self.measures[j], self.cbits[j])
+        # for key in self.measures:
+        #     qasm += "measure q[%d] -> meas[%d];\n" %(key, self.measures[key])
 
         self.openqasm = qasm
         return qasm
-    
    
-    # def compile_to_qLisp(self):
-    #     """
-    #     Compile the circuit to QASM that excute on BAQIS backend
-    #     """
-    #     qasm_qLisp = []
-    #     for gate in self.gates:
-    #         qasm_qLisp.append(gate.to_QLisp())
-
-    #     if not len(self.measures) == 0:
-    #         for measure_bits in self.measures:
-    #             qasm_qLisp.append((("Measure", measure_bits), "Q%d" %measure_bits))
-    #     else:
-    #         raise "No qubit measured"
-
-    #     self.qasm = qasm_qLisp
-    
-
-    # def compile_to_IOP(self):
-    #     """
-    #     Compile the circuit to QASM that execute on IOP backend
-
-    #     """
-    #     if self.compiler == "optseq":
-    #         self.gate_nodes = []
-    #         for gate in self.gates:
-    #             if not isinstance(gate, Barrier):
-    #                 self.gate_nodes.append(gate.to_nodes())
-    #         opt = OptSequence(self.num, self.gate_nodes)
-    #         opt.initial()
-    #         opt.run_opt(set(opt.zerodeg), 0, opt.deg, [])
-    #         self.optlist = opt.optlist
-    #         allstrs = []
-    #         for i in self.optlist:
-    #             m = "["
-    #             templist = []
-    #             for j in i:
-    #                 templist.append(j)
-    #             m += ','.join(templist)
-    #             m += "]"
-    #             allstrs.append(m)
-    #         totstr = ",".join(allstrs)
-    #         totstr += ",["
-    #         templist = []
-    #         for i in self.measures:
-    #             templist.append("%d" % i)
-    #         totstr += ",".join(templist)
-    #         templist = []
-    #         totstr += "],["
-    #         for i in list(range(self.num)):
-    #             templist.append("%d" % i)
-    #         totstr += ",".join(templist)
-    #         totstr += "]"
-    #         qasm_IOP = totstr
-    #         self.qasm = qasm_IOP
-
-    #     elif self.compiler == "default":
-    #         gateQlist = self.layered_circuit()
-    #         totalgates = []
-    #         for l in range(gateQlist.shape[1]):
-    #             layergate = [gate.to_IOP() for gate in gateQlist[:, l] if gate != None and not isinstance(gate, Barrier)]
-    #             if len(layergate) != 0:
-    #                 totalgates.append(layergate)
-    #         measures_p = [self.v2p[i] for i in self.measures]
-    #         totalgates.append(measures_p)
-    #         totalgates.append(self.qubits)
-    #         self.qasm = str(totalgates)[1:-1]
-
     def submit_task(self, obslist=[]):
         """
         Execute the circuit with observable expectation measurement task.
         Args:
-            obslist list(str, list[int]): List of pauli string and its position.
+            obslist (list[str, list[int]]): List of pauli string and its position.
 
         Returns: 
             List of execut results and list of measured observable
 
-        Example: 
+        Examples: 
             1) input [["XYX", [0, 1, 2]], ["Z", [1]]] measure pauli operator XYX at 0, 1, 2 qubit, and Z at 1 qubit.\n
             2) Measure 5-qubit Ising Hamiltonian we can use\n
             obslist = [["X", [i]] for i in range(5)]]\n
@@ -453,7 +324,7 @@ class QuantumCircuit(object):
         """Single run for measurement task.
 
         Args:
-            measure_base (list(str, list[int])) measure base and it position.
+            measure_base (list[str, list[int]]): measure base and it position.
         """
         if len(measure_base) == 0:
             res = self.send()
@@ -479,8 +350,8 @@ class QuantumCircuit(object):
             ExecResult object that contain the dict return from quantum device.
         """
         self.to_openqasm()
-
-        data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0, "tomo": int(self.tomo), "selected_server": 0}
+        backends = {"ScQ-P10":0, "ScQ-P20":1, "ScQ-P50":2}
+        data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0, "tomo": int(self.tomo), "selected_server": backends[self.backend]}
         url = "http://q.iphy.ac.cn/scq_submit_kit.php"
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
         data = parse.urlencode(data)
@@ -593,23 +464,24 @@ class QuantumCircuit(object):
         """
         self.gates.append(CzGate(ctrl, tar))
 
-    def fsim(self, q1 ,q2, theta, phi):
-        """
-        fSim gate.
+    # def fsim(self, q1 ,q2, theta, phi):
+    #     """
+    #     fSim gate.
         
-        Args:
-            q1, q2 (int): qubits the gate act.
-            theta (float): parameter theta in fSim. 
-            phi (float): parameter phi in fSim.
-        """
-        self.gates.append(FsimGate([q1, q2], [theta, phi]))
+    #     Args:
+    #         q1, q2 (int): qubits the gate act.
+    #         theta (float): parameter theta in fSim. 
+    #         phi (float): parameter phi in fSim.
+    #     """
+    #     self.gates.append(FsimGate([q1, q2], [theta, phi]))
     
     def swap(self, q1, q2):
         """
         SWAP gate
         
         Args:
-            q1, q2 (int): qubits the gate act
+            q1 (int): qubit the gate act.
+            q2 (int): qubit the gate act.
         """
         self.gates.append(SWAP([q1, q2]))
 
@@ -627,9 +499,7 @@ class QuantumCircuit(object):
         Add barrier for qubits in qlist.
         
         Args:
-            qlist (list(int)): A list contain the qubit need add barrier. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using\n
-            barrier([0])\n
-            barrier([2]) \n
+            qlist (list[int]): A list contain the qubit need add barrier. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
         """
         self.gates.append(Barrier(qlist))
 
@@ -639,18 +509,15 @@ class QuantumCircuit(object):
         
         Args:
             pos (int): qubits need measure.
-            shot (int): Sampling number for outcome state.
+            shots (int): Sampling number for outcome state.
             tomo (bool): Whether do tomography.
         """
 
-        self.measures = pos
+        self.measures = dict(zip(pos, range(len(pos))))
         self.shots = shots
         self.tomo = tomo
         if cbits:
-            if len(cbits) ==  self.measures:
-                self.cbits = cbits
+            if len(cbits) ==  len(self.measures):
+                self.measures = dict(zip(pos, cbits))
             else:
-                raise ("Number of measured bits should equal to the number of classical bit")
-        else:
-            self.cbits = list(range(len(self.measures)))
-    
+                raise ValueError("Number of measured bits should equal to the number of classical bits")

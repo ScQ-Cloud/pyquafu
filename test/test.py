@@ -1,7 +1,7 @@
 
+
 #%%--------------
 import numpy as np
-from sklearn.metrics import jaccard_score
 from quantum_circuit import QuantumCircuit
 import copy
 q = QuantumCircuit(5)
@@ -31,14 +31,12 @@ res.plot_amplitudes()
 from quantum_circuit import QuantumCircuit
 test_ghz = """OPENQASM 2.0;
 include "qelib1.inc";
-qreg q[4];
+qreg q[3];
 h q[0];
-cx q[0],q[1];
-cx q[1],q[2];
-cx q[2],q[3];
-swap q[2],q[3];
+cx q[0],q[2];
 """
-q = QuantumCircuit(4)
+
+q = QuantumCircuit(3)
 q.from_openqasm(test_ghz)
 q.draw_circuit()
 res = q.send()

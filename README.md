@@ -29,7 +29,7 @@ q.rz(3, 0.1)
 q.cz(2, 3)
 measures = [0, 1, 2, 3, 4]
 q.measure(measures, 1000)
-q.set_backend("IOP")
+q.set_backend("ScQ-P10")
 res = q.send()
 res.plot_amplitudes()
 ```

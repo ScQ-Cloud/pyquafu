@@ -10,6 +10,10 @@ class ExecResult(object):
         self.res = dict['res']
         self.raw_res = dict["raw"]
         self.taskid = dict['task_id']
+        self.transpiled_openqasm = dict["openqasm"]
+        from quantum_circuit import QuantumCircuit
+        self.transpiled_circuit = QuantumCircuit(0)
+        self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []       
         self.amplitudes = self.get_amplitudes()  
 
@@ -28,6 +32,7 @@ class ExecResult(object):
     def plot_amplitudes(self):
         bitstrs = list(self.amplitudes.keys())
         amps = list(self.amplitudes.values())
+        plt.figure()
         plt.bar(range(len(amps)), amps, tick_label = bitstrs)
         plt.xticks(rotation=70)
         plt.ylabel("amplitudes")
