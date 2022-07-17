@@ -6,3 +6,4 @@
 *.pyc
 .DS_Store
 >>>>>>> 53baf69dcc9cc8261f836123fd59a62ed3994e40
+*.ipynb
