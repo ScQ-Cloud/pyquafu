@@ -7,3 +7,5 @@
 *.pyc
 .DS_Store
 >>>>>>> 53baf69dcc9cc8261f836123fd59a62ed3994e40
+test_scq_p50.ipynb
+.ipynb_checkpoints/test_scq_p50-checkpoint.ipynb
