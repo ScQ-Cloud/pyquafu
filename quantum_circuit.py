@@ -194,7 +194,7 @@ class QuantumCircuit(object):
             operations = operations_qbs[0]
             if operations == "qreg":
                 qbs = operations_qbs[1]
-                self.num = int(qbs[2])
+                self.num = int(re.findall("\d+", qbs)[0])
             elif operations == "creg":
                 pass
             elif operations == "measure":
@@ -203,7 +203,8 @@ class QuantumCircuit(object):
                 self.measures[mb] = cb
             else:
                 qbs = operations_qbs[1]    
-                inds = [int(qb[2]) for qb in qbs.split(",")] 
+                indstr = re.findall("\d+", qbs)
+                inds = [int(indst) for indst in indstr]  
                 
                 if operations == "barrier":
                     self.barrier(inds)
