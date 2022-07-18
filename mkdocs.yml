@@ -1,0 +1,4 @@
+site_name: Scq Docs
+plugins:
+        - mkdocstrings
+

@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 *.pyc
 .DS_Store
+.yml
 =======
 
 *.pyc
