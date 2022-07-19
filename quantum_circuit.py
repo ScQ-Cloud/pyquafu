@@ -247,7 +247,7 @@ class QuantumCircuit(object):
         """
         qasm = '''OPENQASM 2.0;\ninclude "qelib1.inc";\n'''
         qasm += "qreg q[%d];\n" %self.num
-        # qasm += "creg meas[%d];\n" %len(self.measures)
+        qasm += "creg c[%d];\n" %len(self.measures)
         for gate in self.gates:
             if gate.name in "HXYZ":
                 qasm += "%s q[%d];\n" %(gate.name.lower(), gate.pos)
@@ -262,8 +262,8 @@ class QuantumCircuit(object):
             elif gate.name == "barrier":
                 qasm += "barrier " + ",".join(["q[%d]" %p for p in gate.pos]) + ";\n"; 
 
-        # for key in self.measures:
-        #     qasm += "measure q[%d] -> meas[%d];\n" %(key, self.measures[key])
+        for key in self.measures:
+            qasm += "measure q[%d] -> c[%d];\n" %(key, self.measures[key])
 
         self.openqasm = qasm
         return qasm
