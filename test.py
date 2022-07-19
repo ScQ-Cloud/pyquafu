@@ -14,14 +14,8 @@ q.draw_circuit()
 q.set_backend("ScQ-P20")
 res = q.send()
 res.plot_amplitudes()
-# q1 = QuantumCircuit(1)
-# q1.from_openqasm(q.to_openqasm())
-# q1.draw_circuit()
-# t1 = time.time()
-# res = q._simulate('prob')
-# t2 = time.time()
-# print(t2 - t1)
-# print(res)
+# simu_res = q._simulate('prob')
+# print(simu_res)
 
 #%%--------------
 import numpy as np

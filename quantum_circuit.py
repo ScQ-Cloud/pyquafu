@@ -553,7 +553,7 @@ class QuantumCircuit(object):
     def _simulate(self, result_type='prob'):
         num = self.num
         assert num < 11
-        measures = self.measures.keys()
+        measures = list(self.measures.keys())
         psi = qutip.basis([2] * num, [0] * num)
         psi = self._operator() * psi
         rho = qutip.ptrace(psi, measures)
