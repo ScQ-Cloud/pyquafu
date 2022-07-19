@@ -393,6 +393,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         self.gates.append(HGate(pos))
+        return self
 
     def x(self, pos):
         """
@@ -402,6 +403,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         self.gates.append(XGate(pos))
+        return self
 
     def y(self, pos):
         """
@@ -411,6 +413,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         self.gates.append(YGate(pos))
+        return self
 
     def z(self, pos):
         """
@@ -420,6 +423,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         self.gates.append(ZGate(pos))
+        return self
 
     def rx(self, pos, para):
         """
@@ -431,6 +435,7 @@ class QuantumCircuit(object):
         """
         if para != 0.:
             self.gates.append(RXGate(pos, para))
+        return self
 
     def ry(self, pos, para):
         """
@@ -442,6 +447,7 @@ class QuantumCircuit(object):
         """
         if para != 0.:
             self.gates.append(RYGate(pos, para))
+        return self
 
     def rz(self, pos, para):
         """
@@ -453,6 +459,7 @@ class QuantumCircuit(object):
         """
         if para != 0.:
             self.gates.append(RZGate(pos, para))
+        return self
 
     def cnot(self, ctrl, tar):
         """
@@ -463,6 +470,7 @@ class QuantumCircuit(object):
             tar (int): target qubit.
         """
         self.gates.append(CXGate([ctrl, tar]))
+        return self
 
     def cy(self, ctrl, tar):
         """
@@ -473,6 +481,7 @@ class QuantumCircuit(object):
             tar (int): target qubit.
         """
         self.gates.append(CYGate([ctrl, tar]))
+        return self
 
     def cz(self, ctrl, tar):
         """
@@ -483,6 +492,7 @@ class QuantumCircuit(object):
             tar (int): target qubit.
         """
         self.gates.append(CZGate([ctrl, tar]))
+        return self
 
     # def fsim(self, q1, q2, theta, phi):
     #     """
@@ -504,7 +514,7 @@ class QuantumCircuit(object):
             q2 (int): qubit the gate act.
         """
         self.gates.append(SwapGate([q1, q2]))
-
+        return self
     # def iswap(self, q1, q2):
     #     """
     #     iSWAP gate
@@ -522,7 +532,8 @@ class QuantumCircuit(object):
             qlist (list[int]): A list contain the qubit need add barrier. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
         """
         self.gates.append(Barrier(qlist))
-
+        return self
+        
     def measure(self, pos, shots, cbits=[], tomo=False):
         """
         Measurement setting for experiment device.
