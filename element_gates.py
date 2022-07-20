@@ -87,17 +87,25 @@ class ZGate(FixedSingleQubitGate):
 class RXGate(ParaSingleQubitGate):
     def __init__(self, pos: int, paras):
         super().__init__("RX", pos, paras, matrix=_rxmatrix)
-
-
+    
+    def to_QLisp(self):
+        return (("Rx", self.paras), "Q%d" % self.pos)
+    
 class RYGate(ParaSingleQubitGate):
     def __init__(self, pos: int, paras):
         super().__init__("RY", pos, paras, matrix=_rymatrix)
 
+    def to_QLisp(self):
+        return (("Ry", self.paras), "Q%d" % self.pos)
+    
 
 class RZGate(ParaSingleQubitGate):
     def __init__(self, pos: int, paras):
         super().__init__("RZ", pos, paras, matrix=_rzmatrix)
 
+    def to_QLisp(self):
+        return (("Rz", self.paras), "Q%d" % self.pos)
+    
 
 class iSwapGate(FixedTwoQubitGate):
     def __init__(self, pos: [int, int]):
@@ -135,6 +143,8 @@ class CXGate(ControlGate):
     def __init__(self, pos: [int, int]):
         super().__init__("CX", pos[0], pos[1], matrix=_cxmatrix(reverse=bool(pos[0] > pos[1])))
 
+    def to_QLisp(self):
+        return ("Cnot", ("Q%d" % self.ctrl, "Q%d" % self.targ))
 
 class CYGate(ControlGate):
     def __init__(self, pos: [int, int]):

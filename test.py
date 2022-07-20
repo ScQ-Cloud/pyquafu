@@ -29,7 +29,7 @@ for i in range(5):
 
 q.barrier([0])
 q.cnot(2, 1)
-# q.cnot(2, 4)
+q.cnot(2, 4)
 q.h(0)
 q.ry(1, np.pi/2)
 q.rx(2, np.pi)
@@ -39,10 +39,12 @@ q.z(3)
 q.y(1)
 q.barrier([0, 1])
 measures = [0, 1, 2, 3, 4]
-q.measure(measures, 1000)
+cbits = [2, 0, 1, 3, 4]
+q.measure(measures, 1000, cbits=cbits)
 q.draw_circuit()
-res = q.send()
-res.plot_amplitudes()
+print(q.to_qLisp())
+# res = q.send()
+# res.plot_amplitudes()
 
 #%%-------test for openqasm--------
 from quantum_circuit import QuantumCircuit

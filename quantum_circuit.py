@@ -55,13 +55,6 @@ class QuantumCircuit(object):
         return self.backend
 
 
-    def check_mapping(self):
-        self.trival_mapping = True
-        for (key, values) in self.p2v:
-            if key != values:
-                self.trival_mapping = False
-                break
-
     def layered_circuit(self):
         """
         Make layered circuit from the gate sequence self.gates.
@@ -533,7 +526,7 @@ class QuantumCircuit(object):
         """
         self.gates.append(Barrier(qlist))
         return self
-        
+
     def measure(self, pos, shots, cbits=[], tomo=False):
         """
         Measurement setting for experiment device.
