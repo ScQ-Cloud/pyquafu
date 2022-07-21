@@ -25,18 +25,12 @@ class QuantumCircuit(object):
         self.num = num
         self.shots = 1000
         self.tomo = False
-        self.result = []
         self.gates = []
         self.backend = "ScQ-P10"
-        self.compiler = "default"
-        self.qasm = []
         self.openqasm = ""
-        self.gate_nodes = []
-        self.optlist = []
         self.circuit = []
         self.measures = dict(zip(range(num), range(num)))
-        self.qubits = list(range(num))  # default physical qubits
-
+        self._compiled = False
 
     def set_backend(self, backend):
         """
@@ -65,19 +59,27 @@ class QuantumCircuit(object):
         num = self.num
         gatelist = self.gates
         gateQlist = [[] for i in range(num)]
+        used_qubits = []
         for gate in gatelist:
             if isinstance(gate, SingleQubitGate):
                 gateQlist[gate.pos].append(gate)
-
+                if gate.pos not in used_qubits:
+                    used_qubits.append(gate.pos)
+            
             elif isinstance(gate, Barrier) or isinstance(gate, TwoQubitGate):
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
                 gateQlist[pos1].append(gate)
                 for j in range(pos1 + 1, pos2 + 1):
                     gateQlist[j].append(None)
+              
+                if isinstance(gate, TwoQubitGate):
+                    for pos in gate.pos:
+                        if pos not in used_qubits:
+                            used_qubits.append(pos)
 
-                maxlayer = max([len(gateQlist[j]) for j in gate.pos])
-                for j in gate.pos:
+                maxlayer = max([len(gateQlist[j]) for j in range(pos1, pos2+1)])
+                for j in range(pos1, pos2+1):
                     layerj = len(gateQlist[j])
                     pos = layerj - 1
                     if not layerj == maxlayer:
@@ -85,10 +87,24 @@ class QuantumCircuit(object):
                             gateQlist[j].insert(pos, None)
 
         maxdepth = max([len(gateQlist[i]) for i in range(num)])
+
         for gates in gateQlist:
             gates.extend([None] * (maxdepth - len(gates)))
 
-        self.circuit = np.array(gateQlist)
+        for m in self.measures.keys():
+            if m not in used_qubits:
+                used_qubits.append(m)
+        used_qubits = np.sort(used_qubits)
+
+        new_gateQlist = []
+        for old_qi in range(len(gateQlist)):
+            gates = gateQlist[old_qi]
+            if old_qi in used_qubits:
+                new_gateQlist.append(gates)
+        
+        lc = np.array(new_gateQlist)
+        lc = np.vstack((used_qubits, lc.T)).T
+        self.circuit = lc
         return self.circuit
 
 
@@ -96,16 +112,16 @@ class QuantumCircuit(object):
         """
         Draw layered circuit using ASCII, print in terminal.
         """
-        if len(self.circuit) == 0:
-            self.layered_circuit()
-
+        self.layered_circuit()
         gateQlist = self.circuit
         num = gateQlist.shape[0]
-        depth = gateQlist.shape[1]
+        depth = gateQlist.shape[1] - 1
         printlist = np.array([[""] * depth for i in range(2 * num)], dtype="<U30")
 
+        reduce_map = dict(zip(gateQlist[:, 0], range(num)))
+        reduce_map_inv  = dict(zip(range(num), gateQlist[:, 0]))
         for l in range(depth):
-            layergates = gateQlist[:, l]
+            layergates = gateQlist[:, l+1]
             maxlen = 3
             for i in range(num):
                 gate = layergates[i]
@@ -117,12 +133,12 @@ class QuantumCircuit(object):
                     printlist[i * 2, l] = gatestr
                     maxlen = max(maxlen, len(gatestr) + 2)
                 elif isinstance(gate, FixedTwoQubitGate):
-                    q1 = min(gate.pos)
-                    q2 = max(gate.pos)
+                    q1 = reduce_map[min(gate.pos)]
+                    q2 = reduce_map[max(gate.pos)]
                     printlist[2 * q1 + 1:2 * q2, l] = "|"
                     if isinstance(gate, ControlGate):
-                        printlist[gate.ctrl * 2, l] = "*"
-                        printlist[gate.targ * 2, l] = "+"
+                        printlist[reduce_map[gate.ctrl] * 2, l] = "*"
+                        printlist[reduce_map[gate.targ] * 2, l] = "+"
 
                         maxlen = max(maxlen, 5)
                         if gate.name not in ["CNOT", "CX"] :
@@ -130,19 +146,19 @@ class QuantumCircuit(object):
                             maxlen = max(maxlen, len(gate.name) + 2)
                     else:
                         if gate.name == "SWAP":
-                            printlist[gate.pos[0] * 2, l] = "*"
-                            printlist[gate.pos[1] * 2, l] = "*"
+                            printlist[reduce_map[gate.pos[0]] * 2, l] = "*"
+                            printlist[reduce_map[gate.pos[1]] * 2, l] = "*"
                         else:
-                            printlist[gate.pos[0] * 2, l] = "#"
-                            printlist[gate.pos[1] * 2, l] = "#"
+                            printlist[reduce_map[gate.pos[0]] * 2, l] = "#"
+                            printlist[reduce_map[gate.pos[1]] * 2, l] = "#"
                             printlist[q1 + q2, l] = gate.name
                             maxlen = max(maxlen, len(gate.name) + 2)
                 elif isinstance(gate, ParaTwoQubitGate):
-                    q1 = min(gate.pos)
-                    q2 = max(gate.pos)
+                    q1 = reduce_map(min(gate.pos))
+                    q2 = reduce_map(max(gate.pos))
                     printlist[2 * q1 + 1:2 * q2, l] = "|"
-                    printlist[gate.pos[0] * 2, l] = "#"
-                    printlist[gate.pos[1] * 2, l] = "#"
+                    printlist[reduce_map[gate.pos[0]] * 2, l] = "#"
+                    printlist[reduce_map[gate.pos[1]] * 2, l] = "#"
                     gatestr = ""
                     if isinstance(gate.paras, Iterable):
                         gatestr = ("%s(" % gate.name + ",".join(
@@ -153,8 +169,9 @@ class QuantumCircuit(object):
                     maxlen = max(maxlen, len(gatestr) + 2)
 
                 elif isinstance(gate, Barrier):
-                    q1 = min(gate.pos)
-                    q2 = max(gate.pos)
+                    pos = [i for i in gate.pos if i in reduce_map.keys()]
+                    q1 = reduce_map[min(pos)]
+                    q2 = reduce_map[max(pos)]
                     printlist[2 * q1:2 * q2 + 1, l] = "||"
                     maxlen = max(maxlen, len("||"))
 
@@ -163,19 +180,20 @@ class QuantumCircuit(object):
         circuitstr = []
         for j in range(2 * num - 1):
             if j % 2 == 0:
-                linestr = "%d " %(j//2) + "".join([printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)])
-                if j//2 in self.measures.keys():
-                    linestr += " M->c[%d]" %self.measures[j//2]
+                linestr = ("q[%d]" %(reduce_map_inv[j//2])).ljust(6) + "".join([printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)])
+                if reduce_map_inv[j//2] in self.measures.keys():
+                    linestr += " M->c[%d]" %self.measures[reduce_map_inv[j//2]]
                 circuitstr.append(linestr)
             else:
-                circuitstr.append("  " + "".join([printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
+                circuitstr.append("".ljust(6) + "".join([printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
         circuitstr = "\n".join(circuitstr)
         print(circuitstr)
 
-    def from_openqasm(self, openqasm):
+    def from_openqasm(self, openqasm, compiled=False):
         """
         Initialize the circuit from openqasm text.
         """
+        self._compiled = compiled
         from numpy import pi
         import re
         self.openqasm = openqasm
@@ -355,7 +373,7 @@ class QuantumCircuit(object):
         """
         self.to_openqasm()
         backends = {"ScQ-P10":0, "ScQ-P20":1, "ScQ-P50":2}
-        data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0, "tomo": int(self.tomo), "selected_server": backends[self.backend]}
+        data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0, "tomo": int(self.tomo), "selected_server": backends[self.backend], "compiled" : int(self._compiled)}
         url = "http://q.iphy.ac.cn/scq_submit_kit.php"
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
         data = parse.urlencode(data)
