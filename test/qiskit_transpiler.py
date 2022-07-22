@@ -11,25 +11,36 @@ n = 5
 couplings = [list(range(n)[i:i+2]) for i in range(n-1)]
 couplings.extend([list(range(n)[i:i+2])[::-1] for i in range(n-1)])
 qc = QuantumCircuit(5)
-qc.h(0)
+# qc.h(0)
 # qc.h(3)     
 # qc.h(4)
-qc.cx(0, 2)
+# qc.cx(0, 2)
 # qc.cx(1, 3)
 # qc.barrier([1, 2])
 # # qc.cx(1, 2)
 # qc.x(1)
 # qc.y(2)
 # qc.rz(0.1, 3)
-# qc.iswap(3, 4)
+
+test = """OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[3];
+creg c[3];
+h q[0];
+h q[1];
+measure q[0] -> c[1];
+measure q[1] -> c[2];
+cx q[0],q[2];
+"""
+
+qc = QuantumCircuit.from_qasm_str(test)
+qc.draw("mpl")
 # qc.h(3)
-qc.measure_all()
 trans_circ = transpile(qc,  backend, coupling_map=couplings, optimization_level=3)
 # qc.x(4)
 # qc.cx(3, 2)
 # qc.cx(2, 3)
 print(qc.qasm())
-
 print(trans_circ._layout)
 trans_circ.draw("mpl")
 # circ = trans_circ.draw("mpl")

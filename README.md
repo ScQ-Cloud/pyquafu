@@ -3,9 +3,19 @@
 Python toolkit for submitting quantum circuits on the superconducting quantum computing cloud [ScQ.Cloud](http://q.iphy.ac.cn/). 
 
 
+
+
 ## Introduction
 
 ScQkit is developed for the users of [ScQ.Cloud](http://q.iphy.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use ScQKit to interact with different quantum backends provides by the experimental group of [ScQ.Cloud](http://q.iphy.ac.cn/). 
+
+## Installation
+```shell
+git clone https://github.com/ScQ-Cloud/scqkit
+python setup.py install
+```
+
+
 
 ## Examples
 
