@@ -27,6 +27,7 @@ class QuantumCircuit(object):
         self.circuit = []
         self.measures = dict(zip(range(num), range(num)))
         self._compiled = False
+        self.used_qubits =  []
 
     def set_backend(self, backend):
         """
@@ -44,6 +45,9 @@ class QuantumCircuit(object):
         """
         return self.backend
 
+    def get_used_qubits(self):
+        self.layered_circuit()
+        return self.used_qubits
 
     def layered_circuit(self):
         """
@@ -101,6 +105,7 @@ class QuantumCircuit(object):
         lc = np.array(new_gateQlist)
         lc = np.vstack((used_qubits, lc.T)).T
         self.circuit = lc
+        self.used_qubits = used_qubits
         return self.circuit
 
 
