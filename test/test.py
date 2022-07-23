@@ -4,7 +4,7 @@ import numpy as np
 from scqkit.quantum_circuit import QuantumCircuit
 import copy
 import time
-q = QuantumCircuit(2)
+q = QuantumCircuit(5)
 q.h(0)
 q.cnot(0, 1)
 q.measure([0, 1], shots=1000, tomo=False)
@@ -13,10 +13,6 @@ q.draw_circuit()
 q.set_backend("ScQ-P10")
 res = q.send()
 res.plot_amplitudes()
-# simu_res = q._simulate('prob')
-# print(simu_res)
-# res.transpiled_circuit.draw_circuit()
-# print(res.transpiled_openqasm)
 
 
 #%%--------------

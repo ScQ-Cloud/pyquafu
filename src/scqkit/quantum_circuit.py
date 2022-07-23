@@ -27,7 +27,7 @@ class QuantumCircuit(object):
         self.circuit = []
         self.measures = dict(zip(range(num), range(num)))
         self._compiled = False
-        self.used_qubits =  []
+        self.used_qubits = []
 
     def set_backend(self, backend):
         """
@@ -65,21 +65,21 @@ class QuantumCircuit(object):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
-            
+
             elif isinstance(gate, Barrier) or isinstance(gate, TwoQubitGate):
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
                 gateQlist[pos1].append(gate)
                 for j in range(pos1 + 1, pos2 + 1):
                     gateQlist[j].append(None)
-              
+
                 if isinstance(gate, TwoQubitGate):
                     for pos in gate.pos:
                         if pos not in used_qubits:
                             used_qubits.append(pos)
 
-                maxlayer = max([len(gateQlist[j]) for j in range(pos1, pos2+1)])
-                for j in range(pos1, pos2+1):
+                maxlayer = max([len(gateQlist[j]) for j in range(pos1, pos2 + 1)])
+                for j in range(pos1, pos2 + 1):
                     layerj = len(gateQlist[j])
                     pos = layerj - 1
                     if not layerj == maxlayer:
@@ -101,13 +101,12 @@ class QuantumCircuit(object):
             gates = gateQlist[old_qi]
             if old_qi in used_qubits:
                 new_gateQlist.append(gates)
-        
+
         lc = np.array(new_gateQlist)
         lc = np.vstack((used_qubits, lc.T)).T
         self.circuit = lc
-        self.used_qubits = used_qubits
+        self.used_qubits = list(used_qubits)
         return self.circuit
-
 
     def draw_circuit(self):
         """
@@ -120,9 +119,9 @@ class QuantumCircuit(object):
         printlist = np.array([[""] * depth for i in range(2 * num)], dtype="<U30")
 
         reduce_map = dict(zip(gateQlist[:, 0], range(num)))
-        reduce_map_inv  = dict(zip(range(num), gateQlist[:, 0]))
+        reduce_map_inv = dict(zip(range(num), gateQlist[:, 0]))
         for l in range(depth):
-            layergates = gateQlist[:, l+1]
+            layergates = gateQlist[:, l + 1]
             maxlen = 3
             for i in range(num):
                 gate = layergates[i]
@@ -142,7 +141,7 @@ class QuantumCircuit(object):
                         printlist[reduce_map[gate.targ] * 2, l] = "+"
 
                         maxlen = max(maxlen, 5)
-                        if gate.name not in ["CNOT", "CX"] :
+                        if gate.name not in ["CNOT", "CX"]:
                             printlist[q1 + q2, l] = gate.name
                             maxlen = max(maxlen, len(gate.name) + 2)
                     else:
@@ -181,12 +180,14 @@ class QuantumCircuit(object):
         circuitstr = []
         for j in range(2 * num - 1):
             if j % 2 == 0:
-                linestr = ("q[%d]" %(reduce_map_inv[j//2])).ljust(6) + "".join([printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)])
-                if reduce_map_inv[j//2] in self.measures.keys():
-                    linestr += " M->c[%d]" %self.measures[reduce_map_inv[j//2]]
+                linestr = ("q[%d]" % (reduce_map_inv[j // 2])).ljust(6) + "".join(
+                    [printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)])
+                if reduce_map_inv[j // 2] in self.measures.keys():
+                    linestr += " M->c[%d]" % self.measures[reduce_map_inv[j // 2]]
                 circuitstr.append(linestr)
             else:
-                circuitstr.append("".ljust(6) + "".join([printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
+                circuitstr.append("".ljust(6) + "".join(
+                    [printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
         circuitstr = "\n".join(circuitstr)
         print(circuitstr)
 
@@ -217,9 +218,9 @@ class QuantumCircuit(object):
                 self.measures[mb] = cb
                 measured_qubits.append(mb)
             else:
-                qbs = operations_qbs[1]    
+                qbs = operations_qbs[1]
                 indstr = re.findall("\d+", qbs)
-                inds = [int(indst) for indst in indstr]  
+                inds = [int(indst) for indst in indstr]
                 valid = True
                 for pos in inds:
                     if pos in measured_qubits:
@@ -230,15 +231,15 @@ class QuantumCircuit(object):
                 if valid:
                     if operations == "barrier":
                         self.barrier(inds)
-                    
+
                     else:
                         sp_op = operations.split("(")
                         gatename = sp_op[0]
                         if len(sp_op) > 1:
                             paras = sp_op[1].strip("()")
                             parastr = paras.split(",")
-                            paras = [eval(parai, {"pi":pi}) for parai in parastr]
-                            
+                            paras = [eval(parai, {"pi": pi}) for parai in parastr]
+
                         if gatename == "cx":
                             self.cnot(inds[0], inds[1])
                         elif gatename == "cy":
@@ -265,14 +266,15 @@ class QuantumCircuit(object):
                             self.rz(inds[0], paras[0])
                         elif gatename == "u2":
                             self.rz(inds[0], paras[1])
-                            self.ry(inds[0], pi/2)
+                            self.ry(inds[0], pi / 2)
                             self.rz(inds[0], paras[0])
                         elif gatename == "u3":
                             self.rz(inds[0], paras[2])
                             self.ry(inds[0], paras[0])
                             self.rz(inds[0], paras[1])
                         else:
-                            print("Operations %s may be not supported by QuantumCircuit class currently." %gatename)
+                            print(
+                                "Operations %s may be not supported by QuantumCircuit class currently." % gatename)
 
         if not self.measures:
             self.measures = dict(zip(range(self.num), range(self.num)))
@@ -287,7 +289,7 @@ class QuantumCircuit(object):
         """
         qasm = '''OPENQASM 2.0;\ninclude "qelib1.inc";\n'''
         qasm += "qreg q[%d];\n" % self.num
-        qasm += "creg meas[%d];\n" %len(self.measures)
+        qasm += "creg meas[%d];\n" % len(self.measures)
         for gate in self.gates:
             if isinstance(gate, FixedSingleQubitGate):
                 qasm += "%s q[%d];\n" % (gate.name.lower(), gate.pos)
@@ -299,11 +301,10 @@ class QuantumCircuit(object):
                 qasm += "barrier " + ",".join(["q[%d]" % p for p in gate.pos]) + ";\n"
 
         for key in self.measures:
-            qasm += "measure q[%d] -> meas[%d];\n" %(key, self.measures[key])
+            qasm += "measure q[%d] -> meas[%d];\n" % (key, self.measures[key])
 
         self.openqasm = qasm
         return qasm
-
 
     def submit_task(self, obslist=[]):
         """
@@ -385,15 +386,17 @@ class QuantumCircuit(object):
             ExecResult object that contain the dict return from quantum device.
         """
         self.to_openqasm()
-        backends = {"ScQ-P10":0, "ScQ-P20":1, "ScQ-P50":2}
-        data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0, "tomo": int(self.tomo), "selected_server": backends[self.backend], "compiled" : int(self._compiled)}
+        backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2}
+        data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0,
+                "tomo": int(self.tomo), "selected_server": backends[self.backend],
+                "compiled": int(self._compiled)}
         url = "http://q.iphy.ac.cn/scq_submit_kit.php"
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
         # data = data.replace("+", "")
         # data = data.replace("%20", " ")
-        res = requests.post(url, headers = headers, data = data)
+        res = requests.post(url, headers=headers, data=data)
 
         if res.json()["stat"] == 5002:
             try:
@@ -409,7 +412,7 @@ class QuantumCircuit(object):
         else:
             return ExecResult(json.loads(res.text), self.measures)
 
-    def h(self, pos):
+    def h(self, pos: int):
         """
         Hadamard gate.
 
@@ -419,7 +422,7 @@ class QuantumCircuit(object):
         self.gates.append(HGate(pos))
         return self
 
-    def x(self, pos):
+    def x(self, pos: int):
         """
         X gate.
 
@@ -429,7 +432,7 @@ class QuantumCircuit(object):
         self.gates.append(XGate(pos))
         return self
 
-    def y(self, pos):
+    def y(self, pos: int):
         """
         Y gate.
 
@@ -439,7 +442,7 @@ class QuantumCircuit(object):
         self.gates.append(YGate(pos))
         return self
 
-    def z(self, pos):
+    def z(self, pos: int):
         """
         Z gate.
 
@@ -449,7 +452,7 @@ class QuantumCircuit(object):
         self.gates.append(ZGate(pos))
         return self
 
-    def rx(self, pos, para):
+    def rx(self, pos: int, para):
         """
         Single qubit rotation Rx gate.
 
@@ -461,7 +464,7 @@ class QuantumCircuit(object):
             self.gates.append(RXGate(pos, para))
         return self
 
-    def ry(self, pos, para):
+    def ry(self, pos: int, para):
         """
         Single qubit rotation Ry gate.
         
@@ -473,7 +476,7 @@ class QuantumCircuit(object):
             self.gates.append(RYGate(pos, para))
         return self
 
-    def rz(self, pos, para):
+    def rz(self, pos: int, para):
         """
         Single qubit rotation Rz gate.
         
@@ -485,7 +488,7 @@ class QuantumCircuit(object):
             self.gates.append(RZGate(pos, para))
         return self
 
-    def cnot(self, ctrl, tar):
+    def cnot(self, ctrl: int, tar: int):
         """
         CNOT gate.
         
@@ -496,7 +499,7 @@ class QuantumCircuit(object):
         self.gates.append(CXGate([ctrl, tar]))
         return self
 
-    def cy(self, ctrl, tar):
+    def cy(self, ctrl: int, tar: int):
         """
         CY gate.
 
@@ -507,7 +510,7 @@ class QuantumCircuit(object):
         self.gates.append(CYGate([ctrl, tar]))
         return self
 
-    def cz(self, ctrl, tar):
+    def cz(self, ctrl: int, tar: int):
         """
         CZ gate.
         
@@ -521,7 +524,7 @@ class QuantumCircuit(object):
     # def fsim(self, q1, q2, theta, phi):
     #     """
     #     fSim gate.
-        
+
     #     Args:
     #         q1, q2 (int): qubits the gate act.
     #         theta (float): parameter theta in fSim. 
@@ -529,7 +532,7 @@ class QuantumCircuit(object):
     #     """
     #     self.gates.append(FsimGate([q1, q2], [theta, phi]))
 
-    def swap(self, q1, q2):
+    def swap(self, q1: int, q2: int):
         """
         SWAP gate
         
@@ -540,7 +543,7 @@ class QuantumCircuit(object):
         self.gates.append(SwapGate([q1, q2]))
         return self
 
-    def barrier(self, qlist):
+    def barrier(self, qlist: List[int]):
         """
         Add barrier for qubits in qlist.
         
@@ -550,7 +553,7 @@ class QuantumCircuit(object):
         self.gates.append(Barrier(qlist))
         return self
 
-    def measure(self, pos, shots, cbits=[], tomo=False):
+    def measure(self, pos, shots: int = 1000, cbits: List[int] = [], tomo: bool = False):
         """
         Measurement setting for experiment device.
         
@@ -564,33 +567,43 @@ class QuantumCircuit(object):
         self.shots = shots
         self.tomo = tomo
         if cbits:
-            if len(cbits) ==  len(self.measures):
+            if len(cbits) == len(self.measures):
                 self.measures = dict(zip(pos, cbits))
             else:
                 raise ValueError("Number of measured bits should equal to the number of classical bits")
 
     def _operator(self):
-        num = self.num
-        assert num < 11
+        used_qubits = self.get_used_qubits()
+        num = len(used_qubits)
+        assert num <= 12
         oper = qutip.qeye([2] * num)
         for gate in self.gates:
-            oper = gate._operator(num) * oper
+            oper = gate._operator(used_qubits) * oper
         return oper
 
-    def _simulate(self, result_type='prob'):
-        num = self.num
-        assert num < 11
-        measures = list(self.measures.keys())
-        psi = qutip.basis([2] * num, [0] * num)
+    def _simulate(self, result_type: str = 'prob', state_ini: np.ndarray = None):
+        oper = self._operator()
+        used_qubits = self.used_qubits
+        num = len(used_qubits)
+        measures = np.array([[k, v] for k, v in self.measures.items()], dtype=int).T
+        measures = measures[:, measures[1, :].argsort()][0]
+        measures = [used_qubits.index(i) for i in measures]
+
+        if state_ini is None:
+            psi = qutip.basis([2] * num, [0] * num)
+        else:
+            psi = qutip.Qobj(state_ini, dims=[[2] * num, [1] * num])
+
         psi = self._operator() * psi
         rho = qutip.ptrace(psi, measures)
         if result_type.lower() in ['prob']:
-            return np.abs(np.diag(rho)) ** 2
+            if rho.type == 'ket':
+                return np.abs(np.array(rho).ravel()) ** 2
+            elif rho.type == 'oper':
+                return np.abs(np.diag(rho)) ** 2
         elif result_type.lower() in ['tomo']:
-            return np.array(rho)
-
-
-
-
+            return np.array(qutip.ket2dm(rho))
+        else:
+            raise KeyError("Unsupported `result_type`")
 
 

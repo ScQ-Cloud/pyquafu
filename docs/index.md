@@ -1,13 +1,22 @@
 # ScQKit document
 
-## 1. Getting started
+## Installation
+
+Run following codes in command line
+```shell
+git clone https://github.com/ScQ-Cloud/scqkit
+cd scqkit
+python setup.py install
+```
+
+## Getting started
 
 Initialize a circuit with 5 qubits 
 
 
 ```python
 import numpy as np
-from quantum_circuit import QuantumCircuit
+from scqkit.quantum_circuit import QuantumCircuit
 
 q = QuantumCircuit(4)
 ```
@@ -78,7 +87,7 @@ res.plot_amplitudes()
     
 
 
-## 2. Execute openqasm directly
+## Execute openqasm directly
 ScQkit provides from_openqasm() function for initializing quantum circuit directly from openqasm.
 
 
@@ -113,7 +122,7 @@ res.plot_amplitudes()
     
 
 
-## 3. Execute circuit and measure observables
+## Execute circuit and measure observables
 
 ScQkit provides measuring observables with an excuted quantum circuit. You can input Pauli operators that need to expectation values to the submit_task() function.
 For example, you can input [["XYX", [0, 1, 2]], ["Z", [1]]] to calcuate the expectation of operators $\sigma^x_0\sigma^y_1\sigma^x_2$ and $\sigma^z_1$.
@@ -199,4 +208,4 @@ print(E)
     
 ## API Reference
 
-::: quantum_circuit
+::: scqkit.quantum_circuit
