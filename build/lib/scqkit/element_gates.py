@@ -1,5 +1,6 @@
 # This is the file for  concrete element quantum gates
-from .quantum_element import FixedSingleQubitGate, ParaSingleQubitGate, FixedTwoQubitGate, ParaTwoQubitGate, ControlGate
+from .quantum_element import FixedSingleQubitGate, ParaSingleQubitGate, FixedTwoQubitGate, ParaTwoQubitGate, \
+    ControlGate
 import numpy as np
 from typing import Union, List
 
@@ -69,8 +70,6 @@ class XGate(FixedSingleQubitGate):
         super().__init__("X", pos, matrix=np.array([[0., 1.],
                                                     [1., 0.]], dtype=complex))
 
-        # def __call__(self, q: List[Union[RegistryWrapper, AttrDict]], start: SupportsFloat, ):
-
 
 class YGate(FixedSingleQubitGate):
     def __init__(self, pos: int):
@@ -87,17 +86,18 @@ class ZGate(FixedSingleQubitGate):
 class RXGate(ParaSingleQubitGate):
     def __init__(self, pos: int, paras):
         super().__init__("RX", pos, paras, matrix=_rxmatrix)
-    
+
     def to_QLisp(self):
         return (("Rx", self.paras), "Q%d" % self.pos)
-    
+
+
 class RYGate(ParaSingleQubitGate):
     def __init__(self, pos: int, paras):
         super().__init__("RY", pos, paras, matrix=_rymatrix)
 
     def to_QLisp(self):
         return (("Ry", self.paras), "Q%d" % self.pos)
-    
+
 
 class RZGate(ParaSingleQubitGate):
     def __init__(self, pos: int, paras):
@@ -105,7 +105,7 @@ class RZGate(ParaSingleQubitGate):
 
     def to_QLisp(self):
         return (("Rz", self.paras), "Q%d" % self.pos)
-    
+
 
 class iSwapGate(FixedTwoQubitGate):
     def __init__(self, pos: [int, int]):
@@ -146,6 +146,7 @@ class CXGate(ControlGate):
     def to_QLisp(self):
         return ("Cnot", ("Q%d" % self.ctrl, "Q%d" % self.targ))
 
+
 class CYGate(ControlGate):
     def __init__(self, pos: [int, int]):
         super().__init__("CY", pos[0], pos[1], matrix=_cymatrix(reverse=bool(pos[0] > pos[1])))
@@ -154,9 +155,9 @@ class CYGate(ControlGate):
 class CZGate(ControlGate):
     def __init__(self, pos: [int, int]):
         super().__init__("CZ", pos[0], pos[1], matrix=np.array([[1., 0., 0., 0.],
-                                                     [0., 1., 0., 0.],
-                                                     [0., 0., 1., 0.],
-                                                     [0., 0., 0., -1.]], dtype=complex))
+                                                                [0., 1., 0., 0.],
+                                                                [0., 0., 1., 0.],
+                                                                [0., 0., 0., -1.]], dtype=complex))
 
 
 class FsimGate(ParaTwoQubitGate):
@@ -172,6 +173,7 @@ class FsimGate(ParaTwoQubitGate):
     def to_IOP(self):
         raise ValueError(
             "The IOP backend does not support fSim gate currently, please use the BAQIS backend.")
+
 
 def main():
     res = iSwapGate([0, 1])

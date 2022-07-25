@@ -13,7 +13,7 @@ class ExecResult(object):
         self.logicalq_res = {}
         cbits = list(self.measures.values())
         for key, values in self.res.items():
-           newkey = "".join([key[i] for i in np.argsort(cbits)])
+           newkey = "".join([key[i] for i in cbits])
            self.logicalq_res[newkey] = values
 
         self.taskid = dict['task_id']

@@ -1,5 +1,5 @@
 # This is the file for abstract quantum gates class
-from typing import Union, Callable, List, Tuple, Iterable, Any
+from typing import Union, Callable, List, Tuple, Iterable, Any, Optional
 import functools
 import numpy as np
 import qutip
@@ -21,9 +21,11 @@ class Barrier(object):
     def to_QLisp(self):
         return ("Barrier", tuple(["Q%d" % i for i in self.pos]))
 
-    def _operator(self, num: int = None):
-        if num is None:
-            num = np.size(self.pos)
+    def _operator(self, used_qubits: Optional[List[int]] = None):
+        if used_qubits is None:
+            used_qubits = self.pos
+        num = len(used_qubits)
+        assert num >= 1
         return qutip.qeye([2] * num)
 
 
@@ -263,27 +265,32 @@ class ControlGate(FixedTwoQubitGate):
         return [self.name, [self.ctrl, self.targ]]
 
 
-def _oper1q_local_to_global(_gate: SingleQubitGate, num: int = 1):
+def _oper1q_local_to_global(_gate: SingleQubitGate, used_qubits: Optional[List[int]] = None):
     """
     Single-qubit operator from local to global
 
     Parameters
     ----------
     _gate: SingleQubitGate
-    num: int (>=1)
-        The total number of qubits used
+    used_qubits: list
+        The total qubits used.
     Returns
     -------
     oper: qutip.Qobj
     """
-    if num < 1:
-        raise KeyError("`num` of single-qubit gate operation must be >= 1")
 
     pos = _gate.pos
+    if used_qubits is None:
+        used_qubits = [pos]
+
+    num = len(used_qubits)
+    assert num >= 1 and pos in used_qubits
+
+    q_idx = used_qubits.index(pos)
     gate = qutip.Qobj(_gate.matrix, dims=[[2], [2]])
     ops = []
     for idx in range(num):
-        if idx != pos:
+        if idx != q_idx:
             ops.append(qutip.qeye(2))
         else:
             ops.append(gate)
@@ -291,25 +298,26 @@ def _oper1q_local_to_global(_gate: SingleQubitGate, num: int = 1):
     return oper
 
 
-def _oper2q_local_to_global(_gate: TwoQubitGate, num: int = 2):
+def _oper2q_local_to_global(_gate: TwoQubitGate, used_qubits: Optional[List[int]] = None):
     """
     Two-qubit operator from local to global
 
     Parameters
     ----------
     _gate: TwoQubitGate
-    num: int (>=2)
-        The total number of qubits used
+    used_qubits: list
+        The total qubits used.
 
     Returns
     -------
     oper: qutip.Qobj
     """
-    if num < 2:
-        raise KeyError("`num` of two-qubit gate operation must be >= 2")
-
     pos = np.sort(_gate.pos).tolist()
-    pos0, pos1 = pos[0], pos[1]
+    if used_qubits is None:
+        used_qubits = pos
+    num = len(used_qubits)
+    assert num >= 2 and all(pos_i in used_qubits for pos_i in pos)
+    pos0, pos1 = used_qubits.index(pos[0]), used_qubits.index(pos[1])
     gate = qutip.Qobj(_gate.matrix, dims=[[2, 2], [2, 2]])
 
     pos_diff_abs = abs(pos1 - pos0)
@@ -351,22 +359,5 @@ def _oper2q_local_to_global(_gate: TwoQubitGate, num: int = 2):
     return oper
 
 
-def main():
-    mat = 1 / np.sqrt(2) * np.array([[1., 1.],
-                                     [1., -1.]], dtype=complex)
-
-    # mat = 1 / np.sqrt(2) * np.array([[1., 1.],
-    #                                  [0, 2.],
-    #                                  [1., -1.]], dtype=complex)
-
-    class HGate(FixedSingleQubitGate):
-        def __init__(self, pos: int):
-            super().__init__("H", pos, matrix=mat)
-
-    res = HGate(0)
-    print(res)
-    return res
-
-
 if __name__ == '__main__':
-    main()
+    pass
