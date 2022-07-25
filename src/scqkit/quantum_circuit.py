@@ -253,7 +253,7 @@ class QuantumCircuit(object):
                         elif gatename == "ry":
                             self.ry(inds[0], paras[0])
                         elif gatename == "rz":
-                            self.ry(inds[0], paras[0])
+                            self.rz(inds[0], paras[0])
                         elif gatename == "x":
                             self.x(inds[0])
                         elif gatename == "y":
