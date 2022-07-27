@@ -59,12 +59,12 @@ q.draw_circuit()
     3 -Rz(0.100)-------------------+-- M->c[3]
     
 
-Set experiment backend and send the quantum circuit. The default backend is "ScQ-P10". You can use the "compiled" parameter to tell the backend whether compile the circuit. 
+Set experiment backend and send the quantum circuit. The default backend is "ScQ-P10". You can use the "compile" parameter to tell the backend whether compile the circuit. If you want to run the circuit directly on the backend, set "compile" to false.
 
 
 ```python
 q.set_backend("ScQ-P10")
-res = q.send(compiled=False)
+res = q.send(compile=True)
 ```
 
 You can use the returned results to check the count and amplitude on each measured bit string. The output bits are arranged as 0, 1, 2,... from left to the right.

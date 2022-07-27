@@ -125,9 +125,9 @@ q.measure(measures, shots, cbits=cbits)
                                Cz 
 3 -Rz(0.100)-------------------+-- M-&gt;c[3]
 </code></pre>
-<p>Set experiment backend and send the quantum circuit. The default backend is "ScQ-P10". You can use the "compiled" parameter to tell the backend whether compile the circuit. </p>
+<p>Set experiment backend and send the quantum circuit. The default backend is "ScQ-P10". You can use the "compile" parameter to tell the backend whether compile the circuit. If you want to run the circuit directly on the backend, set "compile" to false.</p>
 <pre><code class="language-python">q.set_backend(&quot;ScQ-P10&quot;)
-res = q.send(compiled=False)
+res = q.send(compile=True)
 </code></pre>
 <p>You can use the returned results to check the count and amplitude on each measured bit string. The output bits are arranged as 0, 1, 2,... from left to the right.</p>
 <pre><code class="language-python">print(res.res) #counts
@@ -869,7 +869,7 @@ print(E)
         <span class="bp">self</span><span class="o">.</span><span class="n">openqasm</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">measures</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">)))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_compiled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">used_qubits</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="nf">set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
@@ -1224,21 +1224,21 @@ print(E)
 
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compiled</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">compile</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the circuit on experimental device.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            compiled (bool): If this is true, the circuit will not be compiled on backend.</span>
+<span class="sd">            compile (bool): Whether compile the circuit on backend.</span>
 <span class="sd">        Returns: </span>
 <span class="sd">            ExecResult object that contain the dict return from quantum device.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">to_openqasm</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_compiled</span> <span class="o">=</span> <span class="n">compiled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span> <span class="o">=</span> <span class="nb">compile</span>
         <span class="n">backends</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ScQ-P10&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ScQ-P20&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;ScQ-P50&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;qtasm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">openqasm</span><span class="p">,</span> <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">,</span> <span class="s2">&quot;scan&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                 <span class="s2">&quot;tomo&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tomo</span><span class="p">),</span> <span class="s2">&quot;selected_server&quot;</span><span class="p">:</span> <span class="n">backends</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">],</span>
-                <span class="s2">&quot;compiled&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compiled</span><span class="p">)}</span>
+                <span class="s2">&quot;compiled&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">)}</span>
         <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://q.iphy.ac.cn/scq_submit_kit.php&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/x-www-form-urlencoded;charset=UTF-8&#39;</span><span class="p">}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -1538,7 +1538,7 @@ print(E)
     <span class="bp">self</span><span class="o">.</span><span class="n">openqasm</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">measures</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">)))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_compiled</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">used_qubits</span> <span class="o">=</span> <span class="p">[]</span>
 </code></pre></div></td></tr></table></div>
       </details>
@@ -2884,7 +2884,7 @@ print(E)
 
 
 <h3 id="quafu.quantum_circuit.QuantumCircuit.send" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">send</span><span class="p">(</span><span class="n">compiled</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">send</span><span class="p">(</span><span class="nb">compile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2905,13 +2905,13 @@ print(E)
     </thead>
     <tbody>
         <tr>
-          <td><code>compiled</code></td>
+          <td><code>compile</code></td>
           <td>
                 <code>bool</code>
           </td>
-          <td><p>If this is true, the circuit will not be compiled on backend.</p></td>
+          <td><p>Whether compile the circuit on backend.</p></td>
           <td>
-                <code>False</code>
+                <code>True</code>
           </td>
         </tr>
     </tbody>
@@ -2954,21 +2954,21 @@ print(E)
 <span class="normal">414</span>
 <span class="normal">415</span>
 <span class="normal">416</span>
-<span class="normal">417</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compiled</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="normal">417</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">compile</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the circuit on experimental device.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        compiled (bool): If this is true, the circuit will not be compiled on backend.</span>
+<span class="sd">        compile (bool): Whether compile the circuit on backend.</span>
 <span class="sd">    Returns: </span>
 <span class="sd">        ExecResult object that contain the dict return from quantum device.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">to_openqasm</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_compiled</span> <span class="o">=</span> <span class="n">compiled</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span> <span class="o">=</span> <span class="nb">compile</span>
     <span class="n">backends</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ScQ-P10&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ScQ-P20&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;ScQ-P50&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;qtasm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">openqasm</span><span class="p">,</span> <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="s2">&quot;qubits&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">,</span> <span class="s2">&quot;scan&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s2">&quot;tomo&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tomo</span><span class="p">),</span> <span class="s2">&quot;selected_server&quot;</span><span class="p">:</span> <span class="n">backends</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">],</span>
-            <span class="s2">&quot;compiled&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compiled</span><span class="p">)}</span>
+            <span class="s2">&quot;compiled&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">)}</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://q.iphy.ac.cn/scq_submit_kit.php&quot;</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/x-www-form-urlencoded;charset=UTF-8&#39;</span><span class="p">}</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -3621,5 +3621,5 @@ Returns:
 
 <!--
 MkDocs version : 1.3.0
-Build Date UTC : 2022-07-27 14:03:04.052715+00:00
+Build Date UTC : 2022-07-27 16:38:20.065513+00:00
 -->

@@ -26,7 +26,7 @@ class QuantumCircuit(object):
         self.openqasm = ""
         self.circuit = []
         self.measures = dict(zip(range(num), range(num)))
-        self._compiled = False
+        self._compile = True
         self.used_qubits = []
 
     def set_backend(self, backend):
@@ -381,21 +381,21 @@ class QuantumCircuit(object):
 
         return res
 
-    def send(self, compiled=False):
+    def send(self, compile=True):
         """
         Run the circuit on experimental device.
 
         Args:
-            compiled (bool): If this is true, the circuit will not be compiled on backend.
+            compile (bool): Whether compile the circuit on backend.
         Returns: 
             ExecResult object that contain the dict return from quantum device.
         """
         self.to_openqasm()
-        self._compiled = compiled
+        self._compile = compile
         backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2}
         data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0,
                 "tomo": int(self.tomo), "selected_server": backends[self.backend],
-                "compiled": int(self._compiled)}
+                "compile": int(self._compile)}
         url = "http://q.iphy.ac.cn/scq_submit_kit.php"
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
         data = parse.urlencode(data)
