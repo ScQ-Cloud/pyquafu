@@ -1,29 +1,29 @@
-# ScQKit
+# Quafu
 
-Python toolkit for submitting quantum circuits on the superconducting quantum computing cloud [ScQ.Cloud](http://q.iphy.ac.cn/). 
+Python toolkit for submitting quantum circuits on the superconducting quantum computing cloud [Quafu.Cloud](http://q.iphy.ac.cn/). 
 
 
 
 ## Introduction
 
-ScQkit is developed for the users of [ScQ.Cloud](http://q.iphy.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use ScQKit to interact with different quantum backends provides by the experimental group of [ScQ.Cloud](http://q.iphy.ac.cn/). 
+Quafu is developed for the users of [Quafu.Cloud](http://q.iphy.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use quafu to interact with different quantum backends provides by the experimental group of [Quafu.Cloud](http://q.iphy.ac.cn/). 
 
 ## Installation
 ```shell
-git clone https://github.com/ScQ-Cloud/scqkit
-cd scqkit
+git clone https://github.com/Quafu-Cloud/quafu
+cd quafu
 python setup.py install
 ```
 
 
 ## Examples
 
-1. Execute circuit on ScQ.Cloud:
+1. Execute circuit on Quafu.Cloud:
 
 ```python
 
 import numpy as np
-from scqkit.quantum_circuit import QuantumCircuit
+from quafu.quantum_circuit import QuantumCircuit
 
 q = QuantumCircuit(5)
 for i in range(5):

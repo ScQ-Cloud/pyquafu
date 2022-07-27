@@ -1,11 +1,10 @@
-# ScQKit document
-
+# Quafu document
 ## Installation
 
 Run following codes in command line
 ```shell
-git clone https://github.com/ScQ-Cloud/scqkit
-cd scqkit
+git clone https://github.com/ScQ-Cloud/quafu
+cd quafu
 python setup.py install
 ```
 
@@ -16,12 +15,12 @@ Initialize a circuit with 5 qubits
 
 ```python
 import numpy as np
-from scqkit.quantum_circuit import QuantumCircuit
+from quafu.quantum_circuit import QuantumCircuit
 
 q = QuantumCircuit(4)
 ```
 
-Add quantum gates, currently ScQKit supports gates x, y, z, h, rx, ry, rz, cnot, cz, swap.
+Add quantum gates, currently Quafu supports gates x, y, z, h, rx, ry, rz, cnot, cz, swap.
 
 
 ```python
@@ -60,12 +59,12 @@ q.draw_circuit()
     3 -Rz(0.100)-------------------+-- M->c[3]
     
 
-Set experiment backend and send the quantum circuit. The default backend is "ScQ-P10".
+Set experiment backend and send the quantum circuit. The default backend is "ScQ-P10". You can use the "compiled" parameter to tell the backend whether compile the circuit. 
 
 
 ```python
 q.set_backend("ScQ-P10")
-res = q.send()
+res = q.send(compiled=False)
 ```
 
 You can use the returned results to check the count and amplitude on each measured bit string. The output bits are arranged as 0, 1, 2,... from left to the right.
@@ -83,12 +82,12 @@ res.plot_amplitudes()
 
 
     
-![png](scqkit_document_files/scqkit_document_11_1.png)
+![png](quafu_document_files/quafu_document_11_1.png)
     
 
 
 ## Execute openqasm directly
-ScQkit provides from_openqasm() function for initializing quantum circuit directly from openqasm.
+Quafu provides from_openqasm() function for initializing quantum circuit directly from openqasm.
 
 
 ```python
@@ -118,13 +117,13 @@ res.plot_amplitudes()
 
 
     
-![png](scqkit_document_files/scqkit_document_13_1.png)
+![png](quafu_document_files/quafu_document_13_1.png)
     
 
 
 ## Execute circuit and measure observables
 
-ScQkit provides measuring observables with an excuted quantum circuit. You can input Pauli operators that need to expectation values to the submit_task() function.
+Quafu provides measuring observables with an excuted quantum circuit. You can input Pauli operators that need to expectation values to the submit_task() function.
 For example, you can input [["XYX", [0, 1, 2]], ["Z", [1]]] to calcuate the expectation of operators $\sigma^x_0\sigma^y_1\sigma^x_2$ and $\sigma^z_1$.
 The submit_task() function will minimize the executing times of the circuit with different measurement basis that can calculate all expectations of input operators. 
 
@@ -182,13 +181,13 @@ res[1].plot_amplitudes()
 
 
     
-![png](scqkit_document_files/scqkit_document_19_0.png)
+![png](quafu_document_files/quafu_document_19_0.png)
     
 
 
 
     
-![png](scqkit_document_files/scqkit_document_19_1.png)
+![png](quafu_document_files/quafu_document_19_1.png)
     
 
 
@@ -208,4 +207,4 @@ print(E)
     
 ## API Reference
 
-::: scqkit.quantum_circuit
+::: quafu.quantum_circuit

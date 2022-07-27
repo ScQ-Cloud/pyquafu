@@ -191,11 +191,10 @@ class QuantumCircuit(object):
         circuitstr = "\n".join(circuitstr)
         print(circuitstr)
 
-    def from_openqasm(self, openqasm, compiled=False):
+    def from_openqasm(self, openqasm):
         """
         Initialize the circuit from openqasm text.
         """
-        self._compiled = compiled
         from numpy import pi
         import re
         self.openqasm = openqasm
@@ -205,76 +204,80 @@ class QuantumCircuit(object):
         measured_qubits = []
         global_valid = True
         for line in lines[2:]:
-            operations_qbs = line.split(" ")
-            operations = operations_qbs[0]
-            if operations == "qreg":
-                qbs = operations_qbs[1]
-                self.num = int(re.findall("\d+", qbs)[0])
-            elif operations == "creg":
-                pass
-            elif operations == "measure":
-                mb = int(re.findall("\d+", operations_qbs[1])[0])
-                cb = int(re.findall("\d+", operations_qbs[3])[0])
-                self.measures[mb] = cb
-                measured_qubits.append(mb)
-            else:
-                qbs = operations_qbs[1]
-                indstr = re.findall("\d+", qbs)
-                inds = [int(indst) for indst in indstr]
-                valid = True
-                for pos in inds:
-                    if pos in measured_qubits:
-                        valid = False
-                        global_valid = False
-                        break
+            if line:
+                operations_qbs = line.split(" ", 1)
+                operations = operations_qbs[0]
+                if operations == "qreg":
+                    qbs = operations_qbs[1]
+                    self.num = int(re.findall("\d+", qbs)[0])
+                elif operations == "creg":
+                    pass
+                elif operations == "measure":
+                    qbs = operations_qbs[1]
+                    indstr = re.findall("\d+", qbs)
+                    inds = [int(indst) for indst in indstr]
+                    mb = inds[0]
+                    cb = inds[1]
+                    self.measures[mb] = cb
+                    measured_qubits.append(mb)
+                else:
+                    qbs = operations_qbs[1]
+                    indstr = re.findall("\d+", qbs)
+                    inds = [int(indst) for indst in indstr]
+                    valid = True
+                    for pos in inds:
+                        if pos in measured_qubits:
+                            valid = False
+                            global_valid = False
+                            break
 
-                if valid:
-                    if operations == "barrier":
-                        self.barrier(inds)
+                    if valid:
+                        if operations == "barrier":
+                            self.barrier(inds)
 
-                    else:
-                        sp_op = operations.split("(")
-                        gatename = sp_op[0]
-                        if len(sp_op) > 1:
-                            paras = sp_op[1].strip("()")
-                            parastr = paras.split(",")
-                            paras = [eval(parai, {"pi": pi}) for parai in parastr]
-
-                        if gatename == "cx":
-                            self.cnot(inds[0], inds[1])
-                        elif gatename == "cy":
-                            self.cy(inds[0], inds[1])
-                        elif gatename == "cz":
-                            self.cz(inds[0], inds[1])
-                        elif gatename == "swap":
-                            self.swap(inds[0], inds[1])
-                        elif gatename == "rx":
-                            self.rx(inds[0], paras[0])
-                        elif gatename == "ry":
-                            self.ry(inds[0], paras[0])
-                        elif gatename == "rz":
-                            self.rz(inds[0], paras[0])
-                        elif gatename == "x":
-                            self.x(inds[0])
-                        elif gatename == "y":
-                            self.y(inds[0])
-                        elif gatename == "z":
-                            self.z(inds[0])
-                        elif gatename == "h":
-                            self.h(inds[0])
-                        elif gatename == "u1":
-                            self.rz(inds[0], paras[0])
-                        elif gatename == "u2":
-                            self.rz(inds[0], paras[1])
-                            self.ry(inds[0], pi / 2)
-                            self.rz(inds[0], paras[0])
-                        elif gatename == "u3":
-                            self.rz(inds[0], paras[2])
-                            self.ry(inds[0], paras[0])
-                            self.rz(inds[0], paras[1])
                         else:
-                            print(
-                                "Operations %s may be not supported by QuantumCircuit class currently." % gatename)
+                            sp_op = operations.split("(")
+                            gatename = sp_op[0]
+                            if len(sp_op) > 1:
+                                paras = sp_op[1].strip("()")
+                                parastr = paras.split(",")
+                                paras = [eval(parai, {"pi": pi}) for parai in parastr]
+
+                            if gatename == "cx":
+                                self.cnot(inds[0], inds[1])
+                            elif gatename == "cy":
+                                self.cy(inds[0], inds[1])
+                            elif gatename == "cz":
+                                self.cz(inds[0], inds[1])
+                            elif gatename == "swap":
+                                self.swap(inds[0], inds[1])
+                            elif gatename == "rx":
+                                self.rx(inds[0], paras[0])
+                            elif gatename == "ry":
+                                self.ry(inds[0], paras[0])
+                            elif gatename == "rz":
+                                self.rz(inds[0], paras[0])
+                            elif gatename == "x":
+                                self.x(inds[0])
+                            elif gatename == "y":
+                                self.y(inds[0])
+                            elif gatename == "z":
+                                self.z(inds[0])
+                            elif gatename == "h":
+                                self.h(inds[0])
+                            elif gatename == "u1":
+                                self.rz(inds[0], paras[0])
+                            elif gatename == "u2":
+                                self.rz(inds[0], paras[1])
+                                self.ry(inds[0], pi / 2)
+                                self.rz(inds[0], paras[0])
+                            elif gatename == "u3":
+                                self.rz(inds[0], paras[2])
+                                self.ry(inds[0], paras[0])
+                                self.rz(inds[0], paras[1])
+                            else:
+                                print(
+                                    "Operations %s may be not supported by QuantumCircuit class currently." % gatename)
 
         if not self.measures:
             self.measures = dict(zip(range(self.num), range(self.num)))
@@ -378,14 +381,17 @@ class QuantumCircuit(object):
 
         return res
 
-    def send(self):
+    def send(self, compiled=False):
         """
         Run the circuit on experimental device.
 
+        Args:
+            compiled (bool): If this is true, the circuit will not be compiled on backend.
         Returns: 
             ExecResult object that contain the dict return from quantum device.
         """
         self.to_openqasm()
+        self._compiled = compiled
         backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2}
         data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0,
                 "tomo": int(self.tomo), "selected_server": backends[self.backend],
@@ -394,8 +400,6 @@ class QuantumCircuit(object):
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
-        # data = data.replace("+", "")
-        # data = data.replace("%20", " ")
         res = requests.post(url, headers=headers, data=data)
 
         if res.json()["stat"] == 5002:
