@@ -160,7 +160,7 @@ class TwoQubitGate(QuantumGate):
     def __init__(self, name: str, pos: List[int], paras, matrix):
         super().__init__(name, pos, paras=paras, matrix=matrix)
         if not len(pos) == 2:
-            raise ValueError("Two postions of a two-qubit gate should be provided")
+            raise ValueError("Two positions of a two-qubit gate should be provided")
 
     @property
     def matrix(self):

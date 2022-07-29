@@ -4,8 +4,9 @@ import requests
 import json
 from urllib import parse
 from .quantum_tools import ExecResult, merge_measure
-from .quantum_element import Barrier, QuantumGate, ControlGate, SingleQubitGate, TwoQubitGate
+from .quantum_element import Barrier, ControlGate, SingleQubitGate, TwoQubitGate
 from .element_gates import *
+from .exceptions import CircuitError, ServerError
 from typing import Iterable
 import qutip
 
@@ -277,7 +278,7 @@ class QuantumCircuit(object):
                                 self.rz(inds[0], paras[1])
                             else:
                                 print(
-                                    "Operations %s may be not supported by QuantumCircuit class currently." % gatename)
+                                    "Warning: Operations %s may be not supported by QuantumCircuit class currently." % gatename)
 
         if not self.measures:
             self.measures = dict(zip(range(self.num), range(self.num)))
@@ -309,14 +310,14 @@ class QuantumCircuit(object):
         self.openqasm = qasm
         return qasm
 
-    def submit_task(self, obslist=[]):
+    def submit_task(self, obslist=[], compile=True):
         """
         Execute the circuit with observable expectation measurement task.
         Args:
             obslist (list[str, list[int]]): List of pauli string and its position.
 
         Returns: 
-            List of execut results and list of measured observable
+            List of executed results and list of measured observable
 
         Examples: 
             1) input [["XYX", [0, 1, 2]], ["Z", [1]]] measure pauli operator XYX at 0, 1, 2 qubit, and Z at 1 qubit.\n
@@ -332,22 +333,22 @@ class QuantumCircuit(object):
         inputs = self.gates
         measures = list(self.measures.keys())
         if len(obslist) == 0:
-            print("No observable measure task.")
-            res = self.run()
+            print("No observable measurement task.")
+            res = self.run(compile=compile)
             return res, []
 
         else:
             for obs in obslist:
                 for p in obs[1]:
                     if p not in measures:
-                        raise "Qubit %d in observer %s is not measured." % (p, obs[0])
+                        raise CircuitError("Qubit %d in observer %s is not measured." % (p, obs[0]))
 
             measure_basis, targlist = merge_measure(obslist)
             print("Job start, need measured in ", measure_basis)
 
             exec_res = []
             for measure_base in measure_basis:
-                res = self.run(measure_base=measure_base)
+                res = self.run(measure_base=measure_base, compile=compile)
                 self.gates = inputs
                 exec_res.append(res)
 
@@ -359,14 +360,14 @@ class QuantumCircuit(object):
 
         return exec_res, measure_results
 
-    def run(self, measure_base=[]):
+    def run(self, measure_base=[], compile=True):
         """Single run for measurement task.
 
         Args:
             measure_base (list[str, list[int]]): measure base and it position.
         """
         if len(measure_base) == 0:
-            res = self.send()
+            res = self.send(compile=compile)
             res.measure_base = ''
 
         else:
@@ -376,7 +377,7 @@ class QuantumCircuit(object):
                 elif base == "Y":
                     self.rx(pos, np.pi / 2)
 
-            res = self.send()
+            res = self.send(compile=compile)
             res.measure_base = measure_base
 
         return res
@@ -396,23 +397,18 @@ class QuantumCircuit(object):
         data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0,
                 "tomo": int(self.tomo), "selected_server": backends[self.backend],
                 "compile": int(self._compile)}
-        url = "http://q.iphy.ac.cn/scq_submit_kit.php"
+        url = "http://120.46.160.173/qbackend/scq_kit/"
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
         res = requests.post(url, headers=headers, data=data)
 
         if res.json()["stat"] == 5002:
-            try:
-                raise RuntimeError("Excessive computation scale.")
-            except RuntimeError as e:
-                print(e)
-
+            raise ServerError("Excessive computation scale.")
+            
         elif res.json()["stat"] == 5001:
-            try:
-                raise RuntimeError("Invalid Circuit.")
-            except RuntimeError as e:
-                print(e)
+            raise ServerError("Invalid Circuit.")
+
         else:
             return ExecResult(json.loads(res.text), self.measures)
 
@@ -562,8 +558,9 @@ class QuantumCircuit(object):
         Measurement setting for experiment device.
         
         Args:
-            pos (int): qubits need measure.
+            pos (int): Qubits need measure.
             shots (int): Sampling number for outcome state.
+            cbits (List[int]): Classical bits keeping the measure results.
             tomo (bool): Whether do tomography.
         """
 
@@ -574,7 +571,7 @@ class QuantumCircuit(object):
             if len(cbits) == len(self.measures):
                 self.measures = dict(zip(pos, cbits))
             else:
-                raise ValueError("Number of measured bits should equal to the number of classical bits")
+                raise CircuitError("Number of measured bits should equal to the number of classical bits")
 
     def _operator(self):
         used_qubits = self.get_used_qubits()

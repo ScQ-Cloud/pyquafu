@@ -3,6 +3,7 @@ README.md
 setup.py
 src/quafu/__init__.py
 src/quafu/element_gates.py
+src/quafu/exceptions.py
 src/quafu/para_circuit.py
 src/quafu/paulis.py
 src/quafu/quantum_circuit.py
