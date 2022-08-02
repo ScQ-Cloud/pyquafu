@@ -1,16 +1,16 @@
 # Quafu
 
-Python toolkit for submitting quantum circuits on the superconducting quantum computing cloud [Quafu.Cloud](http://q.iphy.ac.cn/). 
+Python toolkit for submitting quantum circuits on the superconducting quantum computing cloud [Quafu](http://q.iphy.ac.cn/). 
 
 
 
 ## Introduction
 
-Quafu is developed for the users of [Quafu.Cloud](http://q.iphy.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use quafu to interact with different quantum backends provides by the experimental group of [Quafu.Cloud](http://q.iphy.ac.cn/). 
+Quafu is developed for the users of [Quafu](http://q.iphy.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use quafu to interact with different quantum backends provides by the experimental group of [Quafu](http://q.iphy.ac.cn/). 
 
 ## Installation
 ```shell
-git clone https://github.com/Quafu-Cloud/quafu
+git clone https://github.com/ScQ-Cloud/quafu
 cd quafu
 python setup.py install
 ```
@@ -18,7 +18,7 @@ python setup.py install
 
 ## Examples
 
-1. Execute circuit on Quafu.Cloud:
+1. Execute circuit on Quafu:
 
 ```python
 
@@ -69,7 +69,7 @@ for i in range(5):
         q.h(i)
 measures = [0, 1, 2, 3, 4]
 q.measure(measures, 1000)
-q.set_backend("IOP")
+q.set_backend("ScQ-P10")
 test_Ising = [["X", [i]] for i in range(5)]
 test_Ising.extend([["ZZ", [i, i+1]] for i in range(4)])
 res, obsexp = q.submit_task(test_Ising)
