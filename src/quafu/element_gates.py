@@ -108,7 +108,7 @@ class RZGate(ParaSingleQubitGate):
 
 
 class iSwapGate(FixedTwoQubitGate):
-    def __init__(self, pos: List[int, int]):
+    def __init__(self, pos: List[int]):
         super().__init__("iSWAP", pos, matrix=np.array([[1., 0., 0., 0.],
                                                         [0., 0., 1.j, 0.],
                                                         [0., 1.j, 0., 0.],
@@ -120,7 +120,7 @@ class iSwapGate(FixedTwoQubitGate):
 
 
 class SwapGate(FixedTwoQubitGate):
-    def __init__(self, pos: List[int, int]):
+    def __init__(self, pos: List[int]):
         super().__init__("SWAP", pos, matrix=np.array([[1., 0., 0., 0.],
                                                        [0., 0., 1., 0.],
                                                        [0., 1., 0., 0.],
@@ -140,7 +140,7 @@ class SwapGate(FixedTwoQubitGate):
 
 
 class CXGate(ControlGate):
-    def __init__(self, pos: List[int, int]):
+    def __init__(self, pos: List[int]):
         super().__init__("CX", pos[0], pos[1], matrix=_cxmatrix(reverse=bool(pos[0] > pos[1])))
 
     def to_QLisp(self):
@@ -148,12 +148,12 @@ class CXGate(ControlGate):
 
 
 class CYGate(ControlGate):
-    def __init__(self, pos: List[int, int]):
+    def __init__(self, pos: List[int]):
         super().__init__("CY", pos[0], pos[1], matrix=_cymatrix(reverse=bool(pos[0] > pos[1])))
 
 
 class CZGate(ControlGate):
-    def __init__(self, pos: List[int, int]):
+    def __init__(self, pos: List[int]):
         super().__init__("CZ", pos[0], pos[1], matrix=np.array([[1., 0., 0., 0.],
                                                                 [0., 1., 0., 0.],
                                                                 [0., 0., 1., 0.],
@@ -161,7 +161,7 @@ class CZGate(ControlGate):
 
 
 class FsimGate(ParaTwoQubitGate):
-    def __init__(self, pos: List[int, int], paras):
+    def __init__(self, pos: List[int], paras):
         super().__init__("fSim", pos, paras)
         self.__theta = paras[0]
         self.__phi = paras[1]

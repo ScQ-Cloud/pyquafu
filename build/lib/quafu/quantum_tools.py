@@ -5,38 +5,49 @@ import copy
 import matplotlib.pyplot as plt
 
 class ExecResult(object):
-    def __init__(self, dict, measures):
-        # self.measures = dict['measure']
+    """ 
+    Class that save the execute results returned from backend.
+    Attributes:
+        counts (dict): Samples counts on each bitstring.
+        amplitudes (dict): Calculated amplitudes on each bitstring.
+        taskid (int): Unique task id for the execute result.
+        transpiled_circuit (QuantumCircuit): Quantum circuit transpiled on backend.
+    """
+    def __init__(self, input_dict, measures):
         self.measures = measures
-        self.res = dict['res']
-        self.raw_res = dict["raw"]
+        self.res = eval(input_dict['res'])
+        self.raw_res = eval(input_dict["raw"])
         self.logicalq_res = {}
         cbits = list(self.measures.values())
         for key, values in self.res.items():
            newkey = "".join([key[i] for i in cbits])
            self.logicalq_res[newkey] = values
 
-        self.taskid = dict['task_id']
-        self.transpiled_openqasm = dict["openqasm"]
+        self.taskid = input_dict['task_id'] 
+        self.transpiled_openqasm = input_dict["openqasm"]
         from .quantum_circuit import QuantumCircuit
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
-        self.measure_base = []       
-        self.amplitudes = self.get_amplitudes()  
-
-    def get_amplitudes(self):      
+        self.measure_base = []
         total_counts = sum(self.res.values())
-        amplitudes = {} 
+        self.amplitudes = {} 
         for key in self.res:
-            amplitudes[key] = self.res[key]/total_counts
+            self.amplitudes[key] = self.res[key]/total_counts
+        self.counts = self.res
 
-        return amplitudes
 
     def calculate_obs(self, pos):
-        # return measure_obs(self.basis, self.amplitudes, pos)
-        return measure_obs(pos, self.logicalq_res) #measure using frequency
+        """
+        Calculate observables on input position
+        Args: 
+            pos (list[int]): Positions of observalbes.
+        """
+        return measure_obs(pos, self.logicalq_res) 
 
     def plot_amplitudes(self):
+        """
+        Plot the amplitudes from execute results.
+        """
         bitstrs = list(self.amplitudes.keys())
         amps = list(self.amplitudes.values())
         plt.figure()

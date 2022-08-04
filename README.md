@@ -23,7 +23,7 @@ python setup.py install
 ```python
 
 import numpy as np
-from quafu.quantum_circuit import QuantumCircuit
+from quafu import QuantumCircuit
 
 q = QuantumCircuit(5)
 for i in range(5):

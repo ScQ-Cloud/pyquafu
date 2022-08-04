@@ -15,7 +15,7 @@ Initialize a circuit with 5 qubits
 
 ```python
 import numpy as np
-from quafu.quantum_circuit import QuantumCircuit
+from quafu import QuantumCircuit
 
 q = QuantumCircuit(4)
 ```
@@ -71,7 +71,7 @@ You can use the returned results to check the count and amplitude on each measur
 
 
 ```python
-print(res.res) #counts
+print(res.counts) #counts
 print(res.amplitudes) #amplitude
 res.plot_amplitudes()
 ```
@@ -207,4 +207,4 @@ print(E)
     
 ## API Reference
 
-::: quafu.quantum_circuit
+::: quafu

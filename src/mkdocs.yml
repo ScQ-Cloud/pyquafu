@@ -1,3 +1,4 @@
 site_name: Quafu-Docs
 plugins:
   - mkdocstrings
+theme: readthedocs
