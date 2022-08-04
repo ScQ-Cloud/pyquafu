@@ -10,7 +10,7 @@ Quafu is developed for the users of [Quafu.Cloud](http://q.iphy.ac.cn/) to const
 
 ## Installation
 ```shell
-git clone https://github.com/Quafu-Cloud/quafu
+git clone https://github.com/ScQ-Cloud/quafu
 cd quafu
 python setup.py install
 ```
