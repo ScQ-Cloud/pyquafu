@@ -18,6 +18,5 @@ python setup.py install
 ## Document
 Please see the website [docs](https://scq-cloud.github.io/).
 
-```
 ## Authors
 This project is developed by the quantum cloud computing team at the Beijing Academy of Quantum Information Sciences.
