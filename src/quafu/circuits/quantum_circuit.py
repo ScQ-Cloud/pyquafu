@@ -436,9 +436,7 @@ class QuantumCircuit(object):
         
         Args:
             pos (int): Qubits need measure.
-            shots (int): Sampling number for outcome state.
             cbits (List[int]): Classical bits keeping the measure results.
-            tomo (bool): Whether do tomography.
         """
 
         self.measures = dict(zip(pos, range(len(pos))))
@@ -449,39 +447,5 @@ class QuantumCircuit(object):
             else:
                 raise CircuitError("Number of measured bits should equal to the number of classical bits")
 
-    def _operator(self):
-        used_qubits = self.get_used_qubits()
-        num = len(used_qubits)
-        assert num <= 12
-        oper = qutip.qeye([2] * num)
-        for gate in self.gates:
-            oper = gate._operator(used_qubits) * oper
-        return oper
-
-    def _simulate(self, result_type: str = 'prob', state_ini: np.ndarray = None):
-        oper = self._operator()
-        used_qubits = self.used_qubits
-        num = len(used_qubits)
-        measures = np.array([[k, v] for k, v in self.measures.items()], dtype=int).T
-        measures = measures[:, measures[1, :].argsort()][0]
-        measures = [used_qubits.index(i) for i in measures]
-
-        if state_ini is None:
-            psi = qutip.basis([2] * num, [0] * num)
-        else:
-            psi = qutip.Qobj(state_ini, dims=[[2] * num, [1] * num])
-
-        psi = self._operator() * psi
-        rho = qutip.ptrace(psi, measures)
-        rho.permute(list(self.measures.values()))
-        if result_type.lower() in ['prob']:
-            if rho.type == 'ket':
-                return np.abs(np.array(rho).ravel()) ** 2
-            elif rho.type == 'oper':
-                return np.abs(np.diag(rho)) ** 2
-        elif result_type.lower() in ['tomo']:
-            return np.array(qutip.ket2dm(rho))
-        else:
-            raise KeyError("Unsupported `result_type`")
 
 

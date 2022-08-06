@@ -157,7 +157,7 @@ class Task(object):
         res = requests.post(url, headers=headers, data=data)
         res_dict = json.loads(res.text)
 
-        if res.json()["stat"] == 201:
+        if res.json()["status"] == 201:
             msg = res_dict["message"]
             raise ServerError(msg)
 
