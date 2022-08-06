@@ -3,8 +3,15 @@ import numpy as np
 from functools import reduce
 import copy
 import matplotlib.pyplot as plt
+from collections import OrderedDict
+from ..utils.basis import *
+import qutip
 
-class ExecResult(object):
+class Result(object):
+    """Basis class for quantum results"""
+    pass  
+
+class ExecResult(Result):
     """ 
     Class that save the execute results returned from backend.
     Attributes:
@@ -16,25 +23,24 @@ class ExecResult(object):
     def __init__(self, input_dict, measures):
         self.measures = measures
         self.res = eval(input_dict['res'])
-        self.raw_res = eval(input_dict["raw"])
+        self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
         self.logicalq_res = {}
         cbits = list(self.measures.values())
-        for key, values in self.res.items():
+        for key, values in self.counts.items():
            newkey = "".join([key[i] for i in cbits])
            self.logicalq_res[newkey] = values
 
         self.taskid = input_dict['task_id'] 
         self.transpiled_openqasm = input_dict["openqasm"]
-        from .quantum_circuit import QuantumCircuit
+        from ..circuits.quantum_circuit import QuantumCircuit
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
-        total_counts = sum(self.res.values())
+        total_counts = sum(self.counts.values())
         self.amplitudes = {} 
-        for key in self.res:
-            self.amplitudes[key] = self.res[key]/total_counts
-        self.counts = self.res
-
+        for key in self.counts:
+            self.amplitudes[key] = self.counts[key]/total_counts
+    
 
     def calculate_obs(self, pos):
         """
@@ -54,46 +60,49 @@ class ExecResult(object):
         plt.bar(range(len(amps)), amps, tick_label = bitstrs)
         plt.xticks(rotation=70)
         plt.ylabel("amplitudes")
+
+
+class SimuResult(Result):
+    """
+    Class that save the execute simulation results returned from classical simulator.
+    Attributes:
+        num (int) : Numbers of measured qubits
+        amplitudes (ndarray): Calculated amplitudes on each bitstring.
+        rho (ndarray): Simulated density matrix of measured qubits
+    """
+    def __init__(self, input_rho):
+        self.num = len(input_rho.dims[0])
+        self.rho = np.array(input_rho)
+        self.amplitudes = np.array([])
+        if input_rho.type == 'ket':
+            self.amplitudes = np.abs(np.array(input_rho).ravel()) ** 2
+        elif input_rho.type == 'oper':
+            self.amplitudes = np.abs(np.diag(input_rho)) ** 2
          
-def reduce_probs(bitsA, res):
-    """The reduced probabilities from frequency """
-    dim = 2**(len(bitsA))
-    probs = np.zeros(dim)
-    for basestr in res:
-        basis = np.array([int(i) for i in basestr])
-        ind = get_ind(basis[bitsA])
-        probs[ind] += res[basestr]
+    def plot_amplitudes(self, full=True):
+        """
+        Plot the amplitudes from simulated results.
+        Args:
+            full (bool) : Whether plot on the full basis of measured qubits. 
+        """
+        from ..utils.basis import get_basis
+        probs = self.amplitudes
+        inds = range(len(probs))
+        if not full:
+            inds = np.where(self.amplitudes > 1e-14)[0]
+            probs = self.amplitudes[inds]
+
+        plt.figure()
+        plt.bar(inds, probs, tick_label=[bin(i)[2:].zfill(self.num) for i in inds])
+        plt.xticks(rotation=70)
+        plt.ylabel("amplitudes")
+
+    # def plot_rho(self):
+    #     pass
     
-    probs = probs/np.sum(probs)
-    return probs
+    # def calculate_obs(self, obs):
+    #     pass
 
-def measure_obs(bits, res):
-    n = len(bits)
-    baseobs = get_baselocal(n)
-    prob_r = reduce_probs(bits, res)
-    result = np.dot(prob_r, baseobs)
-    return result
-
-def get_basis(ind, N):
-    basisstr = bin(int(ind))[2:]
-    basisstr = basisstr.zfill(N)
-    basis =  [int(i) for i in basisstr] 
-    return np.array(basis)
-
-def get_ind(basis):
-    biconv = 2**np.arange(len(basis))
-    ind = np.dot(basis, biconv[::-1].T)
-    return int(ind)
-
-def get_baselocal(n):
-    NA = n
-    basisN = int(2**NA)
-    baseobs = np.zeros(basisN)
-    for i in range(basisN):
-        basisA = get_basis(i, NA)
-        baseobs[i] = (-1)**(np.sum(basisA))
-
-    return baseobs
 
 def intersec(a, b):
     inter = []

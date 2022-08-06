@@ -1,5 +1,7 @@
-from .quantum_circuit import QuantumCircuit
-from .quantum_tools import ExecResult 
+from .circuits.quantum_circuit import QuantumCircuit
+from .results.results import ExecResult, SimuResult 
+from .tasks.tasks import Task
+from .users.userapi import User
 
+__all__ = ["QuantumCircuit", "ExecResult", "Task", "User", "SimuResult"]
 
-__all__ = ["QuantumCircuit", "ExecResult"]

@@ -3,7 +3,6 @@
 Exceptions for errors raised while building circuit.
 """
 
-
 class QuafuError(Exception):
     """Base class for errors raised by Quafu."""
 
@@ -16,11 +15,11 @@ class QuafuError(Exception):
         """Return the message."""
         return repr(self.message)
 
-
 class CircuitError(QuafuError):
     """Exceptions for errors raised while building circuit."""
     pass
 
-
 class ServerError(QuafuError):
     pass
+
+

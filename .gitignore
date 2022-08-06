@@ -3,6 +3,8 @@
 .DS_Store
 .yml
 site/
+build/
+dist/
 =======
 
 *.pyc

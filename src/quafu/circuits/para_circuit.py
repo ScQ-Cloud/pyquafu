@@ -1,7 +1,7 @@
 
 
 from .quantum_circuit import QuantumCircuit
-from .transpiler.Qcovercompiler import QcoverCompiler
+from ..transpiler.Qcovercompiler import QcoverCompiler
 
 class QAOACircuit(QuantumCircuit):
     def __init__(self, logical_qubits, physical_qubits, nodes, edges, params, p, gate="CNOT"):

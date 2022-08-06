@@ -1,15 +1,12 @@
 import functools
 import numpy as np
-import requests
-import json
-from urllib import parse
-from .quantum_tools import ExecResult, merge_measure
-from .quantum_element import Barrier, ControlGate, SingleQubitGate, TwoQubitGate
-from .element_gates import *
-from .exceptions import CircuitError, ServerError
+from ..results.results import ExecResult, merge_measure
+from ..elements.quantum_element import Barrier, ControlGate, SingleQubitGate, TwoQubitGate
+from ..elements.element_gates import *
+from ..exceptions import CircuitError, ServerError
 from typing import Iterable
 import qutip
-
+ 
 
 class QuantumCircuit(object):
     def __init__(self, num):
@@ -20,31 +17,12 @@ class QuantumCircuit(object):
             num (int): Total qubit number used
         """
         self.num = num
-        self.shots = 1000
-        self.tomo = False
         self.gates = []
-        self.backend = "ScQ-P10"
         self.openqasm = ""
         self.circuit = []
         self.measures = dict(zip(range(num), range(num)))
-        self._compile = True
         self.used_qubits = []
 
-    def set_backend(self, backend):
-        """
-        Select the quantum device for executing task. Different computing backends provide different gate set. 
-
-        Args:
-            backend (str): Can be "ScQ-P10", "ScQ-P20", "ScQ-P50".
-        """
-        self.backend = backend
-
-    def get_backend(self):
-        """
-        Returns: 
-            The backend used currently
-        """
-        return self.backend
 
     def get_used_qubits(self):
         self.layered_circuit()
@@ -310,108 +288,7 @@ class QuantumCircuit(object):
         self.openqasm = qasm
         return qasm
 
-    def submit_task(self, obslist=[], compile=True):
-        """
-        Execute the circuit with observable expectation measurement task.
-        Args:
-            obslist (list[str, list[int]]): List of pauli string and its position.
-
-        Returns: 
-            List of executed results and list of measured observable
-
-        Examples: 
-            1) input [["XYX", [0, 1, 2]], ["Z", [1]]] measure pauli operator XYX at 0, 1, 2 qubit, and Z at 1 qubit.\n
-            2) Measure 5-qubit Ising Hamiltonian we can use\n
-            obslist = [["X", [i]] for i in range(5)]]\n
-            obslist.extend([["ZZ", [i, i+1]] for i in range(4)])\n
-        
-        For the energy expectation of Ising Hamiltonian \n
-        res, obsexp = q.submit_task(obslist)\n
-        E = sum(obsexp)
-        """
-        # save input circuit
-        inputs = self.gates
-        measures = list(self.measures.keys())
-        if len(obslist) == 0:
-            print("No observable measurement task.")
-            res = self.run(compile=compile)
-            return res, []
-
-        else:
-            for obs in obslist:
-                for p in obs[1]:
-                    if p not in measures:
-                        raise CircuitError("Qubit %d in observer %s is not measured." % (p, obs[0]))
-
-            measure_basis, targlist = merge_measure(obslist)
-            print("Job start, need measured in ", measure_basis)
-
-            exec_res = []
-            for measure_base in measure_basis:
-                res = self.run(measure_base=measure_base, compile=compile)
-                self.gates = inputs
-                exec_res.append(res)
-
-            measure_results = []
-            for obi in range(len(obslist)):
-                obs = obslist[obi]
-                rpos = [measures.index(p) for p in obs[1]]
-                measure_results.append(exec_res[targlist[obi]].calculate_obs(rpos))
-
-        return exec_res, measure_results
-
-    def run(self, measure_base=[], compile=True):
-        """Single run for measurement task.
-
-        Args:
-            measure_base (list[str, list[int]]): measure base and it position.
-        """
-        if len(measure_base) == 0:
-            res = self.send(compile=compile)
-            res.measure_base = ''
-
-        else:
-            for base, pos in zip(measure_base[0], measure_base[1]):
-                if base == "X":
-                    self.ry(pos, -np.pi / 2)
-                elif base == "Y":
-                    self.rx(pos, np.pi / 2)
-
-            res = self.send(compile=compile)
-            res.measure_base = measure_base
-
-        return res
-
-    def send(self, compile=True):
-        """
-        Run the circuit on experimental device.
-
-        Args:
-            compile (bool): Whether compile the circuit on backend.
-        Returns: 
-            ExecResult object that contain the dict return from quantum device.
-        """
-        self.to_openqasm()
-        self._compile = compile
-        backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2}
-        data = {"qtasm": self.openqasm, "shots": self.shots, "qubits": self.num, "scan": 0,
-                "tomo": int(self.tomo), "selected_server": backends[self.backend],
-                "compile": int(self._compile)}
-        url = "http://120.46.160.173/qbackend/scq_kit/"
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
-        data = parse.urlencode(data)
-        data = data.replace("%27", "'")
-        res = requests.post(url, headers=headers, data=data)
-
-        if res.json()["stat"] == 5002:
-            raise ServerError("Excessive computation scale.")
-            
-        elif res.json()["stat"] == 5001:
-            raise ServerError("Invalid Circuit.")
-
-        else:
-            return ExecResult(json.loads(res.text), self.measures)
-
+   
     def h(self, pos: int):
         """
         Hadamard gate.
@@ -553,7 +430,7 @@ class QuantumCircuit(object):
         self.gates.append(Barrier(qlist))
         return self
 
-    def measure(self, pos, shots: int = 1000, cbits: List[int] = [], tomo: bool = False):
+    def measure(self, pos, cbits: List[int] = []):
         """
         Measurement setting for experiment device.
         
@@ -565,8 +442,7 @@ class QuantumCircuit(object):
         """
 
         self.measures = dict(zip(pos, range(len(pos))))
-        self.shots = shots
-        self.tomo = tomo
+
         if cbits:
             if len(cbits) == len(self.measures):
                 self.measures = dict(zip(pos, cbits))
@@ -597,6 +473,7 @@ class QuantumCircuit(object):
 
         psi = self._operator() * psi
         rho = qutip.ptrace(psi, measures)
+        rho.permute(list(self.measures.values()))
         if result_type.lower() in ['prob']:
             if rho.type == 'ket':
                 return np.abs(np.array(rho).ravel()) ** 2
