@@ -32,7 +32,7 @@ from quafu import QuantumCircuit
 q = QuantumCircuit(5)
 ```
 
-Add quantum gates. For quantum gates Quafu supports, please check the API reference for [QuantumCircuit] (#quafu.QuantumCircuit)
+Add quantum gates. For quantum gates Quafu supports, please check the API reference for [`QuantumCircuit`](#quafu.QuantumCircuit)
 
 
 ```python
@@ -61,7 +61,7 @@ You can draw the circuit using the [`draw_circuit`](#quafu.circuits.quantum_circ
 q.draw_circuit()
 ```
 
-You can also initial your quantum circuit with openqasm text. [QuantumCircuit](#quafu.QuantumCircuit) class provides the [`from_openqasm`](#quafu.circuits.quantum_circuit.QuantumCircuit.from_openqasm) method for initializing quantum circuit directly from openqasm.
+You can also initial your quantum circuit with openqasm text. [`QuantumCircuit`](#quafu.QuantumCircuit) class provides the [`from_openqasm`](#quafu.circuits.quantum_circuit.QuantumCircuit.from_openqasm) method for initializing quantum circuit directly from openqasm.
 
 
 ```python
