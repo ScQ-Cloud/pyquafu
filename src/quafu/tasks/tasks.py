@@ -150,7 +150,7 @@ class Task(object):
                 "tomo": int(self.tomo), "selected_server": backends[self._backend.name],
                 "compile": int(self.compile)}
 
-        url = self._url  + "qbackend/scq_kit_test/"
+        url = self._url  + "qbackend/scq_kit/"
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
