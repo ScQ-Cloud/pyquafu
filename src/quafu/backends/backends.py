@@ -7,11 +7,8 @@ class Backend(object):
 
     def get_info(self, url, api_token):
         data = {"system_name": self.name.lower()}
-        print(data)
         headers={"api_token": api_token}
         chip_info = requests.post(url = url + "qbackend/scq_get_chip_info/", data=data, headers=headers)
-        print(url)
-        print(chip_info.text)
         return json.loads(chip_info.text)
 
 class ScQ_P10(Backend):
