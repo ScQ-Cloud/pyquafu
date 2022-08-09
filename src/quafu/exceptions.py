@@ -22,4 +22,7 @@ class CircuitError(QuafuError):
 class ServerError(QuafuError):
     pass
 
+class CompileError(QuafuError):
+    pass
+
 

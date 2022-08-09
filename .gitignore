@@ -2,7 +2,7 @@
 *.pyc
 .DS_Store
 .yml
-.egg_info/
+*.egg_info/
 site/
 build/
 dist/

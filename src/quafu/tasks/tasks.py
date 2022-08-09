@@ -1,7 +1,7 @@
 from operator import ge
 import os
 from ..utils.platform import get_homedir
-from ..exceptions import CircuitError, ServerError
+from ..exceptions import CircuitError, ServerError, CompileError
 from ..results.results import ExecResult, merge_measure
 from ..backends.backends import ScQ_P10, ScQ_P20, ScQ_P50
 from ..users.exceptions import UserError
@@ -59,7 +59,11 @@ class Task(object):
         
         self.shots = shots
         self.tomo = tomo
-        self.compile = True
+        self.compile = compile
+
+    def get_backend_info(self):
+        print(self._backend.name)
+        self._backend.get_info(self._url, self.token)
 
     def submit(self, qc, obslist=[]):
         """
@@ -158,9 +162,13 @@ class Task(object):
         res_dict = json.loads(res.text)
 
         if res.json()["status"] == 201:
-            msg = res_dict["message"]
-            raise ServerError(msg)
-
-        else:
+            raise UserError(res_dict["message"])
+        elif res.json()["status"] == 5001:
+            raise CircuitError(res_dict["message"])
+        elif res.json()["status"] == 5003:
+            raise ServerError(res_dict["message"])
+        elif res.json()["status"] == 5004:
+            raise CompileError(res_dict["message"]) 
+        else: 
             return ExecResult(res_dict, qc.measures)
 

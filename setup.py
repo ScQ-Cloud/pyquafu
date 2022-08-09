@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup 
 
 setup(name="quafu",
-    version="0.2.0",
+    version="0.2.1",
     author="ssli",
     author_email="ssli@iphy.ac.cn",
     url="https://github.com/ScQ-Cloud/quafu",
