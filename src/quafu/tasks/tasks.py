@@ -62,8 +62,7 @@ class Task(object):
         self.compile = compile
 
     def get_backend_info(self):
-        print(self._backend.name)
-        self._backend.get_info(self._url, self.token)
+        return self._backend.get_info(self._url, self.token)
 
     def submit(self, qc, obslist=[]):
         """
