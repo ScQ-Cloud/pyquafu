@@ -70,15 +70,13 @@ class SimuResult(Result):
         amplitudes (ndarray): Calculated amplitudes on each bitstring.
         rho (ndarray): Simulated density matrix of measured qubits
     """
-    def __init__(self, input_rho):
-        self.num = len(input_rho.dims[0])
-        self.rho = np.array(input_rho)
-        self.amplitudes = np.array([])
-        if input_rho.type == 'ket':
-            self.amplitudes = np.abs(np.array(input_rho).ravel()) ** 2
-        elif input_rho.type == 'oper':
-            self.amplitudes = np.abs(np.diag(input_rho)) ** 2
-         
+    def __init__(self, input_mat, density_matrix=False):
+        self.num = int(np.log2(input_mat.shape[0]))
+        if density_matrix:
+            self.rho = np.array(input_mat)
+        else:
+            self.amplitudes = input_mat
+        
     def plot_amplitudes(self, full=True):
         """
         Plot the amplitudes from simulated results.

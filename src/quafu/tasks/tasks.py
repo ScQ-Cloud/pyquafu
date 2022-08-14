@@ -152,7 +152,7 @@ class Task(object):
         data = {"qtasm": qc.openqasm, "shots": self.shots, "qubits": qc.num, "scan": 0,
                 "tomo": int(self.tomo), "selected_server": backends[self._backend.name],
                 "compile": int(self.compile)}
-
+        print(data)
         url = self._url  + "qbackend/scq_kit/"
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
         data = parse.urlencode(data)

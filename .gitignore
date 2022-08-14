@@ -2,10 +2,10 @@
 *.pyc
 .DS_Store
 .yml
-*.egg_info/
-site/
-build/
-dist/
+*.egg-info
+site
+build
+dist
 =======
 
 *.pyc

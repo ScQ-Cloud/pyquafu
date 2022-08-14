@@ -1,8 +1,9 @@
 # This is the file for  concrete element quantum gates
 from .quantum_element import FixedSingleQubitGate, ParaSingleQubitGate, FixedTwoQubitGate, ParaTwoQubitGate, \
-    ControlGate
+    ControlGate, FixedMultiQubitGate, ParaMultiQubitGate
 import numpy as np
 from typing import Union, List
+from scipy.linalg import sqrtm
 
 
 def _u2matrix(_phi=0., _lambda=0.):
@@ -82,6 +83,35 @@ class ZGate(FixedSingleQubitGate):
         super().__init__("Z", pos, matrix=np.array([[1., 0.],
                                                     [0., -1.]], dtype=complex))
 
+class SGate(FixedSingleQubitGate):
+    def __init__(self, pos: int):
+        super().__init__("S", pos, matrix=np.array([[1., 0.],
+                                                    [0., 1.j]], dtype=complex))
+
+class TGate(FixedSingleQubitGate):
+    def __init__(self, pos: int):
+        super().__init__("T", pos, matrix=np.array([[1., 0.],
+                                                    [0., np.exp(1.j*np.pi/4)]], dtype=complex))
+
+class WGate(FixedSingleQubitGate):
+    def __init__(self, pos: int):
+        super().__init__("W", pos, matrix=np.zeros((2, 2), dtype=complex))
+        self.matrix = (XGate(0).matrix + YGate(0).matrix)/np.sqrt(2)
+
+class SXGate(FixedSingleQubitGate):
+    def __init__(self, pos: int):
+        super().__init__("SX", pos, matrix=np.zeros((2, 2), dtype=complex))
+        self.matrix = sqrtm(XGate(0).matrix)
+
+class SYGate(FixedSingleQubitGate):
+    def __init__(self, pos: int):
+        super().__init__("SY", pos, matrix=np.zeros((2, 2), dtype=complex))
+        self.matrix = sqrtm(YGate(0).matrix)
+
+class SWGate(FixedSingleQubitGate):
+    def __init__(self, pos: int):
+        super().__init__("SW", pos, matrix=np.zeros((2, 2), dtype=complex))
+        self.matrix = sqrtm(WGate(0).matrix)
 
 class RXGate(ParaSingleQubitGate):
     def __init__(self, pos: int, paras):
@@ -142,15 +172,15 @@ class SwapGate(FixedTwoQubitGate):
 class CXGate(ControlGate):
     def __init__(self, pos: List[int]):
         super().__init__("CX", pos[0], pos[1], matrix=_cxmatrix(reverse=bool(pos[0] > pos[1])))
+        self.targ_name = "X"
 
     def to_QLisp(self):
         return ("Cnot", ("Q%d" % self.ctrl, "Q%d" % self.targ))
 
-
 class CYGate(ControlGate):
     def __init__(self, pos: List[int]):
         super().__init__("CY", pos[0], pos[1], matrix=_cymatrix(reverse=bool(pos[0] > pos[1])))
-
+        self.targ_name = "Y"
 
 class CZGate(ControlGate):
     def __init__(self, pos: List[int]):
@@ -158,6 +188,64 @@ class CZGate(ControlGate):
                                                                 [0., 1., 0., 0.],
                                                                 [0., 0., 1., 0.],
                                                                 [0., 0., 0., -1.]], dtype=complex))
+        
+        self.targ_name = "Z"
+
+class CSGate(ControlGate):
+    def __init__(self, pos: List[int]):
+        super().__init__("CS", pos[0], pos[1], matrix=np.array([[1., 0., 0., 0.],
+                                                                [0., 1., 0., 0.],
+                                                                [0., 0., 1., 0.],
+                                                                [0., 0., 0., 1.j]], dtype=complex))
+        self.targ_name = "S"
+
+
+class CTGate(ControlGate):
+    def __init__(self, pos: List[int]):
+        super().__init__("CS", pos[0], pos[1], matrix=np.array([[1., 0., 0., 0.],
+                                                                [0., 1., 0., 0.],
+                                                                [0., 0., 1., 0.],
+                                                                [0., 0., 0., np.exp(1.j*np.pi/4)]], dtype=complex))
+        self.targ_name = "T"
+
+
+
+class ToffoliGate(FixedMultiQubitGate):
+    def __init__(self, pos):
+        super().__init__("CCX", pos, np.zeros([8, 8]))
+        self.ctrls = pos[0:2]
+        self.targs = [pos[2]]
+        self.targ_names = ["X"]
+
+        for i in range(6):
+            self.matrix[i, i] = 1.
+        self.matrix[6, 7] = 1.
+        self.matrix[7, 6] = 1.
+
+        inds = np.argsort(pos)
+        inds = np.concatenate([inds, inds+3])
+        tensorm = self.matrix.reshape([2, 2, 2, 2, 2, 2])
+        self.matrix = np.transpose(tensorm, inds).reshape([8, 8])
+
+
+class FredkinGate(FixedMultiQubitGate):
+    def __init__(self, pos):
+        super().__init__("CSwap", pos, np.zeros([8, 8]))
+        self.ctrls = [pos[0]]
+        self.targs = pos[1:]
+        self.targ_names = ["SWAP", "SWAP"]
+
+        for i in range(5):
+            self.matrix[i, i] = 1.
+        
+        self.matrix[5, 6] = 1.
+        self.matrix[6, 5] = 1.
+        self.matrix[7, 7] = 1.
+
+        inds = np.argsort(pos)
+        inds = np.concatenate([inds, inds+3])
+        tensorm = self.matrix.reshape([2, 2, 2, 2, 2, 2])
+        self.matrix = np.transpose(tensorm, inds).reshape([8, 8])
 
 
 class FsimGate(ParaTwoQubitGate):
@@ -173,7 +261,6 @@ class FsimGate(ParaTwoQubitGate):
     def to_IOP(self):
         raise ValueError(
             "The IOP backend does not support fSim gate currently, please use the BAQIS backend.")
-
 
 def main():
     res = iSwapGate([0, 1])

@@ -238,6 +238,7 @@ class ControlGate(FixedTwoQubitGate):
         super().__init__(name, [ctrl, targ], matrix)
         self.__ctrl = ctrl
         self.__targ = targ
+        self.targ_name = ""
 
     @property
     def ctrl(self):
@@ -263,6 +264,18 @@ class ControlGate(FixedTwoQubitGate):
 
     def to_IOP(self):
         return [self.name, [self.ctrl, self.targ]]
+
+class MultiQubitGate(QuantumGate):
+    def __init__(self, name, pos, paras, matrix):
+        super().__init__(name, pos, paras, matrix)
+    
+class FixedMultiQubitGate(MultiQubitGate):
+    def __init__(self, name, pos, matrix):
+        super().__init__(name, pos, None, matrix)
+
+class ParaMultiQubitGate(MultiQubitGate):
+    def __init__(self, name, pos, paras, matrix):
+        super().__init__(name, pos, paras, matrix)
 
 
 def _oper1q_local_to_global(_gate: SingleQubitGate, used_qubits: Optional[List[int]] = None):

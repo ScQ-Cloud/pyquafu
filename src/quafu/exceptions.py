@@ -25,4 +25,3 @@ class ServerError(QuafuError):
 class CompileError(QuafuError):
     pass
 
-

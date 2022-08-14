@@ -1,17 +1,18 @@
 import numpy as np
 from functools import reduce
+import sparse
 
-si = np.array([[1., 0.],
-               [0., 1.]])
+si = sparse.COO(np.array([[1., 0.],
+               [0., 1.]],dtype=complex))
 
-sx = np.array([[0., 1.],
-               [1., 0.]])
+sx = sparse.COO(np.array([[0., 1.],
+               [1., 0.]], dtype=complex))
 
-sy = np.array([[0., -1.j],
-               [1.j, 0.]]) 
+sy = sparse.COO(np.array([[0., -1.j],
+               [1.j, 0.]], dtype=complex)) 
 
-sz = np.array([[1., 0.],    
-               [0., -1.]])
+sz = sparse.COO(np.array([[1., 0.],    
+               [0., -1.]], dtype=complex))
 
 spin = [np.array([1., 0.]), np.array([0., 1.])]
 
@@ -24,7 +25,7 @@ def ry(phi):
                      [np.sin(phi / 2), np.cos(phi / 2)]])
 
 def tensorl(ml):
-    return reduce(np.kron, ml, 1)
+    return reduce(sparse.kron, ml, 1)
 
 
 def Nbit_single(N):
