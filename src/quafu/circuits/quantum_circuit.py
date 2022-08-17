@@ -90,6 +90,9 @@ class QuantumCircuit(object):
     def draw_circuit(self, width=4):
         """
         Draw layered circuit using ASCII, print in terminal.
+
+        Args:
+            width (int): The width of each gate. 
         """
         self.layered_circuit()
         gateQlist = self.circuit
@@ -105,8 +108,16 @@ class QuantumCircuit(object):
             for i in range(num):
                 gate = layergates[i]
                 if isinstance(gate, FixedSingleQubitGate):
-                    printlist[i * 2, l] = gate.name
-                    maxlen = max(maxlen, len(gate.name) + width)
+                    gate_symbol = gate.name
+                    if gate.name == "SX":
+                        gate_symbol = "√X"
+                    elif gate.name == "SY":
+                        gate_symbol = "√Y"
+                    elif gate.name == "SW":
+                        gate_symbol = "√W"
+                    
+                    printlist[i * 2, l] = gate_symbol
+                    maxlen = max(maxlen, len(gate_symbol) + width)
                 elif isinstance(gate, ParaSingleQubitGate):
                     gatestr = "%s(%.3f)" % (gate.name, gate.paras)
                     printlist[i * 2, l] = gatestr
@@ -299,6 +310,7 @@ class QuantumCircuit(object):
     def to_openqasm(self, compile=True):
         """
         Convert the circuit to openqasm text.
+
         Returns: 
             openqasm text.
         """
@@ -310,16 +322,14 @@ class QuantumCircuit(object):
                 if gate.name == "SY":
                     qasm += "ry(pi/2) q[%d];\n" %(gate.pos)
                 elif gate.name == "W":
-                    qasm += "rz(pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(-pi/4) q[%d];\n"  %(gate.pos, gate.pos, gate.pos)
+                    qasm += "rz(-pi/4) q[%d];\nrx(pi) q[%d];\nrz(pi/4) q[%d];\n"  %(gate.pos, gate.pos, gate.pos)
                 elif gate.name == "SW":
-                    qasm += "rz(pi/4) q[%d];\nrx(pi/4) q[%d];\nrz(-pi/4) q[%d];\n"  %(gate.pos, gate.pos, gate.pos)
+                    qasm += "rz(-pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(pi/4) q[%d];\n"  %(gate.pos, gate.pos, gate.pos)
                 else:
                     qasm += "%s q[%d];\n" % (gate.name.lower(), gate.pos)
 
             elif isinstance(gate, ParaSingleQubitGate):
                 qasm += "%s(%s) q[%d];\n" % (gate.name.lower(), gate.paras, gate.pos)
-            # elif isinstance(gate, FixedTwoQubitGate):
-            #     qasm += "%s q[%d],q[%d];\n" % (gate.name.lower(), gate.pos[0], gate.pos[1])
             elif isinstance(gate, Barrier) or isinstance(gate, FixedTwoQubitGate) or isinstance(gate, FixedMultiQubitGate):
                 if gate.name == "CS":
                     qasm += "cp(pi/2) " + "q[%d],q[%d];\n" % (gate.pos[0], gate.pos[1])
@@ -376,21 +386,65 @@ class QuantumCircuit(object):
         return self
 
     def t(self, pos: int):
+        """
+        T gate.
+
+        Args:
+            pos (int): qubit the gate act.
+        """
         self.gates.append(TGate(pos))
         return self
     
     def s(self, pos: int):
+        """
+        S gate.
+
+        Args:
+            pos (int): qubit the gate act.
+        """
         self.gates.append(SGate(pos))
         return self
     
     def sx(self, pos: int):
+        """
+        √X gate.
+
+        Args:
+            pos (int): qubit the gate act.
+        """
         self.gates.append(SXGate(pos))
         return self
 
     def sy(self, pos: int):
+        """
+        √Y gate.
+
+        Args:
+            pos (int): qubit the gate act.
+        """
         self.gates.append(SYGate(pos))
         return self
 
+    def w(self, pos: int):
+        """
+        W gate.
+
+        Args:
+            pos (int): qubit the gate act.
+        """
+        self.gates.append(WGate(pos))
+        return self
+    
+    def sw(self, pos: int):
+        """
+        √W gate.
+
+        Args:
+            pos (int): qubit the gate act.
+        """
+        self.gates.append(SWGate(pos))
+        return self
+    
     def rx(self, pos: int, para):
         """
         Single qubit rotation Rx gate.
@@ -504,12 +558,24 @@ class QuantumCircuit(object):
     def toffoli(self, ctrl1, ctrl2, targ):
         """
         Toffoli gate
+
         Args:
+            ctrl1 (int): control qubit
+            ctrl2 (int): control qubit
+            targ (int): target qubit
         """
         self.gates.append(ToffoliGate([ctrl1, ctrl2, targ]))
         return self
     
     def fredkin(self, ctrl, targ1, targ2):
+        """
+        Fredkin gate
+        
+        Args:
+            ctrl (int):  control qubit
+            targ1 (int): target qubit
+            targ2 (int): target qubit
+        """
         self.gates.append(FredkinGate([ctrl, targ1, targ2]))
 
 

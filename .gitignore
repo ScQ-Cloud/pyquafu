@@ -1,9 +1,10 @@
 <<<<<<< HEAD
 *.pyc
 .DS_Store
-.yml
-*.egg-info
-site
+src/*.yml
+src/*.egg-info
+src/site
+src/docs
 build
 dist
 =======

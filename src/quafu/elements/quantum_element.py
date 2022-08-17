@@ -1,8 +1,6 @@
 # This is the file for abstract quantum gates class
 from typing import Union, Callable, List, Tuple, Iterable, Any, Optional
-import functools
 import numpy as np
-import qutip
 
 
 class Barrier(object):
@@ -20,13 +18,6 @@ class Barrier(object):
 
     def to_QLisp(self):
         return ("Barrier", tuple(["Q%d" % i for i in self.pos]))
-
-    def _operator(self, used_qubits: Optional[List[int]] = None):
-        if used_qubits is None:
-            used_qubits = self.pos
-        num = len(used_qubits)
-        assert num >= 1
-        return qutip.qeye([2] * num)
 
 
 class QuantumGate(object):
@@ -89,7 +80,7 @@ class SingleQubitGate(QuantumGate):
 
     @matrix.setter
     def matrix(self, _matrix):
-        if isinstance(_matrix, (np.ndarray, List, qutip.Qobj)):
+        if isinstance(_matrix, (np.ndarray, List)):
             if np.shape(_matrix) == (2, 2):
                 self.__matrix = np.asarray(_matrix, dtype=complex)
             else:
@@ -99,8 +90,6 @@ class SingleQubitGate(QuantumGate):
         else:
             raise TypeError("Unsupported `matrix` type")
 
-    def _operator(self, num: int = 1):
-        return _oper1q_local_to_global(self, num)
 
     def to_QLisp(self):
         return ((self.name, "Q%d" % self.pos))
@@ -130,7 +119,7 @@ class ParaSingleQubitGate(SingleQubitGate):
     def matrix(self, _matrix):
         if isinstance(_matrix, Callable):
             self.__matrix = _matrix(self.paras)
-        elif isinstance(_matrix, (np.ndarray, List, qutip.Qobj)):
+        elif isinstance(_matrix, (np.ndarray, List)):
             if np.shape(_matrix) == (2, 2):
                 self.__matrix = np.asarray(_matrix, dtype=complex)
             else:
@@ -175,9 +164,6 @@ class TwoQubitGate(QuantumGate):
         else:
             raise TypeError("Unsupported `matrix` type")
 
-    def _operator(self, num: int = 2):
-        return _oper2q_local_to_global(self, num)
-
     def to_QLisp(self):
         return (self.name, ("Q%d" % self.pos[0], "Q%d" % self.pos[1]))
 
@@ -207,7 +193,7 @@ class ParaTwoQubitGate(TwoQubitGate):
     def matrix(self, _matrix):
         if isinstance(_matrix, Callable):
             self.__matrix = _matrix(self.paras)
-        elif isinstance(_matrix, (np.ndarray, List, qutip.Qobj)):
+        elif isinstance(_matrix, (np.ndarray, List)):
             if np.shape(_matrix) == (4, 4):
                 self.__matrix = np.asarray(_matrix, dtype=complex)
             else:
@@ -268,7 +254,7 @@ class ControlGate(FixedTwoQubitGate):
 class MultiQubitGate(QuantumGate):
     def __init__(self, name, pos, paras, matrix):
         super().__init__(name, pos, paras, matrix)
-    
+
 class FixedMultiQubitGate(MultiQubitGate):
     def __init__(self, name, pos, matrix):
         super().__init__(name, pos, None, matrix)
@@ -278,99 +264,3 @@ class ParaMultiQubitGate(MultiQubitGate):
         super().__init__(name, pos, paras, matrix)
 
 
-def _oper1q_local_to_global(_gate: SingleQubitGate, used_qubits: Optional[List[int]] = None):
-    """
-    Single-qubit operator from local to global
-
-    Parameters
-    ----------
-    _gate: SingleQubitGate
-    used_qubits: list
-        The total qubits used.
-    Returns
-    -------
-    oper: qutip.Qobj
-    """
-
-    pos = _gate.pos
-    if used_qubits is None:
-        used_qubits = [pos]
-
-    num = len(used_qubits)
-    assert num >= 1 and pos in used_qubits
-
-    q_idx = used_qubits.index(pos)
-    gate = qutip.Qobj(_gate.matrix, dims=[[2], [2]])
-    ops = []
-    for idx in range(num):
-        if idx != q_idx:
-            ops.append(qutip.qeye(2))
-        else:
-            ops.append(gate)
-    oper = functools.reduce(qutip.tensor, ops)
-    return oper
-
-
-def _oper2q_local_to_global(_gate: TwoQubitGate, used_qubits: Optional[List[int]] = None):
-    """
-    Two-qubit operator from local to global
-
-    Parameters
-    ----------
-    _gate: TwoQubitGate
-    used_qubits: list
-        The total qubits used.
-
-    Returns
-    -------
-    oper: qutip.Qobj
-    """
-    pos = np.sort(_gate.pos).tolist()
-    if used_qubits is None:
-        used_qubits = pos
-    num = len(used_qubits)
-    assert num >= 2 and all(pos_i in used_qubits for pos_i in pos)
-    pos0, pos1 = used_qubits.index(pos[0]), used_qubits.index(pos[1])
-    gate = qutip.Qobj(_gate.matrix, dims=[[2, 2], [2, 2]])
-
-    pos_diff_abs = abs(pos1 - pos0)
-    if pos_diff_abs == 1:
-        # two nearest neighbor qubits
-        if pos0 == 0:
-            if pos1 == int(num - 1):
-                oper = gate
-            else:
-                qeye_right = qutip.qeye([2] * int(num - 1 - pos1))
-                oper = qutip.tensor(gate, qeye_right)
-        else:
-            qeye_left = qutip.qeye([2] * int(pos0))
-            if pos1 == int(num - 1):
-                oper = qutip.tensor(qeye_left, gate)
-            else:
-                qeye_right = qutip.qeye([2] * int(num - 1 - pos1))
-                oper = qutip.tensor(qeye_left, gate, qeye_right)
-
-    else:
-        # two non-nearest neighbor qubits
-        oper = qutip.tensor(gate, qutip.qeye([2] * int(pos_diff_abs - 1)))
-        idxs = list(range(pos_diff_abs + 1))
-        idxs[1], idxs[-1] = idxs[-1], idxs[1]
-        oper = oper.permute(idxs)
-
-        if pos0 == 0:
-            if pos1 < int(num - 1):
-                qeye_right = qutip.qeye([2] * int(num - 1 - pos1))
-                oper = qutip.tensor(oper, qeye_right)
-        else:
-            qeye_left = qutip.qeye([2] * int(pos0))
-            if pos1 == int(num - 1):
-                oper = qutip.tensor(qeye_left, oper)
-            else:
-                qeye_right = qutip.qeye([2] * int(num - 1 - pos1))
-                oper = qutip.tensor(qeye_left, gate, qeye_right)
-
-    return oper
-
-
-if __name__ == '__main__':
-    pass

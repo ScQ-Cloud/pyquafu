@@ -14,6 +14,7 @@ class Result(object):
 class ExecResult(Result):
     """ 
     Class that save the execute results returned from backend.
+    
     Attributes:
         counts (dict): Samples counts on each bitstring.
         amplitudes (dict): Calculated amplitudes on each bitstring.
@@ -45,6 +46,7 @@ class ExecResult(Result):
     def calculate_obs(self, pos):
         """
         Calculate observables on input position
+
         Args: 
             pos (list[int]): Positions of observalbes.
         """
@@ -65,24 +67,32 @@ class ExecResult(Result):
 class SimuResult(Result):
     """
     Class that save the execute simulation results returned from classical simulator.
+
     Attributes:
         num (int) : Numbers of measured qubits
         amplitudes (ndarray): Calculated amplitudes on each bitstring.
         rho (ndarray): Simulated density matrix of measured qubits
     """
-    def __init__(self, input_mat, density_matrix=False):
-        self.num = int(np.log2(input_mat.shape[0]))
-        if density_matrix:
-            self.rho = np.array(input_mat)
-        else:
-            self.amplitudes = input_mat
+    def __init__(self, input, input_form):
+        self.num = int(np.log2(input.shape[0]))
+        if input_form == "density_matrix":
+            self.rho = np.array(input)
+            self.amplitudes = np.diag(input)
+        elif input_form == "amplitudes":
+            self.amplitudes = input
+        elif input_form == "state_vector":
+            self.state_vector = input
         
-    def plot_amplitudes(self, full=True):
+    def plot_amplitudes(self, full=False, reverse_basis=False, sort=None):
         """
         Plot the amplitudes from simulated results.
+        
         Args:
-            full (bool) : Whether plot on the full basis of measured qubits. 
+            full (bool) : Whether plot on the full basis of measured qubits.
+            reverse_basis (bool): Whether reverse the bitstring of basis.
+            sort (str):  Sort the results by amplitude values. Can be `"ascend"` order or `"descend"` order. 
         """
+
         from ..utils.basis import get_basis
         probs = self.amplitudes
         inds = range(len(probs))
@@ -90,10 +100,27 @@ class SimuResult(Result):
             inds = np.where(self.amplitudes > 1e-14)[0]
             probs = self.amplitudes[inds]
 
+        basis=np.array([bin(i)[2:].zfill(self.num) for i in inds])
+        if reverse_basis:
+            basis=np.array([bin(i)[2:].zfill(self.num)[::-1] for i in inds])
+
+        if sort == "ascend":
+            orders = np.argsort(probs)
+            probs = probs[orders]
+            basis = basis[orders]
+        elif sort == "descend":
+            orders = np.argsort(probs)
+            probs = probs[orders][::-1]
+            basis = basis[orders][::-1]
+
+
         plt.figure()
-        plt.bar(inds, probs, tick_label=[bin(i)[2:].zfill(self.num) for i in inds])
+        plt.bar(inds, probs, tick_label=basis)
         plt.xticks(rotation=70)
         plt.ylabel("amplitudes")
+
+    def get_statevector(self):
+        return self.state_vector
 
     # def plot_rho(self):
     #     pass
