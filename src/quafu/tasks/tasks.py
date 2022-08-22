@@ -87,6 +87,7 @@ class Task(object):
         directed_weighted_edges = []
         weighted_edges = []
         edges_dict = {}
+        clist = []
         for gate, name_fidelity in json_topo_struct.items():
             gate_qubit = gate.split('_')
             qubit1 = qubit_to_int[gate_qubit[0]]
@@ -94,6 +95,7 @@ class Task(object):
             gate_name = list(name_fidelity.keys())[0]
             fidelity = name_fidelity[gate_name]['fidelity']
             directed_weighted_edges.append([qubit1, qubit2, fidelity])
+            clist.append([qubit1, qubit2])
             gate_reverse = gate.split('_')[1] + '_' + gate.split('_')[0]
             if gate not in edges_dict and gate_reverse not in edges_dict:
                 edges_dict[gate] = fidelity
@@ -227,7 +229,7 @@ class Task(object):
         data = {"qtasm": qc.openqasm, "shots": self.shots, "qubits": qc.num, "scan": 0,
                 "tomo": int(self.tomo), "selected_server": backends[self._backend.name],
                 "compile": int(self.compile)}
-        print(data)
+        
         url = self._url  + "qbackend/scq_kit/"
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
         data = parse.urlencode(data)

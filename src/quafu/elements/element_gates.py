@@ -88,6 +88,11 @@ class SGate(FixedSingleQubitGate):
         super().__init__("S", pos, matrix=np.array([[1., 0.],
                                                     [0., 1.j]], dtype=complex))
 
+class SdgGate(FixedSingleQubitGate):
+    def __init__(sell, pos: int):
+        super().__init__("Sdg", pos, matrix = np.array([[1., 0.],
+                                                    [0., -1.j]], dtype=complex))
+
 class TGate(FixedSingleQubitGate):
     def __init__(self, pos: int):
         super().__init__("T", pos, matrix=np.array([[1., 0.],

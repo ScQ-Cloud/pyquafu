@@ -13,7 +13,7 @@ class QuantumCircuit(object):
         """
         Initialize a QuantumCircuit object
         
-        Args:
+        Args:   
             num (int): Total qubit number used
         """
         self.num = num
@@ -211,7 +211,9 @@ class QuantumCircuit(object):
         from numpy import pi
         import re
         self.openqasm = openqasm
+        # lines = self.openqasm.strip("\n").splitlines(";")
         lines = self.openqasm.splitlines()
+        lines = [line for line in lines if line]
         self.gates = []
         self.measures = {}
         measured_qubits = []
@@ -280,6 +282,8 @@ class QuantumCircuit(object):
                                 self.h(inds[0])
                             elif gatename == "s":
                                 self.s(inds[0])
+                            elif gatename == "sdg":
+                                self.sdg(inds[0])
                             elif gatename == "t":
                                 self.t(inds[0])
                             elif gatename == "sx":
@@ -404,7 +408,17 @@ class QuantumCircuit(object):
         """
         self.gates.append(SGate(pos))
         return self
-    
+
+    def sdg(self, pos: int):
+        """
+        Sdg gate.
+
+        Args:
+            pos (int): qubit the gate act.
+        """
+        self.gates.append(SdgGate(pos))
+        return self
+
     def sx(self, pos: int):
         """
         √X gate.
