@@ -107,7 +107,7 @@ class Task(object):
         for gate, fidelity in edges_dict.items():
             gate_qubit = gate.split('_')
             qubit1, qubit2 = qubit_to_int[gate_qubit[0]], qubit_to_int[gate_qubit[1]]
-            weighted_edges.append([qubit1, qubit2, np.round(fidelity, 1)])
+            weighted_edges.append([qubit1, qubit2, np.round(fidelity, 3)])
 
         # draw topology
 
@@ -117,10 +117,10 @@ class Task(object):
 
         G.add_weighted_edges_from(weighted_edges)
 
-        elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] >= 90]
-        esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] < 90]
-        elarge_labels = {(u, v) : d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] >= 90}
-        esmall_labels = {(u, v) : d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] < 90}
+        elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9]
+        esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9]
+        elarge_labels = {(u, v) : "%.3f" %d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9}
+        esmall_labels = {(u, v) : "%.3f" %d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9}
 
 
         pos = nx.spring_layout(G, seed=1)  
