@@ -1,7 +1,7 @@
 #default circuit simulator for state vector
 from typing import Iterable, Union
 from ..results.results import SimuResult
-from ..elements.quantum_element import Barrier, SingleQubitGate, TwoQubitGate, MultiQubitGate
+from ..elements.quantum_element import Barrier, Delay, SingleQubitGate, TwoQubitGate, MultiQubitGate, XYResonance
 import numpy as np
 from functools import reduce
 from sparse import COO, SparseArray
@@ -84,7 +84,7 @@ def simulate(qc, state_ini: np.ndarray = None, output="amplitudes"):
         psi = state_ini
 
     for gate in qc.gates:   
-        if not isinstance(gate, Barrier): 
+        if not ((isinstance(gate, Delay)) or (isinstance(gate, Barrier)) or isinstance(gate, XYResonance)): 
             op = global_op(gate, used_qubits)
             psi = op @ psi
 

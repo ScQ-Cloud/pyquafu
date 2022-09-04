@@ -2,7 +2,7 @@ import functools
 from turtle import width
 import numpy as np
 from ..results.results import ExecResult, merge_measure
-from ..elements.quantum_element import Barrier, ControlGate, MultiQubitGate, SingleQubitGate, TwoQubitGate
+from ..elements.quantum_element import Barrier, Delay, ControlGate, MultiQubitGate, SingleQubitGate, TwoQubitGate, XYResonance
 from ..elements.element_gates import *
 from ..exceptions import CircuitError, ServerError
 from typing import Iterable
@@ -40,19 +40,19 @@ class QuantumCircuit(object):
         gateQlist = [[] for i in range(num)]
         used_qubits = []
         for gate in gatelist:
-            if isinstance(gate, SingleQubitGate):
+            if isinstance(gate, SingleQubitGate) or isinstance(gate, Delay):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
 
-            elif isinstance(gate, Barrier) or isinstance(gate, TwoQubitGate) or isinstance(gate, MultiQubitGate):
+            elif isinstance(gate, Barrier) or isinstance(gate, TwoQubitGate) or isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
                 gateQlist[pos1].append(gate)
                 for j in range(pos1 + 1, pos2 + 1):
                     gateQlist[j].append(None)
 
-                if isinstance(gate, TwoQubitGate) or isinstance(gate, MultiQubitGate):
+                if isinstance(gate, TwoQubitGate) or isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
                     for pos in gate.pos:
                         if pos not in used_qubits:
                             used_qubits.append(pos)
@@ -122,13 +122,18 @@ class QuantumCircuit(object):
                     gatestr = "%s(%.3f)" % (gate.name, gate.paras)
                     printlist[i * 2, l] = gatestr
                     maxlen = max(maxlen, len(gatestr) + width)
+                
+                elif isinstance(gate, Delay):
+                    gatestr = "Delay(%d%s)" % (gate.duration, gate.unit)
+                    printlist[i * 2, l] = gatestr
+                    maxlen = max(maxlen, len(gatestr) + width)
 
                 elif isinstance(gate, FixedTwoQubitGate) or isinstance(gate, FixedMultiQubitGate):
                     q1 = reduce_map[min(gate.pos)]
                     q2 = reduce_map[max(gate.pos)]
                     printlist[2 * q1 + 1:2 * q2, l] = "|"
-                    printlist[reduce_map[gate.pos[0]] * 2, l] = "#"
-                    printlist[reduce_map[gate.pos[1]] * 2, l] = "#"
+                    printlist[reduce_map[min(gate.pos)] * 2, l] = "#"
+                    printlist[reduce_map[max(gate.pos)] * 2, l] = "#"
 
                     if isinstance(gate, ControlGate): 
                         printlist[reduce_map[gate.ctrl] * 2, l] = "*"
@@ -166,20 +171,38 @@ class QuantumCircuit(object):
                         printlist[q1 + q2, l] = gate.name
                         maxlen = max(maxlen, len(gate.name) + width)
 
-                elif isinstance(gate, ParaTwoQubitGate) or isinstance(gate, ParaMultiQubitGate):
-                    q1 = reduce_map(min(gate.pos))
-                    q2 = reduce_map(max(gate.pos))
+                elif isinstance(gate, ParaTwoQubitGate) or isinstance(gate, ParaMultiQubitGate) or isinstance(gate, XYResonance):
+                    q1 = reduce_map[min(gate.pos)]
+                    q2 = reduce_map[max(gate.pos)]
                     printlist[2 * q1 + 1:2 * q2, l] = "|"
-                    printlist[reduce_map[gate.pos[0]] * 2, l] = "#"
-                    printlist[reduce_map[gate.pos[1]] * 2, l] = "#"
+                    printlist[reduce_map[min(gate.pos)] * 2, l] = "#"
+                    printlist[reduce_map[max(gate.pos)] * 2, l] = "#"
                     gatestr = ""
-                    if isinstance(gate.paras, Iterable):
-                        gatestr = ("%s(" % gate.name + ",".join(
+
+                    if isinstance(gate, XYResonance):
+                        gatestr = "XY(%d%s)" % (gate.duration, gate.unit)
+                        printlist[q1 + q2, l] = gatestr
+                        maxlen = max(maxlen, len(gatestr) + width)
+
+                    elif isinstance(gate, ParaControlGate): 
+                        printlist[reduce_map[gate.ctrl] * 2, l] = "*"
+                        if isinstance(gate.paras, Iterable):
+                            targ_symbol = ("%s(" % gate.targ_name + ",".join(
                             ["%.3f" % para for para in gate.paras]) + ")")
+                        else:
+                            targ_symbol = "%s(%.3f)" % (gate.targ_name, gate.paras)    
+                        maxlen = max(maxlen, len(targ_symbol) + width)
+                        printlist[reduce_map[gate.targ] * 2, l] = targ_symbol
+                    
                     else:
-                        gatestr = "%s(%.3f)" % (gate.name, gate.paras)
-                    printlist[q1 + q2, l] = gatestr
-                    maxlen = max(maxlen, len(gatestr) + width)
+                        if isinstance(gate.paras, Iterable):
+                            gatestr = ("%s(" % gate.name + ",".join(
+                                ["%.3f" % para for para in gate.paras]) + ")")
+                        else:
+                            gatestr = "%s(%.3f)" % (gate.name, gate.paras)
+
+                        printlist[q1 + q2, l] = gatestr
+                        maxlen = max(maxlen, len(gatestr) + width)
 
                 elif isinstance(gate, Barrier):
                     pos = [i for i in gate.pos if i in reduce_map.keys()]
@@ -187,6 +210,7 @@ class QuantumCircuit(object):
                     q2 = reduce_map[max(pos)]
                     printlist[2 * q1:2 * q2 + 1, l] = "||"
                     maxlen = max(maxlen, len("||"))
+                
 
             printlist[-1, l] = maxlen
 
@@ -203,6 +227,7 @@ class QuantumCircuit(object):
                     [printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
         circuitstr = "\n".join(circuitstr)
         print(circuitstr)
+
 
     def from_openqasm(self, openqasm):
         """
@@ -253,58 +278,77 @@ class QuantumCircuit(object):
                         else:
                             sp_op = operations.split("(")
                             gatename = sp_op[0]
-                            if len(sp_op) > 1:
+                            if gatename == "delay":
                                 paras = sp_op[1].strip("()")
-                                parastr = paras.split(",")
-                                paras = [eval(parai, {"pi": pi}) for parai in parastr]
-
-                            if gatename == "cx":
-                                self.cnot(inds[0], inds[1])
-                            elif gatename == "cy":
-                                self.cy(inds[0], inds[1])
-                            elif gatename == "cz":
-                                self.cz(inds[0], inds[1])
-                            elif gatename == "swap":
-                                self.swap(inds[0], inds[1])
-                            elif gatename == "rx":
-                                self.rx(inds[0], paras[0])
-                            elif gatename == "ry":
-                                self.ry(inds[0], paras[0])
-                            elif gatename == "rz":
-                                self.rz(inds[0], paras[0])
-                            elif gatename == "x":
-                                self.x(inds[0])
-                            elif gatename == "y":
-                                self.y(inds[0])
-                            elif gatename == "z":
-                                self.z(inds[0])
-                            elif gatename == "h":
-                                self.h(inds[0])
-                            elif gatename == "s":
-                                self.s(inds[0])
-                            elif gatename == "sdg":
-                                self.sdg(inds[0])
-                            elif gatename == "t":
-                                self.t(inds[0])
-                            elif gatename == "sx":
-                                self.sx(inds[0])
-                            elif gatename == "ccx":
-                                self.toffoli(inds[0], inds[1], inds[2])
-                            elif gatename == "cswap":
-                                self.fredkin(inds[0], inds[1], inds[2])
-                            elif gatename == "u1":
-                                self.rz(inds[0], paras[0])
-                            elif gatename == "u2":
-                                self.rz(inds[0], paras[1])
-                                self.ry(inds[0], pi / 2)
-                                self.rz(inds[0], paras[0])
-                            elif gatename == "u3":
-                                self.rz(inds[0], paras[2])
-                                self.ry(inds[0], paras[0])
-                                self.rz(inds[0], paras[1])
+                                duration = int(re.findall("\d+", paras)[0])
+                                unit = re.findall("[a-z]+", paras)[0]
+                                self.delay(inds[0], duration, unit)
+                            elif gatename == "xy":
+                                paras = sp_op[1].strip("()")
+                                duration = int(re.findall("\d+", paras)[0])
+                                unit = re.findall("[a-z]+", paras)[0]
+                                self.xy(min(inds), max(inds), duration, unit)
                             else:
-                                print(
-                                    "Warning: Operations %s may be not supported by QuantumCircuit class currently." % gatename)
+                                if len(sp_op) > 1:
+                                    paras = sp_op[1].strip("()")
+                                    parastr = paras.split(",")
+                                    paras = [eval(parai, {"pi": pi}) for parai in parastr]
+
+                                if gatename == "cx":
+                                    self.cnot(inds[0], inds[1])
+                                elif gatename == "cy":
+                                    self.cy(inds[0], inds[1])
+                                elif gatename == "cz":
+                                    self.cz(inds[0], inds[1])
+                                elif gatename == "cp":
+                                    self.cp(inds[0], inds[1], paras[0])
+                                elif gatename == "swap":
+                                    self.swap(inds[0], inds[1])
+                                elif gatename == "rx":
+                                    self.rx(inds[0], paras[0])
+                                elif gatename == "ry":
+                                    self.ry(inds[0], paras[0])
+                                elif gatename == "rz":
+                                    self.rz(inds[0], paras[0])
+                                elif gatename == "p":
+                                    self.p(inds[0], paras[0])
+                                elif gatename == "x":
+                                    self.x(inds[0])
+                                elif gatename == "y":
+                                    self.y(inds[0])
+                                elif gatename == "z":
+                                    self.z(inds[0])
+                                elif gatename == "h":
+                                    self.h(inds[0])
+                                elif gatename == "id":
+                                    self.id(inds[0])
+                                elif gatename == "s":
+                                    self.s(inds[0])
+                                elif gatename == "sdg":
+                                    self.sdg(inds[0])
+                                elif gatename == "t":
+                                    self.t(inds[0])
+                                elif gatename == "tdg":
+                                    self.tdg(inds[0])
+                                elif gatename == "sx":
+                                    self.sx(inds[0])
+                                elif gatename == "ccx":
+                                    self.toffoli(inds[0], inds[1], inds[2])
+                                elif gatename == "cswap":
+                                    self.fredkin(inds[0], inds[1], inds[2])
+                                elif gatename == "u1":
+                                    self.rz(inds[0], paras[0])
+                                elif gatename == "u2":
+                                    self.rz(inds[0], paras[1])
+                                    self.ry(inds[0], pi / 2)
+                                    self.rz(inds[0], paras[0])
+                                elif gatename == "u3":
+                                    self.rz(inds[0], paras[2])
+                                    self.ry(inds[0], paras[0])
+                                    self.rz(inds[0], paras[1])
+                                else:
+                                    print(
+                                        "Warning: Operations %s may be not supported by QuantumCircuit class currently." % gatename)
 
         if not self.measures:
             self.measures = dict(zip(range(self.num), range(self.num)))
@@ -334,13 +378,22 @@ class QuantumCircuit(object):
 
             elif isinstance(gate, ParaSingleQubitGate):
                 qasm += "%s(%s) q[%d];\n" % (gate.name.lower(), gate.paras, gate.pos)
+            elif isinstance(gate, Delay):
+                qasm += "delay(%d%s) q[%d];\n" % (gate.duration, gate.unit, gate.pos)
+            elif isinstance(gate, XYResonance):
+                qasm += "xy(%d%s) " %(gate.duration, gate.unit) + ",".join(["q[%d]" % p for p in range(min(gate.pos), max(gate.pos)+1)]) + ";\n"
+                
             elif isinstance(gate, Barrier) or isinstance(gate, FixedTwoQubitGate) or isinstance(gate, FixedMultiQubitGate):
                 if gate.name == "CS":
                     qasm += "cp(pi/2) " + "q[%d],q[%d];\n" % (gate.pos[0], gate.pos[1])
                 elif gate.name == "CT":
                     qasm += "cp(pi/4)" + "q[%d],q[%d];\n" % (gate.pos[0], gate.pos[1])
+                elif gate.name == "barrier":
+                    qasm += "barrier " + ",".join(["q[%d]" % p for p in range(min(gate.pos), max(gate.pos)+1)]) + ";\n"
                 else:
                     qasm += "%s " %(gate.name.lower()) + ",".join(["q[%d]" % p for p in gate.pos]) + ";\n"
+            elif isinstance(gate, ParaControlGate):
+                qasm += "%s(%s) q[%d],q[%d];\n" %(gate.name.lower(), gate.paras, gate.pos[0], gate.pos[1])
 
         for key in self.measures:
             qasm += "measure q[%d] -> meas[%d];\n" % (key, self.measures[key])
@@ -348,7 +401,17 @@ class QuantumCircuit(object):
         self.openqasm = qasm
         return qasm
 
-   
+
+    def id(self, pos: int):
+        """
+        Identity gate.
+
+        Args:
+            pos (int): qubit the gate act.
+        """ 
+        self.gates.append(IdGate(pos))
+        return self
+
     def h(self, pos: int):
         """
         Hadamard gate.
@@ -391,7 +454,7 @@ class QuantumCircuit(object):
 
     def t(self, pos: int):
         """
-        T gate.
+        T gate. (~Z^(1/4))
 
         Args:
             pos (int): qubit the gate act.
@@ -399,9 +462,18 @@ class QuantumCircuit(object):
         self.gates.append(TGate(pos))
         return self
     
+    def tdg(self, pos: int):
+        """
+        Tdg gate. (Inverse of T gate)
+
+        Args:
+            pos (int): qubit the gate act.
+        """
+        self.gates.append(TdgGate(pos))
+
     def s(self, pos: int):
         """
-        S gate.
+        S gate. (~√Z)
 
         Args:
             pos (int): qubit the gate act.
@@ -411,7 +483,7 @@ class QuantumCircuit(object):
 
     def sdg(self, pos: int):
         """
-        Sdg gate.
+        Sdg gate. (Inverse of S gate)
 
         Args:
             pos (int): qubit the gate act.
@@ -441,7 +513,7 @@ class QuantumCircuit(object):
 
     def w(self, pos: int):
         """
-        W gate.
+        W gate. (~(X + Y)/√2)
 
         Args:
             pos (int): qubit the gate act.
@@ -467,8 +539,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        if para != 0.:
-            self.gates.append(RXGate(pos, para))
+        self.gates.append(RXGate(pos, para))
         return self
 
     def ry(self, pos: int, para):
@@ -479,8 +550,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        if para != 0.:
-            self.gates.append(RYGate(pos, para))
+        self.gates.append(RYGate(pos, para))
         return self
 
     def rz(self, pos: int, para):
@@ -491,9 +561,18 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        if para != 0.:
-            self.gates.append(RZGate(pos, para))
+        self.gates.append(RZGate(pos, para))
         return self
+
+    def p(self, pos: int, para):
+        """
+        Phase gate
+        
+        Args:
+            pos (int): qubit the gate act.
+            para (float): rotation angle
+        """
+        self.gates.append(PhaseGate(pos, para))
 
     def cnot(self, ctrl: int, tar: int):
         """
@@ -546,6 +625,16 @@ class QuantumCircuit(object):
         """
         
         self.gates.append(CTGate([ctrl, tar]))
+
+    def cp(self, ctrl: int, tar: int, para):
+        """
+        Control-P gate.
+
+        Args:
+            ctrl (int): control qubit.
+            tar (int): target qubit.
+        """
+        self.gates.append(CPGate([ctrl, tar], para))
 
     # def fsim(self, q1, q2, theta, phi):
     #     """
@@ -602,6 +691,13 @@ class QuantumCircuit(object):
         """
         self.gates.append(Barrier(qlist))
         return self
+
+    def delay(self, pos, duration, unit="ns"):
+        self.gates.append(Delay(pos, duration, unit=unit))
+        return self
+
+    def xy(self, qs, qe, duration, unit="ns"):
+        self.gates.append(XYResonance(qs, qe, duration, unit=unit))
 
     def measure(self, pos, cbits: List[int] = []):
         """

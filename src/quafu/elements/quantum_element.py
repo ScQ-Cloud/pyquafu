@@ -1,4 +1,5 @@
 # This is the file for abstract quantum gates class
+from signal import raise_signal
 from typing import Union, Callable, List, Tuple, Iterable, Any, Optional
 import numpy as np
 
@@ -19,6 +20,32 @@ class Barrier(object):
     def to_QLisp(self):
         return ("Barrier", tuple(["Q%d" % i for i in self.pos]))
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}"
+
+class Delay(object):
+    def __init__(self, pos : int, duration : int, unit="ns"):
+        self.name = "delay"
+        if isinstance(duration, int):
+            self.duration = duration
+        else:
+            raise TypeError("duration must be int")
+        self.unit=unit
+        self.pos=pos
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}"
+
+class XYResonance(object):
+    def __init__(self, qs : int, qe : int, duration : int, unit="ns"):
+        self.name = "XY"
+        if isinstance(duration, int):
+            self.duration = duration
+        else:
+            raise TypeError("duration must be int")
+        self.unit=unit
+        self.pos=list(range(qs, qe+1))
+        
 
 class QuantumGate(object):
     def __init__(self, name: str, pos: Union[int, List[int]], paras: Any, matrix):
@@ -225,7 +252,7 @@ class ControlGate(FixedTwoQubitGate):
         self.__ctrl = ctrl
         self.__targ = targ
         self.targ_name = ""
-
+        
     @property
     def ctrl(self):
         return self.__ctrl
@@ -235,7 +262,7 @@ class ControlGate(FixedTwoQubitGate):
         return self.__targ
 
     @ctrl.setter
-    def ctrl(self, ctrl):
+    def ctrl(self, ctrl): 
         self.__ctrl = ctrl
 
     @targ.setter
@@ -250,6 +277,31 @@ class ControlGate(FixedTwoQubitGate):
 
     def to_IOP(self):
         return [self.name, [self.ctrl, self.targ]]
+
+class ParaControlGate(ParaTwoQubitGate):
+    def __init__(self, name, ctrl, targ, paras, matrix):
+        super().__init__(name, [ctrl, targ], paras, matrix)
+        self.__ctrl = ctrl
+        self.__targ = targ
+        self.targ_name = ""
+        
+    @property
+    def ctrl(self):
+        return self.__ctrl
+
+    @property
+    def targ(self):
+        return self.__targ
+
+    @ctrl.setter
+    def ctrl(self, ctrl): 
+        self.__ctrl = ctrl
+
+    @targ.setter
+    def targ(self, targ):
+        self.__targ = targ
+
+    
 
 class MultiQubitGate(QuantumGate):
     def __init__(self, name, pos, paras, matrix):

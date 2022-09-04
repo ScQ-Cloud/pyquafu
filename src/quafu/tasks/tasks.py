@@ -2,7 +2,7 @@ import os
 from ..utils.platform import get_homedir
 from ..exceptions import CircuitError, ServerError, CompileError
 from ..results.results import ExecResult, merge_measure
-from ..backends.backends import ScQ_P10, ScQ_P20, ScQ_P50
+from ..backends.backends import ScQ_P10, ScQ_P20, ScQ_P50, ScQ_S41
 from ..users.exceptions import UserError
 import numpy as np
 import json
@@ -29,7 +29,8 @@ class Task(object):
         self.tomo = False
         self.compile = True
         self._url = ""
-    
+        self.priority = 2
+        self.name = ""
     def load_account(self):
         """
         Load your Quafu account.
@@ -44,7 +45,7 @@ class Task(object):
         except:
             raise UserError("User configure error. Please set up your token.")  
 
-    def config(self, backend="ScQ-P10", shots=1000, compile=True, tomo=False):
+    def config(self, backend="ScQ-P10", shots=1000, compile=True, tomo=False, priority=2, name=""):
         """
         Configure the task properties
 
@@ -60,10 +61,13 @@ class Task(object):
             self._backend = ScQ_P20()
         elif backend == "ScQ-P50":
             self._backend = ScQ_P50()
-        
+        elif backend == "ScQ-S41":
+            self._backend =  ScQ_S41()        
         self.shots = shots
         self.tomo = tomo
         self.compile = compile
+        self.priority = priority
+        self.name = name
 
     def get_backend_info(self):
         """
@@ -121,7 +125,6 @@ class Task(object):
         esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9]
         elarge_labels = {(u, v) : "%.3f" %d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9}
         esmall_labels = {(u, v) : "%.3f" %d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9}
-
 
         pos = nx.spring_layout(G, seed=1)  
         fig, ax = plt.subplots()
@@ -215,7 +218,8 @@ class Task(object):
 
         return res
 
-    def send(self, qc):
+    def send(self, qc, wait=True):
+        #Asynchro
         """
         Run the circuit on experimental device.
 
@@ -224,13 +228,18 @@ class Task(object):
         Returns: 
             ExecResult object that contain the dict return from quantum device.
         """
+        self.check_valid_gates(qc)
         qc.to_openqasm()
-        backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2}
+        backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2, "ScQ-S41" : 3}
         data = {"qtasm": qc.openqasm, "shots": self.shots, "qubits": qc.num, "scan": 0,
                 "tomo": int(self.tomo), "selected_server": backends[self._backend.name],
-                "compile": int(self.compile)}
+                "compile": int(self.compile), "priority": self.priority, "name":self.name}
         
-        url = self._url  + "qbackend/scq_kit/"
+        if wait:
+            url = self._url  + "qbackend/scq_kit/"
+        else:
+            url = self._url + "qbackend/scq_kit_async"
+            
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
@@ -248,3 +257,31 @@ class Task(object):
         else: 
             return ExecResult(res_dict, qc.measures)
 
+    def retrieve(self, taskid):
+        data = {"task_id" : taskid}
+        url = self._url  + "qbackend/scq_task_recall/"
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
+        res = requests.post(url, headers=headers, data=data)
+
+        res_dict = json.loads(res.text)
+        print(res_dict)
+        measures = eval(res_dict["measure"])
+        
+        return ExecResult(res_dict, measures)
+
+    def check_valid_gates(self, qc):
+        if not self.compile:
+            valid_gates = self._backend.valid_gates
+            for gate in qc.gates:
+                if gate.name.lower() not in valid_gates:
+                    raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self._backend.name))
+                    
+        else:
+            if self._backend.name == "ScQ-S41":
+                raise CircuitError("Backend ScQ-S41 must be used without compilation")
+            if self._backend.name == "ScQ-P50":
+                for gate in qc.gates:
+                    if gate.name.lower() in ["delay", "xy"]:
+                        raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self._backend.name))
+        

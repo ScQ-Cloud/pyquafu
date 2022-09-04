@@ -6,3 +6,6 @@ from .simulators.default_simulator import simulate
 
 __all__ = ["QuantumCircuit", "ExecResult", "Task", "User", "SimuResult", "simulate"]
 
+def get_version():
+    print ("version: 0.2.2\n")
+    return "0.2.2"

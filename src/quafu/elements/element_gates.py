@@ -1,5 +1,5 @@
 # This is the file for  concrete element quantum gates
-from .quantum_element import FixedSingleQubitGate, ParaSingleQubitGate, FixedTwoQubitGate, ParaTwoQubitGate, \
+from .quantum_element import FixedSingleQubitGate, ParaControlGate, ParaSingleQubitGate, FixedTwoQubitGate, ParaTwoQubitGate, \
     ControlGate, FixedMultiQubitGate, ParaMultiQubitGate
 import numpy as np
 from typing import Union, List
@@ -33,6 +33,9 @@ def _rzmatrix(theta):
     return np.array([[np.exp(-0.5j * theta), 0.],
                      [0., np.exp(0.5j * theta)]], dtype=complex)
 
+def _pmatrix(labda):
+    return np.array([[1, 0], 
+                     [0, np.exp(1j*labda)]] ,dtype=complex)
 
 def _cxmatrix(reverse=False):
     if reverse:
@@ -59,6 +62,16 @@ def _cymatrix(reverse=False):
                          [0., 0., 0., -1.j],
                          [0., 0., 1.j, 0.]], dtype=complex)
 
+def _cpmatrix(labda):
+    return np.array([[1., 0., 0., 0.],
+                     [0., 1., 0., 0.],
+                     [0., 0., 1., 0.],
+                     [0., 0., 0., np.exp(1j*labda)]], dtype=complex)
+
+class IdGate(FixedSingleQubitGate):
+    def __init__(self, pos: int):
+        super().__init__("Id", pos, matrix = np.array([[1., 0.], 
+                                                       [0., 1.]], dtype=complex))
 
 class HGate(FixedSingleQubitGate):
     def __init__(self, pos: int):
@@ -97,6 +110,11 @@ class TGate(FixedSingleQubitGate):
     def __init__(self, pos: int):
         super().__init__("T", pos, matrix=np.array([[1., 0.],
                                                     [0., np.exp(1.j*np.pi/4)]], dtype=complex))
+
+class TdgGate(FixedSingleQubitGate):
+    def __init__(self, pos: int):
+        super().__init__("Tdg", pos, matrix=np.array([[1., 0.],
+                                                    [0, np.exp(-1.j*np.pi/4)]] ,dtype=complex))
 
 class WGate(FixedSingleQubitGate):
     def __init__(self, pos: int):
@@ -140,6 +158,13 @@ class RZGate(ParaSingleQubitGate):
 
     def to_QLisp(self):
         return (("Rz", self.paras), "Q%d" % self.pos)
+
+class PhaseGate(ParaSingleQubitGate):
+    def __init__(self, pos: int, paras):
+        super().__init__("P", pos, paras, matrix=_pmatrix)
+    
+    def to_QLisp(self):
+        return (("P", self.paras), "Q%d" % self.pos)
 
 
 class iSwapGate(FixedTwoQubitGate):
@@ -213,6 +238,10 @@ class CTGate(ControlGate):
                                                                 [0., 0., 0., np.exp(1.j*np.pi/4)]], dtype=complex))
         self.targ_name = "T"
 
+class CPGate(ParaControlGate):
+    def __init__(self, pos: List[int], paras):
+        super().__init__("CP", pos[0], pos[1], paras, matrix=_cpmatrix)
+        self.targ_name = "P"
 
 
 class ToffoliGate(FixedMultiQubitGate):
