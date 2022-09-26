@@ -1,0 +1,7 @@
+matplotlib==3.5.2
+networkx==2.6.3
+numpy==1.20.3
+requests==2.26.0
+scipy==1.8.1
+setuptools==58.0.4
+sparse==0.13.0

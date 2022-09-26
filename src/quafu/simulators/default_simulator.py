@@ -1,7 +1,9 @@
 #default circuit simulator for state vector
-from typing import Iterable, Union
+from typing import Iterable, List, Union
+
+from quafu.circuits.quantum_circuit import QuantumCircuit
 from ..results.results import SimuResult
-from ..elements.quantum_element import Barrier, Delay, SingleQubitGate, TwoQubitGate, MultiQubitGate, XYResonance
+from ..elements.quantum_element import Barrier, Delay, QuantumGate, SingleQubitGate, TwoQubitGate, MultiQubitGate, XYResonance
 import numpy as np
 from functools import reduce
 from sparse import COO, SparseArray
@@ -9,7 +11,7 @@ from scipy.sparse import kron, eye, coo_matrix
 
 import copy
 
-def global_op(gate, global_qubits):
+def global_op(gate: QuantumGate, global_qubits: List) -> coo_matrix:
     """Local operators to global operators"""
     num  = len(global_qubits)
     if isinstance(gate, SingleQubitGate):
@@ -34,7 +36,8 @@ def global_op(gate, global_qubits):
         return center_mat
 
 
-def permutebits(mat: Union[SparseArray, np.ndarray], order : Iterable):
+def permutebits(mat: Union[SparseArray, np.ndarray], order : Iterable)\
+    ->Union[SparseArray, np.ndarray]:
     """permute qubits for operators or states"""
     num = len(order)
     order = np.array(order)
@@ -45,7 +48,7 @@ def permutebits(mat: Union[SparseArray, np.ndarray], order : Iterable):
     mat = np.reshape(mat, [2**num]*r)
     return mat
 
-def ptrace(psi, ind_A, diag=True):
+def ptrace(psi, ind_A: List, diag: bool=True) -> np.ndarray:
     """partial trace on a state vector"""
     num = int(np.log2(psi.shape[0]))
     order = copy.deepcopy(ind_A)
@@ -62,15 +65,18 @@ def ptrace(psi, ind_A, diag=True):
         rho = psi @ np.transpose(psi)
         return rho
 
-def simulate(qc, state_ini: np.ndarray = None, output="amplitudes"):
+def simulate(qc: QuantumCircuit, 
+             state_ini: np.ndarray = None, 
+             output: str="amplitudes") -> SimuResult:
     """Simulate quantum circuit
         Args:
+            qc: quantum circuit need to be simulated.
             state_ini (numpy.ndarray): Input state vector
             output (str): `"amplitudes"`: Return ampliteds on measured qubits.
                           `"density_matrix"`: Return reduced density_amtrix on measured qubits.
                           `"state_vector`: Return full statevector.
         Returns:
-            (SimuResult): SimuResult class that contain the results.
+           SimuResult object that contain the results.
     """
 
     used_qubits = qc.get_used_qubits()

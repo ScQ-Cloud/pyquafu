@@ -1,0 +1,2 @@
+certifi @ file:///C:/b/abs_4f5wo627a3/croots/recipe/certifi_1663615677642/work/certifi
+wincertstore==0.2

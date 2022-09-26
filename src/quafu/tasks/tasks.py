@@ -1,4 +1,7 @@
 import os
+from typing import Dict, List, Tuple
+
+from quafu.circuits.quantum_circuit import QuantumCircuit
 from ..utils.platform import get_homedir
 from ..exceptions import CircuitError, ServerError, CompileError
 from ..results.results import ExecResult, merge_measure
@@ -12,12 +15,12 @@ import re
 import networkx as nx
 import matplotlib.pyplot as plt
 
-class Task(object):
+class Task(object): 
     """
     Class for submitting quantum computation task to the backend.
 
     Attributes:
-        token (str) : Apitoken that associate to your Quafu account.
+        token (str): Apitoken that associate to your Quafu account.
         shots (int): Numbers of single shot measurement.
         compile (bool): Whether compile the circuit on the backend
         tomo (bool): Whether do tomography (Not support yet)
@@ -30,8 +33,10 @@ class Task(object):
         self.compile = True
         self._url = ""
         self.priority = 2
-        self.name = ""
-    def load_account(self):
+        self.submit_history = { }
+
+
+    def load_account(self) -> None:
         """
         Load your Quafu account.
         """
@@ -45,15 +50,21 @@ class Task(object):
         except:
             raise UserError("User configure error. Please set up your token.")  
 
-    def config(self, backend="ScQ-P10", shots=1000, compile=True, tomo=False, priority=2, name=""):
+    def config(self, 
+               backend: str="ScQ-P10", 
+               shots: int=1000, 
+               compile: bool=True,
+               tomo: bool=False,
+               priority: int=2) -> None:
         """
         Configure the task properties
 
         Args:
-            backend (str): Select the experimental backend.
-            shots (int): Numbers of single shot measurement.
-            compile (bool): Whether compile the circuit on the backend
-            tomo (bool): Whether do tomography (Not support yet)
+            backend: Select the experimental backend.
+            shots: Numbers of single shot measurement.
+            compile: Whether compile the circuit on the backend
+            tomo:  Whether do tomography (Not support yet)
+            priority: Task priority.
         """
         if backend == "ScQ-P10":
             self._backend = ScQ_P10()
@@ -62,19 +73,26 @@ class Task(object):
         elif backend == "ScQ-P50":
             self._backend = ScQ_P50()
         elif backend == "ScQ-S41":
-            self._backend =  ScQ_S41()        
+            self._backend = ScQ_S41()        
         self.shots = shots
         self.tomo = tomo
         self.compile = compile
         self.priority = priority
-        self.name = name
 
-    def get_backend_info(self):
+    def get_history(self) -> Dict:
+        """
+        Get the history of submitted task.
+        Returns:
+            A dict of history. The key is the group name and the value is a list of task id in the group. 
+        """
+        return self.submit_history
+
+    def get_backend_info(self) -> Dict:
         """
         Get the calibration information of the experimental backend.
 
         Returns: 
-            Backend information dictionary containing the mapping from the indices to the names of phsical bits `'mapping'`, backend topology  `'topology_diagram'` and full calibration inforamtion `'full_info'`.
+            Backend information dictionary containing the mapping from the indices to the names of physical bits `'mapping'`, backend topology  `'topology_diagram'` and full calibration inforamtion `'full_info'`.
         """
         backend_info = self._backend.get_info(self._url, self.token)
         json_topo_struct = backend_info["topological_structure"]
@@ -144,7 +162,10 @@ class Task(object):
         fig.tight_layout()
         return {"mapping" : int_to_qubit, "topology_diagram": fig, "full_info": backend_info}
 
-    def submit(self, qc, obslist=[]):
+    def submit(self,
+               qc: QuantumCircuit,
+               obslist: List=[])\
+                -> Tuple[List[ExecResult], List[int]]:
         """
         Execute the circuit with observable expectation measurement task.
         Args:
@@ -195,7 +216,9 @@ class Task(object):
 
         return exec_res, measure_results
 
-    def run(self, qc, measure_base=[]):
+    def run(self, 
+            qc: QuantumCircuit, 
+            measure_base: List=[]) -> ExecResult:
         """Single run for measurement task.
 
         Args:
@@ -218,13 +241,19 @@ class Task(object):
 
         return res
 
-    def send(self, qc, wait=True):
-        #Asynchro
+    def send(self, 
+             qc: QuantumCircuit, 
+             name: str="", 
+             group: str="",
+            wait: bool=True) -> ExecResult:
         """
         Run the circuit on experimental device.
 
         Args:
-            qc (QuantumCircuit): Quantum circuit that need to be executed on backend.
+            qc: Quantum circuit that need to be executed on backend.
+            name: Task name.
+            group: The task belong which group.
+            wait: Whether wait until the execution return.
         Returns: 
             ExecResult object that contain the dict return from quantum device.
         """
@@ -233,12 +262,12 @@ class Task(object):
         backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2, "ScQ-S41" : 3}
         data = {"qtasm": qc.openqasm, "shots": self.shots, "qubits": qc.num, "scan": 0,
                 "tomo": int(self.tomo), "selected_server": backends[self._backend.name],
-                "compile": int(self.compile), "priority": self.priority, "name":self.name}
+                "compile": int(self.compile), "priority": self.priority, "task_name": name}
         
         if wait:
             url = self._url  + "qbackend/scq_kit/"
         else:
-            url = self._url + "qbackend/scq_kit_async"
+            url = self._url + "qbackend/scq_kit_asyc/"
             
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
         data = parse.urlencode(data)
@@ -254,10 +283,22 @@ class Task(object):
             raise ServerError(res_dict["message"])
         elif res.json()["status"] == 5004:
             raise CompileError(res_dict["message"]) 
-        else: 
+        else:
+            task_id = res_dict["task_id"]
+            if not (group in self.submit_history):
+                self.submit_history[group] = [task_id]
+            else:
+                self.submit_history[group].append(task_id)
+
             return ExecResult(res_dict, qc.measures)
 
-    def retrieve(self, taskid):
+    def retrieve(self, taskid: str) -> ExecResult:
+        """
+        Retrieve the results of submited task by taskid.
+        
+        Args:
+            taskid: The taskid of the task need to be retrieved.
+        """
         data = {"task_id" : taskid}
         url = self._url  + "qbackend/scq_task_recall/"
 
@@ -265,12 +306,50 @@ class Task(object):
         res = requests.post(url, headers=headers, data=data)
 
         res_dict = json.loads(res.text)
-        print(res_dict)
         measures = eval(res_dict["measure"])
         
         return ExecResult(res_dict, measures)
 
-    def check_valid_gates(self, qc):
+    def retrieve_group(self, 
+                       group: str,
+                       history: Dict={}, 
+                       verbose: bool=True) -> List[ExecResult]:
+        """
+        Retrieve the results of submited task by group name.
+
+        Args:
+            group: The group name need to be retrieved.
+            history: History from which to retrieve the results. If not provided, the history will be the submit history of saved by current task.
+            verbose: Whether print the task status in the group.
+        Returns:
+            A list of execution results in the retrieved group. Only completed task will be added. 
+        """
+        history = history if history else self.submit_history
+        taskids = history[group]
+
+        group_res = []
+        if verbose:
+            group = group if group else "Untitled group"
+            print("Group: ", group)
+            print((" "*5).join(["task_id".ljust(16), "task_name".ljust(10),   "status".ljust(10)]))
+        for taskid in taskids:
+            res = self.retrieve(taskid)
+            taskname = res.taskname
+            if verbose:
+                taskname = taskname if taskname else "Untitled"
+                print((" "*5).join([("%s" %res.taskid).ljust(16), ("%s" %taskname).ljust(10), ("%s" %res.task_status).ljust(10)]))
+            if res.task_status == "Completed":
+                group_res.append(res)
+
+        return group_res
+    
+     
+    def check_valid_gates(self, qc: QuantumCircuit) -> None:
+        """
+        Check the validity of the quantum circuit.
+        Args:
+            qc: QuantumCicuit object that need to be checked.
+        """
         if not self.compile:
             valid_gates = self._backend.valid_gates
             for gate in qc.gates:

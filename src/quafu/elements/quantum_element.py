@@ -1,5 +1,4 @@
 # This is the file for abstract quantum gates class
-from signal import raise_signal
 from typing import Union, Callable, List, Tuple, Iterable, Any, Optional
 import numpy as np
 
@@ -16,9 +15,6 @@ class Barrier(object):
     @pos.setter
     def pos(self, pos):
         self.__pos = pos
-
-    def to_QLisp(self):
-        return ("Barrier", tuple(["Q%d" % i for i in self.pos]))
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
@@ -118,15 +114,6 @@ class SingleQubitGate(QuantumGate):
             raise TypeError("Unsupported `matrix` type")
 
 
-    def to_QLisp(self):
-        return ((self.name, "Q%d" % self.pos))
-
-    def to_nodes(self):
-        return (1, self.name, 0, self.pos)
-
-    def to_IOP(self):
-        return [self.name, self.pos, 0.]
-
 
 class FixedSingleQubitGate(SingleQubitGate):
     def __init__(self, name, pos, matrix):
@@ -156,20 +143,6 @@ class ParaSingleQubitGate(SingleQubitGate):
         else:
             raise TypeError("Unsupported `matrix` type")
 
-    def to_QLisp(self):
-        if isinstance(self.paras, Iterable):
-            return ((self.name, *self.paras), "Q%d" % self.pos)
-        else:
-            return ((self.name, self.paras), "Q%d" % self.pos)
-
-    def to_nodes(self):
-        return (1, self.name, self.paras, self.pos)
-
-    def to_IOP(self):
-        if isinstance(self.paras, Iterable):
-            return [self.name, self.pos, *self.paras]
-        else:
-            return [self.name, self.pos, self.paras]
 
 
 class TwoQubitGate(QuantumGate):
@@ -191,14 +164,7 @@ class TwoQubitGate(QuantumGate):
         else:
             raise TypeError("Unsupported `matrix` type")
 
-    def to_QLisp(self):
-        return (self.name, ("Q%d" % self.pos[0], "Q%d" % self.pos[1]))
 
-    def to_nodes(self):
-        return (2, self.name, self.pos[0], self.pos[1])
-
-    def to_IOP(self):
-        return [self.name, self.pos]
 
 
 class FixedTwoQubitGate(TwoQubitGate):
@@ -230,20 +196,6 @@ class ParaTwoQubitGate(TwoQubitGate):
         else:
             raise TypeError("Unsupported `matrix` type")
 
-    def to_QLisp(self):
-        if isinstance(self.paras, Iterable):
-            return ((self.name, *self.paras), ("Q%d" % self.pos[0], "Q%d" % self.pos[1]))
-        else:
-            return ((self.name, self.paras), ("Q%d" % self.pos[0], "Q%d" % self.pos[1]))
-
-    def to_nodes(self):
-        return (2, self.name, self.paras, self.pos[0], self.pos[1])
-
-    def to_IOP(self):
-        if isinstance(self.paras, Iterable):
-            return [self.name, self.pos, *self.paras]
-        else:
-            return [self.name, self.pos, self.paras]
 
 
 class ControlGate(FixedTwoQubitGate):
@@ -269,14 +221,6 @@ class ControlGate(FixedTwoQubitGate):
     def targ(self, targ):
         self.__targ = targ
 
-    def to_QLisp(self):
-        return (self.name, ("Q%d" % self.ctrl, "Q%d" % self.targ))
-
-    def to_nodes(self):
-        return (2, self.name, self.ctrl, self.targ)
-
-    def to_IOP(self):
-        return [self.name, [self.ctrl, self.targ]]
 
 class ParaControlGate(ParaTwoQubitGate):
     def __init__(self, name, ctrl, targ, paras, matrix):
@@ -301,7 +245,6 @@ class ParaControlGate(ParaTwoQubitGate):
     def targ(self, targ):
         self.__targ = targ
 
-    
 
 class MultiQubitGate(QuantumGate):
     def __init__(self, name, pos, paras, matrix):

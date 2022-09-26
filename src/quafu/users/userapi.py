@@ -19,7 +19,5 @@ class User(object):
             os.mkdir(file_dir)
         with open(file_dir + "api", "w") as f:
             f.write(self.apitoken+"\n")
-            # f.write("http://120.46.160.173/\n")
-            f.write("http://124.70.54.59/\n")
-
+            f.write("http://quafu.baqis.ac.cn/")
     

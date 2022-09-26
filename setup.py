@@ -1,10 +1,10 @@
 from setuptools import find_packages, setup 
 
-setup(name="quafu",
+setup(name="pyquafu",
     version="0.2.3",
     author="ssli",
     author_email="ssli@iphy.ac.cn",
-    url="https://github.com/ScQ-Cloud/quafu",
+    url="https://github.com/ScQ-Cloud/pyquafu",
     description="Python toolkit for Quafu-Clound",
     install_requires=["numpy", "matplotlib", "sparse"],
     packages=find_packages('src'),

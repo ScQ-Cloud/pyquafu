@@ -1,5 +1,4 @@
 import functools
-from turtle import width
 import numpy as np
 from ..results.results import ExecResult, merge_measure
 from ..elements.quantum_element import Barrier, Delay, ControlGate, MultiQubitGate, SingleQubitGate, TwoQubitGate, XYResonance
@@ -9,7 +8,7 @@ from typing import Iterable
  
 
 class QuantumCircuit(object):
-    def __init__(self, num):
+    def __init__(self, num: int):
         """
         Initialize a QuantumCircuit object
         
@@ -24,11 +23,11 @@ class QuantumCircuit(object):
         self.used_qubits = []
 
 
-    def get_used_qubits(self):
+    def get_used_qubits(self) -> List:
         self.layered_circuit()
         return self.used_qubits
 
-    def layered_circuit(self):
+    def layered_circuit(self) -> np.ndarray:
         """
         Make layered circuit from the gate sequence self.gates.
 
@@ -87,7 +86,7 @@ class QuantumCircuit(object):
         self.used_qubits = list(used_qubits)
         return self.circuit
 
-    def draw_circuit(self, width=4):
+    def draw_circuit(self, width : int=4):
         """
         Draw layered circuit using ASCII, print in terminal.
 
@@ -229,9 +228,11 @@ class QuantumCircuit(object):
         print(circuitstr)
 
 
-    def from_openqasm(self, openqasm):
+    def from_openqasm(self, openqasm : str):
         """
         Initialize the circuit from openqasm text.
+        Args:
+            openqasm: input openqasm str.
         """
         from numpy import pi
         import re
@@ -355,7 +356,7 @@ class QuantumCircuit(object):
         if not global_valid:
             print("Warning: All operations after measurement will be removed for executing on experiment")
 
-    def to_openqasm(self, compile=True):
+    def to_openqasm(self) -> str:
         """
         Convert the circuit to openqasm text.
 
@@ -402,7 +403,7 @@ class QuantumCircuit(object):
         return qasm
 
 
-    def id(self, pos: int):
+    def id(self, pos: int) -> "QuantumCircuit":
         """
         Identity gate.
 
@@ -412,7 +413,7 @@ class QuantumCircuit(object):
         self.gates.append(IdGate(pos))
         return self
 
-    def h(self, pos: int):
+    def h(self, pos: int) -> "QuantumCircuit":
         """
         Hadamard gate.
 
@@ -422,7 +423,7 @@ class QuantumCircuit(object):
         self.gates.append(HGate(pos))
         return self
 
-    def x(self, pos: int):
+    def x(self, pos: int) -> "QuantumCircuit":
         """
         X gate.
 
@@ -432,7 +433,7 @@ class QuantumCircuit(object):
         self.gates.append(XGate(pos))
         return self
 
-    def y(self, pos: int):
+    def y(self, pos: int) -> "QuantumCircuit":
         """
         Y gate.
 
@@ -442,7 +443,7 @@ class QuantumCircuit(object):
         self.gates.append(YGate(pos))
         return self
 
-    def z(self, pos: int):
+    def z(self, pos: int) -> "QuantumCircuit":
         """
         Z gate.
 
@@ -452,7 +453,7 @@ class QuantumCircuit(object):
         self.gates.append(ZGate(pos))
         return self
 
-    def t(self, pos: int):
+    def t(self, pos: int) -> "QuantumCircuit":
         """
         T gate. (~Z^(1/4))
 
@@ -462,7 +463,7 @@ class QuantumCircuit(object):
         self.gates.append(TGate(pos))
         return self
     
-    def tdg(self, pos: int):
+    def tdg(self, pos: int) -> "QuantumCircuit":
         """
         Tdg gate. (Inverse of T gate)
 
@@ -471,7 +472,7 @@ class QuantumCircuit(object):
         """
         self.gates.append(TdgGate(pos))
 
-    def s(self, pos: int):
+    def s(self, pos: int) -> "QuantumCircuit":
         """
         S gate. (~√Z)
 
@@ -481,7 +482,7 @@ class QuantumCircuit(object):
         self.gates.append(SGate(pos))
         return self
 
-    def sdg(self, pos: int):
+    def sdg(self, pos: int) -> "QuantumCircuit":
         """
         Sdg gate. (Inverse of S gate)
 
@@ -491,7 +492,7 @@ class QuantumCircuit(object):
         self.gates.append(SdgGate(pos))
         return self
 
-    def sx(self, pos: int):
+    def sx(self, pos: int) -> "QuantumCircuit":
         """
         √X gate.
 
@@ -501,7 +502,7 @@ class QuantumCircuit(object):
         self.gates.append(SXGate(pos))
         return self
 
-    def sy(self, pos: int):
+    def sy(self, pos: int) -> "QuantumCircuit":
         """
         √Y gate.
 
@@ -511,7 +512,7 @@ class QuantumCircuit(object):
         self.gates.append(SYGate(pos))
         return self
 
-    def w(self, pos: int):
+    def w(self, pos: int) -> "QuantumCircuit":
         """
         W gate. (~(X + Y)/√2)
 
@@ -521,7 +522,7 @@ class QuantumCircuit(object):
         self.gates.append(WGate(pos))
         return self
     
-    def sw(self, pos: int):
+    def sw(self, pos: int) -> "QuantumCircuit":
         """
         √W gate.
 
@@ -531,7 +532,7 @@ class QuantumCircuit(object):
         self.gates.append(SWGate(pos))
         return self
     
-    def rx(self, pos: int, para):
+    def rx(self, pos: int, para: float) -> "QuantumCircuit":
         """
         Single qubit rotation Rx gate.
 
@@ -542,7 +543,7 @@ class QuantumCircuit(object):
         self.gates.append(RXGate(pos, para))
         return self
 
-    def ry(self, pos: int, para):
+    def ry(self, pos: int, para: float) -> "QuantumCircuit":
         """
         Single qubit rotation Ry gate.
         
@@ -553,7 +554,7 @@ class QuantumCircuit(object):
         self.gates.append(RYGate(pos, para))
         return self
 
-    def rz(self, pos: int, para):
+    def rz(self, pos: int, para: float) -> "QuantumCircuit":
         """
         Single qubit rotation Rz gate.
         
@@ -564,7 +565,7 @@ class QuantumCircuit(object):
         self.gates.append(RZGate(pos, para))
         return self
 
-    def p(self, pos: int, para):
+    def p(self, pos: int, para: float) -> "QuantumCircuit":
         """
         Phase gate
         
@@ -574,7 +575,7 @@ class QuantumCircuit(object):
         """
         self.gates.append(PhaseGate(pos, para))
 
-    def cnot(self, ctrl: int, tar: int):
+    def cnot(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
         CNOT gate.
         
@@ -585,7 +586,7 @@ class QuantumCircuit(object):
         self.gates.append(CXGate([ctrl, tar]))
         return self
 
-    def cy(self, ctrl: int, tar: int):
+    def cy(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
         Control-Y gate.
 
@@ -596,7 +597,7 @@ class QuantumCircuit(object):
         self.gates.append(CYGate([ctrl, tar]))
         return self
 
-    def cz(self, ctrl: int, tar: int):
+    def cz(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
         Control-Z gate.
         
@@ -607,7 +608,7 @@ class QuantumCircuit(object):
         self.gates.append(CZGate([ctrl, tar]))
         return self
 
-    def cs(self, ctrl: int, tar: int):
+    def cs(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
         Control-S gate.
         Args:
@@ -616,7 +617,7 @@ class QuantumCircuit(object):
         """
         self.gates.append(CSGate([ctrl, tar]))
 
-    def ct(self, ctrl: int, tar: int):
+    def ct(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
         Control-T gate.
         Args:
@@ -626,7 +627,7 @@ class QuantumCircuit(object):
         
         self.gates.append(CTGate([ctrl, tar]))
 
-    def cp(self, ctrl: int, tar: int, para):
+    def cp(self, ctrl: int, tar: int, para) -> "QuantumCircuit":
         """
         Control-P gate.
 
@@ -647,7 +648,7 @@ class QuantumCircuit(object):
     #     """
     #     self.gates.append(FsimGate([q1, q2], [theta, phi]))
 
-    def swap(self, q1: int, q2: int):
+    def swap(self, q1: int, q2: int) -> "QuantumCircuit":
         """
         SWAP gate
         
@@ -658,7 +659,7 @@ class QuantumCircuit(object):
         self.gates.append(SwapGate([q1, q2]))
         return self
 
-    def toffoli(self, ctrl1, ctrl2, targ):
+    def toffoli(self, ctrl1: int, ctrl2: int, targ: int) -> "QuantumCircuit":
         """
         Toffoli gate
 
@@ -670,7 +671,7 @@ class QuantumCircuit(object):
         self.gates.append(ToffoliGate([ctrl1, ctrl2, targ]))
         return self
     
-    def fredkin(self, ctrl, targ1, targ2):
+    def fredkin(self, ctrl: int, targ1:int , targ2: int) -> "QuantumCircuit":
         """
         Fredkin gate
         
@@ -680,9 +681,9 @@ class QuantumCircuit(object):
             targ2 (int): target qubit
         """
         self.gates.append(FredkinGate([ctrl, targ1, targ2]))
+        return self
 
-
-    def barrier(self, qlist: List[int]):
+    def barrier(self, qlist: List[int]) -> "QuantumCircuit":
         """
         Add barrier for qubits in qlist.
         
@@ -692,14 +693,32 @@ class QuantumCircuit(object):
         self.gates.append(Barrier(qlist))
         return self
 
-    def delay(self, pos, duration, unit="ns"):
+    def delay(self, pos, duration, unit="ns") -> "QuantumCircuit":
+        """
+        Let the qubit idle for a certain duration.
+
+        Args:
+            pos (int): qubit need delay.
+            duration (int): duration of qubit delay, which represents integer times of unit.
+            unit (str): time unit for the duration. Can be "ns" and "us". 
+        """
         self.gates.append(Delay(pos, duration, unit=unit))
         return self
 
-    def xy(self, qs, qe, duration, unit="ns"):
-        self.gates.append(XYResonance(qs, qe, duration, unit=unit))
+    def xy(self, qs: int, qe: int, duration: int, unit: str="ns") -> "QuantumCircuit":
+        """
+        XY resonance time evolution for quantum simulator
+        Args:
+            qs: start position of resonant qubits.
+            qe: end position of resonant qubits.
+            duration: duration must be integer, which represents integer times of unit.
+            unit: time unit of duration.
 
-    def measure(self, pos, cbits: List[int] = []):
+        """
+        self.gates.append(XYResonance(qs, qe, duration, unit=unit))
+        return self
+
+    def measure(self, pos: int, cbits: List[int] = []) -> None:
         """
         Measurement setting for experiment device.
         

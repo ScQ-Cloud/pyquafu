@@ -5,7 +5,6 @@ import copy
 import matplotlib.pyplot as plt
 from collections import OrderedDict
 from ..utils.basis import *
-import qutip
 
 class Result(object):
     """Basis class for quantum results"""
@@ -22,7 +21,9 @@ class ExecResult(Result):
         transpiled_circuit (QuantumCircuit): Quantum circuit transpiled on backend.
     """
     def __init__(self, input_dict, measures):
+        status_map = {0:"In Queue", 1:"Running", 2:"Completed", "Canceled":3, 4:"Failed"}
         self.measures = measures
+        self.task_status = status_map[input_dict["status"]]
         self.res = eval(input_dict['res'])
         self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
         self.logicalq_res = {}
@@ -31,7 +32,8 @@ class ExecResult(Result):
            newkey = "".join([key[i] for i in cbits])
            self.logicalq_res[newkey] = values
 
-        self.taskid = input_dict['task_id'] 
+        self.taskid = input_dict['task_id']
+        self.taskname = input_dict['task_name']
         self.transpiled_openqasm = input_dict["openqasm"]
         from ..circuits.quantum_circuit import QuantumCircuit
         self.transpiled_circuit = QuantumCircuit(0)
@@ -69,7 +71,7 @@ class SimuResult(Result):
     Class that save the execute simulation results returned from classical simulator.
 
     Attributes:
-        num (int) : Numbers of measured qubits
+        num (int): Numbers of measured qubits
         amplitudes (ndarray): Calculated amplitudes on each bitstring.
         rho (ndarray): Simulated density matrix of measured qubits
     """
@@ -83,14 +85,14 @@ class SimuResult(Result):
         elif input_form == "state_vector":
             self.state_vector = input
         
-    def plot_amplitudes(self, full=False, reverse_basis=False, sort=None):
+    def plot_amplitudes(self, full: bool=False, reverse_basis: bool=False, sort: bool=None):
         """
         Plot the amplitudes from simulated results.
         
         Args:
-            full (bool) : Whether plot on the full basis of measured qubits.
-            reverse_basis (bool): Whether reverse the bitstring of basis.
-            sort (str):  Sort the results by amplitude values. Can be `"ascend"` order or `"descend"` order. 
+            full: Whether plot on the full basis of measured qubits.
+            reverse_basis: Whether reverse the bitstring of basis.
+            sort:  Sort the results by amplitude values. Can be `"ascend"` order or `"descend"` order. 
         """
 
         from ..utils.basis import get_basis
