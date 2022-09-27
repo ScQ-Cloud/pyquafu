@@ -275,7 +275,7 @@ class Task(object):
         res = requests.post(url, headers=headers, data=data)
         res_dict = json.loads(res.text)
 
-        if res.json()["status"] == 201:
+        if res.json()["status"] in [201, 205]:
             raise UserError(res_dict["message"])
         elif res.json()["status"] == 5001:
             raise CircuitError(res_dict["message"])
@@ -285,6 +285,7 @@ class Task(object):
             raise CompileError(res_dict["message"]) 
         else:
             task_id = res_dict["task_id"]
+     
             if not (group in self.submit_history):
                 self.submit_history[group] = [task_id]
             else:

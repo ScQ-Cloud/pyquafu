@@ -8,6 +8,12 @@ Python toolkit for submitting quantum circuits on the superconducting quantum co
 PyQuafu is developed for the users of [Quafu](http://quafu.baqis.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use PyQuafu to interact with different quantum backends provides by the experimental group of [Quafu](http://quafu.baqis.ac.cn/). 
 
 ## Installation
+
+```
+pip install pyquafu 
+```
+or 
+
 ```shell
 git clone https://github.com/ScQ-Cloud/pyquafu
 cd pyquafu

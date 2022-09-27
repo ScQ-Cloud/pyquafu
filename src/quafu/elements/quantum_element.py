@@ -144,7 +144,6 @@ class ParaSingleQubitGate(SingleQubitGate):
             raise TypeError("Unsupported `matrix` type")
 
 
-
 class TwoQubitGate(QuantumGate):
     def __init__(self, name: str, pos: List[int], paras, matrix):
         super().__init__(name, pos, paras=paras, matrix=matrix)
@@ -163,9 +162,6 @@ class TwoQubitGate(QuantumGate):
             self.__matrix = np.array(_matrix, dtype=complex)
         else:
             raise TypeError("Unsupported `matrix` type")
-
-
-
 
 class FixedTwoQubitGate(TwoQubitGate):
     def __init__(self, name: str, pos: List[int], matrix):
