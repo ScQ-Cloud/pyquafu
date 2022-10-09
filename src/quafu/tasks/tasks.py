@@ -14,6 +14,7 @@ from urllib import parse
 import re
 import networkx as nx
 import matplotlib.pyplot as plt
+import copy
 
 class Task(object): 
     """
@@ -186,7 +187,7 @@ class Task(object):
         E = sum(obsexp)
         """
         # save input circuit
-        inputs = qc.gates
+        inputs = copy.deepcopy(qc.gates)
         measures = list(qc.measures.keys())
         if len(obslist) == 0:
             print("No observable measurement task.")
