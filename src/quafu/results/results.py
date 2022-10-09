@@ -85,6 +85,11 @@ class SimuResult(Result):
         elif input_form == "state_vector":
             self.state_vector = input
         
+        inds = np.where(self.amplitudes > 1e-14)[0]
+        probs = self.amplitudes[inds]
+        basis=np.array([bin(i)[2:].zfill(self.num) for i in inds])
+        self.res_reduced = dict(zip(basis, probs))
+        
     def plot_amplitudes(self, full: bool=False, reverse_basis: bool=False, sort: bool=None):
         """
         Plot the amplitudes from simulated results.
@@ -124,11 +129,8 @@ class SimuResult(Result):
     def get_statevector(self):
         return self.state_vector
 
-    # def plot_rho(self):
-    #     pass
-    
-    # def calculate_obs(self, obs):
-    #     pass
+    def calculate_obs(self, pos):
+        return measure_obs(pos, self.res_reduced)
 
 
 def intersec(a, b):

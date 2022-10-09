@@ -30,7 +30,6 @@ def measure_obs(bits, res):
     result = np.dot(prob_r, baseobs)
     return result
 
-
 def get_baselocal(n):
     NA = n
     basisN = int(2**NA)
