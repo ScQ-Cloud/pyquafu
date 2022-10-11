@@ -718,13 +718,13 @@ class QuantumCircuit(object):
         self.gates.append(XYResonance(qs, qe, duration, unit=unit))
         return self
 
-    def measure(self, pos: int, cbits: List[int] = []) -> None:
+    def measure(self, pos: List[int], cbits: List[int] = []) -> None:
         """
         Measurement setting for experiment device.
         
         Args:
-            pos (int): Qubits need measure.
-            cbits (List[int]): Classical bits keeping the measure results.
+            pos: Qubits need measure.
+            cbits: Classical bits keeping the measure results.
         """
 
         self.measures = dict(zip(pos, range(len(pos))))
