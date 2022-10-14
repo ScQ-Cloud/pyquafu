@@ -62,7 +62,7 @@ def ptrace(psi, ind_A: List, diag: bool=True) -> np.ndarray:
         return psi        
     else:
         psi = np.reshape(psi, [2**len(ind_A), 2**(num-len(ind_A))]) 
-        rho = psi @ np.transpose(psi)
+        rho = psi @ np.conj(np.transpose(psi))
         return rho
 
 def simulate(qc: QuantumCircuit, 

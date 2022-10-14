@@ -6,16 +6,16 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 requirements = [
-    "matplotlib==3.5.2",
-    "networkx==2.6.3",
+    "matplotlib>=3.5.2",
+    "networkx>=2.6.3",
     "numpy>=1.20.3",
-    "requests==2.26.0",
-    "scipy==1.8.1",
-    "sparse==0.13.0"
+    "requests>=2.26.0",
+    "scipy>=1.8.1",
+    "sparse>=0.13.0"
 ]
 
 setup(name="pyquafu",
-    version="0.2.5",
+    version="0.2.6",
     author="ssli",
     author_email="ssli@iphy.ac.cn",
     url="https://github.com/ScQ-Cloud/pyquafu",

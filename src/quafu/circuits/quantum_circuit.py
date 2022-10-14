@@ -363,7 +363,7 @@ class QuantumCircuit(object):
         Returns: 
             openqasm text.
         """
-        qasm = '''OPENQASM 2.0;\ninclude "qelib1.inc";\n'''
+        qasm = "OPENQASM 2.0;\ninclude \"qelib1.inc\";\n"
         qasm += "qreg q[%d];\n" % self.num
         qasm += "creg meas[%d];\n" % len(self.measures)
         for gate in self.gates:
@@ -616,6 +616,7 @@ class QuantumCircuit(object):
             tar (int): target qubit.
         """
         self.gates.append(CSGate([ctrl, tar]))
+        return self
 
     def ct(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
@@ -626,6 +627,7 @@ class QuantumCircuit(object):
         """
         
         self.gates.append(CTGate([ctrl, tar]))
+        return self
 
     def cp(self, ctrl: int, tar: int, para) -> "QuantumCircuit":
         """
@@ -636,7 +638,7 @@ class QuantumCircuit(object):
             tar (int): target qubit.
         """
         self.gates.append(CPGate([ctrl, tar], para))
-
+        return self
     # def fsim(self, q1, q2, theta, phi):
     #     """
     #     fSim gate.
@@ -718,13 +720,13 @@ class QuantumCircuit(object):
         self.gates.append(XYResonance(qs, qe, duration, unit=unit))
         return self
 
-    def measure(self, pos: int, cbits: List[int] = []) -> None:
+    def measure(self, pos: List[int], cbits: List[int] = []) -> None:
         """
         Measurement setting for experiment device.
         
         Args:
-            pos (int): Qubits need measure.
-            cbits (List[int]): Classical bits keeping the measure results.
+            pos: Qubits need measure.
+            cbits: Classical bits keeping the measure results.
         """
 
         self.measures = dict(zip(pos, range(len(pos))))
