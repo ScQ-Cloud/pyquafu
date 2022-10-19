@@ -12,14 +12,6 @@ PyQuafu is developed for the users of [Quafu](http://quafu.baqis.ac.cn/) to cons
 ```
 pip install pyquafu 
 ```
-or 
-
-```shell
-git clone https://github.com/ScQ-Cloud/pyquafu
-cd pyquafu
-python setup.py build
-python setup.py install
-```
 
 ## Document
 Please see the website [docs](https://scq-cloud.github.io/).
