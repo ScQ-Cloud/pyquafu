@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14...3.22)
 
 #cross compile
 # include(cmake/toolchain_win_64.cmake)
-project(qfvm VERSION "0.0.1" LANGUAGES CXX C)
+project(qfvm VERSION "0.2.7" LANGUAGES CXX C)
 
 set (CMAKE_BUILD_TYPE Release)
 
