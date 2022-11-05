@@ -6,6 +6,8 @@ src/site
 src/docs
 build
 dist
+wheelhouse
+test
 _skbuild
 cmake
 *.egg-info

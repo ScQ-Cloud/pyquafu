@@ -1,9 +1,9 @@
 #default circuit simulator for state vector
-from typing import Iterable, List, Union
 
+from typing import Iterable, List, Union
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from ..results.results import SimuResult
-from ..elements.quantum_element import Barrier, Delay, QuantumGate, SingleQubitGate, TwoQubitGate, MultiQubitGate, XYResonance
+from ..elements.quantum_element import Barrier, Delay, QuantumGate, SingleQubitGate,  MultiQubitGate, XYResonance
 import numpy as np
 from functools import reduce
 from sparse import COO, SparseArray
@@ -20,7 +20,7 @@ def global_op(gate: QuantumGate, global_qubits: List) -> coo_matrix:
         local_mat = kron(kron(eye(2**pos), local_mat), eye(2**(num - pos-1)))
         return local_mat
 
-    elif isinstance(gate, TwoQubitGate) or isinstance(gate, MultiQubitGate):
+    elif isinstance(gate, MultiQubitGate):
         local_mat =coo_matrix(gate.matrix)
         pos = [global_qubits.index(p) for p in gate.pos]
         num_left = min(pos)
@@ -65,8 +65,8 @@ def ptrace(psi, ind_A: List, diag: bool=True) -> np.ndarray:
         rho = psi @ np.conj(np.transpose(psi))
         return rho
 
-def simulate(qc: QuantumCircuit, 
-             state_ini: np.ndarray = None, 
+def py_simulate(qc: QuantumCircuit, 
+             state_ini: np.ndarray = np.array([]), 
              output: str="amplitudes") -> SimuResult:
     """Simulate quantum circuit
         Args:
@@ -79,10 +79,9 @@ def simulate(qc: QuantumCircuit,
            SimuResult object that contain the results.
     """
 
-    used_qubits = qc.get_used_qubits()
+    used_qubits = qc.used_qubits
     num = len(used_qubits)
-    measures = [used_qubits.index(i) for i in qc.measures.keys()]
-    if state_ini is None:
+    if not state_ini:
         psi = np.zeros(2**num)
         psi[0] = 1
 
@@ -94,18 +93,6 @@ def simulate(qc: QuantumCircuit,
             op = global_op(gate, used_qubits)
             psi = op @ psi
 
-    if output == "density_matrix":
-        rho = ptrace(psi, measures, diag=False)
-        rho = permutebits(rho, list(qc.measures.values()))
-        return SimuResult(rho, output)
+    return psi
 
-    elif output == "amplitudes":
-        amplitudes = ptrace(psi, measures)
-        amplitudes = permutebits(amplitudes, list(qc.measures.values()))
-        return SimuResult(amplitudes, output) 
     
-    elif output == "state_vector":
-        return SimuResult(psi, output)
-
-    else:
-        raise ValueError("output should in be 'density_matrix', 'amplitudes', or 'state_vector'")

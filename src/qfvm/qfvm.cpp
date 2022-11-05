@@ -20,9 +20,24 @@ py::object execute(string qasm){
     return to_numpy(simulate(qasm).move_data());
 }
 
+py::object simulate_circuit(py::object const&pycircuit, vector<complex<double>> const&inputstate){
+  auto circuit = Circuit(pycircuit);
+    if (inputstate.size() == 0){
+        StateVector<double> state;
+        simulate(circuit, state);
+        return to_numpy(state.move_data());
+    }
+    else{
+      StateVector<double> state{inputstate};
+      simulate(circuit, state);
+      return to_numpy(state.move_data());
+    }
+}
+
 
 PYBIND11_MODULE(qfvm, m) {
-    m.doc() = "Qfsim simulator";
-    m.def("execute", &execute, "Simulate qasm");
+    m.doc() = "Qfvm simulator";
+    m.def("execute", &execute, "Simulate with qasm");
+    m.def("simulate_circuit", &simulate_circuit, "Simulate with circuit", py::arg("circuit"), py::arg("inputstate")= py::array_t<complex<double>>(0));
 }
 

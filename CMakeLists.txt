@@ -18,6 +18,7 @@ endif()
 
 set ( PRJ_COMPILE_OPTIONS )
 set ( PRJ_LIBRARIES )
+set ( PRJ_INCLUDE_DIRS )
 
 # openmp
 find_package ( OpenMP )
@@ -26,6 +27,17 @@ if ( OpenMP_FOUND )
 	list ( APPEND PRJ_LIBRARIES ${OpenMP_CXX_LIBRARIES} )
 	list ( APPEND PRJ_COMPILE_OPTIONS ${OpenMP_CXX_FLAGS} )
 endif ()
+
+#eigen
+if (${CMAKE_HOST_SYSTEM_NAME} MATCHES Windows)
+	set (CMAKE_DEFAULT_INSTALL_DIR "C:/Program Files (x86)/Eigen3")
+elseif(${CMAKE_HOST_SYSTEM_NAME} MATCHES Linux)
+	set (CMAKE_DEFAULT_INSTALL_DIR "/usr/local")
+endif()
+set(Eigen3_DIR ${CMAKE_DEFAULT_INSTALL_DIR}/share/eigen3/cmake)
+find_package(Eigen3 3.3.9 REQUIRED NO_MODULE)
+list (APPEND PRJ_INCLUDE_DIRS ${CMAKE_DEFAULT_INSTALL_DIR}/include)
+list (APPEND PRJ_INCLUDE_DIRS ${CMAKE_DEFAULT_INSTALL_DIR}/include/eigen3)
 
 
 #SIMD

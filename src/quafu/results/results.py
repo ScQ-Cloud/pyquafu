@@ -47,7 +47,7 @@ class ExecResult(Result):
 
     def calculate_obs(self, pos):
         """
-        Calculate observables on input position
+        Calculate observables Z on input position using amplitudes
 
         Args: 
             pos (list[int]): Positions of observalbes.
@@ -83,20 +83,15 @@ class SimuResult(Result):
         elif input_form == "amplitudes":
             self.amplitudes = input
         elif input_form == "state_vector":
-            self.state_vector = input
-        
-        inds = np.where(self.amplitudes > 1e-14)[0]
-        probs = self.amplitudes[inds]
-        basis=np.array([bin(i)[2:].zfill(self.num) for i in inds])
-        self.res_reduced = dict(zip(basis, probs))
+            self.state_vector = input            
         
     def plot_amplitudes(self, full: bool=False, reverse_basis: bool=False, sort: bool=None):
         """
-        Plot the amplitudes from simulated results.
+        Plot the amplitudes from simulated results, ordered in big endian convention.
         
         Args:
             full: Whether plot on the full basis of measured qubits.
-            reverse_basis: Whether reverse the bitstring of basis.
+            reverse_basis: Whether reverse the bitstring of basis. (Little endian convention).
             sort:  Sort the results by amplitude values. Can be `"ascend"` order or `"descend"` order. 
         """
 
@@ -130,7 +125,12 @@ class SimuResult(Result):
         return self.state_vector
 
     def calculate_obs(self, pos):
-        return measure_obs(pos, self.res_reduced)
+        "Calculate observables Z on input position using amplitudes"
+        inds = np.where(self.amplitudes > 1e-14)[0]
+        probs = self.amplitudes[inds]
+        basis=np.array([bin(i)[2:].zfill(self.num) for i in inds])
+        res_reduced = dict(zip(basis, probs))
+        return measure_obs(pos, res_reduced)
 
 
 def intersec(a, b):

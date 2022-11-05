@@ -9,10 +9,10 @@ using Qfutil::find_numbers;
 #define Pair(name) {#name, Opname::name}
 
 enum class Opname{
-    creg, x, y, z, h, s, sdag, t, tdag, p, rx, ry, rz, cnot, cx, cz, crx, cp, ccx, toffoli, measure
+    creg, x, y, z, h, s, sdg, t, tdg, p, rx, ry, rz, cnot, cx, cz, crx, cp, ccx, toffoli, swap, iswap, rxx, ryy, rzz, measure
 };
 
-std::unordered_map<string, Opname> OPMAP{Pair(creg), Pair(x), Pair(y), Pair(z), Pair(h), Pair(s), Pair(sdag), Pair(t), Pair(tdag), Pair(p), Pair(rx), Pair(ry), Pair(rz), Pair(cnot), Pair(cx), Pair(cz), Pair(crx), Pair(cp), Pair(ccx), Pair(measure)};
+std::unordered_map<string, Opname> OPMAP{Pair(creg), Pair(x), Pair(y), Pair(z), Pair(h), Pair(s), Pair(sdg), Pair(t), Pair(tdg), Pair(p), Pair(rx), Pair(ry), Pair(rz), Pair(cnot), Pair(cx), Pair(cz), Pair(crx), Pair(cp), Pair(ccx), Pair(swap), Pair(iswap), Pair(rxx), Pair(ryy), Pair(rzz), Pair(measure)};
 
 typedef struct{
     string name;

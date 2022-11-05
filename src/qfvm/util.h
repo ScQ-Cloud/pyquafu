@@ -5,6 +5,7 @@
 #include <time.h>
 #include <regex>
 #include <type_traits>
+#include <bitset>
 
 namespace Qfutil{
 
