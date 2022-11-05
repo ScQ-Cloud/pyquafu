@@ -28,22 +28,22 @@ def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), si
             raise ValueError("Must input valid qasm str for qfvm_qasm simulator")
 
         qasm = qc
-        qc = QuantumCircuit(0).from_openqasm(qc)
-
+        qc = QuantumCircuit(0)
+        qc.from_openqasm(qasm)
      
     measures = [qc.used_qubits.index(i) for i in qc.measures.keys()]
-    
+    num = 0
     if simulator == "qfvm_circ":
         num = max(qc.used_qubits)+1
-        measures = qc.measures.keys()
+        measures = list(qc.measures.keys())
         psi = simulate_circuit(qc, psi)
         
     elif simulator ==  "py_simu":
         psi = py_simulate(qc, psi)
     elif simulator == "qfvm_qasm":
         num = qc.num
-        measures = qc.measures.keys()
-        psi = execute(qasm, psi)      
+        measures = list(qc.measures.keys())
+        psi = execute(qasm)      
     else:
         raise ValueError("invalid circuit")
 
