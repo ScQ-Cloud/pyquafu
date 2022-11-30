@@ -15,7 +15,6 @@ import re
 import copy
 import networkx as nx
 import matplotlib.pyplot as plt
-import copy
 
 class Task(object): 
     """
@@ -207,7 +206,7 @@ class Task(object):
             exec_res = []
             for measure_base in measure_basis:
                 res = self.run(qc, measure_base=measure_base)
-                qc.gates = inputs
+                qc.gates = copy.deepcopy(inputs)
                 exec_res.append(res)
 
             measure_results = []

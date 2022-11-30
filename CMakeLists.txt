@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14...3.22)
 
 #cross compile
 # include(cmake/toolchain_win_64.cmake)
-project(qfvm VERSION "0.2.8" LANGUAGES CXX C)
+project(qfvm VERSION "0.2.9" LANGUAGES CXX C)
 
 set (CMAKE_BUILD_TYPE Release)
 
@@ -19,6 +19,7 @@ endif()
 set ( PRJ_COMPILE_OPTIONS )
 set ( PRJ_LIBRARIES )
 set ( PRJ_INCLUDE_DIRS )
+
 
 # openmp
 find_package ( OpenMP )
@@ -38,7 +39,6 @@ set(Eigen3_DIR ${CMAKE_DEFAULT_INSTALL_DIR}/share/eigen3/cmake)
 find_package(Eigen3 3.3.9 REQUIRED NO_MODULE)
 list (APPEND PRJ_INCLUDE_DIRS ${CMAKE_DEFAULT_INSTALL_DIR}/include)
 list (APPEND PRJ_INCLUDE_DIRS ${CMAKE_DEFAULT_INSTALL_DIR}/include/eigen3)
-
 
 #SIMD
 if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "amd64")
