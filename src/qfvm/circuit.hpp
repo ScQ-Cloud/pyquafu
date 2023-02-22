@@ -72,9 +72,12 @@ void check_operator(QuantumOperator &op){
     std::cout << op.mat() << std::endl;
 
     std::cout << "flatten matrix: " << std::endl;
-    complex<double> *mat = op.mat().data();
-    for (auto i = 0;i < op.mat().size();i++){
-        std::cout << mat[i] << " ";
+    auto mat = op.mat();
+    // Eigen::Map<Eigen::RowVectorXcd> v1(mat.data(), mat.size());
+    // std::cout << "v1: " << v1 << std::endl;
+    auto matv = mat.data();
+    for (auto i = 0;i < mat.size();i++){
+        std::cout << matv[i] << " ";
     }
     std::cout << std::endl;
     std::cout << "-------------" << std::endl;
@@ -133,7 +136,6 @@ Circuit::Circuit(py::object const&pycircuit)
     for (auto pygate_h : pygates){
         py::object pygate = py::reinterpret_borrow<py::object>(pygate_h);
         QuantumOperator gate = from_pyops(pygate);
-        // check_operator(gate);
         if (gate){
             for (pos_t pos : gate.positions()){
                 if (pos+1 > qubit_num_){ qubit_num_ = pos+1;}

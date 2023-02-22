@@ -86,12 +86,13 @@ class QuantumCircuit(object):
         self._used_qubits = list(used_qubits)
         return self.circuit
 
-    def draw_circuit(self, width : int=4):
+    def draw_circuit(self, width : int=4, return_str : bool=False):
         """
         Draw layered circuit using ASCII, print in terminal.
 
         Args:
-            width (int): The width of each gate. s
+            width (int): The width of each gate.
+            return_str: Whether return the circuit string.
         """
         self.layered_circuit()
         gateQlist = self.circuit
@@ -165,8 +166,11 @@ class QuantumCircuit(object):
                 circuitstr.append("".ljust(6) + "".join(
                     [printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
         circuitstr = "\n".join(circuitstr)
-        print(circuitstr)
-        return circuitstr
+    
+        if return_str:
+            return circuitstr
+        else:
+            print(circuitstr)
 
     def from_openqasm(self, openqasm : str):
         """
@@ -702,18 +706,27 @@ class QuantumCircuit(object):
     def mcx(self, ctrls: List[int], targ: int):
         """
         Multi-controlled X gate.
+        Args:
+            ctrls: A list of control qubits.
+            targ: Target qubits.
         """
         self.gates.append(MCXGate(ctrls, targ))
     
     def mcy(self, ctrls: List[int], targ: int):
         """
-        Multi-controlled X gate.
+        Multi-controlled Y gate.
+        Args:
+            ctrls: A list of control qubits.
+            targ: Target qubits.
         """
         self.gates.append(MCYGate(ctrls, targ))
     
     def mcz(self, ctrls: List[int], targ: int):
         """
-        Multi-controlled X gate.
+        Multi-controlled Z gate.
+        Args:
+            ctrls: A list of control qubits.
+            targ: Target qubits.
         """
         self.gates.append(MCZGate(ctrls, targ))
     

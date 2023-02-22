@@ -7,7 +7,7 @@ from ..results.results import SimuResult
 import numpy as np
 import time
 
-def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), simulator:str="qfvm_circ", output: str="amplitudes")-> SimuResult:
+def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), simulator:str="qfvm_circ", output: str="probabilities")-> SimuResult:
     """Simulate quantum circuit
     Args:
         qc: quantum circuit or qasm string that need to be simulated.
@@ -16,7 +16,7 @@ def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), si
                 `"py_simu"`: Python implemented simulator by sparse matrix with low performace for large scale circuit.
                 `"qfvm_qasm"`: The high performance C++ qasm simulator with limited gate set.
 
-        output: `"amplitudes"`: Return ampliteds on measured qubits, ordered in big endian convention.
+        output: `"probabilities"`: Return probabilities on measured qubits, ordered in big endian convention.
                 `"density_matrix"`: Return reduced density_amtrix on measured qubits, ordered in big endian convention.
                 `"state_vector`: Return original full statevector. The statevector returned by `qfvm` backend is ordered in little endian convention (same as qiskit), while `py_simu` backend is orderd in big endian convention.
     Returns:
@@ -55,15 +55,15 @@ def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), si
         rho = permutebits(rho, list(qc.measures.values()))
         return SimuResult(rho, output)
 
-    elif output == "amplitudes":
+    elif output == "probabilities":
         if simulator in ["qfvm_circ", "qfvm_qasm"]:
             psi = permutebits(psi, range(num)[::-1])
-        amplitudes = ptrace(psi, measures)
-        amplitudes = permutebits(amplitudes, list(qc.measures.values()))
-        return SimuResult(amplitudes, output) 
+        probabilities = ptrace(psi, measures)
+        probabilities = permutebits(probabilities, list(qc.measures.values()))
+        return SimuResult(probabilities, output) 
     
     elif output == "state_vector":
         return SimuResult(psi, output)
 
     else:
-        raise ValueError("output should in be 'density_matrix', 'amplitudes', or 'state_vector'")
+        raise ValueError("output should in be 'density_matrix', 'probabilities', or 'state_vector'")

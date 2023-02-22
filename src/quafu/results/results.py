@@ -16,7 +16,7 @@ class ExecResult(Result):
     
     Attributes:
         counts (dict): Samples counts on each bitstring.
-        amplitudes (dict): Calculated amplitudes on each bitstring.
+        probabilities (dict): Calculated probabilities on each bitstring.
         taskid (int): Unique task id for the execute result.
         transpiled_circuit (QuantumCircuit): Quantum circuit transpiled on backend.
     """
@@ -40,30 +40,30 @@ class ExecResult(Result):
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
         total_counts = sum(self.counts.values())
-        self.amplitudes = {} 
+        self.probabilities = {} 
         for key in self.counts:
-            self.amplitudes[key] = self.counts[key]/total_counts
+            self.probabilities[key] = self.counts[key]/total_counts
     
 
     def calculate_obs(self, pos):
         """
-        Calculate observables Z on input position using amplitudes
+        Calculate observables Z on input position using probabilities
 
         Args: 
             pos (list[int]): Positions of observalbes.
         """
         return measure_obs(pos, self.logicalq_res) 
 
-    def plot_amplitudes(self):
+    def plot_probabilities(self):
         """
-        Plot the amplitudes from execute results.
+        Plot the probabilities from execute results.
         """
-        bitstrs = list(self.amplitudes.keys())
-        amps = list(self.amplitudes.values())
+        bitstrs = list(self.probabilities.keys())
+        probs = list(self.probabilities.values())
         plt.figure()
-        plt.bar(range(len(amps)), amps, tick_label = bitstrs)
+        plt.bar(range(len(probs)), probs, tick_label = bitstrs)
         plt.xticks(rotation=70)
-        plt.ylabel("amplitudes")
+        plt.ylabel("probabilities")
 
 
 class SimuResult(Result):
@@ -72,35 +72,35 @@ class SimuResult(Result):
 
     Attributes:
         num (int): Numbers of measured qubits
-        amplitudes (ndarray): Calculated amplitudes on each bitstring.
+        probabilities (ndarray): Calculated probabilities on each bitstring.
         rho (ndarray): Simulated density matrix of measured qubits
     """
     def __init__(self, input, input_form):
         self.num = int(np.log2(input.shape[0]))
         if input_form == "density_matrix":
             self.rho = np.array(input)
-            self.amplitudes = np.diag(input)
-        elif input_form == "amplitudes":
-            self.amplitudes = input
+            self.probabilities = np.diag(input)
+        elif input_form == "probabilities":
+            self.probabilities = input
         elif input_form == "state_vector":
             self.state_vector = input            
         
-    def plot_amplitudes(self, full: bool=False, reverse_basis: bool=False, sort: bool=None):
+    def plot_probabilities(self, full: bool=False, reverse_basis: bool=False, sort: bool=None):
         """
-        Plot the amplitudes from simulated results, ordered in big endian convention.
+        Plot the probabilities from simulated results, ordered in big endian convention.
         
         Args:
             full: Whether plot on the full basis of measured qubits.
             reverse_basis: Whether reverse the bitstring of basis. (Little endian convention).
-            sort:  Sort the results by amplitude values. Can be `"ascend"` order or `"descend"` order. 
+            sort:  Sort the results by probabilities values. Can be `"ascend"` order or `"descend"` order. 
         """
 
         from ..utils.basis import get_basis
-        probs = self.amplitudes
+        probs = self.probabilities
         inds = range(len(probs))
         if not full:
-            inds = np.where(self.amplitudes > 1e-14)[0]
-            probs = self.amplitudes[inds]
+            inds = np.where(self.probabilities > 1e-14)[0]
+            probs = self.probabilities[inds]
 
         basis=np.array([bin(i)[2:].zfill(self.num) for i in inds])
         if reverse_basis:
@@ -119,15 +119,15 @@ class SimuResult(Result):
         plt.figure()
         plt.bar(inds, probs, tick_label=basis)
         plt.xticks(rotation=70)
-        plt.ylabel("amplitudes")
+        plt.ylabel("probabilities")
 
     def get_statevector(self):
         return self.state_vector
 
     def calculate_obs(self, pos):
-        "Calculate observables Z on input position using amplitudes"
-        inds = np.where(self.amplitudes > 1e-14)[0]
-        probs = self.amplitudes[inds]
+        "Calculate observables Z on input position using probabilities"
+        inds = np.where(self.probabilities > 1e-14)[0]
+        probs = self.probabilities[inds]
         basis=np.array([bin(i)[2:].zfill(self.num) for i in inds])
         res_reduced = dict(zip(basis, probs))
         return measure_obs(pos, res_reduced)

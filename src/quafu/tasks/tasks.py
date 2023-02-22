@@ -258,12 +258,14 @@ class Task(object):
         Returns: 
             ExecResult object that contain the dict return from quantum device.
         """
+        from quafu import get_version
+        version = get_version()
         self.check_valid_gates(qc)
         qc.to_openqasm()
         backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2, "ScQ-S41" : 3}
         data = {"qtasm": qc.openqasm, "shots": self.shots, "qubits": qc.num, "scan": 0,
                 "tomo": int(self.tomo), "selected_server": backends[self._backend.name],
-                "compile": int(self.compile), "priority": self.priority, "task_name": name}
+                "compile": int(self.compile), "priority": self.priority, "task_name": name, "pyquafu_version": version}
         
         if wait:
             url = self._url  + "qbackend/scq_kit/"

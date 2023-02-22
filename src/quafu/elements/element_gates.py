@@ -128,7 +128,9 @@ class SYGate(FixedSingleQubitGate):
 class SWGate(FixedSingleQubitGate):
     def __init__(self, pos: int):
         super().__init__("SW", pos, matrix=np.zeros((2, 2), dtype=complex))
-        self.matrix = sqrtm(WGate(0).matrix)
+        #   sqrtm(WGate(0).matrix)
+        self.matrix = np.array([[0.5+0.5j, -np.sqrt(0.5)*1j],
+       [np.sqrt(0.5), 0.5+ 0.5j]], dtype=complex)
         self.symbol = "√W"
 
 class RXGate(ParaSingleQubitGate):

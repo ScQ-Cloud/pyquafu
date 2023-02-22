@@ -361,7 +361,7 @@ void StateVector<real_t>::apply_ccx(pos_t control1, pos_t control2, pos_t targe)
 template <class real_t>
 template <int ctrl_num>
 void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv, complex<double> *mat)
-{
+{   
     std::function<size_t(size_t)> getind_func_near;
     std::function<size_t(size_t)> getind_func;
     size_t rsize;
@@ -441,9 +441,7 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
                 data_[i] = mat00*data_[i] + mat01*data_[i+1];
                 data_[i+1] = mat10*temp + mat11*data_[i+1];
             }
-      
     }else if (has_control && control == 0){ //single step
-       
 #pragma omp parallel for
             for(omp_i j = 0;j < rsize;j++){
                 size_t i = getind_func(j);

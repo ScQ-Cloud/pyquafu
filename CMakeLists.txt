@@ -1,8 +1,8 @@
+# To use this file to build from source, make sure that external packages openmp, eigen and pybind11 have been installed with cmake by default.   
+
 cmake_minimum_required(VERSION 3.14...3.22)
 
-#cross compile
-# include(cmake/toolchain_win_64.cmake)
-project(qfvm VERSION "0.2.9" LANGUAGES CXX C)
+project(qfvm LANGUAGES CXX C)
 
 set (CMAKE_BUILD_TYPE Release)
 
@@ -20,21 +20,26 @@ set ( PRJ_COMPILE_OPTIONS )
 set ( PRJ_LIBRARIES )
 set ( PRJ_INCLUDE_DIRS )
 
-
 # openmp
-find_package ( OpenMP )
-if ( OpenMP_FOUND )
-	list ( APPEND PRJ_COMPILE_DEF ENABLE_OPENMP )
-	list ( APPEND PRJ_LIBRARIES ${OpenMP_CXX_LIBRARIES} )
-	list ( APPEND PRJ_COMPILE_OPTIONS ${OpenMP_CXX_FLAGS} )
-endif ()
+if (${CMAKE_HOST_SYSTEM_NAME} MATCHES Darwin)
+	list ( APPEND PRJ_LIBRARIES /usr/local/opt/libomp/lib )
+	list ( APPEND PRJ_INCLUDE_DIRS /usr/local/opt/libomp/include )
+else()
+	find_package ( OpenMP )
+	if ( OpenMP_FOUND )
+		list ( APPEND PRJ_COMPILE_DEF ENABLE_OPENMP )
+		list ( APPEND PRJ_LIBRARIES ${OpenMP_CXX_LIBRARIES} )
+		list ( APPEND PRJ_COMPILE_OPTIONS ${OpenMP_CXX_FLAGS} )
+	endif()
+endif()
 
 #eigen
 if (${CMAKE_HOST_SYSTEM_NAME} MATCHES Windows)
 	set (CMAKE_DEFAULT_INSTALL_DIR "C:/Program Files (x86)/Eigen3")
-elseif(${CMAKE_HOST_SYSTEM_NAME} MATCHES Linux)
+elseif(${CMAKE_HOST_SYSTEM_NAME} MATCHES Linux OR ${CMAKE_HOST_SYSTEM_NAME} MATCHES Darwin)
 	set (CMAKE_DEFAULT_INSTALL_DIR "/usr/local")
 endif()
+
 set(Eigen3_DIR ${CMAKE_DEFAULT_INSTALL_DIR}/share/eigen3/cmake)
 find_package(Eigen3 3.3.9 REQUIRED NO_MODULE)
 list (APPEND PRJ_INCLUDE_DIRS ${CMAKE_DEFAULT_INSTALL_DIR}/include)

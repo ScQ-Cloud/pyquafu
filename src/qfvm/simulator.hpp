@@ -72,7 +72,8 @@ void simulate(Circuit const& circuit, StateVector<data_t> & state){
             default: 
             {   
                 if (op.targe_num() == 1){
-                    complex<double> *mat = op.mat().data();
+                    auto mat_temp = op.mat();
+                    complex<double> *mat = mat_temp.data();
                     if (op.control_num() == 0){
                         state.apply_one_targe_gate_general<0>(op.positions(), mat);
                     }else if (op.control_num() == 1)
