@@ -89,6 +89,7 @@ if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR 
 endif()
 
 pybind11_add_module(${PROJECT_NAME} MODULE src/${PROJECT_NAME}/${PROJECT_NAME}.cpp)
+add_dependencies(${PROJECT_NAME} Eigen3 pybind11) #must add dependence for ninja
 target_compile_options(${PROJECT_NAME} PUBLIC ${PRJ_COMPILE_OPTIONS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PRJ_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PRJ_LIBRARIES})
