@@ -8,18 +8,18 @@ jobs:
     name: Build python wheels
     strategy:
       matrix:
-        os-arch: ["manylinux_x86_64", "win_amd64", "macosx_x86_64", "macosx_arm64"]
+        os-arch: ["manylinux_x86_64"]
         python-version: ["3.10"]
         cibw-python: ["cp38", "cp39", "cp310","cp311"]
         include:
           - os-arch: "manylinux_x86_64"
             os: "ubuntu-20.04"
-          - os-arch: "win_amd64"
-            os: "windows-2019"
-          - os-arch: "macosx_x86_64"
-            os: "macos-11"
-          - os-arch: "macosx_arm64"
-            os: "macos-11"
+#           - os-arch: "win_amd64"
+#             os: "windows-2019"
+#           - os-arch: "macosx_x86_64"
+#             os: "macos-11"
+#           - os-arch: "macosx_arm64"
+#             os: "macos-11"
     runs-on: ${{ matrix.os }}
     
     env:
