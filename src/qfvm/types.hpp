@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 #ifdef _MSC_VER
 using omp_i = signed long long;

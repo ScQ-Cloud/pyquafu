@@ -1,1 +1,3 @@
-rm -rf _skbuild dist pyquafu.egg-info
+# !/bin/bash
+
+rm -rf _skbuild/ build/ *.egg-info

@@ -13,3 +13,4 @@ cmake
 *.egg-info
 test
 .vscode
+thirdparty

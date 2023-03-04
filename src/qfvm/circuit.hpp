@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
 #include "util.h"
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
