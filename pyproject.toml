@@ -18,7 +18,7 @@ archs = ["x86_64"]
 
 
 [tool.cibuildwheel.macos]
-archs = ["x86_64"]
+archs = ["x86_64", "arm64"]
 
 repair-wheel-command = [
   "delocate-listdeps {wheel}",
