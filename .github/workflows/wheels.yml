@@ -1,7 +1,7 @@
 name: Build
 
 on: 
-  [workflow_dispatch]
+  [push, release, workflow_dispatch]
 
   
 jobs:
@@ -41,7 +41,7 @@ jobs:
         
       - name: Publish package
         run: python -m twine upload dist/*.whl
-#         if: ${{ contains(github.ref, '/tags/') }}
+        if: ${{ contains(github.ref, '/tags/') }}
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
