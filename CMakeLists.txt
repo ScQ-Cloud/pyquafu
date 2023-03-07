@@ -25,7 +25,6 @@ if (${CMAKE_HOST_SYSTEM_NAME} MATCHES Darwin)
     execute_process(COMMAND brew install libomp)
 	list ( APPEND PRJ_LIBRARIES /usr/local/opt/libomp/lib )
 	list ( APPEND PRJ_INCLUDE_DIRS /usr/local/opt/libomp/include )
-	list ( APPEND PRJ_COMPILE_OPTIONS -fopenmp=libomp )
 else()
 	find_package ( OpenMP )
 	if ( OpenMP_FOUND )
@@ -55,21 +54,6 @@ ExternalProject_Add(Eigen3
 )
 list (APPEND PRJ_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 
-#install pybind11
-set(PYBIND11_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/pybind11)
-set(PYBIND11_INCLUDE_DIR ${PYBIND11_ROOT}/include)
-ExternalProject_Add(pybind11 
-		PREFIX             ${PYBIND11_ROOT}
-		GIT_REPOSITORY     https://github.com/pybind/pybind11
-		# CONFIGURE_COMMAND  cd ${PYBIND11_ROOT}/src/pybind11 && cmake -B build -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=${PYBIND11_ROOT}
-		# BUILD_COMMAND ""
-		# INSTALL_COMMAND    cd ${PYBIND11_ROOT}/src/pybind11 && cmake --build build --target install
-
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND ""
-		INSTALL_COMMAND
-		${CMAKE_COMMAND} -E copy_directory ${PYBIND11_ROOT}/src/pybind11/include/pybind11 ${PYBIND11_INCLUDE_DIR}/pybind11
-)
 
 find_package(pybind11 CONFIG)
 list (APPEND PRJ_INCLUDE_DIRS ${PYBIND11_INCLUDE_DIR})
@@ -89,7 +73,7 @@ if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR 
 endif()
 
 pybind11_add_module(${PROJECT_NAME} MODULE src/${PROJECT_NAME}/${PROJECT_NAME}.cpp)
-add_dependencies(${PROJECT_NAME} Eigen3 pybind11) #must add dependence for ninja
+add_dependencies(${PROJECT_NAME} Eigen3) #must add dependence for ninja
 target_compile_options(${PROJECT_NAME} PUBLIC ${PRJ_COMPILE_OPTIONS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PRJ_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PRJ_LIBRARIES})
