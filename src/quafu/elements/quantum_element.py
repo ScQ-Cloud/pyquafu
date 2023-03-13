@@ -1,5 +1,6 @@
 # This is the file for abstract quantum gates class
 from typing import Union, Callable, List, Tuple, Iterable, Any, Optional
+from abc import ABC, abstractmethod
 import numpy as np
 from functools import reduce
 import copy
@@ -46,7 +47,7 @@ class XYResonance(object):
         self.pos=list(range(qs, qe+1))
         self.symbol = "XY(%d%s)" %(duration, unit)
 
-class QuantumGate(object):
+class QuantumGate(ABC):
     def __init__(self, name: str, pos: Union[int, List[int]], paras: Union[None,float, List[float]], matrix):
         self.name = name
         self.pos = pos

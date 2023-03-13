@@ -2,8 +2,9 @@ import requests
 import json
 import re
 import networkx as nx
+from abc import ABC, abstractmethod
 
-class Backend(object):
+class Backend(ABC):
     def __init__(self, name):
         self.name = name
         self.valid_gates = []
