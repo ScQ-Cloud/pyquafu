@@ -20,9 +20,11 @@ Please see the website [docs](https://scq-cloud.github.io/).
 
 ## Examples
 
-The example shows quantum reinforcement learning interacts with Quafu to solve CartPole environment. 
+1.quantum_rl
 
-Refer to https://github.com/enchanted123/quantum-RL-with-quafu for more details.
+	The example shows quantum reinforcement learning interacts with Quafu to solve CartPole environment. 
+
+	Refer to https://github.com/enchanted123/quantum-RL-with-quafu for more details.
 
 ## Authors
 This project is developed by the quantum cloud computing team at the Beijing Academy of Quantum Information Sciences.
