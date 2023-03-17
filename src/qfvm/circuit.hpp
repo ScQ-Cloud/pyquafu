@@ -7,6 +7,7 @@
 #include <pybind11/eigen.h>
 #include "util.h"
 #include <Eigen/Core>
+#include <algorithm>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -132,14 +133,12 @@ void Circuit::add_gate(QuantumOperator &gate){
 Circuit::Circuit(py::object const&pycircuit)
 {
     auto pygates = pycircuit.attr("gates");
-    qubit_num_ = 0;
+    auto used_qubits = pycircuit.attr("used_qubits").cast<vector<pos_t>>();
+    qubit_num_ = *std::max_element(used_qubits.begin(), used_qubits.end())+1;
     for (auto pygate_h : pygates){
         py::object pygate = py::reinterpret_borrow<py::object>(pygate_h);
         QuantumOperator gate = from_pyops(pygate);
         if (gate){
-            for (pos_t pos : gate.positions()){
-                if (pos+1 > qubit_num_){ qubit_num_ = pos+1;}
-            }
             gates_.push_back(std::move(gate));
         }        
     }
