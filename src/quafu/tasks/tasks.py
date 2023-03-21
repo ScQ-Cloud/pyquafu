@@ -2,10 +2,10 @@ import os
 from typing import Dict, List, Tuple
 
 from quafu.circuits.quantum_circuit import QuantumCircuit
-from ..utils.platform import get_homedir
+from quafu.users.userapi import load_account, get_backends_info
 from ..exceptions import CircuitError, ServerError, CompileError
 from ..results.results import ExecResult, merge_measure
-from ..backends.backends import ScQ_P10, ScQ_P20, ScQ_P50, ScQ_S41
+from ..backends.backends import Backend
 from ..users.exceptions import UserError
 import numpy as np
 import json
@@ -26,30 +26,15 @@ class Task(object):
         compile (bool): Whether compile the circuit on the backend
         tomo (bool): Whether do tomography (Not support yet)
     """
-    def __init__(self):
-        self._backend = ScQ_P10()
-        self.token = ""
+    def __init__(self):   
         self.shots = 1000
         self.tomo = False
         self.compile = True
-        self._url = ""
         self.priority = 2
         self.submit_history = { }
-
-
-    def load_account(self) -> None:
-        """
-        Load your Quafu account.
-        """
-        homedir = get_homedir()
-        file_dir = homedir + "/.quafu/"
-        try: 
-            f = open(file_dir + "api", "r")
-            data = f.readlines()
-            self.token = data[0].strip("\n")
-            self._url = data[1].strip("\n")
-        except:
-            raise UserError("User configure error. Please set up your token.")  
+        self.token, self._url = load_account()
+        self._available_backends = {info["system_name"]:Backend(info) for info in get_backends_info()}
+        self.backend = self._available_backends[list(self._available_backends.keys())[0]]
 
     def config(self, 
                backend: str="ScQ-P10", 
@@ -67,19 +52,16 @@ class Task(object):
             tomo:  Whether do tomography (Not support yet)
             priority: Task priority.
         """
-        if backend == "ScQ-P10":
-            self._backend = ScQ_P10()
-        elif backend == "ScQ-P20":
-            self._backend = ScQ_P20()
-        elif backend == "ScQ-P50":
-            self._backend = ScQ_P50()
-        elif backend == "ScQ-S41":
-            self._backend = ScQ_S41()        
+        if backend not in self._available_backends.keys():
+            raise UserError("backend %s is not valid, available backends are "%backend+", ".join(self._available_backends.keys()))
+
+        self.backend = self._available_backends[backend]
         self.shots = shots
         self.tomo = tomo
         self.compile = compile
         self.priority = priority
 
+        
     def get_history(self) -> Dict:
         """
         Get the history of submitted task.
@@ -95,74 +77,8 @@ class Task(object):
         Returns: 
             Backend information dictionary containing the mapping from the indices to the names of physical bits `'mapping'`, backend topology  `'topology_diagram'` and full calibration inforamtion `'full_info'`.
         """
-        backend_info = self._backend.get_info(self._url, self.token)
-        json_topo_struct = backend_info["topological_structure"]
-        qubits_list = []
-        for gate in json_topo_struct.keys():
-            qubit = gate.split('_')
-            qubits_list.append(qubit[0])
-            qubits_list.append(qubit[1])
-        qubits_list = list(set(qubits_list))
-        qubits_list = sorted(qubits_list, key=lambda x: int(re.findall(r"\d+", x)[0]))
-        int_to_qubit = {k: v for k, v in enumerate(qubits_list)}
-        qubit_to_int = {v: k for k, v in enumerate(qubits_list)}
-
-        directed_weighted_edges = []
-        weighted_edges = []
-        edges_dict = {}
-        clist = []
-        for gate, name_fidelity in json_topo_struct.items():
-            gate_qubit = gate.split('_')
-            qubit1 = qubit_to_int[gate_qubit[0]]
-            qubit2 = qubit_to_int[gate_qubit[1]]
-            gate_name = list(name_fidelity.keys())[0]
-            fidelity = name_fidelity[gate_name]['fidelity']
-            directed_weighted_edges.append([qubit1, qubit2, fidelity])
-            clist.append([qubit1, qubit2])
-            gate_reverse = gate.split('_')[1] + '_' + gate.split('_')[0]
-            if gate not in edges_dict and gate_reverse not in edges_dict:
-                edges_dict[gate] = fidelity
-            else:
-                if fidelity < edges_dict[gate_reverse]:
-                    edges_dict.pop(gate_reverse)
-                    edges_dict[gate] = fidelity
-
-        for gate, fidelity in edges_dict.items():
-            gate_qubit = gate.split('_')
-            qubit1, qubit2 = qubit_to_int[gate_qubit[0]], qubit_to_int[gate_qubit[1]]
-            weighted_edges.append([qubit1, qubit2, np.round(fidelity, 3)])
-
-        # draw topology
-
-        G = nx.Graph()
-        for key, value in int_to_qubit.items():
-            G.add_node(key, name=value)
-
-        G.add_weighted_edges_from(weighted_edges)
-
-        elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9]
-        esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9]
-        elarge_labels = {(u, v) : "%.3f" %d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9}
-        esmall_labels = {(u, v) : "%.3f" %d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9}
-
-        pos = nx.spring_layout(G, seed=1)  
-        fig, ax = plt.subplots()
-        nx.draw_networkx_nodes(G, pos, node_size=400, ax=ax)
-
-        nx.draw_networkx_edges(G, pos, edgelist=elarge, width=2, ax=ax)
-        nx.draw_networkx_edges(
-            G, pos, edgelist=esmall, width=2, alpha=0.5, style="dashed"
-        , ax=ax)
-
-        nx.draw_networkx_labels(G, pos, font_size=14, font_family="sans-serif", ax=ax)
-        edge_labels = nx.get_edge_attributes(G, "weight")
-        nx.draw_networkx_edge_labels(G, pos, elarge_labels, font_size=12, font_color="green", ax=ax)
-        nx.draw_networkx_edge_labels(G, pos, esmall_labels, font_size=12, font_color="red", ax=ax)
-        fig.set_figwidth(14)
-        fig.set_figheight(14)
-        fig.tight_layout()
-        return {"mapping" : int_to_qubit, "topology_diagram": fig, "full_info": backend_info}
-
+        return self.backend.get_chip_info()
+        
     def submit(self,
                qc: QuantumCircuit,
                obslist: List=[])\
@@ -260,11 +176,13 @@ class Task(object):
         """
         from quafu import get_version
         version = get_version()
+        if qc.num > self.backend.qubit_num:
+            raise CircuitError("The qubit number %d is too large for backend %s which has %d qubits" %(qc.num, self.backend.name, self.backend.qubit_num))
+
         self.check_valid_gates(qc)
         qc.to_openqasm()
-        backends = {"ScQ-P10": 0, "ScQ-P20": 1, "ScQ-P50": 2, "ScQ-S41" : 3}
         data = {"qtasm": qc.openqasm, "shots": self.shots, "qubits": qc.num, "scan": 0,
-                "tomo": int(self.tomo), "selected_server": backends[self._backend.name],
+                "tomo": int(self.tomo), "selected_server": self.backend.system_id,
                 "compile": int(self.compile), "priority": self.priority, "task_name": name, "pyquafu_version": version}
         
         if wait:
@@ -355,16 +273,16 @@ class Task(object):
             qc: QuantumCicuit object that need to be checked.
         """
         if not self.compile:
-            valid_gates = self._backend.valid_gates
+            valid_gates = self.backend.get_valid_gates()
             for gate in qc.gates:
                 if gate.name.lower() not in valid_gates:
-                    raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self._backend.name))
+                    raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self.backend.name))
                     
         else:
-            if self._backend.name == "ScQ-S41":
+            if self.backend.name == "ScQ-S41":
                 raise CircuitError("Backend ScQ-S41 must be used without compilation")
-            if self._backend.name == "ScQ-P50":
+            if self.backend.name == "ScQ-P136":
                 for gate in qc.gates:
-                    if gate.name.lower() in ["delay", "xy"]:
-                        raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self._backend.name))
+                    if gate.name.lower() in ["xy"]:
+                        raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self.backend.name))
         

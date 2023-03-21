@@ -28,11 +28,11 @@ requirements = [
 
 setup(
     name="pyquafu",
-    version="0.2.10",
+    version="0.2.11",
     author="ssli",
     author_email="ssli@iphy.ac.cn",
     url="https://github.com/ScQ-Cloud/pyquafu",
-    description="Python toolkit for Quafu-Clound",
+    description="Python toolkit for Quafu-Cloud",
     install_requires=requirements,
     packages=find_packages(where="src"),
     package_dir={"": "src"},
