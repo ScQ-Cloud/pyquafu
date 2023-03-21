@@ -9,14 +9,24 @@ PyQuafu is developed for the users of [Quafu](http://quafu.baqis.ac.cn/) to cons
 
 ## Installation
 
+You can directly install via PyPI,
+
 ```
 pip install pyquafu 
+```
+ 
+or build from source
+
+```
+pip install -r requirements.txt
+python setup.py install
 ```
 
 ## Document
 Please see the website [docs](https://scq-cloud.github.io/).
 
-
+## Note
+If you are using an Apple silicon Mac and meet the error "illegal hardware instruction", please confirm whether you have updated to the arm64 version of Anaconda (see https://github.com/abess-team/abess/issues/310).
 
 ## Examples
 
