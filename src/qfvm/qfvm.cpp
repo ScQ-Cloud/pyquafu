@@ -5,32 +5,42 @@
 namespace py = pybind11;
 
 template <typename T>
-py::array_t<T> to_numpy(std::vector<T> &&src) {
-  vector<T>* src_ptr = new std::vector<T>(std::move(src));
-  auto capsule = py::capsule(src_ptr, [](void* p) { delete reinterpret_cast<std::vector<T>*>(p); });
-  return py::array_t<T>(
-    src_ptr->size(),  // shape of array
-    src_ptr->data(),  // c-style contiguous strides for vector
-    capsule           // numpy array references this parent
-  );
-}
+py::array_t<T> to_numpy(const std::tuple<T**, size_t> &src) {
+    auto src_ptr = *std::get<0>(src);
+    auto src_size = std::get<1>(src);
 
+    auto capsule = py::capsule(src_ptr, [](void* p) {
+        delete [] reinterpret_cast<T*>(p);
+    });
+    return py::array_t<T>(
+        src_size,
+        src_ptr,
+        capsule
+    );
+}
 
 py::object execute(string qasm){
     return to_numpy(simulate(qasm).move_data());
 }
 
-py::object simulate_circuit(py::object const&pycircuit, vector<complex<double>> const&inputstate){
-  auto circuit = Circuit(pycircuit);
-    if (inputstate.size() == 0){
+py::object simulate_circuit(py::object const&pycircuit, py::array_t<complex<double>> &np_inputstate){
+    auto circuit = Circuit(pycircuit);
+
+    py::buffer_info buf = np_inputstate.request();
+    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+    size_t data_size = buf.size;
+
+
+    if (data_size == 0){
         StateVector<double> state;
         simulate(circuit, state);
         return to_numpy(state.move_data());
     }
     else{
-      StateVector<double> state{inputstate};
+      StateVector<double> state(data_ptr, buf.size);
       simulate(circuit, state);
-      return to_numpy(state.move_data());
+      //return to_numpy(state.move_data());
+      return np_inputstate;
     }
 }
 
