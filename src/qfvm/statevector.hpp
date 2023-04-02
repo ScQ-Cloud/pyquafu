@@ -21,12 +21,16 @@ class StateVector{
         uint num_;
         size_t size_;
         complex<real_t>* data_;
+        uint count_; // Reference count of current statevector
 
     public:
         //construct function
         StateVector();
         explicit StateVector(uint num);
         explicit StateVector(complex<real_t> *data, size_t data_size);
+
+        //destruct function
+        ~StateVector();
 
         //Named gate function
         void apply_x(pos_t pos);
@@ -66,7 +70,10 @@ class StateVector{
         complex<real_t> operator[] (size_t j) const ;
         void set_num(uint num);
         void print_state();
-        std::tuple<std::complex<real_t>**, size_t> move_data() {return std::make_tuple(&data_, size_);}
+        std::tuple<std::complex<real_t>**, size_t> move_data() {
+            count_++;
+            return std::make_tuple(&data_, size_);
+        }
 };
 
 
@@ -79,6 +86,7 @@ size_(std::pow(2, num))
 {
     data_ = new complex<real_t>[size_];
     data_[0] = complex<real_t>(1., 0);
+    count_ = 0;
 };
 
 template <class real_t>
@@ -92,6 +100,17 @@ size_(data_size)
 {
     num_ = static_cast<int>(std::log2(size_));
 }
+
+
+template <class real_t>
+StateVector<real_t>::~StateVector() {
+    // If ownership is moved to python, do nothing
+    // Other wise we need to release statevector's memory
+    if (data_ && count_ == 0) {
+        delete [] data_;
+    }
+}
+
 
 //// useful functions /////
 template <class real_t>
