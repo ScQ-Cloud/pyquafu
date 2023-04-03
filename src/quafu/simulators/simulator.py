@@ -7,18 +7,21 @@ from ..results.results import SimuResult
 import numpy as np
 import time
 
-def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), simulator:str="qfvm_circ", output: str="probabilities", use_gpu=False, use_custatevec=False)-> SimuResult:
+def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), simulator:str ="qfvm_circ", output: str="probabilities", use_gpu: bool=False, use_custatevec: bool=False)-> SimuResult:
     """Simulate quantum circuit
     Args:
         qc: quantum circuit or qasm string that need to be simulated.
         psi : Input state vector
-        simulator:`"qfvm_circ"`: The high performance C++ circuit simulator with GPU support. 
+        simulator:`"qfvm_circ"`: The high performance C++ circuit simulator with optional GPU support. 
                 `"py_simu"`: Python implemented simulator by sparse matrix with low performace for large scale circuit.
                 `"qfvm_qasm"`: The high performance C++ qasm simulator with limited gate set.
 
         output: `"probabilities"`: Return probabilities on measured qubits, ordered in big endian convention.
                 `"density_matrix"`: Return reduced density_amtrix on measured qubits, ordered in big endian convention.
                 `"state_vector`: Return original full statevector. The statevector returned by `qfvm` backend is ordered in little endian convention (same as qiskit), while `py_simu` backend is orderd in big endian convention.
+        use_gpu: Use the GPU version of `qfvm_circ` simulator.
+        use_custatevec: Use cuStateVec-based `qfvm_circ` simulator. The argument `use_gpu` must also be True.
+
     Returns:
         SimuResult object that contain the results.
 """
