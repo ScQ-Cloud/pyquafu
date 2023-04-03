@@ -7,12 +7,12 @@ from ..results.results import SimuResult
 import numpy as np
 import time
 
-def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), simulator:str="qfvm_circ", output: str="probabilities")-> SimuResult:
+def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), simulator:str="qfvm_circ", output: str="probabilities", use_gpu=False, use_custatevec=False)-> SimuResult:
     """Simulate quantum circuit
     Args:
         qc: quantum circuit or qasm string that need to be simulated.
         psi : Input state vector
-        simulator:`"qfvm_circ"`: The high performance C++ circuit simulator. 
+        simulator:`"qfvm_circ"`: The high performance C++ circuit simulator with GPU support. 
                 `"py_simu"`: Python implemented simulator by sparse matrix with low performace for large scale circuit.
                 `"qfvm_qasm"`: The high performance C++ qasm simulator with limited gate set.
 
@@ -36,7 +36,21 @@ def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), si
     if simulator == "qfvm_circ":
         num = max(qc.used_qubits)+1
         measures = list(qc.measures.keys())
-        psi = simulate_circuit(qc, psi)
+        if use_gpu:
+            if use_custatevec:
+                try:
+                    from .qfvm import simulate_circuit_custate
+                except ImportError:
+                    raise(" pyquafu is installed with cuquantum support")
+                psi = simulate_circuit_custate(qc, psi)
+            else:
+                try:
+                    from .qfvm import simulate_circuit_gpu
+                except ImportError:
+                    raise("you are not using the GPU version of pyquafu")
+                psi = simulate_circuit_gpu(qc, psi)
+        else:
+            psi = simulate_circuit(qc, psi)
         
     elif simulator ==  "py_simu":
         psi = py_simulate(qc, psi)

@@ -10,7 +10,7 @@ on:
   pull_request_review:
     types: [submitted, edited]
   workflow_dispatch:
-  release:
+
 
   
 jobs:

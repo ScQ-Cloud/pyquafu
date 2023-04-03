@@ -4,6 +4,15 @@ import numpy as np
 from functools import reduce
 import copy
 
+def reorder_matrix(matrix : np.ndarray, pos : List):
+    """Reorder the input sorted matrix to the pos order """
+    qnum = len(pos)
+    dim = 2**qnum
+    inds = np.argsort(pos)
+    inds = np.concatenate([inds, inds+qnum])
+    tensorm = matrix.reshape([2]*2*qnum)
+    return np.transpose(tensorm, inds).reshape([dim, dim])
+
 class Barrier(object):
     def __init__(self, pos):
         self.name = "barrier"
@@ -157,6 +166,7 @@ class ParaSingleQubitGate(SingleQubitGate):
 class MultiQubitGate(QuantumGate):
     def __init__(self, name: str, pos: List[int], paras, matrix):
         super().__init__(name, pos, paras=paras, matrix=matrix)
+        self._targ_matrix = matrix
 
     @property
     def matrix(self):
@@ -171,25 +181,17 @@ class MultiQubitGate(QuantumGate):
         else:
             raise TypeError("Unsupported `matrix` type")
 
-        self.reorder_matrix()
+        self._matrix = reorder_matrix(self._matrix, self.pos)
 
-    def reorder_matrix(self):
-        """Reorder the input sorted matrix to the pos order """
-        qnum = len(self.pos)
-        dim = 2**qnum
-        inds = np.argsort(self.pos)
-        inds = np.concatenate([inds, inds+qnum])
-        tensorm = self._matrix.reshape([2]*2*qnum)
-        self._matrix = np.transpose(tensorm, inds).reshape([dim, dim])
 
     def get_targ_matrix(self, reverse_order=False):
-        targ_matrix = self._matrix
+        targ_matrix = self._targ_matrix
         if reverse_order and (len(self.pos) > 1):
             qnum = len(self.pos)
             order = np.array(range(len(self.pos))[::-1])
             order = np.concatenate([order, order+qnum])
             dim = 2**qnum
-            tensorm = self._matrix.reshape([2]*2*qnum)
+            tensorm = targ_matrix.reshape([2]*2*qnum)
             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
 
         return targ_matrix
@@ -212,16 +214,16 @@ class ParaMultiQubitGate(MultiQubitGate):
     def matrix(self, matrix):
         if isinstance(matrix, Callable):
             self._matrix = matrix(self.paras)
-            self.reorder_matrix()
+            self._matrix = reorder_matrix(self._matrix, self.pos)
         elif isinstance(matrix, (np.ndarray, List)):
             self._matrix = matrix
-            self.reorder_matrix()
+            self._matrix = reorder_matrix(self._matrix, self.pos)
         else:
             raise TypeError("Unsupported `matrix` type")
         
 
 class ControlledGate(MultiQubitGate):
-    """ Controlled gate class, where the matrix act non-trivallly on target qubits"""
+    """ Controlled gate class, where the matrix act non-trivaly on target qubits"""
     def __init__(self, name, targe_name, ctrls: List[int], targs: List[int], paras, matrix):
         self.ctrls = ctrls
         self.targs = targs
@@ -259,11 +261,20 @@ class ControlledGate(MultiQubitGate):
                 self._matrix[i, i] = 1.
             
             self._matrix[control_dim:, control_dim:] = matrix
-            self.reorder_matrix()
-            self._targ_matrix = matrix
+            self._matrix = reorder_matrix(self._matrix, self.pos)
+            # self._targ_matrix = reorder_matrix(matrix, self.targs)
 
     def get_targ_matrix(self, reverse_order=False):
-        return self._targ_matrix
+        targ_matrix = self._targ_matrix
+        if reverse_order and (len(self.targs) > 1):
+            qnum = len(self.targs)
+            order = np.array(range(len(self.targs))[::-1])
+            order = np.concatenate([order, order+qnum])
+            dim = 2**qnum
+            tensorm = targ_matrix.reshape([2]*2*qnum)
+            targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
+
+        return targ_matrix
 
 class ControlledU(ControlledGate):
     def __init__(self, name, ctrls: List[int], U: Union[SingleQubitGate, MultiQubitGate]):
@@ -272,7 +283,7 @@ class ControlledU(ControlledGate):
         if isinstance(targs, int):
             targs = [targs]
         
-        super().__init__(name, U.name, ctrls, targs, U.paras, matrix=self.targ_gate.matrix)
+        super().__init__(name, U.name, ctrls, targs, U.paras, matrix=self.targ_gate.get_targ_matrix())
     
     def get_targ_matrix(self, reverse_order=False):
         return self.targ_gate.get_targ_matrix(reverse_order)

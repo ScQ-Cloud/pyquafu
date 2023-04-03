@@ -29,6 +29,26 @@ class StateVector{
         explicit StateVector(uint num);
         explicit StateVector(complex<real_t> *data, size_t data_size);
 
+        //Disable copy construct
+        StateVector(StateVector const &other) = delete;
+        StateVector &operator=(StateVector const &other) = delete;
+
+        //Move construct
+        StateVector(StateVector &&other) :
+        num_(other.num()),
+        size_(other.size()),
+        data_(other.data()), 
+        count_(other.count_)
+        {   
+            other.data_ = nullptr;
+        }
+
+        StateVector &operator=(StateVector &&other){
+            this->~StateVector();
+            new (this) StateVector(std::move(other));
+            return *this;
+        }
+
         //destruct function
         ~StateVector();
 
@@ -74,6 +94,9 @@ class StateVector{
             count_++;
             return std::make_tuple(&data_, size_);
         }
+        complex<real_t>* data(){ return data_; }
+        size_t size(){ return size_; }
+        uint num(){ return num_; }
 };
 
 
@@ -931,18 +954,17 @@ template <class real_t>
 void StateVector<real_t>::apply_multi_targe_gate_general(vector<pos_t> const& posv, uint control_num, RowMatrixXcd const& mat)
 {
     auto posv_sorted = posv;
-    auto targ_sorted = vector<pos_t>(posv.begin()+control_num, posv.end());
+    auto targs = vector<pos_t>(posv.begin()+control_num, posv.end());
     sort(posv_sorted.begin(), posv_sorted.end());
-    sort(targ_sorted.begin(), targ_sorted.end());
     size_t rsize = size_ >> posv.size();
-    uint targe_num = targ_sorted.size();
+    uint targe_num = targs.size();
     size_t matsize= 1<< targe_num;
     std::vector<uint> targ_mask(matsize);
     //create target mask
     for (size_t m = 0; m < matsize;m++){
         for (size_t j = 0; j < targe_num; j++){
             if ((m>>j)&1){
-                auto mask_pos = targ_sorted[j];
+                auto mask_pos = targs[j];
                 targ_mask[m] |= 1ll<<mask_pos;
             }
         }
