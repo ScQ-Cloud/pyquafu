@@ -20,8 +20,7 @@ class StateVector{
     private:
         uint num_;
         size_t size_;
-        complex<real_t>* data_;
-        uint count_; // Reference count of current statevector
+        std::unique_ptr<complex<real_t>[]> data_;
 
     public:
         //construct function
@@ -29,28 +28,6 @@ class StateVector{
         explicit StateVector(uint num);
         explicit StateVector(complex<real_t> *data, size_t data_size);
 
-        //Disable copy construct
-        StateVector(StateVector const &other) = delete;
-        StateVector &operator=(StateVector const &other) = delete;
-
-        //Move construct
-        StateVector(StateVector &&other) :
-        num_(other.num()),
-        size_(other.size()),
-        data_(other.data()), 
-        count_(other.count_)
-        {   
-            other.data_ = nullptr;
-        }
-
-        StateVector &operator=(StateVector &&other){
-            this->~StateVector();
-            new (this) StateVector(std::move(other));
-            return *this;
-        }
-
-        //destruct function
-        ~StateVector();
 
         //Named gate function
         void apply_x(pos_t pos);
@@ -90,11 +67,12 @@ class StateVector{
         complex<real_t> operator[] (size_t j) const ;
         void set_num(uint num);
         void print_state();
-        std::tuple<std::complex<real_t>**, size_t> move_data() {
-            count_++;
-            return std::make_tuple(&data_, size_);
+        std::tuple<std::complex<real_t>*, size_t> move_data_to_python() {
+            auto data_ptr = data_.release();
+            return std::make_tuple(std::move(data_ptr), size_);
         }
-        complex<real_t>* data(){ return data_; }
+        
+        complex<real_t>* data(){ return data_.get(); }
         size_t size(){ return size_; }
         uint num(){ return num_; }
 };
@@ -105,11 +83,9 @@ class StateVector{
 template <class real_t>
 StateVector<real_t>::StateVector(uint num)
 : num_(num),
-size_(std::pow(2, num))
-{
-    data_ = new complex<real_t>[size_];
+size_(1ULL<<num)
+{   data_ = std::make_unique<complex<real_t>[]>(size_);
     data_[0] = complex<real_t>(1., 0);
-    count_ = 0;
 };
 
 template <class real_t>
@@ -120,19 +96,10 @@ StateVector<real_t>::StateVector(complex<real_t> *data, size_t data_size)
 :
 data_(data),
 size_(data_size)
-{
+{   
     num_ = static_cast<int>(std::log2(size_));
 }
 
-
-template <class real_t>
-StateVector<real_t>::~StateVector() {
-    // If ownership is moved to python, do nothing
-    // Other wise we need to release statevector's memory
-    if (data_ && count_ == 0) {
-        delete [] data_;
-    }
-}
 
 
 //// useful functions /////
@@ -151,17 +118,17 @@ void StateVector<real_t>::set_num(uint num){
     num_ = num;
 
     if (size_ != 1ULL << num) {
-        delete [] data_;
+        data_.reset();
         size_ = 1ULL << num;
-        data_ = new complex<real_t>[size_];
+        data_ = std::make_unique<complex<real_t>[]>(size_);
         data_[0] = complex<real_t>(1, 0);
     }
 }
 
 template <class real_t>
 void StateVector<real_t>::print_state(){
-    for (auto i : data_){
-        std::cout << i << std::endl;
+    for (auto i=0;i<size_;i++){
+        std::cout << data_[i] << std::endl;
     }
 }
 
@@ -176,7 +143,7 @@ void StateVector<real_t>::apply_x(pos_t pos){
 #ifdef USE_SIMD
 #pragma omp parallel for
          for(omp_i j = 0;j < size_;j+=2){
-             double* ptr = (double*)(data_ + j);
+             double* ptr = (double*)(data_.get() + j);
             __m256d data = _mm256_loadu_pd(ptr);
             data = _mm256_permute4x64_pd(data, 78);
             _mm256_storeu_pd(ptr, data);
@@ -193,8 +160,8 @@ void StateVector<real_t>::apply_x(pos_t pos){
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j += 2){
             size_t i = (j&(offset-1)) | (j>>pos<<pos<<1);
-            double* ptr0 = (double*)(data_ + i);
-            double* ptr1 = (double*)(data_ + i + offset);
+            double* ptr0 = (double*)(data_.get()+ i);
+            double* ptr1 = (double*)(data_.get() + i + offset);
             __m256d data0 = _mm256_loadu_pd(ptr0);
             __m256d data1 = _mm256_loadu_pd(ptr1);
             _mm256_storeu_pd(ptr1, data0);
@@ -222,7 +189,7 @@ void StateVector<real_t>::apply_y(pos_t pos){
         __m256d minus_half = _mm256_set_pd(1, -1, -1, 1);
 #pragma omp parallel for
          for(omp_i j = 0;j < size_;j+=2){
-             double* ptr = (double*)(data_ + j);
+             double* ptr = (double*)(data_.get() + j);
             __m256d data = _mm256_loadu_pd(ptr);
             data = _mm256_permute4x64_pd(data, 27);
             data = _mm256_mul_pd(data, minus_half);
@@ -246,8 +213,8 @@ void StateVector<real_t>::apply_y(pos_t pos){
         for(omp_i j = 0;j < rsize;j += 2){
             size_t i = (j&(offset-1)) | (j>>pos<<pos<<1);
 
-            double* ptr0 = (double*)(data_ + i);
-            double* ptr1 = (double*)(data_ + i + offset);
+            double* ptr0 = (double*)(data_.get() + i);
+            double* ptr1 = (double*)(data_.get() + i + offset);
             __m256d data0 = _mm256_loadu_pd(ptr0);
             __m256d data1 = _mm256_loadu_pd(ptr1);
             data0 = _mm256_permute_pd(data0, 5);
@@ -289,7 +256,7 @@ void StateVector<real_t>::apply_z(pos_t pos){
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j += 2){
             size_t i = (j&(offset-1)) | (j>>pos<<pos<<1);
-            double* ptr1 = (double*)(data_ + i + offset);
+            double* ptr1 = (double*)(data_.get() + i + offset);
             __m256d data1 = _mm256_loadu_pd(ptr1);
             data1 = _mm256_mul_pd(data1, minus_one);
             _mm256_storeu_pd(ptr1, data1);
@@ -517,8 +484,8 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
         for(omp_i j = 0;j < rsize; j+= 2){
             size_t i = getind_func(j);
 
-            double* p0 = (double*)(data_+i);
-            double* p1 = (double*)(data_+i+offset);
+            double* p0 = (double*)(data_.get()+i);
+            double* p1 = (double*)(data_.get()+i+offset);
             //load data
             __m256d data0 = _mm256_loadu_pd(p0); //lre_0, lim_0, rre_0, rim_0
             __m256d data1 = _mm256_loadu_pd(p1); //lre_1, lim_1, rre_1, rim_1
@@ -635,7 +602,7 @@ void StateVector<real_t>::apply_one_targe_gate_x(vector<pos_t> const& posv)
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j++){
             size_t i = getind_func_near(j);
-            double* ptr = (double*)(data_ + i);
+            double* ptr = (double*)(data_.get() + i);
             __m256d data = _mm256_loadu_pd(ptr);
             data = _mm256_permute4x64_pd(data, 78);
             _mm256_storeu_pd(ptr, data);
@@ -659,8 +626,8 @@ void StateVector<real_t>::apply_one_targe_gate_x(vector<pos_t> const& posv)
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize; j+= 2){
             size_t i = getind_func(j);
-            double* ptr0 = (double*)(data_ + i);
-            double* ptr1 = (double*)(data_ + i + offset);
+            double* ptr0 = (double*)(data_.get() + i);
+            double* ptr1 = (double*)(data_.get() + i + offset);
             __m256d data0 = _mm256_loadu_pd(ptr0);
             __m256d data1 = _mm256_loadu_pd(ptr1);
             _mm256_storeu_pd(ptr1, data0);
@@ -778,8 +745,8 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
         for(omp_i j = 0;j < rsize; j+= 2){
             size_t i = getind_func(j);
 
-            double* p0 = (double*)(data_+i);
-            double* p1 = (double*)(data_+i+offset);
+            double* p0 = (double*)(data_.get()+i);
+            double* p1 = (double*)(data_.get()+i+offset);
              //load data
             __m256d data0 = _mm256_loadu_pd(p0); //lre_0, lim_0, rre_0, rim_0
             __m256d data1 = _mm256_loadu_pd(p1); //lre_1, lim_1, rre_1, rim_1
@@ -914,8 +881,8 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
         for(omp_i j = 0;j < rsize; j+= 2){
             size_t i = getind_func(j);
 
-            double* p0 = (double*)(data_+i);
-            double* p1 = (double*)(data_+i+offset);
+            double* p0 = (double*)(data_.get()+i);
+            double* p1 = (double*)(data_.get()+i+offset);
 
             //load data
             __m256d data0 = _mm256_loadu_pd(p0); //lre_0, lim_0, rre_0, rim_0
