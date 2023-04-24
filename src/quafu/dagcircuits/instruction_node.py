@@ -1,5 +1,5 @@
 from typing import Dict, Any, List, Union
-import dataclasses
+import dataclasses 
 
 @dataclasses.dataclass
 class InstructionNode: 
@@ -22,7 +22,7 @@ class InstructionNode:
             args = ','.join(str(q) for q in self.pos)
             
         if self.paras == None:
-            return f'{self.label}{{{self.name}({args})}}'
+            return f'{self.label}{{{self.name}({args})}}' # no paras
         else:
             # if self.paras not a list, then make it a list  of str of .3f float
             if not isinstance(self.paras, list):
