@@ -17,7 +17,7 @@ from IPython.display import Image, SVG
 
 
 # transform a gate in quantumcircuit of quafu(not include measure_gate),
-# into a node in the graph, with specific label.
+# to a node in the graph, with specific label.
 def gate_to_node(input_gate,specific_label: str):
     ''' 
     transform a gate in quantumcircuit of quafu(not include measure_gate),
