@@ -8,7 +8,7 @@ import networkx as nx
 from typing import Dict, Any, List, Union
 import copy
 
-from instruction_node import InstructionNode  # gate_wrapper.py in the same folder as circuit_dag.py now
+from instruction_node import InstructionNode  # instruction_node.py in the same folder as circuit_dag.py now
 
 import pygraphviz as pgv
 from networkx.drawing.nx_pydot import write_dot
