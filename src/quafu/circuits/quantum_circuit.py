@@ -1,6 +1,7 @@
 from typing import Iterable
 import numpy as np
 from ..elements.quantum_element import Barrier, Delay, ControlledGate, MultiQubitGate, ParaMultiQubitGate, QuantumGate, SingleQubitGate, XYResonance
+from quafu.pulses.quantum_pulse import QuantumPulse, gaussian, flattop, rect
 from ..elements.element_gates import *
 from ..exceptions import CircuitError
 
@@ -39,7 +40,7 @@ class QuantumCircuit(object):
         gateQlist = [[] for i in range(num)]
         used_qubits = []
         for gate in gatelist:
-            if isinstance(gate, SingleQubitGate) or isinstance(gate, Delay):
+            if isinstance(gate, SingleQubitGate) or isinstance(gate, Delay) or isinstance(gate, QuantumPulse):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
@@ -107,7 +108,7 @@ class QuantumCircuit(object):
             maxlen = 1 + width
             for i in range(num):
                 gate = layergates[i]
-                if isinstance(gate, SingleQubitGate) or isinstance(gate, Delay):
+                if isinstance(gate, SingleQubitGate) or isinstance(gate, Delay) or (isinstance(gate, QuantumPulse)):
                     printlist[i * 2, l] = gate.symbol
                     maxlen = max(maxlen, len(gate.symbol) + width)
 
@@ -222,12 +223,40 @@ class QuantumCircuit(object):
 
                         else:
                             sp_op = operations.split("(")
+                            # print("sp_op: ", sp_op)
                             gatename = sp_op[0]
-                            if gatename == "delay":
+                            if gatename == "delay" :
                                 paras = sp_op[1].strip("()")
                                 duration = int(re.findall("\d+", paras)[0])
                                 unit = re.findall("[a-z]+", paras)[0]
                                 self.delay(inds[0], duration, unit)
+                                
+                            elif gatename in ["Rect", "Flattop", "Gaussian"]:
+                                paras = sp_op[1].strip("()")
+                                print(paras)
+                                parastr = paras.split(",")
+                                duration = int(re.findall("\d+", parastr[0])[0])
+                                unit = re.findall("[a-z]+", parastr[0])[0]
+
+                                extra_para = line.split(",")[1:]
+                                para_e, indstr = extra_para[-1].split(")")
+                                parastr = extra_para[:-1]
+                                parastr.append(para_e)
+                                ind =  int(re.findall("\d+", indstr)[0])
+
+                                paras = [eval(parai, {"pi": pi}) for parai in parastr]
+
+                                if gatename == "Rect":
+                                    pulse = rect(ind, duration=duration, amp=paras[0] ,unit=unit)
+                                    self.add_pulse(pulse)
+                                elif gatename == "Flattop":
+                                    pulse = flattop(ind, duration=duration, amp=paras[0], fwhm=paras[1], unit=unit)
+                                    self.add_pulse(pulse)
+
+                                elif gatename == "Gaussian":
+                                    pulse = gaussian(ind, duration=duration, amp=paras[0], fwhm=paras[1], phase=paras[2], unit=unit)
+                                    self.add_pulse(pulse)
+                                
                             elif gatename == "xy":
                                 paras = sp_op[1].strip("()")
                                 duration = int(re.findall("\d+", paras)[0])
@@ -317,43 +346,7 @@ class QuantumCircuit(object):
         qasm += "qreg q[%d];\n" % self.num
         qasm += "creg meas[%d];\n" % len(self.measures)
         for gate in self.gates:
-            if isinstance(gate, SingleQubitGate):
-                if isinstance(gate, ParaSingleQubitGate):
-                    if isinstance(gate.paras, Iterable):
-                        qasm += "%s(" %gate.name.lower() + ",".join(["%s" %para for para in gate.paras]) + ") q[%d];\n" % (gate.pos)
-                    else:
-                        qasm += "%s(%s) " %(gate.name.lower(), gate.paras) + "q[%d];\n" % (gate.pos)
-                else:
-                    if gate.name == "SY":
-                        qasm += "ry(pi/2) q[%d];\n" %(gate.pos)
-                    elif gate.name == "W":
-                        qasm += "rz(-pi/4) q[%d];\nrx(pi) q[%d];\nrz(pi/4) q[%d];\n"  %(gate.pos, gate.pos, gate.pos)
-                    elif gate.name == "SW":
-                        qasm += "rz(-pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(pi/4) q[%d];\n"  %(gate.pos, gate.pos, gate.pos)
-                    else:
-                        qasm += "%s q[%d];\n" % (gate.name.lower(), gate.pos)
-
-            elif isinstance(gate, Delay):
-                qasm += "delay(%d%s) q[%d];\n" % (gate.duration, gate.unit, gate.pos)
-            elif isinstance(gate, XYResonance):
-                qasm += "xy(%d%s) " %(gate.duration, gate.unit) + ",".join(["q[%d]" % p for p in range(min(gate.pos), max(gate.pos)+1)]) + ";\n"
-                
-            elif isinstance(gate, Barrier) or isinstance(gate, MultiQubitGate):
-                if isinstance(gate, ParaMultiQubitGate) or (isinstance(gate, ControlledGate) and bool(gate.paras)):
-                    if isinstance(gate.paras, Iterable):
-                        qasm += "%s(" %gate.name.lower() + ",".join(["%s" %para for para in gate.paras]) + ") " + ",".join(["q[%d]" % p for p in gate.pos]) + ";\n"
-                    else:
-                         qasm += "%s(%s) " %(gate.name.lower(), gate.paras) + ",".join(["q[%d]" % p for p in gate.pos]) + ";\n"
-                
-                else:
-                    if gate.name == "CS":
-                        qasm += "cp(pi/2) " + "q[%d],q[%d];\n" % (gate.pos[0], gate.pos[1])
-                    elif gate.name == "CT":
-                        qasm += "cp(pi/4) " + "q[%d],q[%d];\n" % (gate.pos[0], gate.pos[1])
-                    elif gate.name == "barrier":
-                        qasm += "barrier " + ",".join(["q[%d]" % p for p in range(min(gate.pos), max(gate.pos)+1)]) + ";\n"
-                    else:
-                        qasm += "%s " %(gate.name.lower()) + ",".join(["q[%d]" % p for p in gate.pos]) + ";\n"
+            qasm += gate.to_qasm() + ";\n"
 
         for key in self.measures:
             qasm += "measure q[%d] -> meas[%d];\n" % (key, self.measures[key])
@@ -748,5 +741,14 @@ class QuantumCircuit(object):
             else:
                 raise CircuitError("Number of measured bits should equal to the number of classical bits")
 
-
+    def add_pulse(self,
+                  pulse: QuantumPulse,
+                  pos: int = None) -> "QuantumCircuit":
+        """
+        Add quantum gate from pulse.
+        """
+        if pos is not None:
+            pulse.set_pos(pos)
+        self.gates.append(pulse)
+        return self
 

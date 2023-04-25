@@ -113,6 +113,9 @@ class WGate(FixedSingleQubitGate):
         super().__init__("W", pos, matrix=np.zeros((2, 2), dtype=complex))
         self.matrix = (XGate(0).matrix + YGate(0).matrix)/np.sqrt(2)
 
+    def to_qasm(self):
+        return "rz(-pi/4) q[%d];\nrx(pi) q[%d];\nrz(pi/4) q[%d]"  %(self.pos, self.pos, self.pos)
+    
 class SXGate(FixedSingleQubitGate):
     def __init__(self, pos: int):
         super().__init__("SX", pos, matrix=np.zeros((2, 2), dtype=complex))
@@ -125,6 +128,9 @@ class SYGate(FixedSingleQubitGate):
         self.matrix = sqrtm(YGate(0).matrix)
         self.symbol = "√Y"
 
+    def to_qasm(self):
+        return "ry(pi/2) q[%d]" %(self.pos)
+    
 class SWGate(FixedSingleQubitGate):
     def __init__(self, pos: int):
         super().__init__("SW", pos, matrix=np.zeros((2, 2), dtype=complex))
@@ -132,6 +138,9 @@ class SWGate(FixedSingleQubitGate):
         self.matrix = np.array([[0.5+0.5j, -np.sqrt(0.5)*1j],
        [np.sqrt(0.5), 0.5+ 0.5j]], dtype=complex)
         self.symbol = "√W"
+
+    def to_qasm(self):
+        return "rz(-pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(pi/4) q[%d]"  %(self.pos, self.pos, self.pos)
 
 class RXGate(ParaSingleQubitGate):
     def __init__(self, pos: int, paras):
@@ -194,10 +203,15 @@ class CSGate(ControlledGate):
     def __init__(self, ctrl:int, targ:int):
         super().__init__("CS", "S", [ctrl], [targ], None, matrix=SGate(0).matrix)
 
+    def to_qasm(self):
+        return "cp(pi/2) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 class CTGate(ControlledGate):
     def __init__(self, ctrl:int, targ:int):
         super().__init__("CT", "T", [ctrl], [targ], None, matrix=TGate(0).matrix)
+
+    def to_qasm(self):
+        return "cp(pi/4) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 class CPGate(ControlledGate):
     def __init__(self, ctrl:int, targ:int, paras):

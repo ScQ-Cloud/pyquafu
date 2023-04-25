@@ -1,40 +1,41 @@
-import os
 from typing import Dict, List, Tuple
-
 from quafu.circuits.quantum_circuit import QuantumCircuit
-from quafu.users.userapi import load_account, get_backends_info
 from ..exceptions import CircuitError, ServerError, CompileError
 from ..results.results import ExecResult, merge_measure
-from ..backends.backends import Backend
 from ..users.exceptions import UserError
 import numpy as np
 import json
 import requests
 from urllib import parse
-import re
+from quafu.users.userapi import User
+from quafu.backends.backends import Backend
 import copy
-import networkx as nx
-import matplotlib.pyplot as plt
 
 class Task(object): 
     """
     Class for submitting quantum computation task to the backend.
 
     Attributes:
-        token (str): Apitoken that associate to your Quafu account.
         shots (int): Numbers of single shot measurement.
         compile (bool): Whether compile the circuit on the backend
         tomo (bool): Whether do tomography (Not support yet)
+        user (User): User object corresponding to Quafu account
+        priority (int): priority level of the task
+        submit_history (dict): circuit submitted with this task
+        backend (dict): quantum backend that execute the task.
+
     """
-    def __init__(self):   
+    def __init__(self, user = User()):
+        self.user = user   
         self.shots = 1000
         self.tomo = False
         self.compile = True
-        self.priority = 2
+        self.priority = self.user.priority
         self.submit_history = { }
-        self.token, self._url = load_account()
-        self._available_backends = {info["system_name"]:Backend(info) for info in get_backends_info()}
+        self._available_backends = self.user.get_available_backends(print_info=False)
         self.backend = self._available_backends[list(self._available_backends.keys())[0]]
+       
+       
 
     def config(self, 
                backend: str="ScQ-P10", 
@@ -70,6 +71,8 @@ class Task(object):
         """
         return self.submit_history
 
+
+    
     def get_backend_info(self) -> Dict:
         """
         Get the calibration information of the experimental backend.
@@ -77,7 +80,7 @@ class Task(object):
         Returns: 
             Backend information dictionary containing the mapping from the indices to the names of physical bits `'mapping'`, backend topology  `'topology_diagram'` and full calibration inforamtion `'full_info'`.
         """
-        return self.backend.get_chip_info()
+        return self.backend.get_chip_info(self.user)
         
     def submit(self,
                qc: QuantumCircuit,
@@ -186,11 +189,11 @@ class Task(object):
                 "compile": int(self.compile), "priority": self.priority, "task_name": name, "pyquafu_version": version}
         
         if wait:
-            url = self._url  + "qbackend/scq_kit/"
+            url = self.user._url  + self.user.exec_api
         else:
-            url = self._url + "qbackend/scq_kit_asyc/"
+            url = self.user._url  + self.user.exec_async_api
             
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.apitoken}
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
         res = requests.post(url, headers=headers, data=data)
@@ -222,7 +225,7 @@ class Task(object):
             taskid: The taskid of the task need to be retrieved.
         """
         data = {"task_id" : taskid}
-        url = self._url  + "qbackend/scq_task_recall/"
+        url = self.user._url  + self.user.exec_recall_api
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
         res = requests.post(url, headers=headers, data=data)

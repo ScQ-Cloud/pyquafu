@@ -2,9 +2,9 @@ import requests
 import json
 import re
 import networkx as nx
-from quafu.users.userapi import load_account
 import numpy as np
 import matplotlib.pyplot as plt
+from quafu.users.userapi import User
 
 class Backend(object):
     def __init__(self, backend_info : dict):
@@ -12,12 +12,16 @@ class Backend(object):
         self._valid_gates = backend_info['valid_gates']
         self.qubit_num = backend_info['qubits']
         self.system_id = backend_info['system_id']
-
-    def get_chip_info(self):
-        api_token, url = load_account()
+        self.status = backend_info['status']
+        self.qv = backend_info["QV"]
+        # self.task_in_queue = backend_info["task_in_queue"]
+    
+    def get_chip_info(self, user=User()):
+        api_token = user.apitoken
+        url = user._url
         data = {"system_name": self.name.lower()}
         headers={"api_token": api_token}
-        chip_info = requests.post(url = url + "qbackend/scq_get_chip_info/", data=data, 
+        chip_info = requests.post(url = url + user.chip_api, data=data, 
         headers=headers)
         chip_info = json.loads(chip_info.text)
         json_topo_struct = chip_info["topological_structure"]
@@ -93,25 +97,3 @@ class Backend(object):
 
 
    
-    
-
-# class ScQ_P10(Backend):
-#     def __init__(self):
-#         super().__init__("ScQ-P10")
-#         self.valid_gates = ["cx", "cz", "rx", "ry", "rz", "x", "y", "z", "h", "sx", "sy", "id", "delay", "barrier", "cy", "cnot", "swap"]
-
-# class ScQ_P20(Backend):
-#     def __init__(self):
-#         super().__init__("ScQ-P20")
-#         self.valid_gates = ["cx", "cz", "rx", "ry", "rz", "x", "y", "z", "h", "sx", "sy", "id", "delay", "barrier", "cy", "cnot", "swap"]
-        
-# class ScQ_P50(Backend):
-#     def __init__(self):
-#         super().__init__("ScQ-P50")
-#         self.valid_gates = ["cx", "cz", "rx", "ry", "rz", "x", "y", "z", "h"]
-
-# class ScQ_S41(Backend):
-#     def __init__(self):
-#         super().__init__("ScQ-S41")
-#         self.valid_gates = [ "rx", "ry", "rz", "x", "y", "z", "h", "sx", "sy", "id", "delay", "barrier", "xy"]
-            

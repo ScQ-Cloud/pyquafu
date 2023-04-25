@@ -30,6 +30,9 @@ class Barrier(object):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
+    def to_qasm(self):
+        return "barrier " + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos)+1)])
+
 class Delay(object):
     def __init__(self, pos : int, duration : int, unit="ns"):
         self.name = "delay"
@@ -44,6 +47,9 @@ class Delay(object):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
+    def to_qasm(self):
+        return "delay(%d%s) q[%d]" % (self.duration, self.unit, self.pos)
+
 class XYResonance(object):
     def __init__(self, qs : int, qe : int, duration : int, unit="ns"):
         self.name = "XY"
@@ -55,6 +61,9 @@ class XYResonance(object):
         self.pos=list(range(qs, qe+1))
         self.symbol = "XY(%d%s)" %(duration, unit)
 
+    def to_qasm(self):
+        return "xy(%d%s) " %(self.duration, self.unit) + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos)+1)])
+    
 class QuantumGate(object):
     def __init__(self, name: str, pos: Union[int, List[int]], paras: Union[None,float, List[float]], matrix):
         self.name = name
@@ -111,6 +120,21 @@ class QuantumGate(object):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
+    def to_qasm(self):
+        qstr = "%s" %self.name.lower()
+      
+        if self.paras:
+            if isinstance(self.paras, Iterable):
+                qstr += "(" + ",".join(["%s" %para for para in self.paras]) + ")"
+            else:
+                qstr += "(%s)" %self.paras
+        qstr += " "
+        if isinstance(self.pos, Iterable):
+            qstr += ",".join(["q[%d]" % p for p in self.pos])
+        else:
+            qstr += "q[%d]" %self.pos
+        
+        return qstr
 
 class SingleQubitGate(QuantumGate):
     def __init__(self, name: str, pos: int, paras, matrix):
@@ -134,6 +158,7 @@ class SingleQubitGate(QuantumGate):
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
+    
 
 class FixedSingleQubitGate(SingleQubitGate):
     def __init__(self, name, pos, matrix):
