@@ -2,15 +2,16 @@ import numpy as np
 from quafu import QuantumCircuit
 
 from quafu.elements.element_gates import * 
-from quafu.elements.quantum_element import Barrier, Delay, ControlledGate, MultiQubitGate, ParaMultiQubitGate, QuantumGate, SingleQubitGate, XYResonance
+from quafu.elements.quantum_element import Barrier, Delay, Measure, XYResonance
+from quafu.pulses.quantum_pulse import GaussianPulse, RectPulse, FlattopPulse
 
 import networkx as nx
 from typing import Dict, Any, List, Union
 import copy
 
-from instruction_node import InstructionNode  # instruction_node.py in the same folder as circuit_dag.py now
+from .instruction_node import InstructionNode  # instruction_node.py in the same folder as circuit_dag.py now
 
-import pygraphviz as pgv
+# import pygraphviz as pgv
 from networkx.drawing.nx_pydot import write_dot
 from IPython.display import Image, SVG
 
@@ -55,7 +56,7 @@ def gate_to_node(input_gate,specific_label: str):
         gate.unit = None
     
     # hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.matrix,gate.duration,gate.unit, label=i)
-    hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.duration,gate.unit, label=specific_label)
+    hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.duration, gate.unit, label=specific_label)
     return hashable_gate
 
 
@@ -166,6 +167,7 @@ gate_classes = {
     "delay": Delay,
     "barrier": Barrier,
     "cx": CXGate,
+    "cnot": CXGate,
     "cp": CPGate,
     "swap": SwapGate,
     "rxx": RXXGate,
@@ -177,10 +179,16 @@ gate_classes = {
     "ct": CTGate,
     "xy": XYResonance,
     "ccx": ToffoliGate,
+    "toffoli": ToffoliGate,
     "cswap": FredkinGate,
+    "fredkin": FredkinGate,
     "mcx": MCXGate,
     "mcy": MCYGate,
     "mcz": MCZGate,
+    "gaussian": GaussianPulse,
+    "rect"    : RectPulse,
+    "flattop" : FlattopPulse,
+    "measure" : Measure
 }
 
 def node_to_gate(gate_in_dag):
@@ -240,6 +248,20 @@ def node_to_gate(gate_in_dag):
         target_qubit = gate_in_dag.pos[-1]
         return gate_class(control_qubits, target_qubit)
 
+    # pulse node
+    if gate_name in ["gaussian", "rect", "flattop"]:
+        duration = gate_in_dag.duration
+        unit = gate_in_dag.unit
+        paras = gate_in_dag.paras
+        pos = gate_in_dag.pos[0]
+        channel = gate_in_dag.label
+
+        return gate_class(pos, *paras, duration, unit, channel)
+    
+    # measure node
+    if gate_name == "measure":
+        return gate_class(gate_in_dag.pos)
+    
     return gate_class(*args)
 
 

@@ -13,6 +13,7 @@ def reorder_matrix(matrix : np.ndarray, pos : List):
     tensorm = matrix.reshape([2]*2*qnum)
     return np.transpose(tensorm, inds).reshape([dim, dim])
 
+
 class Barrier(object):
     def __init__(self, pos):
         self.name = "barrier"
@@ -63,7 +64,12 @@ class XYResonance(object):
 
     def to_qasm(self):
         return "xy(%d%s) " %(self.duration, self.unit) + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos)+1)])
-    
+
+class Measure(object):
+    def __init__(self, bitmap : dict):
+        self.qbits = bitmap.keys()
+        self.cbits = bitmap.values()
+
 class QuantumGate(object):
     def __init__(self, name: str, pos: Union[int, List[int]], paras: Union[None,float, List[float]], matrix):
         self.name = name

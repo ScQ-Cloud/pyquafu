@@ -7,6 +7,18 @@ import ply.lex as lex
 import numpy as np 
 
 class QfasmLexer(object):
+
+    def __init__(self):
+        self.build()
+    
+    def input(self, data):
+        self.data = data
+        self.lexer.input(data)
+    
+    def token(self):
+        ret = self.lexer.token()
+        return ret
+    
     literals = r'=()[]{};<>,.+-/*^"'
 
     reserved = {
@@ -14,16 +26,20 @@ class QfasmLexer(object):
         "qreg"    : "QREG",
         "pi"      : "PI",
         "measure" : "MEASURE",
-        "none"    : "NONE"
+        "include" : "INCLUDE"
     }
 
     tokens = [
         "FLOAT",
         "INT",
+        "STRING",
         "ASSIGN",
         "MATCHES",
         "ID",
         "UNIT",
+        "CHANNEL", 
+        "OPENQASM", 
+        "NONE"
     ] + list(reserved.values())
 
     def t_FLOAT(self, t):
@@ -36,8 +52,11 @@ class QfasmLexer(object):
         t.value = int(t.value)
         return t
 
-
-    def ASSIGN(self, t):
+    def t_STRING(self, t):
+        r"\"([^\\\"]|\\.)*\""
+        return t
+    
+    def t_ASSIGN(self, t):
         r"->"
         return t
     
@@ -49,6 +68,18 @@ class QfasmLexer(object):
         r"ns|us"
         return t
 
+    def t_CHANNEL(self, t):
+        r"XY|Z"
+        return t
+    
+    def t_OPENQASM(self, t):
+        r"OPENQASM"
+        return t
+    
+    def t_NONE(self, t):
+        r"None"
+        return t
+    
     def t_ID(self, t):
         r"[a-z][a-zA-Z0-9_]*"
         t.type = self.reserved.get(t.value, "ID")
@@ -58,7 +89,6 @@ class QfasmLexer(object):
 
     def t_error(self, t):
         print("Illegal character '%s'" %t.value[0])
-        t.lexer.skip(1)
     
     def t_newline(self, t):
         r"\n+"
