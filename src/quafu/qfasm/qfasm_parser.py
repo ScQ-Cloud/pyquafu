@@ -61,7 +61,8 @@ class QfasmParser(object):
     
     def parse(self, input : str):
         self.parsed_nodes = self.parser.parse(input, lexer=QfasmLexer())
-
+        return self.parsed_nodes
+    
     def p_main_0(self, p):
         """
         main : program

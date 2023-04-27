@@ -7,8 +7,7 @@ from quafu import QuantumCircuit
 
 def qasm_to_circuit(qasm):
     parser = QfasmParser()     
-    parser.parse(qasm)
-    nodes = parser.parsed_nodes
+    nodes = parser.parse(qasm)
 
     n = 0
     gates = []

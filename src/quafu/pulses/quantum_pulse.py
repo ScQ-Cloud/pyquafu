@@ -42,7 +42,7 @@ class QuantumPulse(object):
         
     @property
     def symbol(self):
-        return "%s(%d%s)" % (self.name, self.duration, self.unit)
+        return "%s(%d%s, %s)" % (self.name, self.duration, self.unit, self.channel)
 
     def __repr__(self):
         return self.__str__()
@@ -185,8 +185,3 @@ class GaussianPulse(QuantumPulse):
         args = {"amp": self.amp, "fwhm": self.fwhm, "phase":self.phase}
         return super().__call__(t, shift, offset, args)
 
-if __name__ == '__main__':
-    p = GaussianPulse(0, amp=1.2, fwhm=None, phase=np.pi/3, duration=60, unit="ns", channel="XY")
-    # p = FlattopPulse(0, amp=1., fwhm=10, duration=60, unit="ns", channel="XY")
-    p.plot(shift=0)
-    print(p.to_qasm())
