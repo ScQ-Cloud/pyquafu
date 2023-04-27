@@ -18,7 +18,7 @@ from IPython.display import Image, SVG
 
 
 # transform a gate in quantumcircuit of quafu(not include measure_gate),
-# to a node in the graph, with specific label.
+# into a node in the graph, with specific label.
 def gate_to_node(input_gate,specific_label: str):
     ''' 
     transform a gate in quantumcircuit of quafu(not include measure_gate),
@@ -35,25 +35,16 @@ def gate_to_node(input_gate,specific_label: str):
 
     import copy
     gate = copy.deepcopy(input_gate) # avoid modifying the original gate
-    if type(gate.pos) != list: # if gate.pos is not a list, make it a list
+    if not isinstance(gate.pos, list):  # if gate.pos is not a list, make it a list
         gate.pos = [gate.pos]
 
-    
     # use getattr check 'paras' and other attributes if exist. if the attr doesn't exist,return None
-    paras = getattr(gate, 'paras', None)
-    # matrix = getattr(gate, 'matrix', None)
-    duration = getattr(gate, 'duration', None)
-    unit = getattr(gate, 'unit', None)
-    if paras is None:
-        gate.paras = None 
-    elif type(gate.paras) != list: # if paras is not a list, make it a list
-        gate.paras = [gate.paras]    
-    # if matrix is None:
-    #     gate.matrix = None
-    if duration is None:
-        gate.duration = None
-    if unit is None:
-        gate.unit = None
+    gate.paras = getattr(gate, 'paras', None) or None
+    gate.duration = getattr(gate, 'duration', None) or None
+    gate.unit = getattr(gate, 'unit', None) or None 
+
+    if gate.paras and not isinstance(gate.paras, list):  # if paras is True and not a list, make it a list
+        gate.paras = [gate.paras]
     
     # hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.matrix,gate.duration,gate.unit, label=i)
     hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.duration, gate.unit, label=specific_label)
