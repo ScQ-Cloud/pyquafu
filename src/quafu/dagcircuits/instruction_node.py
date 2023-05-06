@@ -7,9 +7,11 @@ class InstructionNode:
     pos:Union[List[Any], Dict[Any,Any]]       # gate.pos |  Dict[Any,Any] for measure
     paras:List[Any]        # gate.paras
     # matrix:List[Any]   # for gate in [QuantumGate]
-    duration:int       # for gate in [Delay,XYResonance] in quafu
+    duration: Union[float,int]  # for gate in [Delay,XYResonance,QuantumPulse] in quafu
     unit:str           # for gate in [Delay,XYResonance] in quafu
-    label:str
+    channel:str        # for gate in [QuantumPulse] in quafu
+    time_func: Any     # for gate in [QuantumPulse] in quafu
+    label:str          # used for specifying the instruction node
         
     def __hash__(self):
         return hash((type(self.name), tuple(self.pos) ,self.label))
