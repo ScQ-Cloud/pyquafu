@@ -9,7 +9,7 @@ import networkx as nx
 from typing import Dict, Any, List, Union
 import copy
 
-from .instruction_node import InstructionNode  # instruction_node.py in the same folder as circuit_dag.py now
+from quafu.dagcircuits.instruction_node import InstructionNode  # instruction_node.py in the same folder as circuit_dag.py now
 
 # import pygraphviz as pgv
 from networkx.drawing.nx_pydot import write_dot
@@ -42,12 +42,14 @@ def gate_to_node(input_gate,specific_label: str):
     gate.paras = getattr(gate, 'paras', None) or None
     gate.duration = getattr(gate, 'duration', None) or None
     gate.unit = getattr(gate, 'unit', None) or None 
+    gate.channel = getattr(gate, 'channel', None) or None
+    gate.time_func = getattr(gate, 'time_func', None) or None
 
     if gate.paras and not isinstance(gate.paras, list):  # if paras is True and not a list, make it a list
         gate.paras = [gate.paras]
     
     # hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.matrix,gate.duration,gate.unit, label=i)
-    hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.duration, gate.unit, label=specific_label)
+    hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.duration, gate.unit,gate.channel,gate.time_func, label=specific_label)
     return hashable_gate
 
 
@@ -113,9 +115,9 @@ def circuit_to_dag(circuit):
     # Add measure_gate node
     qm = Any
     qm.name = "measure"  
-    qm.paras, qm.duration, qm.unit = [None,None,None]
+    qm.paras, qm.duration, qm.unit,qm.channel,qm.time_func = [None,None,None,None,None]
     qm.pos = copy.deepcopy(circuit.measures)  # circuit.measures is a dict
-    measure_gate = InstructionNode(qm.name, qm.pos, qm.paras, qm.duration, qm.unit, label="m")
+    measure_gate = InstructionNode(qm.name, qm.pos, qm.paras, qm.duration, qm.unit,qm.channel,qm.time_func, label="m")
     g.add_node(measure_gate,color="blue")
     # Add edges from qubit_last_use[qubit] to measure_gate
     for qubit in measure_gate.pos.keys():
@@ -245,7 +247,8 @@ def node_to_gate(gate_in_dag):
         unit = gate_in_dag.unit
         paras = gate_in_dag.paras
         pos = gate_in_dag.pos[0]
-        channel = gate_in_dag.label
+        channel = gate_in_dag.channel
+        # time_func = gate_in_dag.time_func
 
         return gate_class(pos, *paras, duration, unit, channel)
     
@@ -339,8 +342,9 @@ def draw_dag(dep_g, output_format="png"):
 
             
     '''
+    import pygraphviz 
     write_dot(dep_g, "dag.dot")
-    G = pgv.AGraph("dag.dot")
+    G = pygraphviz.AGraph("dag.dot")
     G.layout(prog="dot")
 
     if output_format == "png":
