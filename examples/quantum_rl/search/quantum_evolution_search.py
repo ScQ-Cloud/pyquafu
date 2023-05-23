@@ -1,14 +1,16 @@
+# Note: If you want to search the architecture from scratch, please use the command 'pip install pymoo==0.3.0' first.
 import argparse
 import logging
 import os
 import sys
+
+sys.path.insert(0, ' ')
 import time
 from functools import reduce
 
 import cirq
 import numpy as np
-import tensorflow as tf
-from misc import utils
+from misc.utils import create_exp_dir
 from pymoo.optimize import minimize
 from pymop.problem import Problem
 from search import nsganet as engine
@@ -21,9 +23,10 @@ parser.add_argument('--pop_size', type=int, default=10, help='population size of
 parser.add_argument('--n_gens', type=int, default=10, help='number of generation')
 parser.add_argument('--n_offspring', type=int, default=10, help='number of offspring created per generation')
 parser.add_argument('--n_episodes', type=int, default=300, help='number of episodes to train during architecture search')
+
 args = parser.parse_args(args=[])
 args.save = 'search-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
-utils.create_exp_dir(args.save)
+create_exp_dir(args.save)
 
 log_format = '%(asctime)s %(message)s'
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
@@ -104,18 +107,15 @@ def do_every_generations(algorithm):
                                                   np.median(pop_obj[:, 1]), np.max(pop_obj[:, 1]), np.where(pop_obj[:, 1]==np.min(pop_obj[:, 1]))))
 
 
-def main():
+def main(qubits, n_actions, observables):
+    """
+    Main search process in multi-obj algorithms.
+    """
     logging.info("args = %s", args)
 
     # setup NAS search problem
     lb = np.zeros(args.n_var)
     ub = np.ones(args.n_var) * 3
-
-    n_qubits = 4 # Dimension of the state vectors in CartPole
-    n_actions = 2 # Number of actions in CartPole
-    qubits = cirq.GridQubit.rect(1, n_qubits)
-    ops = [cirq.Z(q) for q in qubits]
-    observables = [reduce((lambda x, y: x * y), ops)] # Z_0*Z_1*Z_2*Z_3
 
     problem = NAS(qubits, n_actions, observables, lb=lb, ub=ub, n_var=args.n_var,
                   n_episodes=args.n_episodes, save_dir=args.save)
@@ -134,4 +134,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    n_qubits = 4 # Dimension of the state vectors in CartPole
+    n_actions = 2 # Number of actions in CartPole
+    qubits = cirq.GridQubit.rect(1, n_qubits)
+    ops = [cirq.Z(q) for q in qubits]
+    observables = [reduce((lambda x, y: x * y), ops)] # Z_0*Z_1*Z_2*Z_3
+    main(qubits, n_actions, observables)
