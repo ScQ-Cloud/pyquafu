@@ -122,23 +122,28 @@ class NSGANetPQC(tf.keras.layers.Layer):
 
 class Alternating(tf.keras.layers.Layer):
     """Apply action-specific weights."""
-    def __init__(self, output_dim):
+    def __init__(self, output_dim, env):
         super(Alternating, self).__init__()
-        self.w = tf.Variable(
-            initial_value=tf.constant([[(-1.)**i for i in range(output_dim)]]), dtype="float32",
-            trainable=True, name="obs-weights")
+        if env == "CartPole-v1":
+            self.w = tf.Variable(
+                initial_value=tf.constant([[(-1.)**i for i in range(output_dim)]]), dtype="float32",
+                trainable=True, name="obs-weights")
+        elif env == "MountainCar-v0":
+            self.w = tf.Variable(
+                initial_value=tf.constant([[(-1.)**i for i in range(output_dim)], [(-1.)**i for i in range(output_dim)],
+                [(-1.)**i for i in range(output_dim)]]), dtype="float32", trainable=True, name="obs-weights")
 
     def call(self, inputs):
         return tf.matmul(inputs, self.w)
 
 
-def generate_model_policy(qubits, genotype, n_actions, observables):
+def generate_model_policy(qubits, genotype, n_actions, beta, observables, env):
     """Generate a Keras model for a NSGANet PQC policy."""
     input_tensor = tf.keras.Input(shape=(len(qubits), ), dtype=tf.dtypes.float32, name='input')
     nsganet_pqc = NSGANetPQC(qubits, genotype, observables)([input_tensor])
     process = tf.keras.Sequential([
-        Alternating(n_actions),
-        tf.keras.layers.Lambda(lambda x: x * 1.0),
+        Alternating(n_actions, env),
+        tf.keras.layers.Lambda(lambda x: x * beta),
         tf.keras.layers.Softmax()
     ], name="observables-policy")
     policy = process(nsganet_pqc)

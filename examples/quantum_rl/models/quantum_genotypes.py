@@ -77,3 +77,54 @@ NSGANet_id97 = Genotype(
         ('entanglement', 2)
     ]
 )
+
+Layer5_CP = Genotype(
+    measure=[
+        ('measurement', 15)
+    ], 
+    vpqc=[
+        ('variationalPQC', 0),
+        ('variationalPQC', 3), 
+        ('variationalPQC', 6), 
+        ('variationalPQC', 9), 
+        ('variationalPQC', 12)
+    ], 
+    dpqc=[
+        ('dataencodingPQC', 2), 
+        ('dataencodingPQC', 5), 
+        ('dataencodingPQC', 8),
+        ('dataencodingPQC', 11), 
+        ('dataencodingPQC', 14)
+    ], 
+    entangle=[
+        ('entanglement', 1), 
+        ('entanglement', 4),
+        ('entanglement', 7), 
+        ('entanglement', 10),
+        ('entanglement', 13)
+    ]
+)
+
+Eqas_PQC = Genotype(
+    measure=[
+        ('measurement', 12)
+    ], 
+    vpqc=[
+        ('variationalPQC', 5), 
+        ('variationalPQC', 7)
+    ], 
+    dpqc=[
+        ('dataencodingPQC', 2), 
+        ('dataencodingPQC', 6), 
+        ('dataencodingPQC', 9),
+        ('dataencodingPQC', 11)
+    ], 
+    entangle=[
+        ('entanglement', 0), 
+        ('entanglement', 1),
+        ('entanglement', 3), 
+        ('entanglement', 4),
+        ('entanglement', 8),
+        ('entanglement', 10)
+    ]
+)
