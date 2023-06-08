@@ -31,7 +31,7 @@ class Task(object):
         self.tomo = False
         self.compile = True
         self.priority = self.user.priority
-        self.runtime_job_id = None
+        self.runtime_job_id = ""
         self.submit_history = { }
         self._available_backends = self.user.get_available_backends(print_info=False)
         self.backend = self._available_backends[list(self._available_backends.keys())[0]]
@@ -289,4 +289,3 @@ class Task(object):
                 for gate in qc.gates:
                     if gate.name.lower() in ["xy"]:
                         raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self.backend.name))
-
