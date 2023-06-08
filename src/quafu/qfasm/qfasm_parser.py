@@ -17,7 +17,7 @@ class QregNode(DeclarationNode):
 
     def __repr__(self):
         return self.__str__()
-    
+
     def __str__(self):
         return "qreg[%d]" %self.n
 
@@ -27,27 +27,27 @@ class CregNode(DeclarationNode):
 
     def __repr__(self):
         return self.__str__()
-    
+
     def __str__(self):
         return "creg[%d]" %self.n
-    
+
 class IncludeNode(DeclarationNode):
     def __init__(self, filename):
         self.file = filename
 
     def __repr__(self):
         return self.__str__()
-    
+
     def __str__(self):
         return "include %s" %self.file
-    
-class OPENQASMNode(DeclarationNode):   
+
+class OPENQASMNode(DeclarationNode):
     def __init__(self, version):
         self.version = version
 
     def __repr__(self):
         return self.__str__()
-    
+
     def __str__(self):
         return "OPENQASM %.1f" %self.version
 
@@ -58,11 +58,11 @@ class QfasmParser(object):
         self.parser = yacc.yacc(module=self, debug=debug)
         self.parsed_nodes = []
         self.lexer =  QfasmLexer()
-    
+
     def parse(self, input : str):
         self.parsed_nodes = self.parser.parse(input, lexer=QfasmLexer())
         return self.parsed_nodes
-    
+
     def p_main_0(self, p):
         """
         main : program
@@ -91,7 +91,7 @@ class QfasmParser(object):
                     | creg
         """
         p[0] = p[1]
-    
+
     def p_openqasm(self, p):
         """
         openqasm : OPENQASM FLOAT ';'
@@ -142,31 +142,31 @@ class QfasmParser(object):
         '''
         gate : id qubit_list
         '''
-        p[0] = InstructionNode(p[1], p[2], None, None, None, "")
+        p[0] = InstructionNode(p[1], p[2], None, None, None, "", None, "")
 
     def p_gate_like_1(self, p):
         '''
         gate : id '(' arg_list ')' qubit_list
         '''
-        p[0] = InstructionNode(p[1], p[5], p[3], None, None, "")
+        p[0] = InstructionNode(p[1], p[5], p[3], None, None, "", None, "")
 
     def p_pulse_like_0(self, p):
         '''
         pulse : id '(' time ',' arg_list ')' qubit_list
         '''
-        p[0] = InstructionNode(p[1], p[7], p[5], p[3][0], p[3][1], "")
+        p[0] = InstructionNode(p[1], p[7], p[5], p[3][0], p[3][1], "", None, "")
 
     def p_measure_0(self, p):
         '''
         measure : MEASURE bitreg ASSIGN bitreg
         '''
-        p[0] = InstructionNode("measure", {p[2] : p[4]}, None, None, None, "")
+        p[0] = InstructionNode("measure", {p[2] : p[4]}, None, None, None, "", None, "")
 
     def p_pulse_like_1(self, p):
         '''
         pulse : id '(' time ',' arg_list ',' channel ')' qubit_list
         '''
-        p[0] = InstructionNode(p[1], p[9], p[5], p[3][0], p[3][1], p[7])
+        p[0] = InstructionNode(p[1], p[9], p[5], p[3][0], p[3][1], p[7], None, "")
 
     def p_bitreg(self, p):
         """
@@ -265,4 +265,3 @@ class QfasmParser(object):
             self.parser.errok()
         else:
             print("Syntax error at EOF")
-    

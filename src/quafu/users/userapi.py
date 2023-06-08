@@ -32,19 +32,20 @@ class User(object):
         with open(file_dir + "api", "w") as f:
             f.write(self.apitoken+"\n")
             f.write("http://quafu.baqis.ac.cn/")
-    
+
     def load_account(self):
         """
         Load Quafu account.
         """
         homedir = get_homedir()
         file_dir = homedir + "/.quafu/"
-        try: 
+        try:
             f = open(file_dir + "api", "r")
             data = f.readlines()
             token = data[0].strip("\n")
             url = data[1].strip("\n")
             self.apitoken = token
+            self._url = url
             return token, url
         except:
             raise UserError("User configure error. Please set up your token.")
@@ -52,8 +53,8 @@ class User(object):
     def get_backends_info(self):
         """
         Get available backends information
-        """        
-        
+        """
+
         backends_info = requests.post(url=self._url+self.backends_api, headers={"api_token" : self.apitoken})
         backends_info_dict = json.loads(backends_info.text)
         if backends_info_dict["status"] == 201:
