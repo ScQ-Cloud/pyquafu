@@ -1,4 +1,3 @@
-
 from .qfasm_parser import QfasmParser, QregNode
 from quafu.dagcircuits.circuit_dag import node_to_gate
 from quafu.dagcircuits.instruction_node import InstructionNode

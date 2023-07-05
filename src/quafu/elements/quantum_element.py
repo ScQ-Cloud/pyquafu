@@ -4,13 +4,14 @@ import numpy as np
 from functools import reduce
 import copy
 
-def reorder_matrix(matrix : np.ndarray, pos : List):
+
+def reorder_matrix(matrix: np.ndarray, pos: List):
     """Reorder the input sorted matrix to the pos order """
     qnum = len(pos)
-    dim = 2**qnum
+    dim = 2 ** qnum
     inds = np.argsort(pos)
-    inds = np.concatenate([inds, inds+qnum])
-    tensorm = matrix.reshape([2]*2*qnum)
+    inds = np.concatenate([inds, inds + qnum])
+    tensorm = matrix.reshape([2] * 2 * qnum)
     return np.transpose(tensorm, inds).reshape([dim, dim])
 
 
@@ -32,18 +33,19 @@ class Barrier(object):
         return f"{self.__class__.__name__}"
 
     def to_qasm(self):
-        return "barrier " + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos)+1)])
+        return "barrier " + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+
 
 class Delay(object):
-    def __init__(self, pos : int, duration : int, unit="ns"):
+    def __init__(self, pos: int, duration: int, unit="ns"):
         self.name = "delay"
         if isinstance(duration, int):
             self.duration = duration
         else:
             raise TypeError("duration must be int")
-        self.unit=unit
-        self.pos=pos
-        self.symbol = "Delay(%d%s)" %(duration, unit)
+        self.unit = unit
+        self.pos = pos
+        self.symbol = "Delay(%d%s)" % (duration, unit)
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
@@ -51,39 +53,43 @@ class Delay(object):
     def to_qasm(self):
         return "delay(%d%s) q[%d]" % (self.duration, self.unit, self.pos)
 
+
 class XYResonance(object):
-    def __init__(self, qs : int, qe : int, duration : int, unit="ns"):
+    def __init__(self, qs: int, qe: int, duration: int, unit="ns"):
         self.name = "XY"
         if isinstance(duration, int):
             self.duration = duration
         else:
             raise TypeError("duration must be int")
-        self.unit=unit
-        self.pos=list(range(qs, qe+1))
-        self.symbol = "XY(%d%s)" %(duration, unit)
+        self.unit = unit
+        self.pos = list(range(qs, qe + 1))
+        self.symbol = "XY(%d%s)" % (duration, unit)
 
     def to_qasm(self):
-        return "xy(%d%s) " %(self.duration, self.unit) + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos)+1)])
+        return "xy(%d%s) " % (self.duration, self.unit) + ",".join(
+            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+
 
 class Measure(object):
-    def __init__(self, bitmap : dict):
+    def __init__(self, bitmap: dict):
         self.qbits = bitmap.keys()
         self.cbits = bitmap.values()
 
+
 class QuantumGate(object):
-    def __init__(self, name: str, pos: Union[int, List[int]], paras: Union[None,float, List[float]], matrix):
+    def __init__(self, name: str, pos: Union[int, List[int]], paras: Union[None, float, List[float]], matrix):
         self.name = name
         self.pos = pos
         self.paras = paras
         self.matrix = matrix
-        
+
         if paras:
             if isinstance(paras, Iterable):
-                self.symbol = "%s(" %self.name + ",".join(["%.3f" %para for para in self.paras]) + ")"
+                self.symbol = "%s(" % self.name + ",".join(["%.3f" % para for para in self.paras]) + ")"
             else:
                 self.symbol = "%s(%.3f)" % (self.name, paras)
         else:
-            self.symbol = "%s" %self.name
+            self.symbol = "%s" % self.name
 
     @property
     def name(self):
@@ -127,20 +133,21 @@ class QuantumGate(object):
         return f"{self.__class__.__name__}"
 
     def to_qasm(self):
-        qstr = "%s" %self.name.lower()
-      
+        qstr = "%s" % self.name.lower()
+
         if self.paras:
             if isinstance(self.paras, Iterable):
-                qstr += "(" + ",".join(["%s" %para for para in self.paras]) + ")"
+                qstr += "(" + ",".join(["%s" % para for para in self.paras]) + ")"
             else:
-                qstr += "(%s)" %self.paras
+                qstr += "(%s)" % self.paras
         qstr += " "
         if isinstance(self.pos, Iterable):
             qstr += ",".join(["q[%d]" % p for p in self.pos])
         else:
-            qstr += "q[%d]" %self.pos
-        
+            qstr += "q[%d]" % self.pos
+
         return qstr
+
 
 class SingleQubitGate(QuantumGate):
     def __init__(self, name: str, pos: int, paras, matrix):
@@ -164,7 +171,7 @@ class SingleQubitGate(QuantumGate):
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
-    
+
 
 class FixedSingleQubitGate(SingleQubitGate):
     def __init__(self, name, pos, matrix):
@@ -214,19 +221,18 @@ class MultiQubitGate(QuantumGate):
 
         self._matrix = reorder_matrix(self._matrix, self.pos)
 
-
     def get_targ_matrix(self, reverse_order=False):
         targ_matrix = self._targ_matrix
         if reverse_order and (len(self.pos) > 1):
             qnum = len(self.pos)
             order = np.array(range(len(self.pos))[::-1])
-            order = np.concatenate([order, order+qnum])
-            dim = 2**qnum
-            tensorm = targ_matrix.reshape([2]*2*qnum)
+            order = np.concatenate([order, order + qnum])
+            dim = 2 ** qnum
+            tensorm = targ_matrix.reshape([2] * 2 * qnum)
             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
 
         return targ_matrix
-         
+
 
 class FixedMultiQubitGate(MultiQubitGate):
     def __init__(self, name: str, pos: List[int], matrix):
@@ -251,46 +257,46 @@ class ParaMultiQubitGate(MultiQubitGate):
             self._matrix = reorder_matrix(self._matrix, self.pos)
         else:
             raise TypeError("Unsupported `matrix` type")
-        
+
 
 class ControlledGate(MultiQubitGate):
     """ Controlled gate class, where the matrix act non-trivaly on target qubits"""
+
     def __init__(self, name, targe_name, ctrls: List[int], targs: List[int], paras, matrix):
         self.ctrls = ctrls
         self.targs = targs
         self.targ_name = targe_name
-        super().__init__(name, ctrls+targs, paras, matrix)
+        super().__init__(name, ctrls + targs, paras, matrix)
         self._targ_matrix = matrix
 
         if paras:
             if isinstance(paras, Iterable):
-                self.symbol = "%s(" %self.targ_name + ",".join(["%.3f" %para for para in self.paras]) + ")"
+                self.symbol = "%s(" % self.targ_name + ",".join(["%.3f" % para for para in self.paras]) + ")"
             else:
                 self.symbol = "%s(%.3f)" % (self.targ_name, paras)
         else:
-            self.symbol = "%s" %self.targ_name
+            self.symbol = "%s" % self.targ_name
 
-            
     @property
     def matrix(self):
         return self._matrix
 
     @matrix.setter
-    def matrix(self, matrix : Union[np.ndarray, Callable]):
-        targ_dim = 2**(len(self.targs))
+    def matrix(self, matrix: Union[np.ndarray, Callable]):
+        targ_dim = 2 ** (len(self.targs))
         qnum = len(self.pos)
-        dim = 2**(qnum)
+        dim = 2 ** (qnum)
         if isinstance(matrix, Callable):
             matrix = matrix(self.paras)
 
         if matrix.shape[0] != targ_dim:
             raise ValueError("Dimension dismatch")
         else:
-            self._matrix = np.zeros((dim , dim), dtype=complex)
-            control_dim = 2**len(self.pos) - targ_dim
+            self._matrix = np.zeros((dim, dim), dtype=complex)
+            control_dim = 2 ** len(self.pos) - targ_dim
             for i in range(control_dim):
                 self._matrix[i, i] = 1.
-            
+
             self._matrix[control_dim:, control_dim:] = matrix
             self._matrix = reorder_matrix(self._matrix, self.pos)
             # self._targ_matrix = reorder_matrix(matrix, self.targs)
@@ -300,12 +306,13 @@ class ControlledGate(MultiQubitGate):
         if reverse_order and (len(self.targs) > 1):
             qnum = len(self.targs)
             order = np.array(range(len(self.targs))[::-1])
-            order = np.concatenate([order, order+qnum])
-            dim = 2**qnum
-            tensorm = targ_matrix.reshape([2]*2*qnum)
+            order = np.concatenate([order, order + qnum])
+            dim = 2 ** qnum
+            tensorm = targ_matrix.reshape([2] * 2 * qnum)
             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
 
         return targ_matrix
+
 
 class ControlledU(ControlledGate):
     def __init__(self, name, ctrls: List[int], U: Union[SingleQubitGate, MultiQubitGate]):
@@ -313,11 +320,8 @@ class ControlledU(ControlledGate):
         targs = U.pos
         if isinstance(targs, int):
             targs = [targs]
-        
+
         super().__init__(name, U.name, ctrls, targs, U.paras, matrix=self.targ_gate.get_targ_matrix())
-    
+
     def get_targ_matrix(self, reverse_order=False):
         return self.targ_gate.get_targ_matrix(reverse_order)
-
-
-

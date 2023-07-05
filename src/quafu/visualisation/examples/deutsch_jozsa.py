@@ -3,8 +3,8 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-from quafu import QuantumCircuit
-from visualisation.circuitPlot import CircuitPlotManager
+from quafu.circuits.quantum_circuit import QuantumCircuit
+from ..circuitPlot import CircuitPlotManager
 
 
 def get_const_oracle(n: int):

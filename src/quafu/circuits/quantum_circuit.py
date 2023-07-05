@@ -1,9 +1,11 @@
 from typing import Iterable
 import numpy as np
-from ..elements.quantum_element import Barrier, Delay, ControlledGate, MultiQubitGate, ParaMultiQubitGate, QuantumGate, SingleQubitGate, XYResonance
+from ..elements.quantum_element import Barrier, Delay, ControlledGate, MultiQubitGate, ParaMultiQubitGate, QuantumGate, \
+    SingleQubitGate, XYResonance
 from quafu.pulses.quantum_pulse import QuantumPulse
 from ..elements.element_gates import *
 from ..exceptions import CircuitError
+
 
 class QuantumCircuit(object):
     def __init__(self, num: int):
@@ -25,7 +27,7 @@ class QuantumCircuit(object):
         self.layered_circuit()
         return self._used_qubits
 
-    def add_gate(self, gate : QuantumGate):
+    def add_gate(self, gate: QuantumGate):
         self.gates.append(gate)
 
     def layered_circuit(self) -> np.ndarray:
@@ -87,7 +89,7 @@ class QuantumCircuit(object):
         self._used_qubits = list(used_qubits)
         return self.circuit
 
-    def draw_circuit(self, width : int=4, return_str : bool=False):
+    def draw_circuit(self, width: int = 4, return_str: bool = False):
         """
         Draw layered circuit using ASCII, print in terminal.
 
@@ -118,7 +120,7 @@ class QuantumCircuit(object):
                     printlist[2 * q1 + 1:2 * q2, l] = "|"
                     printlist[q1 * 2, l] = "#"
                     printlist[q2 * 2, l] = "#"
-                    if isinstance(gate, ControlledGate): #Controlled-Multiqubit gate
+                    if isinstance(gate, ControlledGate):  # Controlled-Multiqubit gate
                         for ctrl in gate.ctrls:
                             printlist[reduce_map[ctrl] * 2, l] = "*"
 
@@ -136,7 +138,7 @@ class QuantumCircuit(object):
                                 printlist[tq1 + tq2, l] = gate.symbol
                             maxlen = max(maxlen, len(gate.symbol) + width)
 
-                    else: #Multiqubit gate
+                    else:  # Multiqubit gate
                         if gate.name == "SWAP":
                             printlist[q1 * 2, l] = "x"
                             printlist[q2 * 2, l] = "x"
@@ -151,7 +153,6 @@ class QuantumCircuit(object):
                     q2 = reduce_map[max(pos)]
                     printlist[2 * q1:2 * q2 + 1, l] = "||"
                     maxlen = max(maxlen, len("||"))
-
 
             printlist[-1, l] = maxlen
 
@@ -173,8 +174,7 @@ class QuantumCircuit(object):
         else:
             print(circuitstr)
 
-
-    def from_openqasm(self, openqasm : str):
+    def from_openqasm(self, openqasm: str):
         """
         Initialize the circuit from openqasm text.
         Args:
@@ -308,7 +308,6 @@ class QuantumCircuit(object):
         if not global_valid:
             print("Warning: All operations after measurement will be removed for executing on experiment")
 
-
     def to_openqasm(self) -> str:
         """
         Convert the circuit to openqasm text.
@@ -327,7 +326,6 @@ class QuantumCircuit(object):
 
         self.openqasm = qasm
         return qasm
-
 
     def id(self, pos: int) -> "QuantumCircuit":
         """
@@ -566,7 +564,6 @@ class QuantumCircuit(object):
         self.gates.append(CPGate(ctrl, tar, para))
         return self
 
-
     def swap(self, q1: int, q2: int) -> "QuantumCircuit":
         """
         SWAP gate
@@ -590,7 +587,7 @@ class QuantumCircuit(object):
         self.gates.append(ToffoliGate(ctrl1, ctrl2, targ))
         return self
 
-    def fredkin(self, ctrl: int, targ1:int , targ2: int) -> "QuantumCircuit":
+    def fredkin(self, ctrl: int, targ1: int, targ2: int) -> "QuantumCircuit":
         """
         Fredkin gate
 
@@ -624,7 +621,7 @@ class QuantumCircuit(object):
         self.gates.append(Delay(pos, duration, unit=unit))
         return self
 
-    def xy(self, qs: int, qe: int, duration: int, unit: str="ns") -> "QuantumCircuit":
+    def xy(self, qs: int, qe: int, duration: int, unit: str = "ns") -> "QuantumCircuit":
         """
         XY resonance time evolution for quantum simulator
         Args:
@@ -696,7 +693,6 @@ class QuantumCircuit(object):
             targ: Target qubits.
         """
         self.gates.append(MCZGate(ctrls, targ))
-
 
     def measure(self, pos: List[int], cbits: List[int] = []) -> None:
         """
