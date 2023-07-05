@@ -149,6 +149,8 @@ class QuantumGate(object):
 
 
 class SingleQubitGate(QuantumGate):
+    _matrix = None
+
     def __init__(self, name: str, pos: int, paras, matrix):
         super().__init__(name, pos, paras=paras, matrix=matrix)
 
