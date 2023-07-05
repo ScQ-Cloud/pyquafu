@@ -1,8 +1,7 @@
 # This is the file for abstract quantum gates class
-from typing import Union, Callable, List, Tuple, Iterable, Any, Optional
+from typing import Union, Callable, List, Iterable
+
 import numpy as np
-from functools import reduce
-import copy
 
 
 def reorder_matrix(matrix: np.ndarray, pos: List):

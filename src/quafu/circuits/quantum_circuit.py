@@ -1,9 +1,14 @@
-from typing import Iterable
+from typing import List
 import numpy as np
-from ..elements.quantum_element import Barrier, Delay, ControlledGate, MultiQubitGate, ParaMultiQubitGate, QuantumGate, \
-    SingleQubitGate, XYResonance
+
 from quafu.pulses.quantum_pulse import QuantumPulse
-from ..elements.element_gates import *
+from ..elements.quantum_element import Barrier, Delay, MultiQubitGate, QuantumGate, ControlledGate, \
+    SingleQubitGate, XYResonance
+from ..elements.element_gates import IdGate, HGate, XGate, YGate, ZGate, \
+    SGate, TGate, RXGate, RYGate, RZGate, CZGate, TdgGate, SdgGate, SXGate, SYGate, WGate, \
+    SWGate, PhaseGate, CXGate, CYGate, CSGate, CTGate, CPGate, SwapGate, ToffoliGate, FredkinGate, \
+    RXXGate, RYYGate, RZZGate, MCXGate, MCYGate, MCZGate
+
 from ..exceptions import CircuitError
 
 
@@ -395,6 +400,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         self.gates.append(TdgGate(pos))
+        return self
 
     def s(self, pos: int) -> "QuantumCircuit":
         """
@@ -498,6 +504,7 @@ class QuantumCircuit(object):
             para (float): rotation angle
         """
         self.gates.append(PhaseGate(pos, para))
+        return self
 
     def cnot(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
@@ -694,7 +701,7 @@ class QuantumCircuit(object):
         """
         self.gates.append(MCZGate(ctrls, targ))
 
-    def measure(self, pos: List[int], cbits: List[int] = []) -> None:
+    def measure(self, pos: List[int], cbits: List[int] = None) -> None:
         """
         Measurement setting for experiment device.
 
