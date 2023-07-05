@@ -1,4 +1,3 @@
-
 import numpy as np
 from functools import reduce
 import copy
@@ -6,9 +5,11 @@ import matplotlib.pyplot as plt
 from collections import OrderedDict
 from ..utils.basis import *
 
+
 class Result(object):
     """Basis class for quantum results"""
-    pass  
+    pass
+
 
 class ExecResult(Result):
     """ 
@@ -20,8 +21,9 @@ class ExecResult(Result):
         taskid (int): Unique task id for the execute result.
         transpiled_circuit (QuantumCircuit): Quantum circuit transpiled on backend.
     """
+
     def __init__(self, input_dict, measures):
-        status_map = {0:"In Queue", 1:"Running", 2:"Completed", "Canceled":3, 4:"Failed"}
+        status_map = {0: "In Queue", 1: "Running", 2: "Completed", "Canceled": 3, 4: "Failed"}
         self.measures = measures
         self.task_status = status_map[input_dict["status"]]
         self.res = eval(input_dict['res'])
@@ -29,8 +31,8 @@ class ExecResult(Result):
         self.logicalq_res = {}
         cbits = list(self.measures.values())
         for key, values in self.counts.items():
-           newkey = "".join([key[i] for i in cbits])
-           self.logicalq_res[newkey] = values
+            newkey = "".join([key[i] for i in cbits])
+            self.logicalq_res[newkey] = values
 
         self.taskid = input_dict['task_id']
         self.taskname = input_dict['task_name']
@@ -40,10 +42,9 @@ class ExecResult(Result):
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
         total_counts = sum(self.counts.values())
-        self.probabilities = {} 
+        self.probabilities = {}
         for key in self.counts:
-            self.probabilities[key] = self.counts[key]/total_counts
-    
+            self.probabilities[key] = self.counts[key] / total_counts
 
     def calculate_obs(self, pos):
         """
@@ -52,7 +53,7 @@ class ExecResult(Result):
         Args: 
             pos (list[int]): Positions of observalbes.
         """
-        return measure_obs(pos, self.logicalq_res) 
+        return measure_obs(pos, self.logicalq_res)
 
     def plot_probabilities(self):
         """
@@ -61,7 +62,7 @@ class ExecResult(Result):
         bitstrs = list(self.probabilities.keys())
         probs = list(self.probabilities.values())
         plt.figure()
-        plt.bar(range(len(probs)), probs, tick_label = bitstrs)
+        plt.bar(range(len(probs)), probs, tick_label=bitstrs)
         plt.xticks(rotation=70)
         plt.ylabel("probabilities")
 
@@ -75,6 +76,7 @@ class SimuResult(Result):
         probabilities (ndarray): Calculated probabilities on each bitstring.
         rho (ndarray): Simulated density matrix of measured qubits
     """
+
     def __init__(self, input, input_form):
         self.num = int(np.log2(input.shape[0]))
         if input_form == "density_matrix":
@@ -83,9 +85,9 @@ class SimuResult(Result):
         elif input_form == "probabilities":
             self.probabilities = input
         elif input_form == "state_vector":
-            self.state_vector = input            
-        
-    def plot_probabilities(self, full: bool=False, reverse_basis: bool=False, sort: bool=None):
+            self.state_vector = input
+
+    def plot_probabilities(self, full: bool = False, reverse_basis: bool = False, sort: bool = None):
         """
         Plot the probabilities from simulated results, ordered in big endian convention.
         
@@ -102,9 +104,9 @@ class SimuResult(Result):
             inds = np.where(self.probabilities > 1e-14)[0]
             probs = self.probabilities[inds]
 
-        basis=np.array([bin(i)[2:].zfill(self.num) for i in inds])
+        basis = np.array([bin(i)[2:].zfill(self.num) for i in inds])
         if reverse_basis:
-            basis=np.array([bin(i)[2:].zfill(self.num)[::-1] for i in inds])
+            basis = np.array([bin(i)[2:].zfill(self.num)[::-1] for i in inds])
 
         if sort == "ascend":
             orders = np.argsort(probs)
@@ -114,7 +116,6 @@ class SimuResult(Result):
             orders = np.argsort(probs)
             probs = probs[orders][::-1]
             basis = basis[orders][::-1]
-
 
         plt.figure()
         plt.bar(inds, probs, tick_label=basis)
@@ -128,7 +129,7 @@ class SimuResult(Result):
         "Calculate observables Z on input position using probabilities"
         inds = np.where(self.probabilities > 1e-14)[0]
         probs = self.probabilities[inds]
-        basis=np.array([bin(i)[2:].zfill(self.num) for i in inds])
+        basis = np.array([bin(i)[2:].zfill(self.num) for i in inds])
         res_reduced = dict(zip(basis, probs))
         return measure_obs(pos, res_reduced)
 
@@ -143,8 +144,9 @@ def intersec(a, b):
                 inter.append(a[i])
                 aind.append(i)
                 bind.append(j)
-    
+
     return inter, aind, bind
+
 
 def diff(a, b):
     diff = []
@@ -153,7 +155,7 @@ def diff(a, b):
         if a[i] not in b:
             diff.append(a[i])
             aind.append(i)
-    
+
     return diff, aind
 
 
@@ -164,12 +166,12 @@ def merge_measure(obslist):
     for obs in obslist:
         if len(measure_basis) == 0:
             measure_basis.append(obs)
-            targ_basis.append(len(measure_basis)-1)
+            targ_basis.append(len(measure_basis) - 1)
         else:
             added = 0
             for mi in range(len(measure_basis)):
                 measure_base = measure_basis[mi]
-                interset, intobsi, intbasei = intersec(obs[1], measure_base[1]) 
+                interset, intobsi, intbasei = intersec(obs[1], measure_base[1])
                 diffset, diffobsi = diff(obs[1], measure_base[1])
                 if not len(interset) == 0:
                     if all(np.array(list(obs[0]))[intobsi] == np.array(list(measure_base[0]))[intbasei]):
@@ -185,8 +187,8 @@ def merge_measure(obslist):
                     added = 1
                     break
 
-            if not added: 
+            if not added:
                 measure_basis.append(obs)
-                targ_basis.append(len(measure_basis)-1)
+                targ_basis.append(len(measure_basis) - 1)
 
     return measure_basis, targ_basis
