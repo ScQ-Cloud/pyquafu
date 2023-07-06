@@ -20,7 +20,7 @@ class QuantumCircuit(object):
         self.gates = []
         self.openqasm = ""
         self.circuit = []
-        self.measures = {dict(zip(range(num), range(num)))}
+        self.measures = {}
         self._used_qubits = []
 
     @property
@@ -733,7 +733,7 @@ class QuantumCircuit(object):
         """
         self.add_gate(qeg.MCZGate(ctrls, targ))
 
-    def measure(self, pos: List[int], cbits: List[int] = None) -> None:
+    def measure(self, pos: List[int] = None, cbits: List[int] = None) -> None:
         """
         Measurement setting for experiment device.
 
@@ -741,14 +741,19 @@ class QuantumCircuit(object):
             pos: Qubits need measure.
             cbits: Classical bits keeping the measure results.
         """
-
-        self.measures = dict(zip(pos, range(len(pos))))
+        if pos is None:
+            pos = list(range(self.num))
 
         if cbits:
-            if len(cbits) == len(self.measures):
-                self.measures = dict(zip(pos, cbits))
-            else:
+            if not len(cbits) == len(pos):
                 raise CircuitError("Number of measured bits should equal to the number of classical bits")
+        else:
+            cbits = pos
+
+        newly_measures = dict(zip(pos, cbits))
+        self.measures = {**self.measures, **newly_measures}
+        if not len(self.measures.values()) == len(set(self.measures.values())):
+            raise ValueError("Measured bits not uniquely assigned.")
 
     def add_pulse(self,
                   pulse: QuantumPulse,
