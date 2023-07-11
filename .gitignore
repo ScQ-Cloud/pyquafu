@@ -14,3 +14,4 @@ cmake
 test
 .vscode
 thirdparty
+.pyd
