@@ -1,5 +1,5 @@
 from ..quantum_element import ControlledGate
-from ._matrices import XMatrix, YMatrix, ZMatrix, SMatrix, TMatrix
+from ._matrices import XMatrix, YMatrix, ZMatrix, SMatrix, TMatrix, pmatrix
 
 
 class CXGate(ControlledGate):
@@ -36,4 +36,4 @@ class CTGate(ControlledGate):
 
 class CPGate(ControlledGate):
     def __init__(self, ctrl: int, targ: int, paras):
-        super().__init__("CP", "P", [ctrl], [targ], paras, matrix=PhaseGate(0, paras).matrix)
+        super().__init__("CP", "P", [ctrl], [targ], paras, matrix=pmatrix(paras))

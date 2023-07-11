@@ -1,10 +1,11 @@
+# from quafu.circuits.quantum_circuit import QuantumCircuit
 import numpy as np
-import quafu
 import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection, PatchCollection, LineCollection
 from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
+
 
 line_args = {}
 box_args = {}
@@ -61,7 +62,7 @@ class CircuitPlotManager:
 
     _stroke = pe.withStroke(linewidth=2, foreground='white')
 
-    def __init__(self, qc: quafu.QuantumCircuit):
+    def __init__(self, qc):
         """
         Processing graphical info from a quantum circuit,
         whose gates are stored as a list at present.
@@ -71,7 +72,6 @@ class CircuitPlotManager:
         (TODO)
         """
         self.qbit_num = qc.num
-
         # step0: containers of graphical elements
 
         self._h_wire_points = []
@@ -111,7 +111,7 @@ class CircuitPlotManager:
                 self._proc_ctrl(depth, gate.ctrls[0], gate.targs[0], 'x')
             else:
                 # control
-                raise NotImplemented
+                raise NotImplementedError(f'Gate {id_name} is not supported yet.')
             dorders[_which] = depth + 1
         self.depth = np.max(dorders) + 1
 
@@ -176,7 +176,7 @@ class CircuitPlotManager:
     def _gate_bbox(self, x, y, fc: str):
         a = self._a
         from matplotlib.patches import FancyBboxPatch
-        bbox = FancyBboxPatch((-a / 2 + x, -a / 2 + y), a, a,
+        bbox = FancyBboxPatch((-a / 2 + x, -a / 2 + y), a, a,  # this warning belongs to matplotlib
                               boxstyle=f'round, pad={0.2 * a}',
                               edgecolor=DEEPCOLOR,
                               facecolor=fc,
@@ -456,33 +456,3 @@ class CircuitPlotManager:
         self._render_barrier()
         self._render_closed_patch()
         self._render_txt()
-
-
-if __name__ == '__main__':
-    n = 8
-    qc_ = quafu.QuantumCircuit(n)
-    qc_.h(0)
-
-    qc_.barrier([0, 3])
-    qc_.x(0)
-    qc_.swap(0, 4)
-    qc_.cnot(3, 6)
-    qc_.rz(4, 3.2)
-
-    for k in range(10):
-        qc_.x(7)
-    for k in range(n-1):
-        qc_.cnot(k, k + 1)
-    qc_.measure([0, 1, 2, 3], [0, 1, 2, 3])
-
-    # for i in range(30):
-    #     qc.x(4)
-
-    cmp = CircuitPlotManager(qc_)
-    cmp(title='This Is a Quantum Circuit')
-    import os
-    if not os.path.exists('./figures/'):
-        os.mkdir('./figures/')
-    plt.savefig('./figures/test.png', dpi=300, transparent=True)
-    plt.close()
-    # plt.show()

@@ -9,6 +9,8 @@ SXMatrix = np.array([[1., 1.j], [1.j, 1.]], dtype=complex) / np.sqrt(2)
 SYMatrix = np.array([[1., -1.], [1., 1.]], dtype=complex) / np.sqrt(2)
 TMatrix = np.array([[1., 0.], [0., np.exp(1.j * np.pi / 4)]], dtype=complex)
 WMatrix = (XMatrix + YMatrix) / np.sqrt(2)
+SWMatrix = np.array([[0.5 + 0.5j, -np.sqrt(0.5) * 1j],
+                     [np.sqrt(0.5), 0.5 + 0.5j]], dtype=complex)
 HMatrix = (XMatrix + ZMatrix) / np.sqrt(2)
 SwapMatrix = np.array([[1., 0., 0., 0.],
                        [0., 0., 1., 0.],
