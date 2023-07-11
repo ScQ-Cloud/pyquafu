@@ -1,12 +1,11 @@
 import ply.yacc as yacc
 
-from quafu.elements.element_gates import *
-from quafu.elements.quantum_element import *
 from quafu.dagcircuits.instruction_node import InstructionNode
 from .qfasmlex import QfasmLexer
 
 
-# import numpy as np
+import numpy as np
+
 
 class DeclarationNode(object):
     pass
