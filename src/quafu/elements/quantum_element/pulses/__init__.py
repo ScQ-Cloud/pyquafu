@@ -7,3 +7,5 @@
 # @Email: yhshi@iphy.ac.cn
 # @Reminders: |0> has been in the past, |1> is still in the future
 # @License: Copyright (c) 2023, IOP, CAS
+
+from .quantum_pulse import QuantumPulse
