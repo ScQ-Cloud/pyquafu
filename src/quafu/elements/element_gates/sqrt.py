@@ -3,61 +3,75 @@ import numpy as np
 
 
 class SGate(FixedSingleQubitGate):
+    name = "S"
+    matrix = np.array([[1., 0.],
+                       [0., 1.j]], dtype=complex)
+
     def __init__(self, pos: int):
-        super().__init__("S", pos, matrix=np.array([[1., 0.],
-                                                    [0., 1.j]], dtype=complex))
+        super().__init__(pos)
 
 
 class SdgGate(FixedSingleQubitGate):
-    def __init__(sell, pos: int):
-        super().__init__("Sdg", pos, matrix=np.array([[1., 0.],
-                                                      [0., -1.j]], dtype=complex))
+    name = "Sdg"
+    matrix = SGate.matrix.conj().T
+
+    def __init__(self, pos: int):
+        super().__init__(pos)
 
 
 class TGate(FixedSingleQubitGate):
+    name = "T"
+    matrix = np.array([[1., 0.],
+                       [0., np.exp(1.j * np.pi / 4)]], dtype=complex)
+
     def __init__(self, pos: int):
-        super().__init__("T", pos, matrix=np.array([[1., 0.],
-                                                    [0., np.exp(1.j * np.pi / 4)]], dtype=complex))
+        super().__init__(pos)
 
 
 class TdgGate(FixedSingleQubitGate):
+    name = "Tdg"
+    matrix = TGate.matrix.conj().T
+
     def __init__(self, pos: int):
-        super().__init__("Tdg", pos, matrix=np.array([[1., 0.],
-                                                      [0, np.exp(-1.j * np.pi / 4)]], dtype=complex))
+        super().__init__(pos)
 
 
 class SXGate(FixedSingleQubitGate):
+    name = "SX"
+    matrix = np.array([[0.5 + 0.5j, 0.5 - 0.5j],
+                       [0.5 - 0.5j, 0.5 + 0.5j]], dtype=complex)
+
     def __init__(self, pos: int):
-        super().__init__("SX", pos, matrix=np.zeros((2, 2), dtype=complex))
-        self.matrix = np.array([[0.5 + 0.5j, 0.5 - 0.5j],
-                                [0.5 - 0.5j, 0.5 + 0.5j]])
-        self.symbol = "√X"
+        super().__init__(pos)
 
 
 class SXdgGate(FixedSingleQubitGate):
+    name = "SXdg"
+    matrix = SXGate.matrix.conj().T
+
     def __init__(self, pos: int):
-        super().__init__("SXdg", pos, matrix=np.zeros((2, 2), dtype=complex))
-        matrix = np.array([[0.5 - 0.5j, 0.5 + 0.5j],
-                           [0.5 + 0.5j, 0.5 - 0.5j]])
-        self.matrix = matrix
-        self.symbol = "√X†"
+        super().__init__(pos)
+        self.symbol = "√X"
 
 
 class SYGate(FixedSingleQubitGate):
-    def __init__(self, pos: int):
-        super().__init__("SY", pos, matrix=np.zeros((2, 2), dtype=complex))
-        self.matrix = np.array([[0.5 + 0.5j, -0.5 - 0.5j],
-                                [0.5 + 0.5j, 0.5 + 0.5j]])
-        self.symbol = "√Y"
+    name = "SY"
+    matrix = np.array([[0.5 + 0.5j, -0.5 - 0.5j],
+                       [0.5 + 0.5j, 0.5 + 0.5j]], dtype=complex)
 
-    def to_qasm(self):
-        # TODO: this is not correct
-        return "ry(pi/2) q[%d]" % self.pos
+    def __init__(self, pos: int):
+        super().__init__(pos)
+        self.symbol = "√Y"
 
 
 class SYdgGate(FixedSingleQubitGate):
+    name = "SYdg"
+    matrix = SYGate.matrix.conj().T
+
     def __init__(self, pos: int):
-        super().__init__("SY", pos, matrix=np.zeros((2, 2), dtype=complex))
-        self.matrix = np.array([[0.5 - 0.5j, -0.5 + 0.5j],
-                                [0.5 - 0.5j, 0.5 - 0.5j]])
+        super().__init__(pos)
         self.symbol = "√Y†"
+
+    def to_qasm(self):
+        # TODO: this seems incorrect
+        return "ry(pi/2) q[%d]" % self.pos

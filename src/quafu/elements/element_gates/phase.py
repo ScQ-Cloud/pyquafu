@@ -1,7 +1,13 @@
 from ..quantum_element import ParaSingleQubitGate
-from ._matrices import pmatrix
+from .matrices import pmatrix
 
 
 class PhaseGate(ParaSingleQubitGate):
-    def __init__(self, pos: int, paras):
-        super().__init__("P", pos, paras, matrix=pmatrix)
+    name = "P"
+
+    def __init__(self, pos: int, paras: float = 0.):
+        super().__init__(pos, paras=paras)
+
+    @property
+    def matrix(self):
+        return pmatrix(self.paras)

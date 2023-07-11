@@ -1,41 +1,77 @@
 from ..quantum_element import ParaMultiQubitGate, ParaSingleQubitGate
-from ._matrices import rxmatrix, rymatrix, rzmatrix, rxxmatrix, ryymatrix, rzzmatrix
+from .matrices import rx_mat, ry_mat, rz_mat, rxxmatrix, ryymatrix, rzzmatrix
 
 
 class RXGate(ParaSingleQubitGate):
-    def __init__(self, pos: int, paras):
-        super().__init__("RX", pos, paras, matrix=rxmatrix)
+    name = "RX"
+
+    def __init__(self, pos: int, paras: float = 0.):
+        super().__init__(pos, paras)
+
+    @property
+    def matrix(self):
+        return rx_mat(self.paras)
 
 
 class RYGate(ParaSingleQubitGate):
-    def __init__(self, pos: int, paras):
-        super().__init__("RY", pos, paras, matrix=rymatrix)
+    name = "RY"
+
+    def __init__(self, pos: int, paras: float = 0.):
+        super().__init__(pos, paras)
+
+    @property
+    def matrix(self):
+        return ry_mat(self.paras)
 
 
 class RZGate(ParaSingleQubitGate):
-    def __init__(self, pos: int, paras):
-        super().__init__("RZ", pos, paras, matrix=rzmatrix)
+    name = "RZ"
+
+    def __init__(self, pos: int, paras: float = 0.):
+        super().__init__(pos, paras)
+
+    @property
+    def matrix(self):
+        return rz_mat(self.paras)
 
 
 class RXXGate(ParaMultiQubitGate):
-    def __init__(self, q1: int, q2: int, theta):
-        super().__init__("RXX", [q1, q2], theta, matrix=rxxmatrix(theta))
+    name = "RXX"
+
+    def __init__(self, q1: int, q2: int, theta: float = 0.):
+        super().__init__([q1, q2], paras=theta)
+
+    @property
+    def matrix(self):
+        return rxxmatrix(self.paras)
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
 
 
 class RYYGate(ParaMultiQubitGate):
-    def __init__(self, q1: int, q2: int, theta):
-        super().__init__("RYY", [q1, q2], theta, matrix=ryymatrix(theta))
+    name = "RYY"
+
+    def __init__(self, q1: int, q2: int, theta: float = 0.):
+        super().__init__([q1, q2], paras=theta)
+
+    @property
+    def matrix(self):
+        return ryymatrix(self.paras)
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
 
 
 class RZZGate(ParaMultiQubitGate):
-    def __init__(self, q1: int, q2: int, theta):
-        super().__init__("RZZ", [q1, q2], theta, matrix=rzzmatrix(theta))
+    name = "RZZ"
+
+    def __init__(self, q1: int, q2: int, theta: float = 0.):
+        super().__init__([q1, q2], paras=theta)
+
+    @property
+    def matrix(self):
+        return rzzmatrix(self.paras)
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix

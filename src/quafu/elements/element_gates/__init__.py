@@ -1,7 +1,7 @@
 from .pauli import XGate, YGate, ZGate, HGate, IdGate, WGate, SWGate
 from .phase import PhaseGate
 from .rotation import RXGate, RYGate, RZGate, RXXGate, RYYGate, RZZGate
-from .swap import SwapGate, iSwapGate
+from .swap import SwapGate, ISwapGate
 from .sqrt import SXGate, SXdgGate, SYGate, SYdgGate, SGate, SdgGate, TGate, TdgGate
 from .c11 import CXGate, CYGate, CZGate, CSGate, CTGate, CPGate
 from .c21 import ToffoliGate
@@ -12,7 +12,7 @@ __all__ = ['XGate', 'YGate', 'ZGate', 'HGate', 'IdGate', 'WGate', 'SWGate',
            'SXGate', 'SXdgGate', 'SYGate', 'SYdgGate', 'SGate', 'SdgGate', 'TGate', 'TdgGate',
            'PhaseGate',
            'RXGate', 'RYGate', 'RZGate', 'RXXGate', 'RYYGate', 'RZZGate',
-           'SwapGate', 'iSwapGate',
+           'SwapGate', 'ISwapGate',
            'CXGate', 'CYGate', 'CZGate', 'CSGate', 'CTGate', 'CPGate',
            'ToffoliGate',
            'FredkinGate',

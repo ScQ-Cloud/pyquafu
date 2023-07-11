@@ -1,35 +1,53 @@
-from ._matrices import XMatrix, YMatrix, ZMatrix, HMatrix, WMatrix, SWMatrix
+from .matrices import XMatrix, YMatrix, ZMatrix, HMatrix, WMatrix, SWMatrix
 from ..quantum_element import FixedSingleQubitGate
 
 
 class IdGate(FixedSingleQubitGate):
+    name = "Id"
+    matrix = XMatrix
+
     def __init__(self, pos: int):
-        super().__init__("Id", pos, matrix=XMatrix)
+        super().__init__(pos)
 
 
 class HGate(FixedSingleQubitGate):
+    name = "H"
+    matrix = HMatrix
+
     def __init__(self, pos: int):
-        super().__init__("H", pos, matrix=HMatrix)
+        super().__init__(pos)
 
 
 class XGate(FixedSingleQubitGate):
+    name = "X"
+    matrix = XMatrix
+
     def __init__(self, pos: int):
-        super().__init__("X", pos, matrix=XMatrix)
+        super().__init__(pos)
 
 
 class YGate(FixedSingleQubitGate):
+    name = "Y"
+    matrix = YMatrix
+
     def __init__(self, pos: int):
-        super().__init__("Y", pos, matrix=YMatrix)
+        super().__init__(pos)
 
 
 class ZGate(FixedSingleQubitGate):
+    name = "Z"
+    matrix = ZMatrix
+
     def __init__(self, pos: int):
-        super().__init__("Z", pos, matrix=ZMatrix)
+        super().__init__(pos)
 
 
 class WGate(FixedSingleQubitGate):
+    name = "W"
+    matrix = WMatrix
+
     def __init__(self, pos: int):
-        super().__init__("W", pos, matrix=WMatrix)
+        super().__init__(pos)
         self.symbol = "W"
 
     def to_qasm(self):
@@ -37,8 +55,11 @@ class WGate(FixedSingleQubitGate):
 
 
 class SWGate(FixedSingleQubitGate):
+    name = "SW"
+    matrix = SWMatrix
+
     def __init__(self, pos: int):
-        super().__init__("SW", pos, matrix=SWMatrix)
+        super().__init__(pos)
         self.symbol = "√W"
 
     def to_qasm(self):
