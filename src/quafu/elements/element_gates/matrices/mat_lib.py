@@ -63,17 +63,17 @@ def u3matrix(_theta=0., _phi=0., _lambda=0.):
                       np.exp((_phi + _lambda) * 1.j) * np.cos(0.5 * _theta)]], dtype=complex)
 
 
-def rxmatrix(theta):
+def rx_mat(theta):
     return np.array([[np.cos(0.5 * theta), -1.j * np.sin(0.5 * theta)],
                      [-1.j * np.sin(0.5 * theta), np.cos(0.5 * theta)]], dtype=complex)
 
 
-def rymatrix(theta):
+def ry_mat(theta):
     return np.array([[np.cos(0.5 * theta), - np.sin(0.5 * theta)],
                      [np.sin(0.5 * theta), np.cos(0.5 * theta)]], dtype=complex)
 
 
-def rzmatrix(theta):
+def rz_mat(theta):
     return np.array([[np.exp(-0.5j * theta), 0.],
                      [0., np.exp(0.5j * theta)]], dtype=complex)
 
@@ -83,7 +83,7 @@ def pmatrix(labda):
                      [0, np.exp(1j * labda)]], dtype=complex)
 
 
-def rxxmatrix(theta):
+def rxx_mat(theta):
     """Unitary evolution of XX interaction"""
     return np.array([[np.cos(theta / 2), 0, 0, -1j * np.sin(theta / 2)],
                      [0, np.cos(theta / 2), -1j * np.sin(theta / 2), 0],
@@ -92,7 +92,7 @@ def rxxmatrix(theta):
                      ])
 
 
-def ryymatrix(theta):
+def ryy_mat(theta):
     """ Unitary evolution of YY interaction"""
     c = np.cos(theta / 2)
     s = 1j * np.sin(theta / 2)
@@ -103,29 +103,13 @@ def ryymatrix(theta):
                      ])
 
 
-def rzzmatrix(theta):
+def rzz_mat(theta):
     return np.array([[np.exp(-1j * theta / 2), 0, 0, 0],
                      [0, np.exp(1j * theta / 2), 0, 0],
                      [0, 0, np.exp(1j * theta / 2), 0],
                      [0, 0, 0, np.exp(-1j * theta / 2)]
                      ])
 
-# def rx_matrix(phi: float):
-#     return np.array([[np.cos(phi / 2), -1.j * np.sin(phi / 2)],
-#                      [-1.j * np.sin(phi / 2), np.cos(phi / 2)]])
-#
-#
-# def ry_matrix(phi: float):
-#     return np.array([[np.cos(phi / 2), -np.sin(phi / 2)],
-#                      [np.sin(phi / 2), np.cos(phi / 2)]], dtype=complex)
-#
-#
-# def rz_matrix(phi: float):
-#     rz = np.array([[np.exp(-1.j * phi / 2), 0.],
-#                    [0., np.exp(1.j * phi / 2)]])
-#     return rz
-#
-#
 # def su2_matrix(gamma: float, beta: float, delta: float):
 #     """
 #     SU = Rz(beta)Ry(gamma)Rz(delta).

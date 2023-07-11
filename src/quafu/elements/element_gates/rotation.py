@@ -1,5 +1,5 @@
 from ..quantum_element import ParaMultiQubitGate, ParaSingleQubitGate
-from .matrices import rx_mat, ry_mat, rz_mat, rxxmatrix, ryymatrix, rzzmatrix
+from .matrices import rx_mat, ry_mat, rz_mat, rxx_mat, ryy_mat, rzz_mat
 
 
 class RXGate(ParaSingleQubitGate):
@@ -43,7 +43,7 @@ class RXXGate(ParaMultiQubitGate):
 
     @property
     def matrix(self):
-        return rxxmatrix(self.paras)
+        return rxx_mat(self.paras)
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
@@ -57,7 +57,7 @@ class RYYGate(ParaMultiQubitGate):
 
     @property
     def matrix(self):
-        return ryymatrix(self.paras)
+        return ryy_mat(self.paras)
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
@@ -71,7 +71,7 @@ class RZZGate(ParaMultiQubitGate):
 
     @property
     def matrix(self):
-        return rzzmatrix(self.paras)
+        return rzz_mat(self.paras)
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
