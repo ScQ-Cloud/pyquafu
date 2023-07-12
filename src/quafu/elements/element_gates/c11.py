@@ -1,8 +1,13 @@
 from ..quantum_element import ControlledGate
+from abc import ABC
 from .matrices import XMatrix, YMatrix, ZMatrix, SMatrix, TMatrix, pmatrix
 
 
-class CXGate(ControlledGate):
+class _C11Gate(ControlledGate, ABC):
+    ct_dims = (1, 1, 2)
+
+
+class CXGate(_C11Gate):
     name = "CX"
 
     def __init__(self, ctrl: int, targ: int):
@@ -10,21 +15,21 @@ class CXGate(ControlledGate):
         self.symbol = "+"
 
 
-class CYGate(ControlledGate):
+class CYGate(_C11Gate):
     name = "CY"
 
     def __init__(self, ctrl: int, targ: int):
         super().__init__("Y", [ctrl], [targ], None, tar_matrix=YMatrix)
 
 
-class CZGate(ControlledGate):
+class CZGate(_C11Gate):
     name = "CZ"
 
     def __init__(self, ctrl: int, targ: int):
         super().__init__("Z", [ctrl], [targ], None, tar_matrix=ZMatrix)
 
 
-class CSGate(ControlledGate):
+class CSGate(_C11Gate):
     name = "CS"
 
     def __init__(self, ctrl: int, targ: int):
@@ -34,7 +39,7 @@ class CSGate(ControlledGate):
         return "cp(pi/2) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 
-class CTGate(ControlledGate):
+class CTGate(_C11Gate):
     name = "CT"
 
     def __init__(self, ctrl: int, targ: int):
@@ -44,7 +49,7 @@ class CTGate(ControlledGate):
         return "cp(pi/4) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 
-class CPGate(ControlledGate):
+class CPGate(_C11Gate):
     name = "CP"
 
     def __init__(self, ctrl: int, targ: int, paras):
