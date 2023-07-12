@@ -75,3 +75,13 @@ class SYdgGate(FixedSingleQubitGate):
     def to_qasm(self):
         # TODO: this seems incorrect
         return "ry(pi/2) q[%d]" % self.pos
+
+
+FixedSingleQubitGate.register_subclass(SGate)
+FixedSingleQubitGate.register_subclass(SdgGate)
+FixedSingleQubitGate.register_subclass(TGate)
+FixedSingleQubitGate.register_subclass(TdgGate)
+FixedSingleQubitGate.register_subclass(SXGate)
+FixedSingleQubitGate.register_subclass(SXdgGate)
+FixedSingleQubitGate.register_subclass(SYGate)
+FixedSingleQubitGate.register_subclass(SYdgGate)

@@ -75,3 +75,11 @@ class RZZGate(ParaMultiQubitGate):
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
+
+
+ParaSingleQubitGate.register_subclass(RXGate)
+ParaSingleQubitGate.register_subclass(RYGate)
+ParaSingleQubitGate.register_subclass(RZGate)
+ParaMultiQubitGate.register_subclass(RXXGate)
+ParaMultiQubitGate.register_subclass(RYYGate)
+ParaMultiQubitGate.register_subclass(RZZGate)

@@ -23,3 +23,7 @@ class SwapGate(FixedMultiQubitGate):
 
     def get_targ_matrix(self, reverse_order=False):
         return self.matrix
+
+
+FixedMultiQubitGate.register_subclass(ISwapGate)
+FixedMultiQubitGate.register_subclass(SwapGate)

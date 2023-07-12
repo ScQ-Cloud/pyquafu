@@ -11,3 +11,6 @@ class PhaseGate(ParaSingleQubitGate):
     @property
     def matrix(self):
         return pmatrix(self.paras)
+
+
+ParaSingleQubitGate.register_subclass(PhaseGate)

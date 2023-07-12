@@ -64,3 +64,12 @@ class SWGate(FixedSingleQubitGate):
 
     def to_qasm(self):
         return "rz(-pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(pi/4) q[%d]" % (self.pos, self.pos, self.pos)
+
+
+FixedSingleQubitGate.register_subclass(IdGate)
+FixedSingleQubitGate.register_subclass(HGate)
+FixedSingleQubitGate.register_subclass(XGate)
+FixedSingleQubitGate.register_subclass(YGate)
+FixedSingleQubitGate.register_subclass(ZGate)
+FixedSingleQubitGate.register_subclass(WGate)
+FixedSingleQubitGate.register_subclass(SWGate)

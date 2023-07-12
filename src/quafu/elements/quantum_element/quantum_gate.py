@@ -17,6 +17,8 @@ def reorder_matrix(matrix: np.ndarray, pos: List):
 
 
 class QuantumGate(Instruction):
+    gate_classes = {}
+
     def __init__(self,
                  pos: PosType,
                  paras: Union[float, List[float]] = None,
@@ -38,21 +40,15 @@ class QuantumGate(Instruction):
         raise NotImplementedError("Matrix is not implemented for %s" % self.__class__.__name__ +
                                   ", this should never happen.")
 
-    # @property
-    # def pos(self):
-    #     return self.__pos
-    #
-    # @pos.setter
-    # def pos(self, _pos):
-    #     self.__pos = _pos
-    #
-    # @property
-    # def paras(self):
-    #     return self.__paras
-    #
-    # @paras.setter
-    # def paras(self, _paras):
-    #     self.__paras = _paras
+    @classmethod
+    def register_subclass(cls, subclass, name: str = None):
+        assert issubclass(subclass, cls)
+
+        if name is None:
+            name = subclass.name
+        if name in cls.gate_classes:
+            raise ValueError(f"Name {name} already exists.")
+        cls.gate_classes[name] = subclass
 
     def __str__(self):
         properties_names = ['pos', 'paras', 'matrix']
@@ -190,3 +186,6 @@ class ControlledU(ControlledGate):
 
     def get_targ_matrix(self, reverse_order=False):
         return self.targ_gate.get_targ_matrix(reverse_order)
+
+
+QuantumGate.register_subclass(ControlledU)
