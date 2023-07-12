@@ -23,6 +23,6 @@ class MCZGate(ControlledGate):
         super().__init__("Z", ctrls, [targ], None, tar_matrix=ZMatrix)
 
 
-ControlledGate.register_subclass(MCXGate)
-ControlledGate.register_subclass(MCYGate)
-ControlledGate.register_subclass(MCZGate)
+ControlledGate.register_gate(MCXGate)
+ControlledGate.register_gate(MCYGate)
+ControlledGate.register_gate(MCZGate)

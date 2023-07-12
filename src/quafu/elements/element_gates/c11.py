@@ -51,9 +51,9 @@ class CPGate(ControlledGate):
         super().__init__("P", [ctrl], [targ], paras, tar_matrix=pmatrix(paras))
 
 
-ControlledGate.register_subclass(CXGate)
-ControlledGate.register_subclass(CYGate)
-ControlledGate.register_subclass(CZGate)
-ControlledGate.register_subclass(CSGate)
-ControlledGate.register_subclass(CTGate)
-ControlledGate.register_subclass(CPGate)
+ControlledGate.register_gate(CXGate)
+ControlledGate.register_gate(CYGate)
+ControlledGate.register_gate(CZGate)
+ControlledGate.register_gate(CSGate)
+ControlledGate.register_gate(CTGate)
+ControlledGate.register_gate(CPGate)

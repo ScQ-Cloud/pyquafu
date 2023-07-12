@@ -9,4 +9,4 @@ class FredkinGate(ControlledGate):
         super().__init__("SWAP", [ctrl], [targ1, targ2], None, tar_matrix=SwapMatrix)
 
 
-ControlledGate.register_subclass(FredkinGate)
+ControlledGate.register_gate(FredkinGate)

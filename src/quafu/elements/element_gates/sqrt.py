@@ -77,11 +77,11 @@ class SYdgGate(FixedSingleQubitGate):
         return "ry(pi/2) q[%d]" % self.pos
 
 
-FixedSingleQubitGate.register_subclass(SGate)
-FixedSingleQubitGate.register_subclass(SdgGate)
-FixedSingleQubitGate.register_subclass(TGate)
-FixedSingleQubitGate.register_subclass(TdgGate)
-FixedSingleQubitGate.register_subclass(SXGate)
-FixedSingleQubitGate.register_subclass(SXdgGate)
-FixedSingleQubitGate.register_subclass(SYGate)
-FixedSingleQubitGate.register_subclass(SYdgGate)
+FixedSingleQubitGate.register_gate(SGate)
+FixedSingleQubitGate.register_gate(SdgGate)
+FixedSingleQubitGate.register_gate(TGate)
+FixedSingleQubitGate.register_gate(TdgGate)
+FixedSingleQubitGate.register_gate(SXGate)
+FixedSingleQubitGate.register_gate(SXdgGate)
+FixedSingleQubitGate.register_gate(SYGate)
+FixedSingleQubitGate.register_gate(SYdgGate)

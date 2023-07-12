@@ -9,5 +9,5 @@ class ToffoliGate(ControlledGate):
         super().__init__("X", [ctrl1, ctrl2], [targ], None, tar_matrix=XMatrix)
 
 
-ControlledGate.register_subclass(ToffoliGate)
+ControlledGate.register_gate(ToffoliGate)
 

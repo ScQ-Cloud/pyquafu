@@ -3,51 +3,28 @@ from typing import Union, List
 
 
 class Instruction(ABC):
+    ins_classes = {}
+
     @property
     @abstractmethod
     def name(self) -> str:
         raise NotImplementedError('name is not implemented for %s' % self.__class__.__name__
                                   + ', this should never happen.')
-    # """
-    # Metaclass for primitive instructions in DIRECTED ACYCLIC quantum circuits
-    # or quantum-classical circuits.
-    #
-    # Member variables:
-    #
-    # - sd_name: standard name without args or extra annotations. Used for communications
-    #   and identifications within pyquafu program, for example, to translate a qu_gate into qasm.
-    #   Ideally every known primitive during computation should have such a name, and should be
-    #   chosen as the most commonly accepted convention. NOT allowed to be changed by users once
-    #   the class is instantiated.
-    #
-    # - pos: positions of relevant quantum or classical bits, legs of DAG.
-    #
-    # - dorder: depth order, or topological order of DAG
-    #
-    # - symbol: label that can be freely customized by users. If sd_name is not None, name is the
-    #   same as sd_name by default. Otherwise, a symbol has to be specified while sd_name remains
-    #   as None to indicate that this is a use-defined class.
-    #  """
-    #
-    # _ins_id = None  # type: str
-    #
-    # def __init__(self, pos: PosType, label: str = None, paras: ParaType = None):
-    #     # if pos is not iterable, make it be
-    #     self.pos = [pos] if isinstance(pos, int) else pos
-    #     if label:
-    #         self.label = label
-    #     else:
-    #         if self._ins_id is None:
-    #             raise ValueError('For user-defined instruction, label has to be specified.')
-    #         self.label = self._ins_id
-    #         if paras:
-    #             self.label += '(' + ', '.join(['%.3f' % _ for _ in paras.values()]) + ')'
-    #     self.paras = paras
-    #
-    # @classmethod
-    # def get_ins_id(cls):
-    #     return cls._ins_id
-    #
+
+    @name.setter
+    def name(self, _):
+        import warnings
+        warnings.warn("Invalid assignment, names of standard instructions are not alterable.")
+
+    @classmethod
+    def register_ins(cls, subclass, name: str = None):
+        assert issubclass(subclass, cls)
+
+        if name is None:
+            name = subclass.name
+        if name in cls.ins_classes:
+            raise ValueError(f"Name {name} already exists.")
+        cls.ins_classes[name] = subclass
     # @abstractmethod
     # def openqasm2(self) -> str:
     #     pass

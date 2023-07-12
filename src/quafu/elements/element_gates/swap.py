@@ -25,5 +25,5 @@ class SwapGate(FixedMultiQubitGate):
         return self.matrix
 
 
-FixedMultiQubitGate.register_subclass(ISwapGate)
-FixedMultiQubitGate.register_subclass(SwapGate)
+FixedMultiQubitGate.register_gate(ISwapGate)
+FixedMultiQubitGate.register_gate(SwapGate)

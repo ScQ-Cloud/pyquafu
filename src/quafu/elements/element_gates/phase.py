@@ -13,4 +13,4 @@ class PhaseGate(ParaSingleQubitGate):
         return pmatrix(self.paras)
 
 
-ParaSingleQubitGate.register_subclass(PhaseGate)
+ParaSingleQubitGate.register_gate(PhaseGate)

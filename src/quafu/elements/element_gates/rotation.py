@@ -77,9 +77,9 @@ class RZZGate(ParaMultiQubitGate):
         return self.matrix
 
 
-ParaSingleQubitGate.register_subclass(RXGate)
-ParaSingleQubitGate.register_subclass(RYGate)
-ParaSingleQubitGate.register_subclass(RZGate)
-ParaMultiQubitGate.register_subclass(RXXGate)
-ParaMultiQubitGate.register_subclass(RYYGate)
-ParaMultiQubitGate.register_subclass(RZZGate)
+ParaSingleQubitGate.register_gate(RXGate)
+ParaSingleQubitGate.register_gate(RYGate)
+ParaSingleQubitGate.register_gate(RZGate)
+ParaMultiQubitGate.register_gate(RXXGate)
+ParaMultiQubitGate.register_gate(RYYGate)
+ParaMultiQubitGate.register_gate(RZZGate)

@@ -41,7 +41,7 @@ class QuantumGate(Instruction):
                                   ", this should never happen.")
 
     @classmethod
-    def register_subclass(cls, subclass, name: str = None):
+    def register_gate(cls, subclass, name: str = None):
         assert issubclass(subclass, cls)
 
         if name is None:
@@ -49,6 +49,7 @@ class QuantumGate(Instruction):
         if name in cls.gate_classes:
             raise ValueError(f"Name {name} already exists.")
         cls.gate_classes[name] = subclass
+        Instruction.register_ins(subclass, name)
 
     def __str__(self):
         properties_names = ['pos', 'paras', 'matrix']
@@ -188,4 +189,4 @@ class ControlledU(ControlledGate):
         return self.targ_gate.get_targ_matrix(reverse_order)
 
 
-QuantumGate.register_subclass(ControlledU)
+QuantumGate.register_gate(ControlledU)
