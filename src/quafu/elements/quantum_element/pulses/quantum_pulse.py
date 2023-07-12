@@ -5,11 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.special
 
+from abc import ABC, abstractmethod
+
 from quafu.elements.quantum_element.instruction import Instruction
 
 
-class QuantumPulse(Instruction):
-    name = 'Pulse'
+class QuantumPulse(Instruction, ABC):
+    pulse_classes = {}
 
     def __init__(self,
                  pos: Union[int, list],
@@ -17,7 +19,6 @@ class QuantumPulse(Instruction):
                  duration: Union[float, int],
                  unit: str,
                  channel: str,
-                 time_func: Optional[Callable] = None,
                  ):
         """
         Quantum Pulse for generating a quantum gate.
@@ -37,7 +38,6 @@ class QuantumPulse(Instruction):
         self.paras = paras
         self.duration = duration
         self.unit = unit
-        self.time_func = time_func
         if channel in ["XY", "Z"]:
             self.channel = channel
         else:
@@ -46,6 +46,28 @@ class QuantumPulse(Instruction):
     @property
     def symbol(self):
         return "%s(%d%s, %s)" % (self.name, self.duration, self.unit, self.channel)
+
+    @abstractmethod
+    def time_func(self, t: Union[np.ndarray, float, int], **kwargs):
+        """
+        Return the pulse data.
+
+        Args:
+            t (np.ndarray, float, int): Time list.
+            kwargs (dict): Keyword arguments for the pulse.
+        """
+        pass
+
+    @classmethod
+    def register_pulse(cls, subclass, name: str = None):
+        assert issubclass(subclass, cls)
+
+        if name is None:
+            name = subclass.name
+        if name in cls.pulse_classes:
+            raise ValueError(f"Name {name} already exists.")
+        cls.pulse_classes[name] = subclass
+        Instruction.register_ins(subclass, name)
 
     def __repr__(self):
         return self.__str__()
@@ -138,11 +160,12 @@ class RectPulse(QuantumPulse):
     def __init__(self, pos, amp, duration, unit, channel):
         self.amp = amp
 
-        def rect_time_func(t, **kws):
-            amp_ = kws["amp"]
-            return amp_ * np.ones(np.array(t).shape)
+        super().__init__(pos, [amp], duration, unit, channel)
 
-        super().__init__(pos, [amp], duration, unit, channel, rect_time_func)
+    def time_func(self, t: Union[np.ndarray, float, int], **kwargs):
+        """ rect_time_func """
+        amp_ = kwargs["amp"]
+        return amp_ * np.ones(np.array(t).shape)
 
     def __call__(self, t: Union[np.ndarray, float, int], shift: Union[float, int] = 0, offset: Union[float, int] = 0):
         args = {"amp": self.amp}
@@ -156,13 +179,15 @@ class FlattopPulse(QuantumPulse):
         self.amp = amp
         self.fwhm = fwhm
 
-        def flattop_time_func(t, **kws):
-            amp_, fwhm_ = kws["amp"], kws["fwhm"]
-            sigma_ = fwhm_ / (2 * np.sqrt(np.log(2)))
-            return amp_ * (scipy.special.erf((duration - t) / sigma_)
-                           + scipy.special.erf(t / sigma_) - 1.)
+        super().__init__(pos, [amp, fwhm], duration, unit, channel)
 
-        super().__init__(pos, [amp, fwhm], duration, unit, channel, flattop_time_func)
+    def time_func(self, t, **kws):
+        """ flattop_time_func """
+
+        amp_, fwhm_ = kws["amp"], kws["fwhm"]
+        sigma_ = fwhm_ / (2 * np.sqrt(np.log(2)))
+        return amp_ * (scipy.special.erf((self.duration - t) / sigma_)
+                       + scipy.special.erf(t / sigma_) - 1.)
 
     def __call__(self, t: Union[np.ndarray, float, int], shift: Union[float, int] = 0, offset: Union[float, int] = 0):
         args = {"amp": self.amp, "fwhm": self.fwhm}
@@ -174,22 +199,27 @@ class GaussianPulse(QuantumPulse):
 
     def __init__(self, pos, amp, fwhm, phase, duration, unit, channel):
         self.amp = amp
-        if fwhm == None:
+        if fwhm is None:
             self.fwhm = 0.5 * duration
         else:
             self.fwhm = fwhm
-
         self.phase = phase
 
-        def gaussian_time_func(t, **kws):
-            amp_, fwhm_, phase_ = kws["amp"], kws["fwhm"], kws["phase"]
-            # start: t = 0, center: t = 0.5 * duration, end: t = duration
-            sigma_ = fwhm_ / np.sqrt(8 * np.log(2))  # fwhm to std. deviation
-            return amp_ * np.exp(
-                -(t - 0.5 * duration) ** 2 / (2 * sigma_ ** 2) + 1j * phase_)
+        super().__init__(pos, [amp, fwhm, phase], duration, unit, channel)
 
-        super().__init__(pos, [amp, fwhm, phase], duration, unit, channel, gaussian_time_func)
+    def time_func(self, t, **kws):
+        """ gaussian_time_func """
+        amp_, fwhm_, phase_ = kws["amp"], kws["fwhm"], kws["phase"]
+        # start: t = 0, center: t = 0.5 * duration, end: t = duration
+        sigma_ = fwhm_ / np.sqrt(8 * np.log(2))  # fwhm to std. deviation
+        return amp_ * np.exp(
+            -(t - 0.5 * self.duration) ** 2 / (2 * sigma_ ** 2) + 1j * phase_)
 
     def __call__(self, t: Union[np.ndarray, float, int], shift: Union[float, int] = 0, offset: Union[float, int] = 0):
         args = {"amp": self.amp, "fwhm": self.fwhm, "phase": self.phase}
         return super().__call__(t, shift, offset, args)
+
+
+QuantumPulse.register_pulse(RectPulse)
+QuantumPulse.register_pulse(FlattopPulse)
+QuantumPulse.register_pulse(GaussianPulse)

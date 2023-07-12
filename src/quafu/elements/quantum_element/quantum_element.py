@@ -84,3 +84,9 @@ class Measure(Instruction):
     def __init__(self, bitmap: dict):
         self.qbits = bitmap.keys()
         self.cbits = bitmap.values()
+
+
+Instruction.register_ins(Barrier)
+Instruction.register_ins(Delay)
+Instruction.register_ins(XYResonance)
+Instruction.register_ins(Measure)
