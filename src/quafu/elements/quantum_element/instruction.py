@@ -1,5 +1,23 @@
+#  (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 from abc import ABC, abstractmethod
 from typing import Union, List
+
+
+PosType = Union[int, List[int]]
+ParaType = dict[str, Union[float, int]]
 
 
 class Instruction(ABC):
@@ -25,9 +43,10 @@ class Instruction(ABC):
         if name in cls.ins_classes:
             raise ValueError(f"Name {name} already exists.")
         cls.ins_classes[name] = subclass
-    # @abstractmethod
-    # def openqasm2(self) -> str:
-    #     pass
+
+    def __init__(self, pos: PosType, paras: ParaType = None, *args, **kwargs):
+        self.pos = pos
+        self.paras = paras
 
     # @_ins_id.setter
     # def sd_name(self, name: str):
@@ -53,5 +72,4 @@ class Instruction(ABC):
     #     return InstructionNode(name, pos, paras, duration, unit, channel, time_func, label)
 
 
-PosType = Union[int, List[int]]
-ParaType = dict[str, Union[float, int]]
+

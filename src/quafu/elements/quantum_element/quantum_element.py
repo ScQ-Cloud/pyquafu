@@ -24,7 +24,7 @@ class Barrier(Instruction):
     name = "barrier"
 
     def __init__(self, pos):
-        self.__pos = pos
+        super().__init__(pos)
         self.symbol = "||"
 
     @property
@@ -50,8 +50,8 @@ class Delay(Instruction):
             self.duration = duration
         else:
             raise TypeError("duration must be int")
+        super().__init__(pos)
         self.unit = unit
-        self.pos = pos
         self.symbol = "Delay(%d%s)" % (duration, unit)
 
     def __repr__(self):
@@ -69,8 +69,8 @@ class XYResonance(Instruction):
             self.duration = duration
         else:
             raise TypeError("duration must be int")
+        super().__init__(list(range(qs, qe + 1)))
         self.unit = unit
-        self.pos = list(range(qs, qe + 1))
         self.symbol = "XY(%d%s)" % (duration, unit)
 
     def to_qasm(self):
@@ -82,6 +82,7 @@ class Measure(Instruction):
     name = "measure"
 
     def __init__(self, bitmap: dict):
+        super().__init__(list(bitmap.keys()))
         self.qbits = bitmap.keys()
         self.cbits = bitmap.values()
 

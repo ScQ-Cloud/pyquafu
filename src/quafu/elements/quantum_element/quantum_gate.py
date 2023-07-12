@@ -23,8 +23,7 @@ class QuantumGate(Instruction):
                  pos: PosType,
                  paras: Union[float, List[float]] = None,
                  ):
-        self.pos = pos
-        self.paras = paras
+        super().__init__(pos, paras)
 
         if paras:
             if isinstance(paras, Iterable):
@@ -132,20 +131,17 @@ class ControlledGate(MultiQubitGate, ABC):
     """ Controlled gate class, where the matrix act non-trivaly on target qubits"""
 
     def __init__(self, targe_name, ctrls: List[int], targs: List[int], paras, tar_matrix):
+        super().__init__(ctrls + targs, paras)
         self.ctrls = ctrls
         self.targs = targs
         self.targ_name = targe_name
-        super().__init__(ctrls + targs, paras)
         self._targ_matrix = tar_matrix
 
         # set matrix
         # TODO: change matrix according to control-type 0/1
-        targ_dim = 2 ** (len(self.targs))
-        ctrl_dim = 2 ** (len(self.ctrls))
-        dim = targ_dim + ctrl_dim
+        targ_dim, ctrl_dim, dim = self.ct_dims
         self._matrix = np.eye(dim, dtype=complex)
-        control_dim = 2 ** len(self.pos) - targ_dim
-        self._matrix[control_dim:, control_dim:] = tar_matrix
+        self._matrix[ctrl_dim:, ctrl_dim:] = tar_matrix
         self._matrix = reorder_matrix(self._matrix, self.pos)
 
         if paras:
@@ -160,6 +156,13 @@ class ControlledGate(MultiQubitGate, ABC):
     def matrix(self):
         # TODO: update matrix when paras of controlled-gate changed
         return self._matrix
+
+    @property
+    def ct_dims(self):
+        targ_dim = 2 ** (len(self.targs))
+        ctrl_dim = 2 ** (len(self.ctrls))
+        dim = targ_dim + ctrl_dim
+        return ctrl_dim, targ_dim, dim
 
     def get_targ_matrix(self, reverse_order=False):
         targ_matrix = self._targ_matrix
