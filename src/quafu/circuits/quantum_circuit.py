@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 
-from quafu.pulses.quantum_pulse import QuantumPulse
+from quafu.elements.quantum_element.pulses.quantum_pulse import QuantumPulse
 from ..elements.quantum_element import Barrier, Delay, MultiQubitGate, QuantumGate, ControlledGate, \
     SingleQubitGate, XYResonance
 import quafu.elements.element_gates as qeg
@@ -732,6 +732,17 @@ class QuantumCircuit(object):
             targ: Target qubits.
         """
         self.add_gate(qeg.MCZGate(ctrls, targ))
+
+    def unitary(self, matrix: np.ndarray, pos: List[int]):
+        """
+        Apply unitary to circuit on specified qubits.
+
+        Args:
+            matrix (np.ndarray): unitary matrix.
+            pos (list[int]): qubits the gate act on.
+        """
+        compiler = qeg.UnitaryDecomposer(array=matrix, qubits=pos)
+        compiler.apply_to_qc(self)
 
     def measure(self, pos: List[int] = None, cbits: List[int] = None) -> None:
         """

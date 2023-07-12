@@ -4,7 +4,7 @@ import math
 import numpy as np
 import scipy
 from numpy import ndarray
-# from quafu.circuits.quantum_circuit import QuantumCircuit
+from quafu.circuits.quantum_circuit import QuantumCircuit
 
 from ..matrices import rz_mat, ry_mat, CXMatrix
 from ..matrices import mat_utils as mu
@@ -20,7 +20,7 @@ class UnitaryDecomposer(object):
         self.verbose = verbose
 
         self.Mk_table = genMk_table(self.qubit_num)  # initialize the general M^k lookup table
-        self.gates_list = []
+        self.gate_list = []
         # self.quafuQC = QuantumCircuit(self.qubit_num)
 
     def __call__(self, *args, **kwargs):
@@ -42,9 +42,9 @@ class UnitaryDecomposer(object):
             # self.gates_list.append((_matrix, qubits, 'U'))
             # ZYZ decomposition for single-qubit gate
             gamma, beta, alpha, global_phase = zyz_decomposition(_matrix)
-            self.gates_list.append((rz_mat(gamma), qubits, 'RZ', gamma))
-            self.gates_list.append((ry_mat(beta), qubits, 'RY', beta))
-            self.gates_list.append((rz_mat(alpha), qubits, 'RZ', alpha))
+            self.gate_list.append((rz_mat(gamma), qubits, 'RZ', gamma))
+            self.gate_list.append((ry_mat(beta), qubits, 'RY', beta))
+            self.gate_list.append((rz_mat(alpha), qubits, 'RZ', alpha))
             # self.quafuQC.rz(qubits[0], gamma)
             # self.quafuQC.ry(qubits[0], beta)
             # self.quafuQC.rz(qubits[0], alpha)
@@ -111,8 +111,8 @@ class UnitaryDecomposer(object):
 
         for i in range(len(index)):
             control_qubit = qubits[index[i]]
-            self.gates_list.append((rz_mat(thetas[i]), [target_qubit], 'RZ', thetas[i]))
-            self.gates_list.append((CXMatrix, [control_qubit, target_qubit], 'CX'))
+            self.gate_list.append((rz_mat(thetas[i]), [target_qubit], 'RZ', thetas[i]))
+            self.gate_list.append((CXMatrix, [control_qubit, target_qubit], 'CX'))
 
             # self.quafuQC.rz(target_qubit, thetas[i])
             # self.quafuQC.cnot(control_qubit, target_qubit)
@@ -132,11 +132,32 @@ class UnitaryDecomposer(object):
 
         for i in range(len(index)):
             control_qubit = qubits[index[i]]
-            self.gates_list.append((ry_mat(thetas[i]), [target_qubit], 'RY', thetas[i]))
-            self.gates_list.append((CXMatrix, [control_qubit, target_qubit], 'CX'))
+            self.gate_list.append((ry_mat(thetas[i]), [target_qubit], 'RY', thetas[i]))
+            self.gate_list.append((CXMatrix, [control_qubit, target_qubit], 'CX'))
 
             # self.quafuQC.ry(target_qubit, thetas[i])
             # self.quafuQC.cnot(control_qubit, target_qubit)
+
+    def apply_to_qc(self, circuit: QuantumCircuit):
+        if len(self.gate_list) == 0:
+            self()
+
+        for g in self.gate_list:
+            if g[2] == 'CX':
+                circuit.cnot(g[1][0], g[1][1])
+            elif g[2] == 'RY':
+                circuit.ry(g[1][0], g[3].real)
+            elif g[2] == 'RZ':
+                circuit.rz(g[1][0], g[3].real)
+            elif g[2] == 'U':
+                gamma, beta, alpha, global_phase = zyz_decomposition(g[0])
+                circuit.rz(g[1][0], gamma)
+                circuit.ry(g[1][0], beta)
+                circuit.rz(g[1][0], alpha)
+            else:
+                raise Exception("Unknown gate type or incorrect str: {}".format(g[2]))
+
+        return circuit
 
 
 def zyz_decomposition(unitary):
