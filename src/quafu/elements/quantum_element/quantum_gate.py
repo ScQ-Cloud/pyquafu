@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, List, Union, Iterable
+from typing import List, Union, Iterable
 
 import numpy as np
 
@@ -84,56 +84,24 @@ class SingleQubitGate(QuantumGate, ABC):
     def __init__(self, pos: int, paras: float = None):
         super().__init__(pos, paras=paras)
 
-    # @property
-    # def matrix(self):
-    #     return self._matrix
-    #
-    # @matrix.setter
-    # def matrix(self, matrix):
-    #     if isinstance(matrix, (np.ndarray, List)):
-    #         if np.shape(matrix) == (2, 2):
-    #             self._matrix = np.asarray(matrix, dtype=complex)
-    #         else:
-    #             raise ValueError(f'`{self.__class__.__name__}.matrix.shape` must be (2, 2)')
-    #     elif isinstance(matrix, type(None)):
-    #         self._matrix = matrix
-    #     else:
-    #         raise TypeError("Unsupported `matrix` type")
-
-    def get_targ_matrix(self, reverse_order=False):
+    def get_targ_matrix(self):
         return self.matrix
 
 
 class MultiQubitGate(QuantumGate, ABC):
     def __init__(self, pos: List[int], paras: float = None):
         super().__init__(pos, paras)
-        self._targ_matrix = self.matrix
-
-    # @property
-    # def matrix(self):
-    #     return self._matrix
-    #
-    # @matrix.setter
-    # def matrix(self, matrix):
-    #     if isinstance(matrix, np.ndarray):
-    #         self._matrix = matrix
-    #     elif isinstance(matrix, List):
-    #         self._matrix = np.array(matrix, dtype=complex)
-    #     else:
-    #         raise TypeError("Unsupported `matrix` type")
-    #
-    #     self._matrix = reorder_matrix(self._matrix, self.pos)
 
     def get_targ_matrix(self, reverse_order=False):
-        targ_matrix = self._targ_matrix
+        targ_matrix = self.matrix
+
         if reverse_order and (len(self.pos) > 1):
             qnum = len(self.pos)
+            dim = 2 ** qnum
             order = np.array(range(len(self.pos))[::-1])
             order = np.concatenate([order, order + qnum])
-            dim = 2 ** qnum
             tensorm = targ_matrix.reshape([2] * 2 * qnum)
             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
-
         return targ_matrix
 
 
@@ -144,24 +112,6 @@ class ParaSingleQubitGate(SingleQubitGate, ABC):
         elif not isinstance(paras, float):
             raise TypeError("`paras` must be float for ParaSingleQubitGate")
         super().__init__(pos, paras=paras)
-
-    # @property
-    # def matrix(self):
-    #     return self._matrix
-    #
-    # @matrix.setter
-    # def matrix(self, matrix):
-    #     if isinstance(matrix, Callable):
-    #         self._matrix = matrix(self.paras)
-    #     elif isinstance(matrix, (np.ndarray, List)):
-    #         if np.shape(matrix) == (2, 2):
-    #             self._matrix = np.asarray(matrix, dtype=complex)
-    #         else:
-    #             raise ValueError(f'`{self.__class__.__name__}.matrix.shape` must be (2, 2)')
-    #     elif isinstance(matrix, type(None)):
-    #         self._matrix = matrix
-    #     else:
-    #         raise TypeError("Unsupported `matrix` type")
 
 
 class FixedSingleQubitGate(SingleQubitGate, ABC):
@@ -174,15 +124,32 @@ class FixedMultiQubitGate(MultiQubitGate, ABC):
         super().__init__(pos=pos, paras=None)
 
 
+class ParaMultiQubitGate(MultiQubitGate, ABC):
+    def __init__(self, pos, paras):
+        if paras is None:
+            raise ValueError("`paras` can not be None for ParaMultiQubitGate")
+        super().__init__(pos, paras)
+
+
 class ControlledGate(MultiQubitGate, ABC):
     """ Controlled gate class, where the matrix act non-trivaly on target qubits"""
 
-    def __init__(self, targe_name, ctrls: List[int], targs: List[int], paras, matrix):
+    def __init__(self, targe_name, ctrls: List[int], targs: List[int], paras, tar_matrix):
         self.ctrls = ctrls
         self.targs = targs
         self.targ_name = targe_name
         super().__init__(ctrls + targs, paras)
-        self._targ_matrix = matrix
+        self._targ_matrix = tar_matrix
+
+        # set matrix
+        # TODO: change matrix according to control-type 0/1
+        targ_dim = 2 ** (len(self.targs))
+        ctrl_dim = 2 ** (len(self.ctrls))
+        dim = targ_dim + ctrl_dim
+        self._matrix = np.eye(dim, dtype=complex)
+        control_dim = 2 ** len(self.pos) - targ_dim
+        self._matrix[control_dim:, control_dim:] = tar_matrix
+        self._matrix = reorder_matrix(self._matrix, self.pos)
 
         if paras:
             if isinstance(paras, Iterable):
@@ -192,31 +159,10 @@ class ControlledGate(MultiQubitGate, ABC):
         else:
             self.symbol = "%s" % self.targ_name
 
-    # TODO
-
     @property
     def matrix(self):
+        # TODO: update matrix when paras of controlled-gate changed
         return self._matrix
-
-    @matrix.setter
-    def matrix(self, matrix: Union[np.ndarray, Callable]):
-        targ_dim = 2 ** (len(self.targs))
-        qnum = len(self.pos)
-        dim = 2 ** (qnum)
-        if isinstance(matrix, Callable):
-            matrix = matrix(self.paras)
-
-        if matrix.shape[0] != targ_dim:
-            raise ValueError("Dimension dismatch")
-        else:
-            self._matrix = np.zeros((dim, dim), dtype=complex)
-            control_dim = 2 ** len(self.pos) - targ_dim
-            for i in range(control_dim):
-                self._matrix[i, i] = 1.
-
-            self._matrix[control_dim:, control_dim:] = matrix
-            self._matrix = reorder_matrix(self._matrix, self.pos)
-            # self._targ_matrix = reorder_matrix(matrix, self.targs)
 
     def get_targ_matrix(self, reverse_order=False):
         targ_matrix = self._targ_matrix
@@ -227,44 +173,20 @@ class ControlledGate(MultiQubitGate, ABC):
             dim = 2 ** qnum
             tensorm = targ_matrix.reshape([2] * 2 * qnum)
             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
-
         return targ_matrix
-
-
-class ParaMultiQubitGate(MultiQubitGate, ABC):
-    def __init__(self, pos, paras):
-        if paras is None:
-            raise ValueError("`paras` can not be None for ParaMultiQubitGate")
-        super().__init__(pos, paras)
-
-    @property
-    def matrix(self):
-        return self._matrix
-
-    @matrix.setter
-    def matrix(self, matrix):
-        if isinstance(matrix, Callable):
-            self._matrix = matrix(self.paras)
-            self._matrix = reorder_matrix(self._matrix, self.pos)
-        elif isinstance(matrix, (np.ndarray, List)):
-            self._matrix = matrix
-            self._matrix = reorder_matrix(self._matrix, self.pos)
-        else:
-            raise TypeError("Unsupported `matrix` type")
 
 
 class ControlledU(ControlledGate):
     """ Controlled gate class, where the matrix act non-trivially on target qubits"""
+    name = 'CU'
 
-    name = 'cu'
-
-    def __init__(self, ctrls: List[int], U: Union[SingleQubitGate, MultiQubitGate]):
-        self.targ_gate = U
-        targs = U.pos
+    def __init__(self, ctrls: List[int], u: Union[SingleQubitGate, MultiQubitGate]):
+        self.targ_gate = u
+        targs = u.pos
         if isinstance(targs, int):
             targs = [targs]
 
-        super().__init__(U.name, ctrls, targs, U.paras, matrix=self.targ_gate.get_targ_matrix())
+        super().__init__(u.name, ctrls, targs, u.paras, tar_matrix=self.targ_gate.get_targ_matrix())
 
     def get_targ_matrix(self, reverse_order=False):
         return self.targ_gate.get_targ_matrix(reverse_order)
