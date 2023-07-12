@@ -4,7 +4,6 @@ import math
 import numpy as np
 import scipy
 from numpy import ndarray
-from quafu.circuits.quantum_circuit import QuantumCircuit
 
 from ..matrices import rz_mat, ry_mat, CXMatrix
 from ..matrices import mat_utils as mu
@@ -21,7 +20,6 @@ class UnitaryDecomposer(object):
 
         self.Mk_table = genMk_table(self.qubit_num)  # initialize the general M^k lookup table
         self.gate_list = []
-        # self.quafuQC = QuantumCircuit(self.qubit_num)
 
     def __call__(self, *args, **kwargs):
         _matrix = self.array
@@ -45,9 +43,6 @@ class UnitaryDecomposer(object):
             self.gate_list.append((rz_mat(gamma), qubits, 'RZ', gamma))
             self.gate_list.append((ry_mat(beta), qubits, 'RY', beta))
             self.gate_list.append((rz_mat(alpha), qubits, 'RZ', alpha))
-            # self.quafuQC.rz(qubits[0], gamma)
-            # self.quafuQC.ry(qubits[0], beta)
-            # self.quafuQC.rz(qubits[0], alpha)
             return None
 
         # if num_qubit == 2:
@@ -114,9 +109,6 @@ class UnitaryDecomposer(object):
             self.gate_list.append((rz_mat(thetas[i]), [target_qubit], 'RZ', thetas[i]))
             self.gate_list.append((CXMatrix, [control_qubit, target_qubit], 'CX'))
 
-            # self.quafuQC.rz(target_qubit, thetas[i])
-            # self.quafuQC.cnot(control_qubit, target_qubit)
-
     def multi_controlled_y(self, ss, qubits, target_qubit):
         assert len(qubits) == int(math.log(ss.shape[0], 2))
         num_qubit = len(qubits)
@@ -135,29 +127,26 @@ class UnitaryDecomposer(object):
             self.gate_list.append((ry_mat(thetas[i]), [target_qubit], 'RY', thetas[i]))
             self.gate_list.append((CXMatrix, [control_qubit, target_qubit], 'CX'))
 
-            # self.quafuQC.ry(target_qubit, thetas[i])
-            # self.quafuQC.cnot(control_qubit, target_qubit)
-
-    def apply_to_qc(self, circuit: QuantumCircuit):
+    def apply_to_qc(self, qc):
         if len(self.gate_list) == 0:
             self()
 
         for g in self.gate_list:
             if g[2] == 'CX':
-                circuit.cnot(g[1][0], g[1][1])
+                qc.cnot(g[1][0], g[1][1])
             elif g[2] == 'RY':
-                circuit.ry(g[1][0], g[3].real)
+                qc.ry(g[1][0], g[3].real)
             elif g[2] == 'RZ':
-                circuit.rz(g[1][0], g[3].real)
+                qc.rz(g[1][0], g[3].real)
             elif g[2] == 'U':
                 gamma, beta, alpha, global_phase = zyz_decomposition(g[0])
-                circuit.rz(g[1][0], gamma)
-                circuit.ry(g[1][0], beta)
-                circuit.rz(g[1][0], alpha)
+                qc.rz(g[1][0], gamma)
+                qc.ry(g[1][0], beta)
+                qc.rz(g[1][0], alpha)
             else:
                 raise Exception("Unknown gate type or incorrect str: {}".format(g[2]))
 
-        return circuit
+        return qc
 
 
 def zyz_decomposition(unitary):
