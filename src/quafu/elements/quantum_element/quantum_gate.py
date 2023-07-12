@@ -174,22 +174,3 @@ class ControlledGate(MultiQubitGate, ABC):
             tensorm = targ_matrix.reshape([2] * 2 * qnum)
             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
         return targ_matrix
-
-
-class ControlledU(ControlledGate):
-    """ Controlled gate class, where the matrix act non-trivially on target qubits"""
-    name = 'CU'
-
-    def __init__(self, ctrls: List[int], u: Union[SingleQubitGate, MultiQubitGate]):
-        self.targ_gate = u
-        targs = u.pos
-        if isinstance(targs, int):
-            targs = [targs]
-
-        super().__init__(u.name, ctrls, targs, u.paras, tar_matrix=self.targ_gate.get_targ_matrix())
-
-    def get_targ_matrix(self, reverse_order=False):
-        return self.targ_gate.get_targ_matrix(reverse_order)
-
-
-QuantumGate.register_gate(ControlledU)

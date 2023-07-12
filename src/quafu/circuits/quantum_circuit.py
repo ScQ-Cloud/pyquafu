@@ -1,6 +1,8 @@
 from typing import List
 import numpy as np
 
+import quafu.elements.element_gates.clifford
+import quafu.elements.element_gates.pauli
 from quafu.elements.quantum_element.pulses.quantum_pulse import QuantumPulse
 from ..elements.quantum_element import Barrier, Delay, MultiQubitGate, QuantumGate, ControlledGate, \
     SingleQubitGate, XYResonance
@@ -354,7 +356,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        gate = qeg.HGate(pos)
+        gate = quafu.elements.element_gates.clifford.HGate(pos)
         self.add_gate(gate)
         return self
 
@@ -397,7 +399,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.TGate(pos))
+        self.add_gate(quafu.elements.element_gates.clifford.TGate(pos))
         return self
 
     def tdg(self, pos: int) -> "QuantumCircuit":
@@ -407,7 +409,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.TdgGate(pos))
+        self.add_gate(quafu.elements.element_gates.clifford.TdgGate(pos))
         return self
 
     def s(self, pos: int) -> "QuantumCircuit":
@@ -417,7 +419,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SGate(pos))
+        self.add_gate(quafu.elements.element_gates.clifford.SGate(pos))
         return self
 
     def sdg(self, pos: int) -> "QuantumCircuit":
@@ -427,7 +429,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SdgGate(pos))
+        self.add_gate(quafu.elements.element_gates.clifford.SdgGate(pos))
         return self
 
     def sx(self, pos: int) -> "QuantumCircuit":
@@ -437,7 +439,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SXGate(pos))
+        self.add_gate(quafu.elements.element_gates.pauli.SXGate(pos))
         return self
 
     def sxdg(self, pos: int) -> "QuantumCircuit":
@@ -447,7 +449,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        gate = qeg.SXdgGate(pos)
+        gate = quafu.elements.element_gates.pauli.SXdgGate(pos)
         self.add_gate(gate)
         return self
 
@@ -458,7 +460,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SYGate(pos))
+        self.add_gate(quafu.elements.element_gates.pauli.SYGate(pos))
         return self
 
     def sydg(self, pos: int) -> "QuantumCircuit":
@@ -468,7 +470,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        gate = qeg.SYdgGate(pos)
+        gate = quafu.elements.element_gates.pauli.SYdgGate(pos)
         self.add_gate(gate)
         return self
 

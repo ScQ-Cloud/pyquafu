@@ -1,11 +1,17 @@
-# from quafu.circuits.quantum_circuit import QuantumCircuit
-import numpy as np
 import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.collections import PolyCollection, PatchCollection, LineCollection
 from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
 
+from quafu.elements.quantum_element import Instruction, ControlledGate
+
+for name, cls in Instruction.ins_classes.items():
+    print(name, cls.__name__)
+
+# the following line for developers only
+# from quafu.circuits.quantum_circuit import QuantumCircuit
 
 line_args = {}
 box_args = {}
@@ -38,7 +44,7 @@ swap_gate_names = ['swap', 'iswap']
 r2_gate_names = ['rxx', 'ryy', 'rzz']
 c2_gate_names = ['cp', 'cs', 'ct', 'cx', 'cy', 'cz']
 c3_gate_names = ['fredkin', 'toffoli']
-cm_gate_names = ['mcx', 'mcy', 'mcz']
+mc_gate_names = ['mcx', 'mcy', 'mcz']
 operation_names = ['barrier', 'delay']
 
 
@@ -91,29 +97,12 @@ class CircuitPlotManager:
         self._text_list = []
 
         # step1: process gates/instructions
-        dorders = np.zeros(qc.num, dtype=int)
+        self.dorders = np.zeros(qc.num, dtype=int)
         for gate in qc.gates:
-            id_name = gate.name.lower()
-            _which = slice(np.min(gate.pos), np.max(gate.pos) + 1)
-            depth = np.max(dorders[_which])
-            paras = getattr(gate, 'paras', None)
+            assert isinstance(gate, Instruction)
+            self._process_ins(gate)
 
-            # TODO: call processing functions
-            if id_name == 'barrier':
-                self._proc_barrier(depth, gate.pos)
-            elif id_name == 'measure':
-                self._proc_measure(depth, gate.pos)
-            elif id_name in su2_gate_names:
-                self._proc_su2(id_name, depth, gate.pos, paras)
-            elif id_name == 'swap':
-                self._proc_swap(depth, gate.pos)
-            elif id_name == 'cx':
-                self._proc_ctrl(depth, gate.ctrls[0], gate.targs[0], 'x')
-            else:
-                # control
-                raise NotImplementedError(f'Gate {id_name} is not supported yet.')
-            dorders[_which] = depth + 1
-        self.depth = np.max(dorders) + 1
+        self.depth = np.max(self.dorders) + 1
 
         for q, c in qc.measures.items():
             self._proc_measure(self.depth - 1, q)
@@ -127,7 +116,12 @@ class CircuitPlotManager:
         self.ys = np.arange(-2, self.qbit_num + 1 / 2)
 
     def __call__(self,
-                 title=None, *args, **kwargs):
+                 title=None,
+                 init_labels=None,
+                 end_labels=None,
+                 save_path: str = None,
+                 *args,
+                 **kwargs):
         """
 
         """
@@ -158,6 +152,35 @@ class CircuitPlotManager:
         self._inits_label()
         self._measured_label()
         self._render_circuit()
+
+    def _process_ins(self, ins: Instruction, append: bool = True):
+        name = ins.name
+        assert name in Instruction.ins_classes, 'If this should occur, please report a bug.'
+
+        name = name.lower()
+        _which = slice(np.min(ins.pos), np.max(ins.pos) + 1)
+        depth = np.max(self.dorders[_which])
+        paras = ins.paras
+
+        if name == 'barrier':
+            self._proc_barrier(depth, ins.pos)
+        elif name == 'measure':
+            self._proc_measure(depth, ins.pos)
+        elif name in su2_gate_names:
+            self._proc_su2(name, depth, ins.pos, paras)
+        elif name in swap_gate_names:
+            self._proc_swap(depth, ins.pos, name == 'iswap')
+        elif name in r2_gate_names:
+            # TODO: combine into one box
+            self._proc_su2(name[-1], depth, ins.pos[0], paras)
+            self._proc_su2(name[-1], depth, ins.pos[1], paras)
+        elif isinstance(ins, ControlledGate):
+            self._proc_ctrl(depth, ins)
+        else:
+            raise NotImplementedError(f'Gate {name} is not supported yet.\n'
+                                      f'If this should occur, please report a bug.')
+        if append:
+            self.dorders[_which] = depth + 1
 
     #########################################################################
     # Helper functions for processing gates/instructions into graphical
@@ -234,7 +257,7 @@ class CircuitPlotManager:
         if not para_txt:
             return None
         _dx = 0
-        text = Text(x + _dx, y+0.7*self._a,
+        text = Text(x + _dx, y + 0.7 * self._a,
                     para_txt,
                     size=12,
                     color=DEEPCOLOR,
@@ -303,18 +326,38 @@ class CircuitPlotManager:
         self._para_label(para_txt, depth, pos)
         self._gate_bbox(depth, pos, fc)
 
-    def _proc_ctrl(self, depth, ctrl_pos, tar_pos, tar_name, ctrl_type: bool = True):
-        if tar_name == 'x':
-            self._ctrl_points.append((depth, ctrl_pos, ctrl_type))
-            self._ctrl_wire_points.append([[depth, ctrl_pos], [depth, tar_pos]])
-            self._not_points.append((depth, tar_pos))
-        else:
-            raise NotImplemented
+    def _proc_ctrl(self, depth, ins: ControlledGate, ctrl_type: bool = True):
+        # control part
+        p0, p1 = np.max(ins.pos), np.min(ins.pos)
+        self._ctrl_wire_points.append([[depth, p1], [depth, p0]])
 
-    def _proc_swap(self, depth, pos):
+        ctrl_pos = np.array(ins.ctrls)
+        for c in ctrl_pos:
+            self._ctrl_points.append((depth, c, ctrl_type))
+
+        # target part
+        if ins.ct_dims == (1, 1, 2) or ins.name in mc_gate_names:
+            tar_name = ins.targ_name[-1]
+            if tar_name == 'x':
+                self._not_points.append((depth, ins.targs))
+            else:
+                self._proc_su2(tar_name, depth, ins.targs, None)
+        elif ins.name == 'cswap':
+            self._swap_points += [[depth, p] for p in ins.targs]
+        elif ins.name == 'ccx':
+            self._not_points.append((depth, ins.targs))
+        else:
+            from quafu.elements.element_gates import ControlledU
+            assert isinstance(ins, ControlledU)
+            self._process_ins(ins, append=False)
+
+    def _proc_swap(self, depth, pos, iswap: bool = False):
         p1, p2 = pos
         self._swap_points += [[depth, p] for p in pos]
         self._ctrl_wire_points.append([[depth, p1], [depth, p2]])
+        if iswap:
+            # TODO: add circle on swap node
+            raise NotImplementedError
 
     def _proc_barrier(self, depth, pos: list):
         x0 = depth - self._barrier_width
