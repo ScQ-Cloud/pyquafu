@@ -1,20 +1,22 @@
+from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Union, Optional, Callable
+from typing import Union, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.special
 
-from abc import ABC, abstractmethod
+from quafu.elements.quantum_element.instruction import Instruction, PosType
 
-from quafu.elements.quantum_element.instruction import Instruction
+
+TimeType = Union[np.ndarray, float, int]
 
 
 class QuantumPulse(Instruction, ABC):
     pulse_classes = {}
 
     def __init__(self,
-                 pos: Union[int, list],
+                 pos: PosType,
                  paras: list,
                  duration: Union[float, int],
                  unit: str,
@@ -28,10 +30,6 @@ class QuantumPulse(Instruction, ABC):
             paras (list): Parameters of the pulse.
             duration (float, int): Pulse duration.
             unit (str): Duration unit.
-            name (str): Pulse name.
-            time_func (callable): Time function of the pulse.
-                Where t=0 is the start, t=duration is the end of the pulse.
-            
         """
         super().__init__()
         self.pos = pos
@@ -81,7 +79,7 @@ class QuantumPulse(Instruction, ABC):
         return symbol
 
     def __call__(self,
-                 t: Union[np.ndarray, float, int],
+                 t: TimeType,
                  shift: Union[float, int] = 0.,
                  offset: Union[float, int] = 0.,
                  args: dict = None
@@ -167,7 +165,12 @@ class RectPulse(QuantumPulse):
         amp_ = kwargs["amp"]
         return amp_ * np.ones(np.array(t).shape)
 
-    def __call__(self, t: Union[np.ndarray, float, int], shift: Union[float, int] = 0, offset: Union[float, int] = 0):
+    def __call__(self,
+                 t: TimeType,
+                 shift: Union[float, int] = 0,
+                 offset: Union[float, int] = 0,
+                 *args,
+                 **kwargs):
         args = {"amp": self.amp}
         return super().__call__(t, shift, offset, args)
 
@@ -183,13 +186,18 @@ class FlattopPulse(QuantumPulse):
 
     def time_func(self, t, **kws):
         """ flattop_time_func """
+        from scipy.special import erf
 
         amp_, fwhm_ = kws["amp"], kws["fwhm"]
         sigma_ = fwhm_ / (2 * np.sqrt(np.log(2)))
-        return amp_ * (scipy.special.erf((self.duration - t) / sigma_)
-                       + scipy.special.erf(t / sigma_) - 1.)
+        return amp_ * (erf((self.duration - t) / sigma_) + erf(t / sigma_) - 1.)
 
-    def __call__(self, t: Union[np.ndarray, float, int], shift: Union[float, int] = 0, offset: Union[float, int] = 0):
+    def __call__(self,
+                 t: TimeType,
+                 shift: Union[float, int] = 0,
+                 offset: Union[float, int] = 0,
+                 *args,
+                 **kwargs):
         args = {"amp": self.amp, "fwhm": self.fwhm}
         return super().__call__(t, shift, offset, args)
 
@@ -215,7 +223,12 @@ class GaussianPulse(QuantumPulse):
         return amp_ * np.exp(
             -(t - 0.5 * self.duration) ** 2 / (2 * sigma_ ** 2) + 1j * phase_)
 
-    def __call__(self, t: Union[np.ndarray, float, int], shift: Union[float, int] = 0, offset: Union[float, int] = 0):
+    def __call__(self,
+                 t: TimeType,
+                 shift: Union[float, int] = 0,
+                 offset: Union[float, int] = 0,
+                 *args,
+                 **kwargs):
         args = {"amp": self.amp, "fwhm": self.fwhm, "phase": self.phase}
         return super().__call__(t, shift, offset, args)
 
