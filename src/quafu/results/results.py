@@ -1,8 +1,7 @@
-import numpy as np
-from functools import reduce
 import copy
-import matplotlib.pyplot as plt
 from collections import OrderedDict
+
+import matplotlib.pyplot as plt
 from ..utils.basis import *
 
 
@@ -97,7 +96,6 @@ class SimuResult(Result):
             sort:  Sort the results by probabilities values. Can be `"ascend"` order or `"descend"` order. 
         """
 
-        from ..utils.basis import get_basis
         probs = self.probabilities
         inds = range(len(probs))
         if not full:

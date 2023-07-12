@@ -7,8 +7,12 @@ import numpy as np
 from ..exceptions import QuafuError
 
 
-def simulate(qc: Union[QuantumCircuit, str], psi: np.ndarray = np.array([]), simulator: str = "qfvm_circ",
-             output: str = "probabilities", use_gpu: bool = False, use_custatevec: bool = False) -> SimuResult:
+def simulate(qc: Union[QuantumCircuit, str],
+             psi: np.ndarray = np.array([]),
+             simulator: str = "qfvm_circ",
+             output: str = "probabilities",
+             use_gpu: bool = False,
+             use_custatevec: bool = False) -> SimuResult:
     """Simulate quantum circuit
     Args:
         qc: quantum circuit or qasm string that need to be simulated.
