@@ -139,7 +139,10 @@ class ControlledGate(MultiQubitGate, ABC):
 
         # set matrix
         # TODO: change matrix according to control-type 0/1
-        targ_dim, ctrl_dim, dim = self.ct_dims
+        c_n, t_n, n = self.ct_nums
+        targ_dim = 2 ** t_n
+        dim = 2 ** n
+        ctrl_dim = dim - targ_dim
         self._matrix = np.eye(dim, dtype=complex)
         self._matrix[ctrl_dim:, ctrl_dim:] = tar_matrix
         self._matrix = reorder_matrix(self._matrix, self.pos)
@@ -158,11 +161,11 @@ class ControlledGate(MultiQubitGate, ABC):
         return self._matrix
 
     @property
-    def ct_dims(self):
-        targ_dim = 2 ** (len(self.targs))
-        ctrl_dim = 2 ** (len(self.ctrls))
-        dim = targ_dim + ctrl_dim
-        return ctrl_dim, targ_dim, dim
+    def ct_nums(self):
+        targ_num = len(self.targs)
+        ctrl_num = len(self.ctrls)
+        num = targ_num + ctrl_num
+        return ctrl_num, targ_num, num
 
     def get_targ_matrix(self, reverse_order=False):
         targ_matrix = self._targ_matrix

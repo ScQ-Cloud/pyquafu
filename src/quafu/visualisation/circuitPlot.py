@@ -7,9 +7,6 @@ from matplotlib.text import Text
 
 from quafu.elements.quantum_element import Instruction, ControlledGate
 
-for name, cls in Instruction.ins_classes.items():
-    print(name, cls.__name__)
-
 # the following line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit
 
@@ -108,8 +105,8 @@ class CircuitPlotManager:
             self._proc_measure(self.depth - 1, q)
 
         # step2: initialize bit-label
-        self.q_label = [f'q_{i}' for i in range(qc.num)]
-        self.c_label = [f'c_{i}' for i in qc.measures.values()]
+        self.q_label = {i: f'q_{i}' for i in range(qc.num)}
+        self.c_label = {iq: f'c_{ic}' for iq, ic in qc.measures.items()}
 
         # step3: figure coordination
         self.xs = np.arange(-3 / 2, self.depth + 3 / 2)
@@ -149,8 +146,8 @@ class CircuitPlotManager:
         ax.invert_yaxis()
 
         self._circuit_wires()
-        self._inits_label()
-        self._measured_label()
+        self._inits_label(labels=init_labels)
+        self._measured_label(labels=end_labels)
         self._render_circuit()
 
     def _process_ins(self, ins: Instruction, append: bool = True):
@@ -206,12 +203,12 @@ class CircuitPlotManager:
                               )
         self._closed_patches.append(bbox)
 
-    def _inits_label(self, labels: list[int] = None):
+    def _inits_label(self, labels: dict[int: str] = None):
         """ qubit-labeling """
         if labels is None:
             labels = self.q_label
 
-        for i, label in enumerate(labels):
+        for i, label in labels.items():
             label = r'$|%s\rangle$' % label
             txt = Text(-2 / 3, i,
                        label,
@@ -222,12 +219,12 @@ class CircuitPlotManager:
                        )
             self._text_list.append(txt)
 
-    def _measured_label(self, labels: list[int] = None):
+    def _measured_label(self, labels: dict[int: str] = None):
         """ measured qubit-labeling """
         if labels is None:
             labels = self.c_label
 
-        for i, label in enumerate(labels):
+        for i, label in labels.items():
             label = r'$%s$' % label
             txt = Text(self.xs[-1] - 3 / 4, i,
                        label,
@@ -336,19 +333,21 @@ class CircuitPlotManager:
             self._ctrl_points.append((depth, c, ctrl_type))
 
         # target part
-        if ins.ct_dims == (1, 1, 2) or ins.name in mc_gate_names:
-            tar_name = ins.targ_name[-1]
+        name = ins.name.lower()
+        if ins.ct_nums == (1, 1, 2) or name in mc_gate_names:
+            tar_name = ins.targ_name.lower()[-1]
+            pos = ins.targs if isinstance(ins.targs, int) else ins.targs[0]
             if tar_name == 'x':
-                self._not_points.append((depth, ins.targs))
+                self._not_points.append((depth, pos))
             else:
-                self._proc_su2(tar_name, depth, ins.targs, None)
-        elif ins.name == 'cswap':
+                self._proc_su2(tar_name, depth, pos, None)
+        elif name == 'cswap':
             self._swap_points += [[depth, p] for p in ins.targs]
-        elif ins.name == 'ccx':
+        elif name == 'ccx':
             self._not_points.append((depth, ins.targs))
         else:
             from quafu.elements.element_gates import ControlledU
-            assert isinstance(ins, ControlledU)
+            assert isinstance(ins, ControlledU), f'unknown gate: {name}, {ins.__class__.__name__}'
             self._process_ins(ins, append=False)
 
     def _proc_swap(self, depth, pos, iswap: bool = False):
