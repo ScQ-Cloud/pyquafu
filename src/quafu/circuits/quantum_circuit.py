@@ -549,6 +549,9 @@ class QuantumCircuit(object):
         self.add_gate(qeg.CXGate(ctrl, tar))
         return self
 
+    def cx(self, ctrl: int, tar: int) -> "QuantumCircuit":
+        return self.cnot(ctrl=ctrl, tar=tar)
+
     def cy(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
         Control-Y gate.
