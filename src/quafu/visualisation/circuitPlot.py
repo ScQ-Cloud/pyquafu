@@ -117,6 +117,7 @@ class CircuitPlotManager:
                  init_labels=None,
                  end_labels=None,
                  save_path: str = None,
+                 show: bool = False,
                  *args,
                  **kwargs):
         """
@@ -149,6 +150,11 @@ class CircuitPlotManager:
         self._inits_label(labels=init_labels)
         self._measured_label(labels=end_labels)
         self._render_circuit()
+
+        if save_path is not None:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        if show:
+            plt.show()
 
     def _process_ins(self, ins: Instruction, append: bool = True):
         name = ins.name
@@ -254,7 +260,7 @@ class CircuitPlotManager:
         if not para_txt:
             return None
         _dx = 0
-        text = Text(x + _dx, y + 0.7 * self._a,
+        text = Text(x + _dx, y + 0.8 * self._a,
                     para_txt,
                     size=12,
                     color=DEEPCOLOR,
@@ -315,7 +321,8 @@ class CircuitPlotManager:
             label = '?'
 
         if id_name in ['rx', 'ry', 'rz', 'p']:
-            para_txt = r'$\theta=$' + f'{paras:.3f}'
+            # too long to display: r'$\theta=$' + f'{paras:.3f}' (TODO)
+            para_txt = f'({paras:.3f})'
         else:
             para_txt = None
 

@@ -25,7 +25,7 @@ class QuantumGate(Instruction):
                  ):
         super().__init__(pos, paras)
 
-        if paras:
+        if paras is not None:
             if isinstance(paras, Iterable):
                 self.symbol = "%s(" % self.name + ",".join(["%.3f" % para for para in self.paras]) + ")"
             else:
@@ -105,8 +105,12 @@ class ParaSingleQubitGate(SingleQubitGate, ABC):
     def __init__(self, pos, paras: float):
         if paras is None:
             raise ValueError("`paras` can not be None for ParaSingleQubitGate")
-        elif not isinstance(paras, float):
-            raise TypeError("`paras` must be float for ParaSingleQubitGate")
+        elif isinstance(paras, int):
+            paras = float(paras)
+            print(paras)
+
+        if not isinstance(paras, float):
+            raise TypeError(f"`paras` must be float or int for ParaSingleQubitGate, instead of {type(paras)}")
         super().__init__(pos, paras=paras)
 
 
@@ -147,7 +151,7 @@ class ControlledGate(MultiQubitGate, ABC):
         self._matrix[ctrl_dim:, ctrl_dim:] = tar_matrix
         self._matrix = reorder_matrix(self._matrix, self.pos)
 
-        if paras:
+        if paras is not None:
             if isinstance(paras, Iterable):
                 self.symbol = "%s(" % self.targ_name + ",".join(["%.3f" % para for para in self.paras]) + ")"
             else:
