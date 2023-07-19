@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Any, Iterable
 import numpy as np
 from ..elements.quantum_element import Barrier, Delay, ControlledGate, MultiQubitGate, ParaMultiQubitGate, QuantumGate, SingleQubitGate, XYResonance
 from quafu.pulses.quantum_pulse import QuantumPulse
@@ -19,14 +19,37 @@ class QuantumCircuit(object):
         self.circuit = []
         self.measures = dict(zip(range(num), range(num)))
         self._used_qubits = []
+        self._parameterized_gates = []
+
+    @property
+    def parameterized_gates(self):
+        """Return the list of gates which the parameters are tunable"""
+        return self._parameterized_gates
 
     @property
     def used_qubits(self) -> List:
         self.layered_circuit()
         return self._used_qubits
 
-    def add_gate(self, gate : QuantumGate):
+    def add_gate(self, gate : QuantumGate, tunable=False):
         self.gates.append(gate)
+        if tunable:
+            self._parameterized_gates.append(gate)
+
+    def update_params(self, params_list: List[Any]):
+        """Update parameters of parameterized gates
+        Args:
+            params_list (List[Any]): list of params
+
+        Raise:
+            CircuitError
+        """
+        if len(params_list) != len(self._parameterized_gates):
+            raise CircuitError("`params_list` must have the same size with parameterized gates")
+
+        # TODO(): Support updating part of params of a single gate
+        for gate, params in zip(self._parameterized_gates, params_list):
+            gate.params = params
 
     def layered_circuit(self) -> np.ndarray:
         """
