@@ -1,11 +1,18 @@
-from typing import List
+from typing import List, Any
 import numpy as np
 
 import quafu.elements.element_gates.clifford
 import quafu.elements.element_gates.pauli
 from quafu.elements.quantum_element.pulses.quantum_pulse import QuantumPulse
-from ..elements.quantum_element import Barrier, Delay, MultiQubitGate, QuantumGate, ControlledGate, \
-    SingleQubitGate, XYResonance
+from ..elements.quantum_element import (
+    Barrier,
+    Delay,
+    MultiQubitGate,
+    QuantumGate,
+    ControlledGate,
+    SingleQubitGate,
+    XYResonance,
+)
 import quafu.elements.element_gates as qeg
 from ..exceptions import CircuitError
 
@@ -229,6 +236,7 @@ class QuantumCircuit(object):
 
     def plot_circuit(self, *args, **kwargs):
         from quafu.visualisation.circuitPlot import CircuitPlotManager
+
         cmp = CircuitPlotManager(self)
         return cmp(*args, **kwargs)
 
@@ -369,7 +377,9 @@ class QuantumCircuit(object):
         if not self.measures:
             self.measures = dict(zip(range(self.num), range(self.num)))
         if not global_valid:
-            print("Warning: All operations after measurement will be removed for executing on experiment")
+            print(
+                "Warning: All operations after measurement will be removed for executing on experiment"
+            )
 
     def to_openqasm(self) -> str:
         """
@@ -814,7 +824,9 @@ class QuantumCircuit(object):
 
         if cbits:
             if not len(cbits) == len(pos):
-                raise CircuitError("Number of measured bits should equal to the number of classical bits")
+                raise CircuitError(
+                    "Number of measured bits should equal to the number of classical bits"
+                )
         else:
             cbits = pos
 
