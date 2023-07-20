@@ -1,15 +1,15 @@
-
 import ply.yacc as yacc
 
-from quafu.elements.element_gates import *
-from quafu.elements.quantum_element import *
 from quafu.dagcircuits.instruction_node import InstructionNode
 from .qfasmlex import QfasmLexer
 
-# import numpy as np
+
+import numpy as np
+
 
 class DeclarationNode(object):
     pass
+
 
 class QregNode(DeclarationNode):
     def __init__(self, n):
@@ -19,7 +19,8 @@ class QregNode(DeclarationNode):
         return self.__str__()
 
     def __str__(self):
-        return "qreg[%d]" %self.n
+        return "qreg[%d]" % self.n
+
 
 class CregNode(DeclarationNode):
     def __init__(self, n):
@@ -29,7 +30,8 @@ class CregNode(DeclarationNode):
         return self.__str__()
 
     def __str__(self):
-        return "creg[%d]" %self.n
+        return "creg[%d]" % self.n
+
 
 class IncludeNode(DeclarationNode):
     def __init__(self, filename):
@@ -39,7 +41,8 @@ class IncludeNode(DeclarationNode):
         return self.__str__()
 
     def __str__(self):
-        return "include %s" %self.file
+        return "include %s" % self.file
+
 
 class OPENQASMNode(DeclarationNode):
     def __init__(self, version):
@@ -49,17 +52,18 @@ class OPENQASMNode(DeclarationNode):
         return self.__str__()
 
     def __str__(self):
-        return "OPENQASM %.1f" %self.version
+        return "OPENQASM %.1f" % self.version
 
 
 class QfasmParser(object):
     tokens = QfasmLexer.tokens
+
     def __init__(self, debug=False):
         self.parser = yacc.yacc(module=self, debug=debug)
         self.parsed_nodes = []
-        self.lexer =  QfasmLexer()
+        self.lexer = QfasmLexer()
 
-    def parse(self, input : str):
+    def parse(self, input: str):
         self.parsed_nodes = self.parser.parse(input, lexer=QfasmLexer())
         return self.parsed_nodes
 
@@ -69,7 +73,7 @@ class QfasmParser(object):
         """
         p[0] = [p[1]]
 
-    def p_main_1(self,  p):
+    def p_main_1(self, p):
         """
         main : main program
         """
@@ -104,7 +108,7 @@ class QfasmParser(object):
         """
         p[0] = IncludeNode(p[2])
 
-    def p_qreg(self, p): #TODO:verify register name
+    def p_qreg(self, p):  # TODO:verify register name
         """
         qreg : QREG bitreg ';'
         """
@@ -123,7 +127,6 @@ class QfasmParser(object):
                 | measure ';'
         """
         p[0] = p[1]
-
 
     def p_arg_list_0(self, p):
         """
@@ -160,7 +163,7 @@ class QfasmParser(object):
         '''
         measure : MEASURE bitreg ASSIGN bitreg
         '''
-        p[0] = InstructionNode("measure", {p[2] : p[4]}, None, None, None, "", None, "")
+        p[0] = InstructionNode("measure", {p[2]: p[4]}, None, None, None, "", None, "")
 
     def p_pulse_like_1(self, p):
         '''

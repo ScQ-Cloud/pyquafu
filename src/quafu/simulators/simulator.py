@@ -1,4 +1,3 @@
-
 from typing import Union
 from .default_simulator import py_simulate, ptrace, permutebits
 from .qfvm import simulate_circuit, execute
@@ -7,7 +6,13 @@ from ..results.results import SimuResult
 import numpy as np
 from ..exceptions import QuafuError
 
-def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), simulator:str ="qfvm_circ", output: str="probabilities", use_gpu: bool=False, use_custatevec: bool=False)-> SimuResult:
+
+def simulate(qc: Union[QuantumCircuit, str],
+             psi: np.ndarray = np.array([]),
+             simulator: str = "qfvm_circ",
+             output: str = "probabilities",
+             use_gpu: bool = False,
+             use_custatevec: bool = False) -> SimuResult:
     """Simulate quantum circuit
     Args:
         qc: quantum circuit or qasm string that need to be simulated.
@@ -33,11 +38,11 @@ def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), si
         qasm = qc
         qc = QuantumCircuit(0)
         qc.from_openqasm(qasm)
-     
+
     measures = [qc.used_qubits.index(i) for i in qc.measures.keys()]
     num = 0
     if simulator == "qfvm_circ":
-        num = max(qc.used_qubits)+1
+        num = max(qc.used_qubits) + 1
         measures = list(qc.measures.keys())
         if use_gpu:
             if use_custatevec:
@@ -54,17 +59,16 @@ def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), si
                 psi = simulate_circuit_gpu(qc, psi)
         else:
             psi = simulate_circuit(qc, psi)
-        
-    elif simulator ==  "py_simu":
+
+    elif simulator == "py_simu":
         psi = py_simulate(qc, psi)
     elif simulator == "qfvm_qasm":
         num = qc.num
         measures = list(qc.measures.keys())
-        psi = execute(qasm)      
+        psi = execute(qasm)
     else:
         raise ValueError("invalid circuit")
 
-    
     if output == "density_matrix":
         if simulator in ["qfvm_circ", "qfvm_qasm"]:
             psi = permutebits(psi, range(num)[::-1])
@@ -77,8 +81,8 @@ def simulate(qc : Union[QuantumCircuit, str], psi : np.ndarray= np.array([]), si
             psi = permutebits(psi, range(num)[::-1])
         probabilities = ptrace(psi, measures)
         probabilities = permutebits(probabilities, list(qc.measures.values()))
-        return SimuResult(probabilities, output) 
-    
+        return SimuResult(probabilities, output)
+
     elif output == "state_vector":
         return SimuResult(psi, output)
 
