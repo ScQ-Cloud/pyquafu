@@ -31,11 +31,14 @@ class QuantumCircuit(object):
         self.circuit = []
         self.measures = {}
         self._used_qubits = []
+        self._parameterized_gates = []
 
     @property
     def parameterized_gates(self):
         """Return the list of gates which the parameters are tunable"""
-        return [g for g in self.gates if g.paras is not None]
+        if not self._parameterized_gates:
+            self._parameterized_gates = [g for g in self.gates if g.paras is not None]
+        return self._parameterized_gates
 
     @property
     def used_qubits(self) -> List:
@@ -48,22 +51,22 @@ class QuantumCircuit(object):
             raise CircuitError(f"Gate position out of range: {gate.pos}")
         self.gates.append(gate)
 
-    def update_params(self, params_list: List[Any]):
+    def update_params(self, paras_list: List[Any]):
         """Update parameters of parameterized gates
         Args:
-            params_list (List[Any]): list of params
+            paras_list (List[Any]): list of params
 
         Raise:
             CircuitError
         """
-        if len(params_list) != len(self._parameterized_gates):
+        if len(paras_list) != len(self.parameterized_gates):
             raise CircuitError(
                 "`params_list` must have the same size with parameterized gates"
             )
 
         # TODO(): Support updating part of params of a single gate
-        for gate, params in zip(self._parameterized_gates, params_list):
-            gate.params = params
+        for gate, paras in zip(self.parameterized_gates, paras_list):
+            gate.update_params(paras)
 
     def layered_circuit(self) -> np.ndarray:
         """
