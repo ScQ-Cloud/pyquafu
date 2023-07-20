@@ -52,26 +52,28 @@ class CircuitPlotManager:
 
     To be initialized when circuit.plot() is called.
     """
+    # colors
     _wire_color = '#FF0000'
-    _wire_lw = 1.5
-
     _light_blue = '#3B82F6'
     _ec = DEEPCOLOR
 
+    _wire_lw = 1.5
+
     _a_inch = 2 / 2.54  # physical lattice constant in inch
     _a = 0.5  # box width and height, unit: ax
-
     _barrier_width = _a / 3  # barrier width
 
     _stroke = pe.withStroke(linewidth=2, foreground='white')
 
     def __init__(self, qc):
         """
-        Processing graphical info from a quantum circuit,
-        whose gates are stored as a list at present.
+        Processing graphical info from a quantum circuit, decompose every
+        gate/instruction into graphical elements and send the latter into
+        corresponding containers.
 
-        In the future the circuit will be stored as a graph
-        or graph-like object, procedure will be much simplified.
+        At present quantum gates and barriers are stored as a list. In the
+        near future the circuit will be stored as a graph or graph-like object,
+        procedure will be much simplified, and more functions will be developed.
         (TODO)
         """
         self.qbit_num = qc.num
@@ -81,14 +83,13 @@ class CircuitPlotManager:
         self._ctrl_wire_points = []
 
         self._closed_patches = []
-
         self._mea_arc_patches = []
         self._mea_point_patches = []
 
         self._ctrl_points = []
         self._not_points = []
         self._swap_points = []
-
+        self._iswap_points = []
         self._barrier_points = []
 
         self._text_list = []
@@ -121,7 +122,15 @@ class CircuitPlotManager:
                  *args,
                  **kwargs):
         """
+        :param title
+        :param init_labels: dict, {qbit: label}
+        :param end_labels: dict, {qbit: label}
+        :param save_path: str, path to save the figure
+        :param show: bool, whether to show the figure
+        :param args:
+        :param kwargs:
 
+        More customization will be supported in the future.(TODO)
         """
         # Not supported by patch collections?
         # if 'xkcd' in kwargs:
@@ -359,11 +368,11 @@ class CircuitPlotManager:
 
     def _proc_swap(self, depth, pos, iswap: bool = False):
         p1, p2 = pos
-        self._swap_points += [[depth, p] for p in pos]
+        nodes = [[depth, p] for p in pos]
+        self._swap_points += nodes
         self._ctrl_wire_points.append([[depth, p1], [depth, p2]])
         if iswap:
-            # TODO: add circle on swap node
-            raise NotImplementedError
+            self._iswap_points += nodes
 
     def _proc_barrier(self, depth, pos: list):
         x0 = depth - self._barrier_width
@@ -463,6 +472,18 @@ class CircuitPlotManager:
                                     linewidths=4,
                                     capstyle='round',
                                     )
+        plt.gca().add_collection(collection)
+
+        # iswap-cirlces
+        i_circles = []
+        for x, y in self._iswap_points:
+            circle = Circle((x, y), radius=2 ** (1 / 2) * r, lw=3,
+                            ec='#3B82F6', fill=False)
+            i_circles.append(circle)
+        collection = PatchCollection(i_circles,
+                                     match_original=True,
+                                     zorder=5,
+                                     )
         plt.gca().add_collection(collection)
 
     def _render_measure(self):
