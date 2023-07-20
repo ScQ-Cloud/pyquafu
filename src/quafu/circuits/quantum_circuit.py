@@ -1,9 +1,19 @@
 from typing import Any, Iterable
 import numpy as np
-from ..elements.quantum_element import Barrier, Delay, ControlledGate, MultiQubitGate, ParaMultiQubitGate, QuantumGate, SingleQubitGate, XYResonance
+from ..elements.quantum_element import (
+    Barrier,
+    Delay,
+    ControlledGate,
+    MultiQubitGate,
+    ParaMultiQubitGate,
+    QuantumGate,
+    SingleQubitGate,
+    XYResonance,
+)
 from quafu.pulses.quantum_pulse import QuantumPulse
 from ..elements.element_gates import *
 from ..exceptions import CircuitError
+
 
 class QuantumCircuit(object):
     def __init__(self, num: int):
@@ -19,19 +29,18 @@ class QuantumCircuit(object):
         self.circuit = []
         self.measures = dict(zip(range(num), range(num)))
         self._used_qubits = []
-        self._parameterized_gates = []
 
     @property
     def parameterized_gates(self):
         """Return the list of gates which the parameters are tunable"""
-        return self._parameterized_gates
+        return [g for g in self.gates if g.paras is not None]
 
     @property
     def used_qubits(self) -> List:
         self.layered_circuit()
         return self._used_qubits
 
-    def add_gate(self, gate : QuantumGate, tunable=False):
+    def add_gate(self, gate: QuantumGate, tunable=False):
         self.gates.append(gate)
         if tunable:
             self._parameterized_gates.append(gate)
@@ -45,7 +54,9 @@ class QuantumCircuit(object):
             CircuitError
         """
         if len(params_list) != len(self._parameterized_gates):
-            raise CircuitError("`params_list` must have the same size with parameterized gates")
+            raise CircuitError(
+                "`params_list` must have the same size with parameterized gates"
+            )
 
         # TODO(): Support updating part of params of a single gate
         for gate, params in zip(self._parameterized_gates, params_list):
@@ -63,12 +74,20 @@ class QuantumCircuit(object):
         gateQlist = [[] for i in range(num)]
         used_qubits = []
         for gate in gatelist:
-            if isinstance(gate, SingleQubitGate) or isinstance(gate, Delay) or isinstance(gate, QuantumPulse):
+            if (
+                isinstance(gate, SingleQubitGate)
+                or isinstance(gate, Delay)
+                or isinstance(gate, QuantumPulse)
+            ):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
 
-            elif isinstance(gate, Barrier) or isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
+            elif (
+                isinstance(gate, Barrier)
+                or isinstance(gate, MultiQubitGate)
+                or isinstance(gate, XYResonance)
+            ):
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
                 gateQlist[pos1].append(gate)
@@ -110,7 +129,7 @@ class QuantumCircuit(object):
         self._used_qubits = list(used_qubits)
         return self.circuit
 
-    def draw_circuit(self, width : int=4, return_str : bool=False):
+    def draw_circuit(self, width: int = 4, return_str: bool = False):
         """
         Draw layered circuit using ASCII, print in terminal.
 
@@ -131,17 +150,21 @@ class QuantumCircuit(object):
             maxlen = 1 + width
             for i in range(num):
                 gate = layergates[i]
-                if isinstance(gate, SingleQubitGate) or isinstance(gate, Delay) or (isinstance(gate, QuantumPulse)):
+                if (
+                    isinstance(gate, SingleQubitGate)
+                    or isinstance(gate, Delay)
+                    or (isinstance(gate, QuantumPulse))
+                ):
                     printlist[i * 2, l] = gate.symbol
                     maxlen = max(maxlen, len(gate.symbol) + width)
 
                 elif isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
                     q1 = reduce_map[min(gate.pos)]
                     q2 = reduce_map[max(gate.pos)]
-                    printlist[2 * q1 + 1:2 * q2, l] = "|"
+                    printlist[2 * q1 + 1 : 2 * q2, l] = "|"
                     printlist[q1 * 2, l] = "#"
                     printlist[q2 * 2, l] = "#"
-                    if isinstance(gate, ControlledGate): #Controlled-Multiqubit gate
+                    if isinstance(gate, ControlledGate):  # Controlled-Multiqubit gate
                         for ctrl in gate.ctrls:
                             printlist[reduce_map[ctrl] * 2, l] = "*"
 
@@ -153,13 +176,15 @@ class QuantumCircuit(object):
                             tq2 = reduce_map[max(gate.targs)]
                             printlist[tq1 * 2, l] = "#"
                             printlist[tq2 * 2, l] = "#"
-                            if tq1 + tq2 in [reduce_map[ctrl] * 2 for ctrl in gate.ctrls]:
+                            if tq1 + tq2 in [
+                                reduce_map[ctrl] * 2 for ctrl in gate.ctrls
+                            ]:
                                 printlist[tq1 + tq2, l] = "*" + gate.symbol
                             else:
                                 printlist[tq1 + tq2, l] = gate.symbol
                             maxlen = max(maxlen, len(gate.symbol) + width)
 
-                    else: #Multiqubit gate
+                    else:  # Multiqubit gate
                         if gate.name == "SWAP":
                             printlist[q1 * 2, l] = "x"
                             printlist[q2 * 2, l] = "x"
@@ -172,9 +197,8 @@ class QuantumCircuit(object):
                     pos = [i for i in gate.pos if i in reduce_map.keys()]
                     q1 = reduce_map[min(pos)]
                     q2 = reduce_map[max(pos)]
-                    printlist[2 * q1:2 * q2 + 1, l] = "||"
+                    printlist[2 * q1 : 2 * q2 + 1, l] = "||"
                     maxlen = max(maxlen, len("||"))
-
 
             printlist[-1, l] = maxlen
 
@@ -182,13 +206,24 @@ class QuantumCircuit(object):
         for j in range(2 * num - 1):
             if j % 2 == 0:
                 linestr = ("q[%d]" % (reduce_map_inv[j // 2])).ljust(6) + "".join(
-                    [printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)])
+                    [
+                        printlist[j, l].center(int(printlist[-1, l]), "-")
+                        for l in range(depth)
+                    ]
+                )
                 if reduce_map_inv[j // 2] in self.measures.keys():
                     linestr += " M->c[%d]" % self.measures[reduce_map_inv[j // 2]]
                 circuitstr.append(linestr)
             else:
-                circuitstr.append("".ljust(6) + "".join(
-                    [printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)]))
+                circuitstr.append(
+                    "".ljust(6)
+                    + "".join(
+                        [
+                            printlist[j, l].center(int(printlist[-1, l]), " ")
+                            for l in range(depth)
+                        ]
+                    )
+                )
         circuitstr = "\n".join(circuitstr)
 
         if return_str:
@@ -196,8 +231,7 @@ class QuantumCircuit(object):
         else:
             print(circuitstr)
 
-
-    def from_openqasm(self, openqasm : str):
+    def from_openqasm(self, openqasm: str):
         """
         Initialize the circuit from openqasm text.
         Args:
@@ -205,6 +239,7 @@ class QuantumCircuit(object):
         """
         from numpy import pi
         import re
+
         self.openqasm = openqasm
         # lines = self.openqasm.strip("\n").splitlines(";")
         lines = self.openqasm.splitlines()
@@ -262,7 +297,9 @@ class QuantumCircuit(object):
                                 if len(sp_op) > 1:
                                     paras = sp_op[1].strip("()")
                                     parastr = paras.split(",")
-                                    paras = [eval(parai, {"pi": pi}) for parai in parastr]
+                                    paras = [
+                                        eval(parai, {"pi": pi}) for parai in parastr
+                                    ]
 
                                 if gatename == "cx":
                                     self.cnot(inds[0], inds[1])
@@ -324,13 +361,16 @@ class QuantumCircuit(object):
                                     self.rzz(inds[0], inds[1], paras[0])
                                 else:
                                     print(
-                                        "Warning: Operations %s may be not supported by QuantumCircuit class currently." % gatename)
+                                        "Warning: Operations %s may be not supported by QuantumCircuit class currently."
+                                        % gatename
+                                    )
 
         if not self.measures:
             self.measures = dict(zip(range(self.num), range(self.num)))
         if not global_valid:
-            print("Warning: All operations after measurement will be removed for executing on experiment")
-
+            print(
+                "Warning: All operations after measurement will be removed for executing on experiment"
+            )
 
     def to_openqasm(self) -> str:
         """
@@ -339,7 +379,7 @@ class QuantumCircuit(object):
         Returns:
             openqasm text.
         """
-        qasm = "OPENQASM 2.0;\ninclude \"qelib1.inc\";\n"
+        qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n'
         qasm += "qreg q[%d];\n" % self.num
         qasm += "creg meas[%d];\n" % len(self.measures)
         for gate in self.gates:
@@ -350,7 +390,6 @@ class QuantumCircuit(object):
 
         self.openqasm = qasm
         return qasm
-
 
     def id(self, pos: int) -> "QuantumCircuit":
         """
@@ -589,7 +628,6 @@ class QuantumCircuit(object):
         self.gates.append(CPGate(ctrl, tar, para))
         return self
 
-
     def swap(self, q1: int, q2: int) -> "QuantumCircuit":
         """
         SWAP gate
@@ -613,7 +651,7 @@ class QuantumCircuit(object):
         self.gates.append(ToffoliGate(ctrl1, ctrl2, targ))
         return self
 
-    def fredkin(self, ctrl: int, targ1:int , targ2: int) -> "QuantumCircuit":
+    def fredkin(self, ctrl: int, targ1: int, targ2: int) -> "QuantumCircuit":
         """
         Fredkin gate
 
@@ -647,7 +685,7 @@ class QuantumCircuit(object):
         self.gates.append(Delay(pos, duration, unit=unit))
         return self
 
-    def xy(self, qs: int, qe: int, duration: int, unit: str="ns") -> "QuantumCircuit":
+    def xy(self, qs: int, qe: int, duration: int, unit: str = "ns") -> "QuantumCircuit":
         """
         XY resonance time evolution for quantum simulator
         Args:
@@ -720,7 +758,6 @@ class QuantumCircuit(object):
         """
         self.gates.append(MCZGate(ctrls, targ))
 
-
     def measure(self, pos: List[int], cbits: List[int] = []) -> None:
         """
         Measurement setting for experiment device.
@@ -736,11 +773,11 @@ class QuantumCircuit(object):
             if len(cbits) == len(self.measures):
                 self.measures = dict(zip(pos, cbits))
             else:
-                raise CircuitError("Number of measured bits should equal to the number of classical bits")
+                raise CircuitError(
+                    "Number of measured bits should equal to the number of classical bits"
+                )
 
-    def add_pulse(self,
-                  pulse: QuantumPulse,
-                  pos: int = None) -> "QuantumCircuit":
+    def add_pulse(self, pulse: QuantumPulse, pos: int = None) -> "QuantumCircuit":
         """
         Add quantum gate from pulse.
         """

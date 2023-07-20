@@ -14,3 +14,5 @@ cmake
 test
 .vscode
 thirdparty
+*.so
+MANIFEST.in

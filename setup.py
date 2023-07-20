@@ -14,7 +14,7 @@ from setuptools import find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 requirements = [
@@ -23,7 +23,7 @@ requirements = [
     "numpy>=1.20.3",
     "requests>=2.26.0",
     "scipy>=1.8.1",
-    "sparse>=0.13.0"
+    "sparse>=0.13.0",
 ]
 
 setup(
@@ -34,15 +34,19 @@ setup(
     url="https://github.com/ScQ-Cloud/pyquafu",
     description="Python toolkit for Quafu-Cloud",
     install_requires=requirements,
-    packages=find_packages(where="src"),
+    # packages=find_packages(where="src"),
+    # FIXME(): avoid find_packages, thus `python setup.py develop`
+    # links correct dir: 'xxx/src',
+    # otherwise, it will link 'xxx' and encounter modulenotfound error
+    packages=["quafu"],
     package_dir={"": "src"},
     cmake_install_dir="src/quafu/simulators/",
     include_package_data=True,
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     extras_require={"test": ["pytest"]},
     python_requires=">=3.8",
     zip_safe=False,
     setup_cfg=True,
-    license="Apache-2.0 License"
+    license="Apache-2.0 License",
 )
