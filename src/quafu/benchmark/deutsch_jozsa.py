@@ -71,16 +71,5 @@ def deutsch_jozsa(n: int, case: str):
     return circuit
 
 
-if __name__ == '__main__':
-    dj_qc = deutsch_jozsa(n=4, case='constant')
-    cmp = CircuitPlotManager(dj_qc)
-    cmp(title='Deutsch-Josza Circuit')
-
-    dj_qc.plot_circuit(title='Deutsch-Josza Circuit')
-    # plt.show()
-
-    import os
-    if not os.path.exists('./figures/'):
-        os.mkdir('./figures/')
-    plt.savefig('./figures/deutsch_jozsa.png', dpi=240)
-    # plt.show()
+dj_qc = deutsch_jozsa(n=4, case='constant')
+dj_qc.plot_circuit(title='Deutsch-Josza Circuit', show=True)
