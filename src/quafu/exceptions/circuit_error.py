@@ -1,15 +1,19 @@
 from .quafu_error import CircuitError
 
 
+# TODO
 class IndexOutOfRangeError(CircuitError):
     """  """
+    pass
 
 
 class InvalidParaError(CircuitError):
     """  """
+    pass
 
 
 class UnsupportedYet(CircuitError):
-    """ For un-supported instructions """
+    """ Un-supported instructions occurs"""
+    pass
 
 
