@@ -682,6 +682,17 @@ class QuantumCircuit(object):
         self.add_gate(qeg.SwapGate(q1, q2))
         return self
 
+    def iswap(self, q1: int, q2: int) -> "QuantumCircuit":
+        """
+        iSWAP gate
+
+        Args:
+            q1 (int): qubit the gate act.
+            q2 (int): qubit the gate act.
+        """
+        self.add_gate(qeg.ISwapGate(q1, q2))
+        return self
+
     def toffoli(self, ctrl1: int, ctrl2: int, targ: int) -> "QuantumCircuit":
         """
         Toffoli gate
