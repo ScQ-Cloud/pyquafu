@@ -66,11 +66,11 @@ void simulate(Circuit const& circuit, StateVector<data_t> & state){
                 state.apply_rz(op.positions()[1], op.paras()[0]);
                 state.apply_cnot(op.positions()[0], op.positions()[1]);
                 break;
-    
+
 
             //Other general gate
-            default: 
-            {   
+            default:
+            {
                 if (op.targe_num() == 1){
                     auto mat_temp = op.mat();
                     complex<double> *mat = mat_temp.data();
@@ -176,7 +176,7 @@ void simulate(string qasm, StateVector<double> & state){
 StateVector<double> simulate(string qasm){
     StateVector<double>state;
     simulate(qasm, state);
-    return std::move(state); 
+    return std::move(state);
 }
 
 

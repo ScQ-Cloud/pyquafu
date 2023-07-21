@@ -89,7 +89,7 @@ class Circuit{
     private:
         uint qubit_num_;    
         vector<QuantumOperator> gates_{0};
-
+        uint max_targe_num_;
     public:
     Circuit();
     explicit Circuit(uint qubit_num);
@@ -99,6 +99,7 @@ class Circuit{
     void add_gate(QuantumOperator &gate);
     void compress_gates();
     uint qubit_num() const { return qubit_num_; }
+    uint max_targe_num() const {return max_targe_num_;}
     vector<QuantumOperator>gates() const { return gates_; }
 
 };
@@ -121,16 +122,21 @@ void Circuit::add_gate(QuantumOperator &gate){
 
  Circuit::Circuit(vector<QuantumOperator> &gates)
  :
- gates_(gates){
+ gates_(gates),
+ max_targe_num_(0){
     qubit_num_ = 0;
     for (auto gate : gates){
         for (pos_t pos : gate.positions()){
+            if (gate.targe_num() > max_targe_num_)
+                max_targe_num_ = gate.targe_num();
             if (pos+1 > qubit_num_){ qubit_num_ = pos+1; }
         }
     }
 }
 
 Circuit::Circuit(py::object const&pycircuit)
+:
+max_targe_num_(0)
 {
     auto pygates = pycircuit.attr("gates");
     auto used_qubits = pycircuit.attr("used_qubits").cast<vector<pos_t>>();
@@ -139,6 +145,8 @@ Circuit::Circuit(py::object const&pycircuit)
         py::object pygate = py::reinterpret_borrow<py::object>(pygate_h);
         QuantumOperator gate = from_pyops(pygate);
         if (gate){
+            if (gate.targe_num() > max_targe_num_)
+                max_targe_num_ = gate.targe_num();
             gates_.push_back(std::move(gate));
         }        
     }

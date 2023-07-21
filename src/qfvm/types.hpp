@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <tuple>
 #include <Eigen/Core>
 
 #ifdef _MSC_VER

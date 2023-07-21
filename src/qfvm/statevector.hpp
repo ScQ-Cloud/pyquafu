@@ -20,13 +20,14 @@ class StateVector{
     private:
         uint num_;
         size_t size_;
-        vector<complex<real_t>> data_;
+        std::unique_ptr<complex<real_t>[]> data_;
 
     public:
         //construct function
         StateVector();
         explicit StateVector(uint num);
-        explicit StateVector(vector<complex<real_t>> const&data);
+        explicit StateVector(complex<real_t> *data, size_t data_size);
+
 
         //Named gate function
         void apply_x(pos_t pos);
@@ -48,7 +49,7 @@ class StateVector{
         void apply_cry(pos_t control, pos_t targe,  real_t theta);
         void apply_ccx(pos_t control1, pos_t control2, pos_t targe);
         void apply_swap(pos_t q1, pos_t q2);
-        
+
         //General implementation
         //One-target gate, ctrl_num equal 2 represent multi-controlled gate
         template<int ctrl_num>
@@ -65,19 +66,25 @@ class StateVector{
 
         complex<real_t> operator[] (size_t j) const ;
         void set_num(uint num);
-        vector<complex<real_t>> move_data(){ return std::move(data_); }
-        void print_state(); 
+        void print_state();
+        std::tuple<std::complex<real_t>*, size_t> move_data_to_python() {
+            auto data_ptr = data_.release();
+            return std::make_tuple(std::move(data_ptr), size_);
+        }
+        
+        complex<real_t>* data(){ return data_.get(); }
+        size_t size(){ return size_; }
+        uint num(){ return num_; }
 };
 
 
 //////// constructors ///////
 
 template <class real_t>
-StateVector<real_t>::StateVector(uint num) 
-: num_(num), 
-size_(std::pow(2, num)),
-data_(size_)
-{ 
+StateVector<real_t>::StateVector(uint num)
+: num_(num),
+size_(1ULL<<num)
+{   data_ = std::make_unique<complex<real_t>[]>(size_);
     data_[0] = complex<real_t>(1., 0);
 };
 
@@ -85,13 +92,15 @@ template <class real_t>
 StateVector<real_t>::StateVector() : StateVector(0){ }
 
 template <class real_t>
-StateVector<real_t>::StateVector(vector<complex<real_t>> const&data)
+StateVector<real_t>::StateVector(complex<real_t> *data, size_t data_size)
 :
-size_(data.size()),
-data_(data)
-{
+data_(data),
+size_(data_size)
+{   
     num_ = static_cast<int>(std::log2(size_));
 }
+
+
 
 //// useful functions /////
 template <class real_t>
@@ -101,15 +110,25 @@ std::complex<real_t> StateVector<real_t>::operator[] (size_t j) const{
 
 template <class real_t>
 void StateVector<real_t>::set_num(uint num){
-            num_ = num;
-            size_ = std::pow(2, num_);
-            data_.resize(size_);
-        }  
+    if (num_ > 0) {
+        // Initialized from statevector,
+        // should not resize
+        return;
+    }
+    num_ = num;
+
+    if (size_ != 1ULL << num) {
+        data_.reset();
+        size_ = 1ULL << num;
+        data_ = std::make_unique<complex<real_t>[]>(size_);
+        data_[0] = complex<real_t>(1, 0);
+    }
+}
 
 template <class real_t>
 void StateVector<real_t>::print_state(){
-    for (auto i : data_){
-        std::cout << i << std::endl;
+    for (auto i=0;i<size_;i++){
+        std::cout << data_[i] << std::endl;
     }
 }
 
@@ -121,12 +140,12 @@ void StateVector<real_t>::apply_x(pos_t pos){
     const size_t offset = 1<<pos;
     const size_t rsize = size_>>1;
      if (pos == 0){ //single step
-#ifdef USE_SIMD 
+#ifdef USE_SIMD
 #pragma omp parallel for
          for(omp_i j = 0;j < size_;j+=2){
-             double* ptr = (double*)(data_.data() + j);
+             double* ptr = (double*)(data_.get() + j);
             __m256d data = _mm256_loadu_pd(ptr);
-            data = _mm256_permute4x64_pd(data, 78); 
+            data = _mm256_permute4x64_pd(data, 78);
             _mm256_storeu_pd(ptr, data);
          }
 #else
@@ -141,8 +160,8 @@ void StateVector<real_t>::apply_x(pos_t pos){
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j += 2){
             size_t i = (j&(offset-1)) | (j>>pos<<pos<<1);
-            double* ptr0 = (double*)(data_.data() + i);
-            double* ptr1 = (double*)(data_.data() + i + offset);
+            double* ptr0 = (double*)(data_.get()+ i);
+            double* ptr1 = (double*)(data_.get() + i + offset);
             __m256d data0 = _mm256_loadu_pd(ptr0);
             __m256d data1 = _mm256_loadu_pd(ptr1);
             _mm256_storeu_pd(ptr1, data0);
@@ -170,7 +189,7 @@ void StateVector<real_t>::apply_y(pos_t pos){
         __m256d minus_half = _mm256_set_pd(1, -1, -1, 1);
 #pragma omp parallel for
          for(omp_i j = 0;j < size_;j+=2){
-             double* ptr = (double*)(data_.data() + j);
+             double* ptr = (double*)(data_.get() + j);
             __m256d data = _mm256_loadu_pd(ptr);
             data = _mm256_permute4x64_pd(data, 27);
             data = _mm256_mul_pd(data, minus_half);
@@ -179,7 +198,7 @@ void StateVector<real_t>::apply_y(pos_t pos){
 #else
 #pragma omp parallel for
         for(omp_i j = 0;j < size_;j+=2){
-            complex<real_t> temp = data_[j]; 
+            complex<real_t> temp = data_[j];
             data_[j] = -im*data_[j+1];
             data_[j+1] = im*temp;
         }
@@ -189,16 +208,16 @@ void StateVector<real_t>::apply_y(pos_t pos){
 #ifdef USE_SIMD
         __m256d minus_even = _mm256_set_pd(1, -1, 1, -1);
         __m256d minus_odd = _mm256_set_pd(-1, 1, -1, 1);
-        
+
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j += 2){
             size_t i = (j&(offset-1)) | (j>>pos<<pos<<1);
 
-            double* ptr0 = (double*)(data_.data() + i);
-            double* ptr1 = (double*)(data_.data() + i + offset);
+            double* ptr0 = (double*)(data_.get() + i);
+            double* ptr1 = (double*)(data_.get() + i + offset);
             __m256d data0 = _mm256_loadu_pd(ptr0);
             __m256d data1 = _mm256_loadu_pd(ptr1);
-            data0 = _mm256_permute_pd(data0, 5); 
+            data0 = _mm256_permute_pd(data0, 5);
             data1 = _mm256_permute_pd(data1, 5);
             data0 = _mm256_mul_pd(data0, minus_even);
             data1 = _mm256_mul_pd(data1, minus_odd);
@@ -210,10 +229,10 @@ void StateVector<real_t>::apply_y(pos_t pos){
         for(omp_i j = 0;j < rsize;j += 2){
             size_t i = (j&(offset-1)) | (j>>pos<<pos<<1);
             size_t i1 = i+1;
-            complex<real_t> temp = data_[i]; 
+            complex<real_t> temp = data_[i];
             data_[i] = -im*data_[i+offset];
             data_[i+offset] = im*temp;
-            complex<real_t> temp1 = data_[i1]; 
+            complex<real_t> temp1 = data_[i1];
             data_[i1] = -im*data_[i1+offset];
             data_[i1+offset] = im*temp1;
         }
@@ -237,7 +256,7 @@ void StateVector<real_t>::apply_z(pos_t pos){
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j += 2){
             size_t i = (j&(offset-1)) | (j>>pos<<pos<<1);
-            double* ptr1 = (double*)(data_.data() + i + offset);
+            double* ptr1 = (double*)(data_.get() + i + offset);
             __m256d data1 = _mm256_loadu_pd(ptr1);
             data1 = _mm256_mul_pd(data1, minus_one);
             _mm256_storeu_pd(ptr1, data1);
@@ -340,14 +359,14 @@ void StateVector<real_t>::apply_cp(pos_t control, pos_t targe, real_t phase){
 template <class real_t>
 void StateVector<real_t>::apply_crx(pos_t control, pos_t targe,  real_t theta){
     complex<double> mat[4] = {std::cos(theta/2), -imag_I*std::sin(theta/2), -imag_I*std::sin(theta/2), std::cos(theta/2)};
-    
+
     apply_one_targe_gate_general<1>(vector<pos_t>{control, targe}, mat);
 }
 
 template <class real_t>
 void StateVector<real_t>::apply_cry(pos_t control, pos_t targe,  real_t theta){
      complex<double> mat[4] = {std::cos(theta/2), -std::sin(theta/2),std::sin(theta/2), std::cos(theta/2)};
-    
+
     apply_one_targe_gate_real<1>(vector<pos_t>{control, targe}, mat);
 }
 
@@ -361,7 +380,7 @@ void StateVector<real_t>::apply_ccx(pos_t control1, pos_t control2, pos_t targe)
 template <class real_t>
 template <int ctrl_num>
 void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv, complex<double> *mat)
-{   
+{
     std::function<size_t(size_t)> getind_func_near;
     std::function<size_t(size_t)> getind_func;
     size_t rsize;
@@ -378,14 +397,14 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
         getind_func_near = [&](size_t j)-> size_t {
             return 2*j;
         };
-        
+
         getind_func = [&](size_t j)-> size_t {
             return (j&(offset-1)) | (j>>targe<<targe<<1);
         };
 
     }
     else if(ctrl_num == 1){
-        
+
         has_control = true;
         control = posv[0];
         targe = posv[1];
@@ -404,7 +423,7 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
 
         getind_func_near = getind_func;
 
-        
+
     }
     else if(ctrl_num == 2){
         has_control = true;
@@ -426,14 +445,14 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
             }
             return i;
         };
-        getind_func_near = getind_func;   
+        getind_func_near = getind_func;
     }
-    
+
     const complex<real_t> mat00 = mat[0];
     const complex<real_t> mat01 = mat[1];
     const complex<real_t> mat10 = mat[2];
     const complex<real_t> mat11 = mat[3];
-    if (targe == 0){            
+    if (targe == 0){
 #pragma omp parallel for
             for(omp_i j = 0;j < rsize;j++){
                 size_t i = getind_func_near(j);
@@ -462,11 +481,11 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
     __m256d m_11re = _mm256_set_pd(mat[3].real(), mat[3].real(), mat[3].real(), mat[3].real());
     __m256d m_11im = _mm256_set_pd(mat[3].imag(), -mat[3].imag(), mat[3].imag(),  -mat[3].imag());
 #pragma omp parallel for
-        for(omp_i j = 0;j < rsize; j+= 2){        
+        for(omp_i j = 0;j < rsize; j+= 2){
             size_t i = getind_func(j);
-            
-            double* p0 = (double*)(data_.data()+i);
-            double* p1 = (double*)(data_.data()+i+offset);
+
+            double* p0 = (double*)(data_.get()+i);
+            double* p1 = (double*)(data_.get()+i+offset);
             //load data
             __m256d data0 = _mm256_loadu_pd(p0); //lre_0, lim_0, rre_0, rim_0
             __m256d data1 = _mm256_loadu_pd(p1); //lre_1, lim_1, rre_1, rim_1
@@ -508,7 +527,7 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
         }
 #endif
     }
-}           
+}
 
 
 template <class real_t>
@@ -532,7 +551,7 @@ void StateVector<real_t>::apply_one_targe_gate_x(vector<pos_t> const& posv)
         getind_func_near = [&](size_t j)-> size_t {
             return 2*j;
         };
-        
+
         getind_func = [&](size_t j)-> size_t {
             return (j&(offset-1)) | (j>>targe<<targe<<1);
         };
@@ -575,17 +594,17 @@ void StateVector<real_t>::apply_one_targe_gate_x(vector<pos_t> const& posv)
             }
             return i;
         };
-        getind_func_near = getind_func;   
+        getind_func_near = getind_func;
     }
-  
+
     if (targe == 0){
-#ifdef USE_SIMD            
+#ifdef USE_SIMD
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j++){
             size_t i = getind_func_near(j);
-            double* ptr = (double*)(data_.data() + i);
+            double* ptr = (double*)(data_.get() + i);
             __m256d data = _mm256_loadu_pd(ptr);
-            data = _mm256_permute4x64_pd(data, 78); 
+            data = _mm256_permute4x64_pd(data, 78);
             _mm256_storeu_pd(ptr, data);
         }
 #else
@@ -594,7 +613,7 @@ void StateVector<real_t>::apply_one_targe_gate_x(vector<pos_t> const& posv)
             size_t i = getind_func(j);
             std::swap(data_[i], data_[i+1]);
         }
-#endif  
+#endif
     }else if (has_control && control == 0){ //single step
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j++){
@@ -605,10 +624,10 @@ void StateVector<real_t>::apply_one_targe_gate_x(vector<pos_t> const& posv)
     }else{//unroll to 2
 #ifdef USE_SIMD
 #pragma omp parallel for
-        for(omp_i j = 0;j < rsize; j+= 2){        
+        for(omp_i j = 0;j < rsize; j+= 2){
             size_t i = getind_func(j);
-            double* ptr0 = (double*)(data_.data() + i);
-            double* ptr1 = (double*)(data_.data() + i + offset);
+            double* ptr0 = (double*)(data_.get() + i);
+            double* ptr1 = (double*)(data_.get() + i + offset);
             __m256d data0 = _mm256_loadu_pd(ptr0);
             __m256d data1 = _mm256_loadu_pd(ptr1);
             _mm256_storeu_pd(ptr1, data0);
@@ -624,7 +643,7 @@ void StateVector<real_t>::apply_one_targe_gate_x(vector<pos_t> const& posv)
         }
 #endif
     }
-}           
+}
 
 template <class real_t>
 template <int ctrl_num>
@@ -646,14 +665,14 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
         getind_func_near = [&](size_t j)-> size_t {
             return 2*j;
         };
-        
+
         getind_func = [&](size_t j)-> size_t {
             return (j&(offset-1)) | (j>>targe<<targe<<1);
         };
 
     }
     else if(ctrl_num == 1){
-        
+
         has_control = true;
         control = posv[0];
         targe = posv[1];
@@ -691,14 +710,14 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
             }
             return i;
         };
-        getind_func_near = getind_func;   
+        getind_func_near = getind_func;
     }
-    
+
     const double mat00 = mat[0].real();
     const double mat01 = mat[1].real();
     const double mat10 = mat[2].real();
     const double mat11 = mat[3].real();
-    if (targe == 0){            
+    if (targe == 0){
 #pragma omp parallel for
             for(omp_i j = 0;j < rsize;j++){
                 size_t i = getind_func_near(j);
@@ -706,9 +725,9 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
                 data_[i] = mat00*data_[i] + mat01*data_[i+1];
                 data_[i+1] = mat10*temp + mat11*data_[i+1];
             }
-      
+
     }else if (has_control && control == 0){ //single step
-       
+
 #pragma omp parallel for
             for(omp_i j = 0;j < rsize;j++){
                 size_t i = getind_func(j);
@@ -723,11 +742,11 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
     __m256d m_10re = _mm256_set_pd(mat[2].real(), mat[2].real(), mat[2].real(), mat[2].real());
     __m256d m_11re = _mm256_set_pd(mat[3].real(), mat[3].real(), mat[3].real(), mat[3].real());
 #pragma omp parallel for
-        for(omp_i j = 0;j < rsize; j+= 2){        
+        for(omp_i j = 0;j < rsize; j+= 2){
             size_t i = getind_func(j);
-            
-            double* p0 = (double*)(data_.data()+i);
-            double* p1 = (double*)(data_.data()+i+offset);
+
+            double* p0 = (double*)(data_.get()+i);
+            double* p1 = (double*)(data_.get()+i+offset);
              //load data
             __m256d data0 = _mm256_loadu_pd(p0); //lre_0, lim_0, rre_0, rim_0
             __m256d data1 = _mm256_loadu_pd(p1); //lre_1, lim_1, rre_1, rim_1
@@ -761,7 +780,7 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
         }
 #endif
     }
-}      
+}
 
 
 template <class real_t>
@@ -784,14 +803,14 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
         getind_func_near = [&](size_t j)-> size_t {
             return 2*j;
         };
-        
+
         getind_func = [&](size_t j)-> size_t {
             return (j&(offset-1)) | (j>>targe<<targe<<1);
         };
 
     }
     else if(ctrl_num == 1){
-        
+
         has_control = true;
         control = posv[0];
         targe = posv[1];
@@ -809,7 +828,7 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
         };
 
         getind_func_near = getind_func;
-    
+
     }
     else if(ctrl_num == 2){
         has_control = true;
@@ -831,19 +850,19 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
             }
             return i;
         };
-        getind_func_near = getind_func;   
+        getind_func_near = getind_func;
     }
-    
-    if (targe == 0){            
+
+    if (targe == 0){
 #pragma omp parallel for
             for(omp_i j = 0;j < rsize;j++){
                 size_t i = getind_func_near(j);
                 data_[i] *= mat[0];
                 data_[i+1] *= mat[1];
             }
-      
+
     }else if (has_control && control == 0){ //single step
-       
+
 #pragma omp parallel for
         for(omp_i j = 0;j < rsize;j++){
             size_t i = getind_func(j);
@@ -859,11 +878,11 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
     __m256d m_11re = _mm256_set_pd(mat[1].real(), mat[1].real(),  mat[1].real(), mat[1].real());
     __m256d m_11im = _mm256_set_pd(mat[1].imag(), -mat[1].imag(),  mat[1].imag(), -mat[1].imag());
 #pragma omp parallel for
-        for(omp_i j = 0;j < rsize; j+= 2){        
+        for(omp_i j = 0;j < rsize; j+= 2){
             size_t i = getind_func(j);
-            
-            double* p0 = (double*)(data_.data()+i);
-            double* p1 = (double*)(data_.data()+i+offset);
+
+            double* p0 = (double*)(data_.get()+i);
+            double* p1 = (double*)(data_.get()+i+offset);
 
             //load data
             __m256d data0 = _mm256_loadu_pd(p0); //lre_0, lim_0, rre_0, rim_0
@@ -896,31 +915,30 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
         }
 #endif
     }
-}      
+}
 
 template <class real_t>
 void StateVector<real_t>::apply_multi_targe_gate_general(vector<pos_t> const& posv, uint control_num, RowMatrixXcd const& mat)
 {
     auto posv_sorted = posv;
-    auto targ_sorted = vector<pos_t>(posv.begin()+control_num, posv.end());
+    auto targs = vector<pos_t>(posv.begin()+control_num, posv.end());
     sort(posv_sorted.begin(), posv_sorted.end());
-    sort(targ_sorted.begin(), targ_sorted.end());
     size_t rsize = size_ >> posv.size();
-    uint targe_num = targ_sorted.size();
+    uint targe_num = targs.size();
     size_t matsize= 1<< targe_num;
     std::vector<uint> targ_mask(matsize);
     //create target mask
     for (size_t m = 0; m < matsize;m++){
         for (size_t j = 0; j < targe_num; j++){
             if ((m>>j)&1){
-                auto mask_pos = targ_sorted[j];
+                auto mask_pos = targs[j];
                 targ_mask[m] |= 1ll<<mask_pos;
             }
         }
     }
 
     //apply matrix
-//TODO: Disalbe Parallel when matsize is very large 
+//TODO: Disalbe Parallel when matsize is very large
 #pragma omp parallel for
     for (omp_i j = 0;j < rsize;j++){
         size_t i = j;

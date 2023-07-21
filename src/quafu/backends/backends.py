@@ -2,23 +2,28 @@ import requests
 import json
 import re
 import networkx as nx
-from quafu.users.userapi import load_account
 import numpy as np
 import matplotlib.pyplot as plt
+from quafu.users.userapi import User
+
 
 class Backend(object):
-    def __init__(self, backend_info : dict):
+    def __init__(self, backend_info: dict):
         self.name = backend_info['system_name']
         self._valid_gates = backend_info['valid_gates']
         self.qubit_num = backend_info['qubits']
         self.system_id = backend_info['system_id']
+        self.status = backend_info['status']
+        self.qv = backend_info["QV"]
+        # self.task_in_queue = backend_info["task_in_queue"]
 
-    def get_chip_info(self):
-        api_token, url = load_account()
+    def get_chip_info(self, user=User()):
+        api_token = user.apitoken
+        url = user._url
         data = {"system_name": self.name.lower()}
-        headers={"api_token": api_token}
-        chip_info = requests.post(url = url + "qbackend/scq_get_chip_info/", data=data, 
-        headers=headers)
+        headers = {"api_token": api_token}
+        chip_info = requests.post(url=url + user.chip_api, data=data,
+                                  headers=headers)
         chip_info = json.loads(chip_info.text)
         json_topo_struct = chip_info["topological_structure"]
         qubits_list = []
@@ -66,17 +71,17 @@ class Backend(object):
 
         elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9]
         esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9]
-        elarge_labels = {(u, v) : "%.3f" %d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9}
-        esmall_labels = {(u, v) : "%.3f" %d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9}
+        elarge_labels = {(u, v): "%.3f" % d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9}
+        esmall_labels = {(u, v): "%.3f" % d["weight"] for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9}
 
-        pos = nx.spring_layout(G, seed=1)  
+        pos = nx.spring_layout(G, seed=1)
         fig, ax = plt.subplots()
         nx.draw_networkx_nodes(G, pos, node_size=400, ax=ax)
 
         nx.draw_networkx_edges(G, pos, edgelist=elarge, width=2, ax=ax)
         nx.draw_networkx_edges(
             G, pos, edgelist=esmall, width=2, alpha=0.5, style="dashed"
-        , ax=ax)
+            , ax=ax)
 
         nx.draw_networkx_labels(G, pos, font_size=14, font_family="sans-serif", ax=ax)
         edge_labels = nx.get_edge_attributes(G, "weight")
@@ -85,33 +90,7 @@ class Backend(object):
         fig.set_figwidth(14)
         fig.set_figheight(14)
         fig.tight_layout()
-        return {"mapping" : int_to_qubit, "topology_diagram": fig, "full_info": chip_info}
-    
+        return {"mapping": int_to_qubit, "topology_diagram": fig, "full_info": chip_info}
 
     def get_valid_gates(self):
         return self._valid_gates
-
-
-   
-    
-
-# class ScQ_P10(Backend):
-#     def __init__(self):
-#         super().__init__("ScQ-P10")
-#         self.valid_gates = ["cx", "cz", "rx", "ry", "rz", "x", "y", "z", "h", "sx", "sy", "id", "delay", "barrier", "cy", "cnot", "swap"]
-
-# class ScQ_P20(Backend):
-#     def __init__(self):
-#         super().__init__("ScQ-P20")
-#         self.valid_gates = ["cx", "cz", "rx", "ry", "rz", "x", "y", "z", "h", "sx", "sy", "id", "delay", "barrier", "cy", "cnot", "swap"]
-        
-# class ScQ_P50(Backend):
-#     def __init__(self):
-#         super().__init__("ScQ-P50")
-#         self.valid_gates = ["cx", "cz", "rx", "ry", "rz", "x", "y", "z", "h"]
-
-# class ScQ_S41(Backend):
-#     def __init__(self):
-#         super().__init__("ScQ-S41")
-#         self.valid_gates = [ "rx", "ry", "rz", "x", "y", "z", "h", "sx", "sy", "id", "delay", "barrier", "xy"]
-            

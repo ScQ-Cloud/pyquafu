@@ -22,6 +22,18 @@ pip install -r requirements.txt
 python setup.py install
 ```
 
+## GPU support
+To install PyQuafu with GPU-based circuit simulator, you need build from the source and make sure that [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) is installed. You can run
+
+```
+python setup.py install -DUSE_GPU=ON
+```
+to install the GPU version. If you further have [cuQuantum](https://developer.nvidia.com/cuquantum-sdk) installed, you can install PyQuafu with cuQuantum support.
+```
+python setup.py install -DUSE_GPU=ON -DUSE_CUQUANTUM=ON
+```
+
+
 ## Document
 Please see the website [docs](https://scq-cloud.github.io/).
 
