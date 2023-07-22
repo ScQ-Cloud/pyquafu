@@ -10,8 +10,10 @@ class User(object):
     def __init__(self):
         self.apitoken = ""
         self._url = "http://quafu.baqis.ac.cn/"
-        self.load_account()
-
+        
+        if(self.check_account_data()):
+            self.load_account()
+            
         self.backends_api = "qbackend/get_backends/"
         self.chip_api = "qbackend/scq_get_chip_info/"
         self.exec_api = "qbackend/scq_kit/"
@@ -19,6 +21,14 @@ class User(object):
         self.exec_recall_api = "qbackend/scq_task_recall/"
         self.priority = 2
 
+    def check_account_data(self):
+        homedir = get_homedir()
+        file_dir = homedir + "/.quafu/"
+        if not os.path.exists(file_dir):
+            print("Your user information is not configured. Remember to configure it by User.save_apitoken(<your api_token>)")
+            return False
+        return True
+        # TODO: Check if the user's basic data file is formated
 
     def save_apitoken(self, apitoken):
         """
