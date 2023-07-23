@@ -11,7 +11,7 @@ class User(object):
         self.apitoken = ""
         self._url = "http://quafu.baqis.ac.cn/"
         
-        if(self.check_account_data()):
+        if self.check_account_data():
             self.load_account()
             
         self.backends_api = "qbackend/get_backends/"
