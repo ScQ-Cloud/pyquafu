@@ -1,15 +1,17 @@
+import copy
+import json
 from typing import Dict, List, Tuple
+from urllib import parse
+
+import numpy as np
+import requests
+
 from quafu.circuits.quantum_circuit import QuantumCircuit
+from quafu.users.userapi import User
 from ..exceptions import CircuitError, ServerError, CompileError
 from ..results.results import ExecResult, merge_measure
 from ..users.exceptions import UserError
-import numpy as np
-import json
-import requests
-from urllib import parse
-from quafu.users.userapi import User
-from quafu.backends.backends import Backend
-import copy
+
 
 class Task(object):
     """
@@ -25,24 +27,24 @@ class Task(object):
         backend (dict): quantum backend that execute the task.
 
     """
-    def __init__(self, user = User()):
+
+    def __init__(self, user=User()):
         self.user = user
         self.shots = 1000
         self.tomo = False
         self.compile = True
         self.priority = self.user.priority
         self.runtime_job_id = ""
-        self.submit_history = { }
+        self.submit_history = {}
         self._available_backends = self.user.get_available_backends(print_info=False)
         self.backend = self._available_backends[list(self._available_backends.keys())[0]]
 
-
     def config(self,
-               backend: str="ScQ-P10",
-               shots: int=1000,
-               compile: bool=True,
-               tomo: bool=False,
-               priority: int=2) -> None:
+               backend: str = "ScQ-P10",
+               shots: int = 1000,
+               compile: bool = True,
+               tomo: bool = False,
+               priority: int = 2) -> None:
         """
         Configure the task properties
 
@@ -50,18 +52,18 @@ class Task(object):
             backend: Select the experimental backend.
             shots: Numbers of single shot measurement.
             compile: Whether compile the circuit on the backend
-            tomo:  Whether do tomography (Not support yet)
+            tomo:  Whether to do tomography (Not support yet)
             priority: Task priority.
         """
         if backend not in self._available_backends.keys():
-            raise UserError("backend %s is not valid, available backends are "%backend+", ".join(self._available_backends.keys()))
+            raise UserError("backend %s is not valid, available backends are " % backend + ", ".join(
+                self._available_backends.keys()))
 
         self.backend = self._available_backends[backend]
         self.shots = shots
         self.tomo = tomo
         self.compile = compile
         self.priority = priority
-
 
     def get_history(self) -> Dict:
         """
@@ -70,8 +72,6 @@ class Task(object):
             A dict of history. The key is the group name and the value is a list of task id in the group.
         """
         return self.submit_history
-
-
 
     def get_backend_info(self) -> Dict:
         """
@@ -84,8 +84,8 @@ class Task(object):
 
     def submit(self,
                qc: QuantumCircuit,
-               obslist: List=[])\
-                -> Tuple[List[ExecResult], List[int]]:
+               obslist: List = []) \
+            -> Tuple[List[ExecResult], List[int]]:
         """
         Execute the circuit with observable expectation measurement task.
         Args:
@@ -138,12 +138,12 @@ class Task(object):
 
     def run(self,
             qc: QuantumCircuit,
-            measure_base: List=[]) -> ExecResult:
+            measure_base: List = []) -> ExecResult:
         """Single run for measurement task.
 
         Args:
             qc (QuantumCircuit): Quantum circuit that need to be executed on backend.
-            measure_base (list[str, list[int]]): measure base and it position.
+            measure_base (list[str, list[int]]): measure base and its positions.
         """
         if len(measure_base) == 0:
             res = self.send(qc)
@@ -163,9 +163,9 @@ class Task(object):
 
     def send(self,
              qc: QuantumCircuit,
-             name: str="",
-             group: str="",
-            wait: bool=True) -> ExecResult:
+             name: str = "",
+             group: str = "",
+             wait: bool = True) -> ExecResult:
         """
         Run the circuit on experimental device.
 
@@ -180,7 +180,8 @@ class Task(object):
         from quafu import get_version
         version = get_version()
         if qc.num > self.backend.qubit_num:
-            raise CircuitError("The qubit number %d is too large for backend %s which has %d qubits" %(qc.num, self.backend.name, self.backend.qubit_num))
+            raise CircuitError("The qubit number %d is too large for backend %s which has %d qubits" % (
+            qc.num, self.backend.name, self.backend.qubit_num))
 
         self.check_valid_gates(qc)
         qc.to_openqasm()
@@ -190,9 +191,9 @@ class Task(object):
                 "pyquafu_version": version, "runtime_job_id": self.runtime_job_id}
 
         if wait:
-            url = self.user._url  + self.user.exec_api
+            url = self.user._url + self.user.exec_api
         else:
-            url = self.user._url  + self.user.exec_async_api
+            url = self.user._url + self.user.exec_async_api
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.apitoken}
         data = parse.urlencode(data)
@@ -225,8 +226,8 @@ class Task(object):
         Args:
             taskid: The taskid of the task need to be retrieved.
         """
-        data = {"task_id" : taskid}
-        url = self.user._url  + self.user.exec_recall_api
+        data = {"task_id": taskid}
+        url = self.user._url + self.user.exec_recall_api
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
         res = requests.post(url, headers=headers, data=data)
@@ -238,8 +239,8 @@ class Task(object):
 
     def retrieve_group(self,
                        group: str,
-                       history: Dict={},
-                       verbose: bool=True) -> List[ExecResult]:
+                       history: Dict = {},
+                       verbose: bool = True) -> List[ExecResult]:
         """
         Retrieve the results of submited task by group name.
 
@@ -257,18 +258,18 @@ class Task(object):
         if verbose:
             group = group if group else "Untitled group"
             print("Group: ", group)
-            print((" "*5).join(["task_id".ljust(16), "task_name".ljust(10),   "status".ljust(10)]))
+            print((" " * 5).join(["task_id".ljust(16), "task_name".ljust(10), "status".ljust(10)]))
         for taskid in taskids:
             res = self.retrieve(taskid)
             taskname = res.taskname
             if verbose:
                 taskname = taskname if taskname else "Untitled"
-                print((" "*5).join([("%s" %res.taskid).ljust(16), ("%s" %taskname).ljust(10), ("%s" %res.task_status).ljust(10)]))
+                print((" " * 5).join(
+                    [("%s" % res.taskid).ljust(16), ("%s" % taskname).ljust(10), ("%s" % res.task_status).ljust(10)]))
             if res.task_status == "Completed":
                 group_res.append(res)
 
         return group_res
-
 
     def check_valid_gates(self, qc: QuantumCircuit) -> None:
         """
@@ -280,7 +281,7 @@ class Task(object):
             valid_gates = self.backend.get_valid_gates()
             for gate in qc.gates:
                 if gate.name.lower() not in valid_gates:
-                    raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self.backend.name))
+                    raise CircuitError("Invalid operations '%s' for backend '%s'" % (gate.name, self.backend.name))
 
         else:
             if self.backend.name == "ScQ-S41":
@@ -288,4 +289,4 @@ class Task(object):
             if self.backend.name == "ScQ-P136":
                 for gate in qc.gates:
                     if gate.name.lower() in ["xy"]:
-                        raise CircuitError("Invalid operations '%s' for backend '%s'" %(gate.name, self.backend.name))
+                        raise CircuitError("Invalid operations '%s' for backend '%s'" % (gate.name, self.backend.name))
