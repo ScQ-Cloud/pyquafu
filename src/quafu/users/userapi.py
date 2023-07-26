@@ -63,7 +63,7 @@ class User(object):
         """
         try:
             f = open(self.token_dir + "api", "r")
-            token = f.readline()
+            token = f.readline().strip("\n")
         except FileNotFoundError:
             raise UserError(f"API token file not found at: '{self.token_dir}'. "
                             "Please set up by providing api_token/token_dir when initializing User.")
