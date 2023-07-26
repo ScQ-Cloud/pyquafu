@@ -1,7 +1,7 @@
 import networkx as nx
 from typing import Dict, Any, List
 
-from instruction_node import InstructionNode
+from quafu.dagcircuits.instruction_node import InstructionNode
 
 from networkx.classes.multidigraph import MultiDiGraph
 
