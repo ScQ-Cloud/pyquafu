@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from .exceptions import UserError
+from .exceptions import UserError, APITokenNotFound
 from ..utils.platform import get_homedir
 
 
@@ -30,11 +30,18 @@ class User(object):
             self.token_dir = token_dir
 
         if api_token is None:
-            self.api_token = self._load_account_token()
+            self._api_token = self._load_account_token()
         else:
-            self.api_token = api_token
+            self._api_token = api_token
 
         self.priority = 2
+
+    @property
+    def api_token(self):
+        if self._api_token is None:
+            raise APITokenNotFound(f"API token not set, neither found at dir: '{self.token_dir}'. "
+                                   "Please set up by providing api_token/token_dir when initializing User.")
+        return self._api_token
 
     def save_apitoken(self, apitoken=None):
         """
@@ -46,7 +53,7 @@ class User(object):
                           "in the future, please set api token by providing 'api_token' "
                           "or 'token_dir' when initialize User()."
                           )
-            self.api_token = apitoken
+            self._api_token = apitoken
 
         file_dir = self.token_dir
         if not os.path.exists(file_dir):
@@ -61,12 +68,12 @@ class User(object):
 
         TODO: expand to load more user information
         """
-        try:
-            f = open(self.token_dir + "api", "r")
-            token = f.readline().strip("\n")
-        except FileNotFoundError:
-            raise UserError(f"API token file not found at: '{self.token_dir}'. "
-                            "Please set up by providing api_token/token_dir when initializing User.")
+        file_dir = self.token_dir + "api"
+        if not os.path.exists(file_dir):
+            return None
+        else:
+            f = open(file_dir, "r")
+            token = f.readline().strip()
         return token
 
     def _get_backends_info(self):
