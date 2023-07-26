@@ -15,7 +15,7 @@ class User(object):
     exec_async_api = url + "qbackend/scq_kit_asyc/"
     exec_recall_api = url + "qbackend/scq_task_recall/"
 
-    def __init__(self, api_token: str = '', token_dir: str = None):
+    def __init__(self, api_token: str = None, token_dir: str = None):
         """
         Initialize user account and load backend information.
 
@@ -29,7 +29,7 @@ class User(object):
         else:
             self.token_dir = token_dir
 
-        if api_token == '':
+        if api_token is None:
             self._api_token = self._load_account_token()
         else:
             self._api_token = api_token
@@ -38,7 +38,7 @@ class User(object):
 
     @property
     def api_token(self):
-        if self._api_token == '':
+        if self._api_token is None:
             raise APITokenNotFound(f"API token not set, neither found at dir: '{self.token_dir}'. "
                                    "Please set up by providing api_token/token_dir when initializing User.")
         return self._api_token
@@ -70,7 +70,7 @@ class User(object):
         """
         file_dir = self.token_dir + "api"
         if not os.path.exists(file_dir):
-            return ''
+            return None
         else:
             f = open(file_dir, "r")
             token = f.readline().strip()
