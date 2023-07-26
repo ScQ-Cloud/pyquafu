@@ -3,12 +3,18 @@ import os
 
 import requests
 
-from quafu.users.url_constants import QUAFU_URL, BACKENDS_API
 from .exceptions import UserError
 from ..utils.platform import get_homedir
 
 
 class User(object):
+    url = "https://quafu.baqis.ac.cn/"
+    backends_api = url + "qbackend/get_backends/"
+    chip_api = url + "qbackend/scq_get_chip_info/"
+    exec_api = url + "qbackend/scq_kit/"
+    exec_async_api = url + "qbackend/scq_kit_asyc/"
+    exec_recall_api = url + "qbackend/scq_task_recall/"
+
     def __init__(self, api_token: str = None, token_dir: str = None):
         """
         Initialize user account and load backend information.
@@ -16,7 +22,6 @@ class User(object):
         :param api_token: if provided
         :param token_dir: where api token is found or saved
         """
-        self.url = QUAFU_URL
         self._available_backends = {}
 
         if token_dir is None:
@@ -48,7 +53,7 @@ class User(object):
             os.mkdir(file_dir)
         with open(file_dir + "api", "w") as f:
             f.write(self.api_token + "\n")
-            f.write(QUAFU_URL)
+            f.write(self.url)
 
     def _load_account_token(self):
         """
@@ -69,7 +74,7 @@ class User(object):
         Get available backends information
         """
 
-        backends_info = requests.post(url=BACKENDS_API, headers={"api_token": self.api_token})
+        backends_info = requests.post(url=self.backends_api, headers={"api_token": self.api_token})
         backends_info_dict = json.loads(backends_info.text)
         if backends_info_dict["status"] == 201:
             raise UserError(backends_info_dict["message"])
