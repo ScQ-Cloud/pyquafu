@@ -1,0 +1,6 @@
+QUAFU_URL = "https://quafu.baqis.ac.cn/"
+BACKENDS_API = QUAFU_URL + "qbackend/get_backends/"
+CHIP_API = QUAFU_URL + "qbackend/scq_get_chip_info/"
+EXEC_API = QUAFU_URL + "qbackend/scq_kit/"
+EXEC_ASYNC_API = QUAFU_URL + "qbackend/scq_kit_asyc/"
+EXEC_RECALL_API = QUAFU_URL + "qbackend/scq_task_recall/"

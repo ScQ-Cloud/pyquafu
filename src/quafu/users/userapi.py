@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from ._quafu_url import QUAFU_URL
+from quafu.users.url_constants import QUAFU_URL, BACKENDS_API
 from .exceptions import UserError
 from ..utils.platform import get_homedir
 
@@ -29,11 +29,6 @@ class User(object):
         else:
             self.api_token = api_token
 
-        self.backends_api = "qbackend/get_backends/"
-        self.chip_api = "qbackend/scq_get_chip_info/"
-        self.exec_api = "qbackend/scq_kit/"
-        self.exec_async_api = "qbackend/scq_kit_asyc/"
-        self.exec_recall_api = "qbackend/scq_task_recall/"
         self.priority = 2
 
     def save_apitoken(self, apitoken=None):
@@ -74,7 +69,7 @@ class User(object):
         Get available backends information
         """
 
-        backends_info = requests.post(url=self.url + self.backends_api, headers={"api_token": self.api_token})
+        backends_info = requests.post(url=BACKENDS_API, headers={"api_token": self.api_token})
         backends_info_dict = json.loads(backends_info.text)
         if backends_info_dict["status"] == 201:
             raise UserError(backends_info_dict["message"])
