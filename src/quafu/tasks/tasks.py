@@ -191,11 +191,11 @@ class Task(object):
                 "pyquafu_version": version, "runtime_job_id": self.runtime_job_id}
 
         if wait:
-            url = self.user._url + self.user.exec_api
+            url = User.exec_api
         else:
-            url = self.user._url + self.user.exec_async_api
+            url = User.exec_async_api
 
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.apitoken}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
         res = requests.post(url, headers=headers, data=data)
@@ -227,7 +227,7 @@ class Task(object):
             taskid: The taskid of the task need to be retrieved.
         """
         data = {"task_id": taskid}
-        url = self.user._url + self.user.exec_recall_api
+        url = User.exec_recall_api
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
         res = requests.post(url, headers=headers, data=data)

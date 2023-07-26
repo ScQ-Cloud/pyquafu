@@ -4,6 +4,7 @@ import re
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
+
 from quafu.users.userapi import User
 
 
@@ -18,11 +19,10 @@ class Backend(object):
         # self.task_in_queue = backend_info["task_in_queue"]
 
     def get_chip_info(self, user=User()):
-        api_token = user.apitoken
-        url = user._url
+        api_token = user.api_token
         data = {"system_name": self.name.lower()}
         headers = {"api_token": api_token}
-        chip_info = requests.post(url=url + user.chip_api, data=data,
+        chip_info = requests.post(url=User.chip_api, data=data,
                                   headers=headers)
         chip_info = json.loads(chip_info.text)
         json_topo_struct = chip_info["topological_structure"]
@@ -62,7 +62,6 @@ class Backend(object):
             weighted_edges.append([qubit1, qubit2, np.round(fidelity, 3)])
 
         # draw topology
-
         G = nx.Graph()
         for key, value in int_to_qubit.items():
             G.add_node(key, name=value)
@@ -84,7 +83,7 @@ class Backend(object):
             , ax=ax)
 
         nx.draw_networkx_labels(G, pos, font_size=14, font_family="sans-serif", ax=ax)
-        edge_labels = nx.get_edge_attributes(G, "weight")
+        # edge_labels = nx.get_edge_attributes(G, "weight")
         nx.draw_networkx_edge_labels(G, pos, elarge_labels, font_size=12, font_color="green", ax=ax)
         nx.draw_networkx_edge_labels(G, pos, esmall_labels, font_size=12, font_color="red", ax=ax)
         fig.set_figwidth(14)

@@ -76,7 +76,6 @@ class CircuitPlotManager:
         procedure will be much simplified, and more functions will be developed.
         (TODO)
         """
-        self.qbit_num = qc.num
         # step0: containers of graphical elements
 
         self._h_wire_points = []
@@ -99,6 +98,10 @@ class CircuitPlotManager:
         for gate in qc.gates:
             assert isinstance(gate, Instruction)
             self._process_ins(gate)
+        qubits_used = self.dorders > 0
+        self.used_qbit_num = qc.num
+        # TODO: drop off unused-qubits
+        # self.used_qbit_num = np.sum(qubits_used)
 
         self.depth = np.max(self.dorders) + 1
 
@@ -106,12 +109,12 @@ class CircuitPlotManager:
             self._proc_measure(self.depth - 1, q)
 
         # step2: initialize bit-label
-        self.q_label = {i: f'q_{i}' for i in range(qc.num)}
-        self.c_label = {iq: f'c_{ic}' for iq, ic in qc.measures.items()}
+        self.q_label = {i: r'$|q_{%d}\rangle$' % i for i in range(qc.num) if qubits_used[i]}
+        self.c_label = {iq: f'c_{ic}' for iq, ic in qc.measures.items() if qubits_used[iq]}
 
         # step3: figure coordination
         self.xs = np.arange(-3 / 2, self.depth + 3 / 2)
-        self.ys = np.arange(-2, self.qbit_num + 1 / 2)
+        self.ys = np.arange(-2, self.used_qbit_num + 1 / 2)
 
     def __call__(self,
                  title=None,
@@ -203,12 +206,13 @@ class CircuitPlotManager:
         """
         plot horizontal circuit wires
         """
-        for y in range(self.qbit_num):
+        for y in range(self.used_qbit_num):
             x0 = self.xs[0] + 1
             x1 = self.xs[-1] - 1
             self._h_wire_points.append([[x0, y], [x1, y]])
 
     def _gate_bbox(self, x, y, fc: str):
+        """ Single qubit gate box """
         a = self._a
         from matplotlib.patches import FancyBboxPatch
         bbox = FancyBboxPatch((-a / 2 + x, -a / 2 + y), a, a,  # this warning belongs to matplotlib
@@ -224,7 +228,6 @@ class CircuitPlotManager:
             labels = self.q_label
 
         for i, label in labels.items():
-            label = r'$|%s\rangle$' % label
             txt = Text(-2 / 3, i,
                        label,
                        size=18,
