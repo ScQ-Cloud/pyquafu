@@ -10,7 +10,7 @@ from typing import Dict, Any, List, Union
 import copy
 
 from quafu.dagcircuits.instruction_node import InstructionNode  # instruction_node.py in the same folder as circuit_dag.py now
-from dag_circuit import DAGCircuit  #  dag_circuit.py in the same folder as circuit_dag.py now
+from quafu.dagcircuits.dag_circuit import DAGCircuit  #  dag_circuit.py in the same folder as circuit_dag.py now
 
 # import pygraphviz as pgv
 from networkx.drawing.nx_pydot import write_dot
