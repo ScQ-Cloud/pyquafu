@@ -17,7 +17,7 @@ from typing import Union, List
 
 
 PosType = Union[int, List[int]]
-ParaType = dict[str, Union[float, int]]
+ParaType = Union[float, int]
 
 
 class Instruction(ABC):
