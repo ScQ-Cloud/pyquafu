@@ -229,7 +229,7 @@ class Task(object):
         data = {"task_id": taskid}
         url = User.exec_recall_api
 
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
         res = requests.post(url, headers=headers, data=data)
 
         res_dict = json.loads(res.text)
