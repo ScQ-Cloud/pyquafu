@@ -29,7 +29,10 @@ class Task(object):
     """
 
     def __init__(self, user=User()):
+        # update api-token, a patch to be deleted in the future
+        user._api_token = user._load_account_token()
         self.user = user
+
         self.shots = 1000
         self.tomo = False
         self.compile = True
