@@ -29,7 +29,10 @@ class Task(object):
     """
 
     def __init__(self, user=User()):
+        # update api-token, a patch to be deleted in the future
+        user._api_token = user._load_account_token()
         self.user = user
+
         self.shots = 1000
         self.tomo = False
         self.compile = True
@@ -229,7 +232,7 @@ class Task(object):
         data = {"task_id": taskid}
         url = User.exec_recall_api
 
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
         res = requests.post(url, headers=headers, data=data)
 
         res_dict = json.loads(res.text)
