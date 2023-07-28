@@ -18,7 +18,7 @@ class Backend(object):
         self.qv = backend_info["QV"]
         # self.task_in_queue = backend_info["task_in_queue"]
 
-    def get_chip_info(self, user=User()):
+    def get_chip_info(self, user: User):
         api_token = user.api_token
         data = {"system_name": self.name.lower()}
         headers = {"api_token": api_token}

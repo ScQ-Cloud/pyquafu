@@ -28,8 +28,9 @@ class Task(object):
 
     """
 
-    def __init__(self, user=User()):
+    def __init__(self, user):
         self.user = user
+
         self.shots = 1000
         self.tomo = False
         self.compile = True
@@ -138,14 +139,14 @@ class Task(object):
 
     def run(self,
             qc: QuantumCircuit,
-            measure_base: List = []) -> ExecResult:
+            measure_base: List = None) -> ExecResult:
         """Single run for measurement task.
 
         Args:
             qc (QuantumCircuit): Quantum circuit that need to be executed on backend.
             measure_base (list[str, list[int]]): measure base and its positions.
         """
-        if len(measure_base) == 0:
+        if measure_base is None:
             res = self.send(qc)
             res.measure_base = ''
 
@@ -229,7 +230,7 @@ class Task(object):
         data = {"task_id": taskid}
         url = User.exec_recall_api
 
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.token}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
         res = requests.post(url, headers=headers, data=data)
 
         res_dict = json.loads(res.text)
@@ -239,7 +240,7 @@ class Task(object):
 
     def retrieve_group(self,
                        group: str,
-                       history: Dict = {},
+                       history: Dict = None,
                        verbose: bool = True) -> List[ExecResult]:
         """
         Retrieve the results of submited task by group name.
