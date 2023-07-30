@@ -16,3 +16,4 @@ test
 thirdparty
 .pyd
 MANIFEST.in
+*.so
