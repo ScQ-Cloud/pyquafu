@@ -87,6 +87,9 @@ class SYGate(FixedSingleQubitGate):
         super().__init__(pos)
         self.symbol = "√Y"
 
+    def to_qasm(self):
+        return "ry(pi/2) q[%d];" % self.pos
+
 
 class SYdgGate(FixedSingleQubitGate):
     name = "SYdg"
@@ -97,8 +100,7 @@ class SYdgGate(FixedSingleQubitGate):
         self.symbol = "√Y†"
 
     def to_qasm(self):
-        # TODO: this seems incorrect
-        return "ry(pi/2) q[%d]" % self.pos
+        return "ry(-pi/2) q[%d]" % self.pos
 
 
 FixedSingleQubitGate.register_gate(IdGate)
