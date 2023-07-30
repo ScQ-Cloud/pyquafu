@@ -18,8 +18,9 @@ class Backend(object):
         self.qv = backend_info["QV"]
         # self.task_in_queue = backend_info["task_in_queue"]
 
-    def get_chip_info(self, user: User):
-        api_token = user.api_token
+    def get_chip_info(self, user=User()):
+        # update api-token, a patch to be deleted in the future
+        api_token = user._load_account_token()
         data = {"system_name": self.name.lower()}
         headers = {"api_token": api_token}
         chip_info = requests.post(url=User.chip_api, data=data,

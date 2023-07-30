@@ -28,7 +28,9 @@ class Task(object):
 
     """
 
-    def __init__(self, user):
+    def __init__(self, user=User()):
+        # update api-token, a patch to be deleted in the future
+        user._api_token = user._load_account_token()
         self.user = user
 
         self.shots = 1000
@@ -139,14 +141,14 @@ class Task(object):
 
     def run(self,
             qc: QuantumCircuit,
-            measure_base: List = None) -> ExecResult:
+            measure_base: List = []) -> ExecResult:
         """Single run for measurement task.
 
         Args:
             qc (QuantumCircuit): Quantum circuit that need to be executed on backend.
             measure_base (list[str, list[int]]): measure base and its positions.
         """
-        if measure_base is None:
+        if len(measure_base) == 0:
             res = self.send(qc)
             res.measure_base = ''
 
@@ -240,7 +242,7 @@ class Task(object):
 
     def retrieve_group(self,
                        group: str,
-                       history: Dict = None,
+                       history: Dict = {},
                        verbose: bool = True) -> List[ExecResult]:
         """
         Retrieve the results of submited task by group name.
