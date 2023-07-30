@@ -11,9 +11,9 @@ test
 _skbuild
 cmake
 *.egg-info
-test
 .vscode
 thirdparty
-.pyd
+*.so
 MANIFEST.in
 *.so
+.pyd
