@@ -1,3 +1,17 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,7 +21,7 @@ from matplotlib.text import Text
 
 from quafu.elements.quantum_element import Instruction, ControlledGate
 
-# the following line for developers only
+# this line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit
 
 line_args = {}
@@ -98,8 +112,8 @@ class CircuitPlotManager:
         for gate in qc.gates:
             assert isinstance(gate, Instruction)
             self._process_ins(gate)
-        qubits_used = self.dorders > 0
-        self.used_qbit_num = qc.num
+        qubits_used = qc.used_qubits
+        self.used_qbit_num = len(qubits_used)
         # TODO: drop off unused-qubits
         # self.used_qbit_num = np.sum(qubits_used)
 
@@ -109,8 +123,8 @@ class CircuitPlotManager:
             self._proc_measure(self.depth - 1, q)
 
         # step2: initialize bit-label
-        self.q_label = {i: r'$|q_{%d}\rangle$' % i for i in range(qc.num) if qubits_used[i]}
-        self.c_label = {iq: f'c_{ic}' for iq, ic in qc.measures.items() if qubits_used[iq]}
+        self.q_label = {i: r'$|q_{%d}\rangle$' % i for i in range(qc.num) if i in qubits_used}
+        self.c_label = {iq: f'c_{ic}' for iq, ic in qc.measures.items() if iq in qubits_used}
 
         # step3: figure coordination
         self.xs = np.arange(-3 / 2, self.depth + 3 / 2)
@@ -144,6 +158,7 @@ class CircuitPlotManager:
                          title,
                          size=30,
                          ha='center', va='baseline')
+            print(title)
             self._text_list.append(title)
 
         # initialize a figure
