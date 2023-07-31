@@ -62,7 +62,7 @@ class QuantumGate(Instruction):
     def to_qasm(self):
         qstr = "%s" % self.name.lower()
 
-        if self.paras:
+        if self.paras is not None:
             if isinstance(self.paras, Iterable):
                 qstr += "(" + ",".join(["%s" % para for para in self.paras]) + ")"
             else:
@@ -107,7 +107,6 @@ class ParaSingleQubitGate(SingleQubitGate, ABC):
             raise ValueError("`paras` can not be None for ParaSingleQubitGate")
         elif isinstance(paras, int):
             paras = float(paras)
-            print(paras)
 
         if not isinstance(paras, float):
             raise TypeError(f"`paras` must be float or int for ParaSingleQubitGate, instead of {type(paras)}")
