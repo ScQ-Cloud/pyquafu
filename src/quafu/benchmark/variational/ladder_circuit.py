@@ -27,5 +27,3 @@ def plot():
                     show=True,
                     save=False,
                     )
-
-plot()
