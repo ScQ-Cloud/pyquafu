@@ -63,18 +63,3 @@ class QuantumRegister:
 
     def exchange(self, p1, p2):
         pass
-
-
-if __name__ == '__main__':
-    # q0 = Qubit(0)
-    # q1 = Qubit(1)
-    # reg = {q.pos: q for q in [q0, q1]}
-    # print(reg)
-    #
-    # reg[0], reg[1] = reg[1], reg[0]
-    # reg[0].pos, reg[1].pos = reg[1].pos, reg[0].pos
-    #
-    # print(reg)
-    # print([q0.pos, q1.pos])
-    reg = QuantumRegister(4, name='reg')
-    print(reg[3])
