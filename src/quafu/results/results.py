@@ -11,9 +11,9 @@ class Result(object):
 
 
 class ExecResult(Result):
-    """ 
+    """
     Class that save the execute results returned from backend.
-    
+
     Attributes:
         counts (dict): Samples counts on each bitstring.
         probabilities (dict): Calculated probabilities on each bitstring.
@@ -29,8 +29,10 @@ class ExecResult(Result):
         self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
         self.logicalq_res = {}
         cbits = list(self.measures.values())
+        indexed_cbits = {bit: i for i, bit in enumerate(sorted(cbits))}
+        squeezed_cbits = [indexed_cbits[bit] for bit in cbits]
         for key, values in self.counts.items():
-            newkey = "".join([key[i] for i in cbits])
+            newkey = "".join([key[i] for i in squeezed_cbits])
             self.logicalq_res[newkey] = values
 
         self.taskid = input_dict['task_id']
@@ -49,7 +51,7 @@ class ExecResult(Result):
         """
         Calculate observables Z on input position using probabilities
 
-        Args: 
+        Args:
             pos (list[int]): Positions of observalbes.
         """
         return measure_obs(pos, self.logicalq_res)
@@ -89,11 +91,11 @@ class SimuResult(Result):
     def plot_probabilities(self, full: bool = False, reverse_basis: bool = False, sort: bool = None):
         """
         Plot the probabilities from simulated results, ordered in big endian convention.
-        
+
         Args:
             full: Whether plot on the full basis of measured qubits.
             reverse_basis: Whether reverse the bitstring of basis. (Little endian convention).
-            sort:  Sort the results by probabilities values. Can be `"ascend"` order or `"descend"` order. 
+            sort:  Sort the results by probabilities values. Can be `"ascend"` order or `"descend"` order.
         """
 
         probs = self.probabilities
