@@ -1,17 +1,37 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from typing import List
+
 import numpy as np
 
-import quafu.elements.element_gates.clifford
-import quafu.elements.element_gates.pauli
-from quafu.elements.quantum_element.pulses.quantum_pulse import QuantumPulse
-from ..elements.quantum_element import Barrier, Delay, MultiQubitGate, QuantumGate, ControlledGate, \
-    SingleQubitGate, XYResonance
 import quafu.elements.element_gates as qeg
+from quafu.elements.quantum_element.pulses.quantum_pulse import QuantumPulse
+from ..elements.quantum_element import (
+    Barrier,
+    Delay,
+    MultiQubitGate,
+    QuantumGate,
+    ControlledGate,
+    SingleQubitGate,
+    XYResonance,
+)
 from ..exceptions import CircuitError
 
 
 class QuantumCircuit(object):
-    def __init__(self, num: int):
+    def __init__(self, num: int, *args, **kwargs):
         """
         Initialize a QuantumCircuit object
 
@@ -356,7 +376,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        gate = quafu.elements.element_gates.clifford.HGate(pos)
+        gate = qeg.HGate(pos)
         self.add_gate(gate)
         return self
 
@@ -399,7 +419,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(quafu.elements.element_gates.clifford.TGate(pos))
+        self.add_gate(qeg.TGate(pos))
         return self
 
     def tdg(self, pos: int) -> "QuantumCircuit":
@@ -409,7 +429,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(quafu.elements.element_gates.clifford.TdgGate(pos))
+        self.add_gate(qeg.TdgGate(pos))
         return self
 
     def s(self, pos: int) -> "QuantumCircuit":
@@ -419,7 +439,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(quafu.elements.element_gates.clifford.SGate(pos))
+        self.add_gate(qeg.SGate(pos))
         return self
 
     def sdg(self, pos: int) -> "QuantumCircuit":
@@ -429,7 +449,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(quafu.elements.element_gates.clifford.SdgGate(pos))
+        self.add_gate(qeg.SdgGate(pos))
         return self
 
     def sx(self, pos: int) -> "QuantumCircuit":
@@ -439,7 +459,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(quafu.elements.element_gates.pauli.SXGate(pos))
+        self.add_gate(qeg.SXGate(pos))
         return self
 
     def sxdg(self, pos: int) -> "QuantumCircuit":
@@ -449,7 +469,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        gate = quafu.elements.element_gates.pauli.SXdgGate(pos)
+        gate = qeg.SXdgGate(pos)
         self.add_gate(gate)
         return self
 
@@ -460,7 +480,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(quafu.elements.element_gates.pauli.SYGate(pos))
+        self.add_gate(qeg.SYGate(pos))
         return self
 
     def sydg(self, pos: int) -> "QuantumCircuit":
@@ -470,7 +490,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        gate = quafu.elements.element_gates.pauli.SYdgGate(pos)
+        gate = qeg.SYdgGate(pos)
         self.add_gate(gate)
         return self
 
@@ -771,16 +791,27 @@ class QuantumCircuit(object):
         if pos is None:
             pos = list(range(self.num))
 
+        e_num = len(self.measures)  # existing num of measures
+        n_num = len(pos)  # newly added num of measures
+        if not set(self.measures.keys()).isdisjoint(set(pos)):
+            raise ValueError("Measured qubits overlap with existing measurements.")
+
+        if n_num > len(set(pos)):
+            raise ValueError("Measured qubits not uniquely assigned.")
+
         if cbits:
-            if not len(cbits) == len(pos):
-                raise CircuitError("Number of measured bits should equal to the number of classical bits")
+            if not len(set(cbits)) == len(cbits):
+                raise ValueError("Classical bits not uniquely assigned.")
+            if not len(cbits) == n_num:
+                raise ValueError("Number of measured bits should equal to the number of classical bits")
         else:
-            cbits = pos
+            cbits = list(range(e_num, e_num + n_num))
+
+        _sorted_indices = sorted(range(n_num), key=lambda k: cbits[k])
+        cbits = [_sorted_indices.index(i) + e_num for i in range(n_num)]
 
         newly_measures = dict(zip(pos, cbits))
         self.measures = {**self.measures, **newly_measures}
-        if not len(self.measures.values()) == len(set(self.measures.values())):
-            raise ValueError("Measured bits not uniquely assigned.")
 
     def add_pulse(self,
                   pulse: QuantumPulse,
