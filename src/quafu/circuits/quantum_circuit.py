@@ -39,16 +39,17 @@ class QuantumCircuit(object):
         Args:
             num (int): Total qubit number used
         """
-        self.qregs = [QuantumRegister(num)] if num > 0 else []
+        # self.qregs = [QuantumRegister(num)] if num > 0 else []
+        self.num = num
         self.gates = []
         self.openqasm = ""
         self.circuit = []
         self.measures = {}
         self._used_qubits = []
 
-    @property
-    def num(self):
-        return np.sum([len(qreg) for qreg in self.qregs])
+    # @property
+    # def num(self):
+    #     return np.sum([len(qreg) for qreg in self.qregs])
 
     @property
     def used_qubits(self) -> List:
