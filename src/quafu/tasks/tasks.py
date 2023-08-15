@@ -243,7 +243,7 @@ class Task(object):
                 else:
                     self.submit_history[group].append(task_id)
 
-                return ExecResult(res_dict, qc.measures)
+                return ExecResult(res_dict)
 
     def retrieve(self, taskid: str) -> ExecResult:
         """
@@ -259,12 +259,7 @@ class Task(object):
         response = requests.post(url, headers=headers, data=data)
 
         res_dict = response.json()
-        measures = eval(res_dict["measure"])
-        if measures is None:
-            raise Exception("Measure info returned is None. This may be the error under repairing."
-                            " See https://github.com/ScQ-Cloud/pyquafu/issues/50")
-
-        return ExecResult(res_dict, measures)
+        return ExecResult(res_dict)
 
     def retrieve_group(self,
                        group: str,
