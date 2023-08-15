@@ -20,6 +20,7 @@ from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
 
 from quafu.elements.quantum_element import Instruction, ControlledGate
+from typing import Dict
 
 # this line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit
@@ -158,9 +159,9 @@ class CircuitPlotManager:
                          title,
                          size=30,
                          ha='center', va='baseline')
-            print(title)
             self._text_list.append(title)
 
+        # TODO: adjust figure size according to title and other elements
         # initialize a figure
         _size_x = self._a_inch * abs(self.xs[-1] - self.xs[0])
         _size_y = self._a_inch * abs(self.ys[-1] - self.ys[0])
@@ -237,7 +238,7 @@ class CircuitPlotManager:
                               )
         self._closed_patches.append(bbox)
 
-    def _inits_label(self, labels: dict[int: str] = None):
+    def _inits_label(self, labels: Dict[int, str] = None):
         """ qubit-labeling """
         if labels is None:
             labels = self.q_label
