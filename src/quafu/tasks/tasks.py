@@ -1,5 +1,19 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import copy
-import json
+import logging
 from typing import Dict, List, Tuple
 from urllib import parse
 
@@ -28,10 +42,8 @@ class Task(object):
 
     """
 
-    def __init__(self, user=User()):
-        # update api-token, a patch to be deleted in the future
-        user._api_token = user._load_account_token()
-        self.user = user
+    def __init__(self, user: User = None):
+        self.user = User() if user is None else user
 
         self.shots = 1000
         self.tomo = False
@@ -141,14 +153,14 @@ class Task(object):
 
     def run(self,
             qc: QuantumCircuit,
-            measure_base: List = []) -> ExecResult:
+            measure_base: List = None) -> ExecResult:
         """Single run for measurement task.
 
         Args:
             qc (QuantumCircuit): Quantum circuit that need to be executed on backend.
             measure_base (list[str, list[int]]): measure base and its positions.
         """
-        if len(measure_base) == 0:
+        if measure_base is None:
             res = self.send(qc)
             res.measure_base = ''
 
@@ -168,7 +180,8 @@ class Task(object):
              qc: QuantumCircuit,
              name: str = "",
              group: str = "",
-             wait: bool = True) -> ExecResult:
+             wait: bool = True,
+             ) -> ExecResult:
         """
         Run the circuit on experimental device.
 
@@ -184,7 +197,7 @@ class Task(object):
         version = get_version()
         if qc.num > self.backend.qubit_num:
             raise CircuitError("The qubit number %d is too large for backend %s which has %d qubits" % (
-            qc.num, self.backend.name, self.backend.qubit_num))
+                qc.num, self.backend.name, self.backend.qubit_num))
 
         self.check_valid_gates(qc)
         qc.to_openqasm()
@@ -198,29 +211,39 @@ class Task(object):
         else:
             url = User.exec_async_api
 
+        logging.debug('quantum circuit validated, sending task...')
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
-        res = requests.post(url, headers=headers, data=data)
-        res_dict = json.loads(res.text)
+        response = requests.post(url, headers=headers, data=data)  # type: requests.models.Response
 
-        if res.json()["status"] in [201, 205]:
-            raise UserError(res_dict["message"])
-        elif res.json()["status"] == 5001:
-            raise CircuitError(res_dict["message"])
-        elif res.json()["status"] == 5003:
-            raise ServerError(res_dict["message"])
-        elif res.json()["status"] == 5004:
-            raise CompileError(res_dict["message"])
+        # TODO: completing status code checks
+        # assert response.ok
+        if response.status_code == 502:
+            logging.critical("Received a 502 Bad Gateway response. Please try again later.\n"
+                             "If there is persistent failure, please report it on our github page.")
+            raise UserError()
         else:
-            task_id = res_dict["task_id"]
-
-            if not (group in self.submit_history):
-                self.submit_history[group] = [task_id]
+            res_dict = response.json()
+            import pprint
+            pprint.pprint(res_dict)
+            if response.status_code in [201, 205]:
+                raise UserError(res_dict["message"])
+            elif response.status_code == 5001:
+                raise CircuitError(res_dict["message"])
+            elif response.status_code == 5003:
+                raise ServerError(res_dict["message"])
+            elif response.status_code == 5004:
+                raise CompileError(res_dict["message"])
             else:
-                self.submit_history[group].append(task_id)
+                task_id = res_dict["task_id"]
 
-            return ExecResult(res_dict, qc.measures)
+                if not (group in self.submit_history):
+                    self.submit_history[group] = [task_id]
+                else:
+                    self.submit_history[group].append(task_id)
+
+                return ExecResult(res_dict, qc.measures)
 
     def retrieve(self, taskid: str) -> ExecResult:
         """
@@ -233,16 +256,19 @@ class Task(object):
         url = User.exec_recall_api
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
-        res = requests.post(url, headers=headers, data=data)
+        response = requests.post(url, headers=headers, data=data)
 
-        res_dict = json.loads(res.text)
+        res_dict = response.json()
         measures = eval(res_dict["measure"])
+        if measures is None:
+            raise Exception("Measure info returned is None. This may be the error under repairing."
+                            " See https://github.com/ScQ-Cloud/pyquafu/issues/50")
 
         return ExecResult(res_dict, measures)
 
     def retrieve_group(self,
                        group: str,
-                       history: Dict = {},
+                       history: Dict = None,
                        verbose: bool = True) -> List[ExecResult]:
         """
         Retrieve the results of submited task by group name.
