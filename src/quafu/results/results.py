@@ -11,9 +11,9 @@ class Result(object):
 
 
 class ExecResult(Result):
-    """
+    """ 
     Class that save the execute results returned from backend.
-
+    
     Attributes:
         counts (dict): Samples counts on each bitstring.
         probabilities (dict): Calculated probabilities on each bitstring.
@@ -21,20 +21,8 @@ class ExecResult(Result):
         transpiled_circuit (QuantumCircuit): Quantum circuit transpiled on backend.
     """
 
-    def __init__(self, input_dict, measures):
+    def __init__(self, input_dict):
         status_map = {0: "In Queue", 1: "Running", 2: "Completed", "Canceled": 3, 4: "Failed"}
-        self.measures = measures
-        self.task_status = status_map[input_dict["status"]]
-        self.res = eval(input_dict['res'])
-        self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
-        self.logicalq_res = {}
-        cbits = list(self.measures.values())
-        indexed_cbits = {bit: i for i, bit in enumerate(sorted(cbits))}
-        squeezed_cbits = [indexed_cbits[bit] for bit in cbits]
-        for key, values in self.counts.items():
-            newkey = "".join([key[i] for i in squeezed_cbits])
-            self.logicalq_res[newkey] = values
-
         self.taskid = input_dict['task_id']
         self.taskname = input_dict['task_name']
         self.transpiled_openqasm = input_dict["openqasm"]
@@ -42,16 +30,27 @@ class ExecResult(Result):
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
+
+        self.measures = self.transpiled_circuit.measures
+        self.task_status = status_map[input_dict["status"]]
+        self.res = eval(input_dict['res'])
+
+        self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
+        self.logicalq_res = {}
+        for bit_str, count in self.counts.items():
+            newkey = "".join([bit_str[i] for i in self.measures.values()])
+            self.logicalq_res[newkey] = count
+
         total_counts = sum(self.counts.values())
         self.probabilities = {}
-        for key in self.counts:
-            self.probabilities[key] = self.counts[key] / total_counts
+        for bit_str in self.counts:
+            self.probabilities[bit_str] = self.counts[bit_str] / total_counts
 
     def calculate_obs(self, pos):
         """
         Calculate observables Z on input position using probabilities
 
-        Args:
+        Args: 
             pos (list[int]): Positions of observalbes.
         """
         return measure_obs(pos, self.logicalq_res)
@@ -91,11 +90,11 @@ class SimuResult(Result):
     def plot_probabilities(self, full: bool = False, reverse_basis: bool = False, sort: bool = None):
         """
         Plot the probabilities from simulated results, ordered in big endian convention.
-
+        
         Args:
             full: Whether plot on the full basis of measured qubits.
             reverse_basis: Whether reverse the bitstring of basis. (Little endian convention).
-            sort:  Sort the results by probabilities values. Can be `"ascend"` order or `"descend"` order.
+            sort:  Sort the results by probabilities values. Can be `"ascend"` order or `"descend"` order. 
         """
 
         probs = self.probabilities
