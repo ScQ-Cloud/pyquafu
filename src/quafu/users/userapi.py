@@ -1,4 +1,17 @@
-import json
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 
 import requests
@@ -80,13 +93,13 @@ class User(object):
         """
         Get available backends information
         """
-
-        backends_info = requests.post(url=self.backends_api, headers={"api_token": self.api_token})
-        backends_info_dict = json.loads(backends_info.text)
-        if backends_info_dict["status"] == 201:
-            raise UserError(backends_info_dict["message"])
+        headers = {"api_token": self.api_token}
+        response = requests.post(url=self.backends_api, headers=headers)
+        backends_info = response.json()
+        if response.status_code == 201:
+            raise UserError(backends_info["message"])
         else:
-            return backends_info_dict["data"]
+            return backends_info["data"]
 
     def get_available_backends(self, print_info=True):
         """
@@ -97,9 +110,8 @@ class User(object):
         self._available_backends = {info["system_name"]: Backend(info) for info in backends_info}
 
         if print_info:
-            print((" " * 5).join(["system_name".ljust(10), "qubits".ljust(10), "status".ljust(10)]))
+            print("\t ".join(["system_name".ljust(10), "qubits".ljust(5), "status"]))
             for backend in self._available_backends.values():
-                print((" " * 5).join(
-                    [backend.name.ljust(10), str(backend.qubit_num).ljust(10), backend.status.ljust(10)]))
-
+                print("\t ".join(
+                    [backend.name.ljust(10), str(backend.qubit_num).ljust(5), backend.status]))
         return self._available_backends
