@@ -1,3 +1,17 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import requests
 import json
 import re
@@ -18,9 +32,9 @@ class Backend(object):
         self.qv = backend_info["QV"]
         # self.task_in_queue = backend_info["task_in_queue"]
 
-    def get_chip_info(self, user=User()):
-        # update api-token, a patch to be deleted in the future
-        api_token = user._load_account_token()
+    def get_chip_info(self, user: User = None):
+        user = User() if user is None else user
+        api_token = user.api_token
         data = {"system_name": self.name.lower()}
         headers = {"api_token": api_token}
         chip_info = requests.post(url=User.chip_api, data=data,
