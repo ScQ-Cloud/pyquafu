@@ -34,12 +34,15 @@ class ExecResult(Result):
         self.measures = self.transpiled_circuit.measures
         self.task_status = status_map[input_dict["status"]]
         self.res = eval(input_dict['res'])
-
         self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
+
         self.logicalq_res = {}
-        for bit_str, count in self.counts.items():
-            newkey = "".join([bit_str[i] for i in self.measures.values()])
-            self.logicalq_res[newkey] = count
+        cbits = list(self.measures.values())
+        indexed_cbits = {bit: i for i, bit in enumerate(sorted(cbits))}
+        squeezed_cbits = [indexed_cbits[bit] for bit in cbits]
+        for key, values in self.counts.items():
+            newkey = "".join([key[i] for i in squeezed_cbits])
+            self.logicalq_res[newkey] = values
 
         total_counts = sum(self.counts.values())
         self.probabilities = {}
