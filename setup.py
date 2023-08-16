@@ -28,7 +28,7 @@ requirements = [
 
 setup(
     name="pyquafu",
-    version="0.3.3",
+    version="0.3.5",
     author="ssli",
     author_email="ssli@iphy.ac.cn",
     url="https://github.com/ScQ-Cloud/pyquafu",
