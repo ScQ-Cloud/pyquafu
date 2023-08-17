@@ -56,7 +56,7 @@ class QuantumCircuit(object):
 
     @property
     def num(self):
-        return np.sum([len(qreg) for qreg in self.qregs])
+        return sum([len(qreg) for qreg in self.qregs])
 
     @property
     def used_qubits(self) -> List:
@@ -428,10 +428,9 @@ class QuantumCircuit(object):
         Wrap the circuit to a subclass of QuantumGate, create by metaclass.
         """
         # TODO: error check
-        from instruction.qu_gate.quantum_gate import customize_gate
-        customized = customize_gate(cls_name=name.capitalize(),
-                                    sd_name=name,
-                                    qubit_num=self.qbit_num,
+        from quafu.elements.quantum_element.quantum_gate import customize_gate
+        customized = customize_gate(cls_name=name.lower(),
+                                    qubit_num=self.num,
                                     gate_structure=self.gates)
         return customized
 
