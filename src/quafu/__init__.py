@@ -4,7 +4,15 @@ from .tasks.tasks import Task
 from .users.userapi import User
 from .simulators.simulator import simulate
 
-__all__ = ["QuantumCircuit", "ExecResult", "Task", "User", "SimuResult", "simulate", "get_version"]
+__all__ = [
+    "QuantumCircuit",
+    "ExecResult",
+    "Task",
+    "User",
+    "SimuResult",
+    "simulate",
+    "get_version",
+]
 
 
 def get_version():

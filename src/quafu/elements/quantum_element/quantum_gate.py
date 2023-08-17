@@ -7,9 +7,9 @@ from quafu.elements.quantum_element.instruction import Instruction, PosType
 
 
 def reorder_matrix(matrix: np.ndarray, pos: List):
-    """Reorder the input sorted matrix to the pos order """
+    """Reorder the input sorted matrix to the pos order"""
     qnum = len(pos)
-    dim = 2 ** qnum
+    dim = 2**qnum
     inds = np.argsort(pos)
     inds = np.concatenate([inds, inds + qnum])
     tensorm = matrix.reshape([2] * 2 * qnum)
@@ -19,25 +19,37 @@ def reorder_matrix(matrix: np.ndarray, pos: List):
 class QuantumGate(Instruction):
     gate_classes = {}
 
-    def __init__(self,
-                 pos: PosType,
-                 paras: Union[float, List[float]] = None,
-                 ):
+    def __init__(
+        self,
+        pos: PosType,
+        paras: Union[float, List[float]] = None,
+    ):
         super().__init__(pos, paras)
-
+        self.symbol = "%s" % self.name
         if paras is not None:
-            if isinstance(paras, Iterable):
-                self.symbol = "%s(" % self.name + ",".join(["%.3f" % para for para in self.paras]) + ")"
-            else:
-                self.symbol = "%s(%.3f)" % (self.name, paras)
+            self.update_params(paras)
+
+    def update_params(self, paras: Union[float, List[float]]):
+        """Update parameters of this gate"""
+        if paras is None:
+            return
+        self.paras = paras
+        if isinstance(paras, Iterable):
+            self.symbol = (
+                "%s(" % self.name
+                + ",".join(["%.3f" % para for para in self.paras])
+                + ")"
+            )
         else:
-            self.symbol = "%s" % self.name
+            self.symbol = "%s(%.3f)" % (self.name, paras)
 
     @property
     @abstractmethod
     def matrix(self):
-        raise NotImplementedError("Matrix is not implemented for %s" % self.__class__.__name__ +
-                                  ", this should never happen.")
+        raise NotImplementedError(
+            "Matrix is not implemented for %s" % self.__class__.__name__
+            + ", this should never happen."
+        )
 
     @classmethod
     def register_gate(cls, subclass, name: str = None):
@@ -51,10 +63,17 @@ class QuantumGate(Instruction):
         Instruction.register_ins(subclass, name)
 
     def __str__(self):
-        properties_names = ['pos', 'paras', 'matrix']
+        properties_names = ["pos", "paras", "matrix"]
         properties_values = [getattr(self, x) for x in properties_names]
-        return "%s:\n%s" % (self.__class__.__name__, '\n'.join(
-            [f"{x} = {repr(properties_values[i])}" for i, x in enumerate(properties_names)]))
+        return "%s:\n%s" % (
+            self.__class__.__name__,
+            "\n".join(
+                [
+                    f"{x} = {repr(properties_values[i])}"
+                    for i, x in enumerate(properties_names)
+                ]
+            ),
+        )
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
@@ -93,7 +112,7 @@ class MultiQubitGate(QuantumGate, ABC):
 
         if reverse_order and (len(self.pos) > 1):
             qnum = len(self.pos)
-            dim = 2 ** qnum
+            dim = 2**qnum
             order = np.array(range(len(self.pos))[::-1])
             order = np.concatenate([order, order + qnum])
             tensorm = targ_matrix.reshape([2] * 2 * qnum)
@@ -109,7 +128,9 @@ class ParaSingleQubitGate(SingleQubitGate, ABC):
             paras = float(paras)
 
         if not isinstance(paras, float):
-            raise TypeError(f"`paras` must be float or int for ParaSingleQubitGate, instead of {type(paras)}")
+            raise TypeError(
+                f"`paras` must be float or int for ParaSingleQubitGate, instead of {type(paras)}"
+            )
         super().__init__(pos, paras=paras)
 
 
@@ -131,9 +152,11 @@ class ParaMultiQubitGate(MultiQubitGate, ABC):
 
 
 class ControlledGate(MultiQubitGate, ABC):
-    """ Controlled gate class, where the matrix act non-trivaly on target qubits"""
+    """Controlled gate class, where the matrix act non-trivaly on target qubits"""
 
-    def __init__(self, targe_name, ctrls: List[int], targs: List[int], paras, tar_matrix):
+    def __init__(
+        self, targe_name, ctrls: List[int], targs: List[int], paras, tar_matrix
+    ):
         super().__init__(ctrls + targs, paras)
         self.ctrls = ctrls
         self.targs = targs
@@ -143,8 +166,8 @@ class ControlledGate(MultiQubitGate, ABC):
         # set matrix
         # TODO: change matrix according to control-type 0/1
         c_n, t_n, n = self.ct_nums
-        targ_dim = 2 ** t_n
-        dim = 2 ** n
+        targ_dim = 2**t_n
+        dim = 2**n
         ctrl_dim = dim - targ_dim
         self._matrix = np.eye(dim, dtype=complex)
         self._matrix[ctrl_dim:, ctrl_dim:] = tar_matrix
@@ -152,7 +175,11 @@ class ControlledGate(MultiQubitGate, ABC):
 
         if paras is not None:
             if isinstance(paras, Iterable):
-                self.symbol = "%s(" % self.targ_name + ",".join(["%.3f" % para for para in self.paras]) + ")"
+                self.symbol = (
+                    "%s(" % self.targ_name
+                    + ",".join(["%.3f" % para for para in self.paras])
+                    + ")"
+                )
             else:
                 self.symbol = "%s(%.3f)" % (self.targ_name, paras)
         else:
@@ -176,7 +203,7 @@ class ControlledGate(MultiQubitGate, ABC):
             qnum = len(self.targs)
             order = np.array(range(len(self.targs))[::-1])
             order = np.concatenate([order, order + qnum])
-            dim = 2 ** qnum
+            dim = 2**qnum
             tensorm = targ_matrix.reshape([2] * 2 * qnum)
             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
         return targ_matrix

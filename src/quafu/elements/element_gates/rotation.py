@@ -5,7 +5,7 @@ from .matrices import rx_mat, ry_mat, rz_mat, rxx_mat, ryy_mat, rzz_mat
 class RXGate(ParaSingleQubitGate):
     name = "RX"
 
-    def __init__(self, pos: int, paras: float = 0.):
+    def __init__(self, pos: int, paras: float = 0.0):
         super().__init__(pos, paras)
 
     @property
@@ -16,7 +16,7 @@ class RXGate(ParaSingleQubitGate):
 class RYGate(ParaSingleQubitGate):
     name = "RY"
 
-    def __init__(self, pos: int, paras: float = 0.):
+    def __init__(self, pos: int, paras: float = 0.0):
         super().__init__(pos, paras)
 
     @property
@@ -27,7 +27,7 @@ class RYGate(ParaSingleQubitGate):
 class RZGate(ParaSingleQubitGate):
     name = "RZ"
 
-    def __init__(self, pos: int, paras: float = 0.):
+    def __init__(self, pos: int, paras: float = 0.0):
         super().__init__(pos, paras)
 
     @property
@@ -38,7 +38,7 @@ class RZGate(ParaSingleQubitGate):
 class RXXGate(ParaMultiQubitGate):
     name = "RXX"
 
-    def __init__(self, q1: int, q2: int, theta: float = 0.):
+    def __init__(self, q1: int, q2: int, theta: float = 0.0):
         super().__init__([q1, q2], paras=theta)
 
     @property
@@ -52,7 +52,7 @@ class RXXGate(ParaMultiQubitGate):
 class RYYGate(ParaMultiQubitGate):
     name = "RYY"
 
-    def __init__(self, q1: int, q2: int, theta: float = 0.):
+    def __init__(self, q1: int, q2: int, theta: float = 0.0):
         super().__init__([q1, q2], paras=theta)
 
     @property
@@ -66,7 +66,7 @@ class RYYGate(ParaMultiQubitGate):
 class RZZGate(ParaMultiQubitGate):
     name = "RZZ"
 
-    def __init__(self, q1: int, q2: int, theta: float = 0.):
+    def __init__(self, q1: int, q2: int, theta: float = 0.0):
         super().__init__([q1, q2], paras=theta)
 
     @property

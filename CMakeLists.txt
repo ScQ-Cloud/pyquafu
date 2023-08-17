@@ -1,8 +1,8 @@
-# To use this file to build from source, make sure that external packages openmp, eigen and pybind11 have been installed with cmake by default.   
+# To use this file to build from source, make sure that external packages openmp, eigen and pybind11 have been installed with cmake by default.
 
 cmake_minimum_required(VERSION 3.14...3.22)
 
-project(qfvm LANGUAGES CXX C) 
+project(qfvm LANGUAGES CXX C)
 
 set (CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 17)
@@ -39,7 +39,7 @@ endif()
 set(EIGEN3_ROOT  ${CMAKE_SOURCE_DIR}/thirdparty/Eigen3)
 set(EIGEN3_INCLUDE_DIR ${EIGEN3_ROOT}/include/eigen3)
 include(ExternalProject)
-ExternalProject_Add(Eigen3 
+ExternalProject_Add(Eigen3
 		PREFIX             ${EIGEN3_ROOT}
 		GIT_REPOSITORY     https://gitlab.com/libeigen/eigen.git
 		GIT_TAG            3.3.9
@@ -82,7 +82,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION_INFO=${PROJECT_VERSIO
 #GPU version
 if (USE_GPU)
 	add_compile_definitions(_USE_GPU)
-	enable_language(CUDA)	
+	enable_language(CUDA)
 	set_source_files_properties(src/${PROJECT_NAME}/${PROJECT_NAME}.cpp PROPERTIES LANGUAGE CUDA)
 	target_link_libraries(${PROJECT_NAME} PUBLIC cudart)
 	target_compile_options(${PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda> )

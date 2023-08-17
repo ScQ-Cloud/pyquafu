@@ -18,14 +18,17 @@ class QuafuError(Exception):
 
 class CircuitError(QuafuError):
     """Exceptions for errors raised while building circuit."""
+
     pass
 
 
 class ServerError(QuafuError):
-    """ Exceptions for errors raised while connecting to server."""
+    """Exceptions for errors raised while connecting to server."""
+
     pass
 
 
 class CompileError(QuafuError):
-    """ Exceptions for errors raised while compiling circuit. """
+    """Exceptions for errors raised while compiling circuit."""
+
     pass

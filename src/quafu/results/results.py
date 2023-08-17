@@ -7,6 +7,7 @@ from ..utils.basis import *
 
 class Result(object):
     """Basis class for quantum results"""
+
     pass
 
 
@@ -22,10 +23,16 @@ class ExecResult(Result):
     """
 
     def __init__(self, input_dict, measures):
-        status_map = {0: "In Queue", 1: "Running", 2: "Completed", "Canceled": 3, 4: "Failed"}
+        status_map = {
+            0: "In Queue",
+            1: "Running",
+            2: "Completed",
+            "Canceled": 3,
+            4: "Failed",
+        }
         self.measures = measures
         self.task_status = status_map[input_dict["status"]]
-        self.res = eval(input_dict['res'])
+        self.res = eval(input_dict["res"])
         self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
         self.logicalq_res = {}
         cbits = list(self.measures.values())
@@ -35,10 +42,11 @@ class ExecResult(Result):
             newkey = "".join([key[i] for i in squeezed_cbits])
             self.logicalq_res[newkey] = values
 
-        self.taskid = input_dict['task_id']
-        self.taskname = input_dict['task_name']
+        self.taskid = input_dict["task_id"]
+        self.taskname = input_dict["task_name"]
         self.transpiled_openqasm = input_dict["openqasm"]
         from ..circuits.quantum_circuit import QuantumCircuit
+
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
@@ -88,7 +96,9 @@ class SimuResult(Result):
         elif input_form == "state_vector":
             self.state_vector = input
 
-    def plot_probabilities(self, full: bool = False, reverse_basis: bool = False, sort: bool = None):
+    def plot_probabilities(
+        self, full: bool = False, reverse_basis: bool = False, sort: bool = None
+    ):
         """
         Plot the probabilities from simulated results, ordered in big endian convention.
 
@@ -174,7 +184,10 @@ def merge_measure(obslist):
                 interset, intobsi, intbasei = intersec(obs[1], measure_base[1])
                 diffset, diffobsi = diff(obs[1], measure_base[1])
                 if not len(interset) == 0:
-                    if all(np.array(list(obs[0]))[intobsi] == np.array(list(measure_base[0]))[intbasei]):
+                    if all(
+                        np.array(list(obs[0]))[intobsi]
+                        == np.array(list(measure_base[0]))[intbasei]
+                    ):
                         measure_base[0] += "".join(np.array(list(obs[0]))[diffobsi])
                         measure_base[1].extend(diffset)
                         targ_basis.append(mi)

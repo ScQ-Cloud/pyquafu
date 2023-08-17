@@ -39,7 +39,9 @@ class Barrier(Instruction):
         return f"{self.__class__.__name__}"
 
     def to_qasm(self):
-        return "barrier " + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+        return "barrier " + ",".join(
+            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
+        )
 
 
 class Delay(Instruction):
@@ -75,7 +77,8 @@ class XYResonance(Instruction):
 
     def to_qasm(self):
         return "xy(%d%s) " % (self.duration, self.unit) + ",".join(
-            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
+        )
 
 
 class Measure(Instruction):

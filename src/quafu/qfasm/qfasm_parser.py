@@ -142,33 +142,33 @@ class QfasmParser(object):
         p[0] = p[1]
 
     def p_gate_like_0(self, p):
-        '''
+        """
         gate : id qubit_list
-        '''
+        """
         p[0] = InstructionNode(p[1], p[2], None, None, None, "", None, "")
 
     def p_gate_like_1(self, p):
-        '''
+        """
         gate : id '(' arg_list ')' qubit_list
-        '''
+        """
         p[0] = InstructionNode(p[1], p[5], p[3], None, None, "", None, "")
 
     def p_pulse_like_0(self, p):
-        '''
+        """
         pulse : id '(' time ',' arg_list ')' qubit_list
-        '''
+        """
         p[0] = InstructionNode(p[1], p[7], p[5], p[3][0], p[3][1], "", None, "")
 
     def p_measure_0(self, p):
-        '''
+        """
         measure : MEASURE bitreg ASSIGN bitreg
-        '''
+        """
         p[0] = InstructionNode("measure", {p[2]: p[4]}, None, None, None, "", None, "")
 
     def p_pulse_like_1(self, p):
-        '''
+        """
         pulse : id '(' time ',' arg_list ',' channel ')' qubit_list
-        '''
+        """
         p[0] = InstructionNode(p[1], p[9], p[5], p[3][0], p[3][1], p[7], None, "")
 
     def p_bitreg(self, p):
@@ -209,7 +209,7 @@ class QfasmParser(object):
         p[0] = p[1]
 
     def p_expression_term(self, p):
-        'expression : term'
+        "expression : term"
         p[0] = p[1]
 
     def p_expression_m(self, p):
@@ -225,40 +225,40 @@ class QfasmParser(object):
         p[0] = p[1]
 
     def p_binary_operators(self, p):
-        '''expression : expression '+' term
+        """expression : expression '+' term
                     | expression '-' term
         term       : term '*' factor
-                    | term '/' factor'''
-        if p[2] == '+':
+                    | term '/' factor"""
+        if p[2] == "+":
             p[0] = p[1] + p[3]
-        elif p[2] == '-':
+        elif p[2] == "-":
             p[0] = p[1] - p[3]
-        elif p[2] == '*':
+        elif p[2] == "*":
             p[0] = p[1] * p[3]
-        elif p[2] == '/':
+        elif p[2] == "/":
             p[0] = p[1] / p[3]
 
     def p_factor_0(self, p):
-        '''
+        """
         factor : FLOAT
             | INT
-        '''
+        """
         p[0] = p[1]
 
     def p_factor_1(self, p):
-        '''
+        """
         factor : '(' expression ')'
-        '''
+        """
         p[0] = p[2]
 
     def p_factor_pi(self, p):
-        '''
+        """
         factor : PI
-        '''
+        """
         p[0] = np.pi
 
     def p_id(self, p):
-        ''' id : ID'''
+        """id : ID"""
         p[0] = p[1]
 
     def p_error(self, p):
