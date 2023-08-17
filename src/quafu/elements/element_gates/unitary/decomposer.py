@@ -18,7 +18,9 @@ class UnitaryDecomposer(object):
         self.qubits = qubits
         self.verbose = verbose
 
-        self.Mk_table = genMk_table(self.qubit_num)  # initialize the general M^k lookup table
+        self.Mk_table = genMk_table(
+            self.qubit_num
+        )  # initialize the general M^k lookup table
         self.gate_list = []
 
     def __call__(self, *args, **kwargs):
@@ -31,7 +33,7 @@ class UnitaryDecomposer(object):
     def _check_unitary(array: ndarray, qubits):
         assert len(array.shape) == 2
         assert mu.is_unitary(array)
-        assert len(array) == 2 ** qubits
+        assert len(array) == 2**qubits
 
     def _decompose_matrix(self, _matrix, qubits):
         qubit_num = len(qubits)
@@ -40,9 +42,9 @@ class UnitaryDecomposer(object):
             # self.gates_list.append((_matrix, qubits, 'U'))
             # ZYZ decomposition for single-qubit gate
             gamma, beta, alpha, global_phase = zyz_decomposition(_matrix)
-            self.gate_list.append((rz_mat(gamma), qubits, 'RZ', gamma))
-            self.gate_list.append((ry_mat(beta), qubits, 'RY', beta))
-            self.gate_list.append((rz_mat(alpha), qubits, 'RZ', alpha))
+            self.gate_list.append((rz_mat(gamma), qubits, "RZ", gamma))
+            self.gate_list.append((ry_mat(beta), qubits, "RY", beta))
+            self.gate_list.append((rz_mat(alpha), qubits, "RZ", alpha))
             return None
 
         # if num_qubit == 2:
@@ -55,12 +57,16 @@ class UnitaryDecomposer(object):
         if mu.is_zero(U01) and mu.is_zero(U10):
             if mu.is_approx(U00, U11):
                 if self.verbose:
-                    print('Optimization: Unitaries are equal, '
-                          'skip one step in the recursion for unitaries of size')
+                    print(
+                        "Optimization: Unitaries are equal, "
+                        "skip one step in the recursion for unitaries of size"
+                    )
                 self._decompose_matrix(U00, qubits[1:])
             else:
                 if self.verbose:
-                    print("Optimization: q2 is zero, only demultiplexing will be performed.")
+                    print(
+                        "Optimization: q2 is zero, only demultiplexing will be performed."
+                    )
                 V, D, W = demultiplexing(U00, U11)
                 self._decompose_matrix(W, qubits[1:])
                 self.multi_controlled_z(D, qubits[1:], qubits[0])
@@ -99,15 +105,15 @@ class UnitaryDecomposer(object):
         Mk = self.Mk_table[num_qubit - 1]
         thetas = np.linalg.solve(Mk, alphas)
         # print(thetas)
-        assert len(thetas) == 2 ** num_qubit
+        assert len(thetas) == 2**num_qubit
 
         index = get_multi_control_index(num_qubit)
         assert len(index) == len(thetas)
 
         for i in range(len(index)):
             control_qubit = qubits[index[i]]
-            self.gate_list.append((rz_mat(thetas[i]), [target_qubit], 'RZ', thetas[i]))
-            self.gate_list.append((CXMatrix, [control_qubit, target_qubit], 'CX'))
+            self.gate_list.append((rz_mat(thetas[i]), [target_qubit], "RZ", thetas[i]))
+            self.gate_list.append((CXMatrix, [control_qubit, target_qubit], "CX"))
 
     def multi_controlled_y(self, ss, qubits, target_qubit):
         assert len(qubits) == int(math.log(ss.shape[0], 2))
@@ -117,28 +123,28 @@ class UnitaryDecomposer(object):
         Mk = self.Mk_table[num_qubit - 1]
         thetas = np.linalg.solve(Mk, alphas)
         # print(thetas)
-        assert len(thetas) == 2 ** num_qubit
+        assert len(thetas) == 2**num_qubit
 
         index = get_multi_control_index(num_qubit)
         assert len(index) == len(thetas)
 
         for i in range(len(index)):
             control_qubit = qubits[index[i]]
-            self.gate_list.append((ry_mat(thetas[i]), [target_qubit], 'RY', thetas[i]))
-            self.gate_list.append((CXMatrix, [control_qubit, target_qubit], 'CX'))
+            self.gate_list.append((ry_mat(thetas[i]), [target_qubit], "RY", thetas[i]))
+            self.gate_list.append((CXMatrix, [control_qubit, target_qubit], "CX"))
 
     def apply_to_qc(self, qc):
         if len(self.gate_list) == 0:
             self()
 
         for g in self.gate_list:
-            if g[2] == 'CX':
+            if g[2] == "CX":
                 qc.cnot(g[1][0], g[1][1])
-            elif g[2] == 'RY':
+            elif g[2] == "RY":
                 qc.ry(g[1][0], g[3].real)
-            elif g[2] == 'RZ':
+            elif g[2] == "RZ":
                 qc.rz(g[1][0], g[3].real)
-            elif g[2] == 'U':
+            elif g[2] == "U":
                 gamma, beta, alpha, global_phase = zyz_decomposition(g[0])
                 qc.rz(g[1][0], gamma)
                 qc.ry(g[1][0], beta)
@@ -150,7 +156,7 @@ class UnitaryDecomposer(object):
 
 
 def zyz_decomposition(unitary):
-    """ ZYZ decomposition of arbitrary single-qubit gate (unitary).
+    """ZYZ decomposition of arbitrary single-qubit gate (unitary).
     SU = Rz(gamma) * Ry(beta) * Rz(alpha)
 
     Args:
@@ -197,7 +203,7 @@ def _thin_csd(q1, q2):
     k = k + 1
     print("the k size: {}".format(k))
 
-    u2, _ = np.linalg.qr(q2[:, 0:k], mode='complete')
+    u2, _ = np.linalg.qr(q2[:, 0:k], mode="complete")
     # u2, _= np.linalg.qr(q2, mode='complete')
     print("the size of u2: {}".format(u2.shape))
     # print("the u2 matrix: {}".format(u2))
@@ -216,7 +222,7 @@ def _thin_csd(q1, q2):
         v1d[:, k:p] = v1d[:, k:p] @ vtd
 
         w = cm[k:p, k:p]
-        z, r = np.linalg.qr(w, mode='complete')
+        z, r = np.linalg.qr(w, mode="complete")
         cm[k:p, k:p] = r
         u1[:, k:p] = u1[:, k:p] @ z
 
@@ -315,7 +321,7 @@ def _graycode(n):
 
 def get_multi_control_index(n):
     gray_codes = list(_graycode(n))
-    size = 2 ** n
+    size = 2**n
 
     index_list = []
     for i in range(size):
@@ -339,13 +345,12 @@ def genMk_table(nqubits):
         return num ^ int((num >> 1))
 
     def genMk(k):
-
-        Mk = np.zeros((2 ** k, 2 ** k))
-        for i in range(2 ** k):
-            for j in range(2 ** k):
+        Mk = np.zeros((2**k, 2**k))
+        for i in range(2**k):
+            for j in range(2**k):
                 p = i & bin2gray(j)
                 strbin = "{0:b}".format(p)
-                tmp = [m.start() for m in re.finditer('1', strbin)]
+                tmp = [m.start() for m in re.finditer("1", strbin)]
                 Mk[i, j] = (-1) ** len(tmp)
 
         return Mk

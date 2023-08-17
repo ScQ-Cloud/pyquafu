@@ -26,13 +26,18 @@ class Instruction(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        raise NotImplementedError('name is not implemented for %s' % self.__class__.__name__
-                                  + ', this should never happen.')
+        raise NotImplementedError(
+            "name is not implemented for %s" % self.__class__.__name__
+            + ", this should never happen."
+        )
 
     @name.setter
     def name(self, _):
         import warnings
-        warnings.warn("Invalid assignment, names of standard instructions are not alterable.")
+
+        warnings.warn(
+            "Invalid assignment, names of standard instructions are not alterable."
+        )
 
     @classmethod
     def register_ins(cls, subclass, name: str = None):
@@ -70,6 +75,3 @@ class Instruction(ABC):
     #     time_func = paras.get('time_func', None)
     #
     #     return InstructionNode(name, pos, paras, duration, unit, channel, time_func, label)
-
-
-

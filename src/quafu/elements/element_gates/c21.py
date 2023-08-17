@@ -10,4 +10,3 @@ class ToffoliGate(ControlledGate):
 
 
 ControlledGate.register_gate(ToffoliGate)
-

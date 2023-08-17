@@ -2,27 +2,31 @@ import numpy as np
 from functools import reduce
 import sparse
 
-si = sparse.COO(np.array([[1., 0.],
-               [0., 1.]],dtype=complex))
+si = sparse.COO(np.array([[1.0, 0.0], [0.0, 1.0]], dtype=complex))
 
-sx = sparse.COO(np.array([[0., 1.],
-               [1., 0.]], dtype=complex))
+sx = sparse.COO(np.array([[0.0, 1.0], [1.0, 0.0]], dtype=complex))
 
-sy = sparse.COO(np.array([[0., -1.j],
-               [1.j, 0.]], dtype=complex)) 
+sy = sparse.COO(np.array([[0.0, -1.0j], [1.0j, 0.0]], dtype=complex))
 
-sz = sparse.COO(np.array([[1., 0.],    
-               [0., -1.]], dtype=complex))
+sz = sparse.COO(np.array([[1.0, 0.0], [0.0, -1.0]], dtype=complex))
 
-spin = [np.array([1., 0.]), np.array([0., 1.])]
+spin = [np.array([1.0, 0.0]), np.array([0.0, 1.0])]
+
 
 def rx(phi):
-    return np.array([[np.cos(phi / 2), -1j * np.sin(phi / 2)],
-                     [-1j * np.sin(phi / 2), np.cos(phi / 2)]])
-            
+    return np.array(
+        [
+            [np.cos(phi / 2), -1j * np.sin(phi / 2)],
+            [-1j * np.sin(phi / 2), np.cos(phi / 2)],
+        ]
+    )
+
+
 def ry(phi):
-    return np.array([[np.cos(phi / 2), -np.sin(phi / 2)],
-                     [np.sin(phi / 2), np.cos(phi / 2)]])
+    return np.array(
+        [[np.cos(phi / 2), -np.sin(phi / 2)], [np.sin(phi / 2), np.cos(phi / 2)]]
+    )
+
 
 def tensorl(ml):
     return reduce(sparse.kron, ml, 1)

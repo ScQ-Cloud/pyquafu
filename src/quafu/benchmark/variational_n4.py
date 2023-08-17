@@ -88,4 +88,4 @@ measure q[3] -> c[3];
 
 qc.from_openqasm(qasm)
 qc.draw_circuit()
-qc.plot_circuit(show=True, title='Variational n4')
+qc.plot_circuit(show=True, title="Variational n4")

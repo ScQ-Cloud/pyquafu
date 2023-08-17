@@ -11,17 +11,17 @@ def get_const_oracle(qc: QuantumCircuit):
     output = np.random.randint(2)
     if output == 1:
         qc.x(n)
-    qc.name = 'Constant Oracle'
+    qc.name = "Constant Oracle"
     return qc
 
 
 def get_balanced_oracle(qc: QuantumCircuit):
     n = qc.num - 1
-    b_str = ''.join([random.choice('01') for _ in range(n)])
+    b_str = "".join([random.choice("01") for _ in range(n)])
 
     # Place X-qu_gate
     for qubit in range(len(b_str)):
-        if b_str[qubit] == '1':
+        if b_str[qubit] == "1":
             qc.x(qubit)
 
     # Use barrier as divider
@@ -35,10 +35,10 @@ def get_balanced_oracle(qc: QuantumCircuit):
 
     # Place X-qu_gate
     for qubit in range(len(b_str)):
-        if b_str[qubit] == '1':
+        if b_str[qubit] == "1":
             qc.x(qubit)
 
-    qc.name = 'Balanced Oracle'
+    qc.name = "Balanced Oracle"
     return qc
 
 
@@ -52,12 +52,12 @@ def deutsch_jozsa(n: int, case: str):
 
     # Add oracle
     #################################################
-    if case == 'balanced':
+    if case == "balanced":
         get_balanced_oracle(circuit)
-    elif case == 'constant':
+    elif case == "constant":
         get_const_oracle(circuit)
     else:
-        raise ValueError('undefined case: ' + case)
+        raise ValueError("undefined case: " + case)
     #################################################
 
     # Repeat H-qu_gate
@@ -71,5 +71,5 @@ def deutsch_jozsa(n: int, case: str):
     return circuit
 
 
-dj_qc = deutsch_jozsa(n=4, case='constant')
-dj_qc.plot_circuit(title='Deutsch-Josza Circuit', show=True)
+dj_qc = deutsch_jozsa(n=4, case="constant")
+dj_qc.plot_circuit(title="Deutsch-Josza Circuit", show=True)

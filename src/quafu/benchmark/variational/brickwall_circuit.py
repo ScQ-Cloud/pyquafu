@@ -26,9 +26,11 @@ def brickwall_layout_circuit(params, pbc=False):
 def plot():
     para = random.random((n_layers, qubit_num, 2))
     qc = brickwall_layout_circuit(para)
-    qc.plot_circuit(title='Brickwall Layout for \nVariational Circuit',
-                    show=True,
-                    save=False,
-                    )
+    qc.plot_circuit(
+        title="Brickwall Layout for \nVariational Circuit",
+        show=True,
+        save=False,
+    )
+
 
 plot()

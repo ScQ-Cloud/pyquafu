@@ -52,8 +52,10 @@ class User(object):
     @property
     def api_token(self):
         if self._api_token is None:
-            raise APITokenNotFound(f"API token not set, neither found at dir: '{self.token_dir}'. "
-                                   "Please set up by providing api_token/token_dir when initializing User.")
+            raise APITokenNotFound(
+                f"API token not set, neither found at dir: '{self.token_dir}'. "
+                "Please set up by providing api_token/token_dir when initializing User."
+            )
         return self._api_token
 
     def save_apitoken(self, apitoken=None):
@@ -62,10 +64,12 @@ class User(object):
         """
         if apitoken is not None:
             import warnings
-            warnings.warn("The argument 'apitoken' in this function will be deprecated "
-                          "in the future, please set api token by providing 'api_token' "
-                          "or 'token_dir' when initialize User()."
-                          )
+
+            warnings.warn(
+                "The argument 'apitoken' in this function will be deprecated "
+                "in the future, please set api token by providing 'api_token' "
+                "or 'token_dir' when initialize User()."
+            )
             self._api_token = apitoken
 
         file_dir = self.token_dir
@@ -106,12 +110,22 @@ class User(object):
         Get available backends
         """
         from quafu.backends.backends import Backend
+
         backends_info = self._get_backends_info()
-        self._available_backends = {info["system_name"]: Backend(info) for info in backends_info}
+        self._available_backends = {
+            info["system_name"]: Backend(info) for info in backends_info
+        }
 
         if print_info:
             print("\t ".join(["system_name".ljust(10), "qubits".ljust(5), "status"]))
             for backend in self._available_backends.values():
-                print("\t ".join(
-                    [backend.name.ljust(10), str(backend.qubit_num).ljust(5), backend.status]))
+                print(
+                    "\t ".join(
+                        [
+                            backend.name.ljust(10),
+                            str(backend.qubit_num).ljust(5),
+                            backend.status,
+                        ]
+                    )
+                )
         return self._available_backends

@@ -1,6 +1,6 @@
-# Qfasm is modified OPENQASM 2.0. Currently it is mainly used to 
-# transfer circuit data to backends. Further it will 
-# support more instructions (classical or quantum) to enable 
+# Qfasm is modified OPENQASM 2.0. Currently it is mainly used to
+# transfer circuit data to backends. Further it will
+# support more instructions (classical or quantum) to enable
 # interaction with quantum hardware
 
 import ply.lex as lex
@@ -8,7 +8,6 @@ import numpy as np
 
 
 class QfasmLexer(object):
-
     def __init__(self):
         self.build()
 
@@ -27,21 +26,21 @@ class QfasmLexer(object):
         "qreg": "QREG",
         "pi": "PI",
         "measure": "MEASURE",
-        "include": "INCLUDE"
+        "include": "INCLUDE",
     }
 
     tokens = [
-                 "FLOAT",
-                 "INT",
-                 "STRING",
-                 "ASSIGN",
-                 "MATCHES",
-                 "ID",
-                 "UNIT",
-                 "CHANNEL",
-                 "OPENQASM",
-                 "NONE"
-             ] + list(reserved.values())
+        "FLOAT",
+        "INT",
+        "STRING",
+        "ASSIGN",
+        "MATCHES",
+        "ID",
+        "UNIT",
+        "CHANNEL",
+        "OPENQASM",
+        "NONE",
+    ] + list(reserved.values())
 
     def t_FLOAT(self, t):
         r"(([1-9]\d*\.\d*)|(0\.\d*[1-9]\d*))"
@@ -54,7 +53,7 @@ class QfasmLexer(object):
         return t
 
     def t_STRING(self, t):
-        r"\"([^\\\"]|\\.)*\""
+        r"\"([^\\\"]|\\.)*\" "
         return t
 
     def t_ASSIGN(self, t):

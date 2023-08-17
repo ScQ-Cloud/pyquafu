@@ -52,14 +52,18 @@ class Task(object):
         self.runtime_job_id = ""
         self.submit_history = {}
         self._available_backends = self.user.get_available_backends(print_info=False)
-        self.backend = self._available_backends[list(self._available_backends.keys())[0]]
+        self.backend = self._available_backends[
+            list(self._available_backends.keys())[0]
+        ]
 
-    def config(self,
-               backend: str = "ScQ-P10",
-               shots: int = 1000,
-               compile: bool = True,
-               tomo: bool = False,
-               priority: int = 2) -> None:
+    def config(
+        self,
+        backend: str = "ScQ-P10",
+        shots: int = 1000,
+        compile: bool = True,
+        tomo: bool = False,
+        priority: int = 2,
+    ) -> None:
         """
         Configure the task properties
 
@@ -71,8 +75,10 @@ class Task(object):
             priority: Task priority.
         """
         if backend not in self._available_backends.keys():
-            raise UserError("backend %s is not valid, available backends are " % backend + ", ".join(
-                self._available_backends.keys()))
+            raise UserError(
+                "backend %s is not valid, available backends are " % backend
+                + ", ".join(self._available_backends.keys())
+            )
 
         self.backend = self._available_backends[backend]
         self.shots = shots
@@ -97,10 +103,9 @@ class Task(object):
         """
         return self.backend.get_chip_info(self.user)
 
-    def submit(self,
-               qc: QuantumCircuit,
-               obslist: List = []) \
-            -> Tuple[List[ExecResult], List[int]]:
+    def submit(
+        self, qc: QuantumCircuit, obslist: List = []
+    ) -> Tuple[List[ExecResult], List[int]]:
         """
         Execute the circuit with observable expectation measurement task.
         Args:
@@ -132,7 +137,9 @@ class Task(object):
             for obs in obslist:
                 for p in obs[1]:
                     if p not in measures:
-                        raise CircuitError("Qubit %d in observer %s is not measured." % (p, obs[0]))
+                        raise CircuitError(
+                            "Qubit %d in observer %s is not measured." % (p, obs[0])
+                        )
 
             measure_basis, targlist = merge_measure(obslist)
             print("Job start, need measured in ", measure_basis)
@@ -151,9 +158,7 @@ class Task(object):
 
         return exec_res, measure_results
 
-    def run(self,
-            qc: QuantumCircuit,
-            measure_base: List = None) -> ExecResult:
+    def run(self, qc: QuantumCircuit, measure_base: List = None) -> ExecResult:
         """Single run for measurement task.
 
         Args:
@@ -162,7 +167,7 @@ class Task(object):
         """
         if measure_base is None:
             res = self.send(qc)
-            res.measure_base = ''
+            res.measure_base = ""
 
         else:
             for base, pos in zip(measure_base[0], measure_base[1]):
@@ -176,12 +181,13 @@ class Task(object):
 
         return res
 
-    def send(self,
-             qc: QuantumCircuit,
-             name: str = "",
-             group: str = "",
-             wait: bool = True,
-             ) -> ExecResult:
+    def send(
+        self,
+        qc: QuantumCircuit,
+        name: str = "",
+        group: str = "",
+        wait: bool = True,
+    ) -> ExecResult:
         """
         Run the circuit on experimental device.
 
@@ -194,38 +200,58 @@ class Task(object):
             ExecResult object that contain the dict return from quantum device.
         """
         from quafu import get_version
+
         version = get_version()
         if qc.num > self.backend.qubit_num:
-            raise CircuitError("The qubit number %d is too large for backend %s which has %d qubits" % (
-                qc.num, self.backend.name, self.backend.qubit_num))
+            raise CircuitError(
+                "The qubit number %d is too large for backend %s which has %d qubits"
+                % (qc.num, self.backend.name, self.backend.qubit_num)
+            )
 
         self.check_valid_gates(qc)
         qc.to_openqasm()
-        data = {"qtasm": qc.openqasm, "shots": self.shots, "qubits": qc.num, "scan": 0,
-                "tomo": int(self.tomo), "selected_server": self.backend.system_id,
-                "compile": int(self.compile), "priority": self.priority, "task_name": name,
-                "pyquafu_version": version, "runtime_job_id": self.runtime_job_id}
+        data = {
+            "qtasm": qc.openqasm,
+            "shots": self.shots,
+            "qubits": qc.num,
+            "scan": 0,
+            "tomo": int(self.tomo),
+            "selected_server": self.backend.system_id,
+            "compile": int(self.compile),
+            "priority": self.priority,
+            "task_name": name,
+            "pyquafu_version": version,
+            "runtime_job_id": self.runtime_job_id,
+        }
 
         if wait:
             url = User.exec_api
         else:
             url = User.exec_async_api
 
-        logging.debug('quantum circuit validated, sending task...')
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
+        logging.debug("quantum circuit validated, sending task...")
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "api_token": self.user.api_token,
+        }
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
-        response = requests.post(url, headers=headers, data=data)  # type: requests.models.Response
+        response = requests.post(
+            url, headers=headers, data=data
+        )  # type: requests.models.Response
 
         # TODO: completing status code checks
         # assert response.ok
         if response.status_code == 502:
-            logging.critical("Received a 502 Bad Gateway response. Please try again later.\n"
-                             "If there is persistent failure, please report it on our github page.")
+            logging.critical(
+                "Received a 502 Bad Gateway response. Please try again later.\n"
+                "If there is persistent failure, please report it on our github page."
+            )
             raise UserError()
         else:
             res_dict = response.json()
             import pprint
+
             pprint.pprint(res_dict)
             if response.status_code in [201, 205]:
                 raise UserError(res_dict["message"])
@@ -243,7 +269,7 @@ class Task(object):
                 else:
                     self.submit_history[group].append(task_id)
 
-                return ExecResult(res_dict)
+                return ExecResult(res_dict, qc.measures)
 
     def retrieve(self, taskid: str) -> ExecResult:
         """
@@ -255,16 +281,25 @@ class Task(object):
         data = {"task_id": taskid}
         url = User.exec_recall_api
 
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "api_token": self.user.api_token,
+        }
         response = requests.post(url, headers=headers, data=data)
 
         res_dict = response.json()
-        return ExecResult(res_dict)
+        measures = eval(res_dict["measure"])
+        if measures is None:
+            raise Exception(
+                "Measure info returned is None. This may be the error under repairing."
+                " See https://github.com/ScQ-Cloud/pyquafu/issues/50"
+            )
 
-    def retrieve_group(self,
-                       group: str,
-                       history: Dict = None,
-                       verbose: bool = True) -> List[ExecResult]:
+        return ExecResult(res_dict, measures)
+
+    def retrieve_group(
+        self, group: str, history: Dict = None, verbose: bool = True
+    ) -> List[ExecResult]:
         """
         Retrieve the results of submited task by group name.
 
@@ -282,14 +317,25 @@ class Task(object):
         if verbose:
             group = group if group else "Untitled group"
             print("Group: ", group)
-            print((" " * 5).join(["task_id".ljust(16), "task_name".ljust(10), "status".ljust(10)]))
+            print(
+                (" " * 5).join(
+                    ["task_id".ljust(16), "task_name".ljust(10), "status".ljust(10)]
+                )
+            )
         for taskid in taskids:
             res = self.retrieve(taskid)
             taskname = res.taskname
             if verbose:
                 taskname = taskname if taskname else "Untitled"
-                print((" " * 5).join(
-                    [("%s" % res.taskid).ljust(16), ("%s" % taskname).ljust(10), ("%s" % res.task_status).ljust(10)]))
+                print(
+                    (" " * 5).join(
+                        [
+                            ("%s" % res.taskid).ljust(16),
+                            ("%s" % taskname).ljust(10),
+                            ("%s" % res.task_status).ljust(10),
+                        ]
+                    )
+                )
             if res.task_status == "Completed":
                 group_res.append(res)
 
@@ -305,7 +351,10 @@ class Task(object):
             valid_gates = self.backend.get_valid_gates()
             for gate in qc.gates:
                 if gate.name.lower() not in valid_gates:
-                    raise CircuitError("Invalid operations '%s' for backend '%s'" % (gate.name, self.backend.name))
+                    raise CircuitError(
+                        "Invalid operations '%s' for backend '%s'"
+                        % (gate.name, self.backend.name)
+                    )
 
         else:
             if self.backend.name == "ScQ-S41":
@@ -313,4 +362,7 @@ class Task(object):
             if self.backend.name == "ScQ-P136":
                 for gate in qc.gates:
                     if gate.name.lower() in ["xy"]:
-                        raise CircuitError("Invalid operations '%s' for backend '%s'" % (gate.name, self.backend.name))
+                        raise CircuitError(
+                            "Invalid operations '%s' for backend '%s'"
+                            % (gate.name, self.backend.name)
+                        )
