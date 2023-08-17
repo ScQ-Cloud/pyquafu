@@ -27,6 +27,7 @@ from ..elements.quantum_element import (
     SingleQubitGate,
     XYResonance,
 )
+from .quantum_register import QuantumRegister
 from ..exceptions import CircuitError
 
 
@@ -38,7 +39,7 @@ class QuantumCircuit(object):
         Args:
             num (int): Total qubit number used
         """
-        self.num = num
+        self.qregs = [QuantumRegister(num)] if num > 0 else []
         self.gates = []
         self.openqasm = ""
         self.circuit = []
@@ -52,6 +53,10 @@ class QuantumCircuit(object):
         if not self._parameterized_gates:
             self._parameterized_gates = [g for g in self.gates if g.paras is not None]
         return self._parameterized_gates
+
+    @property
+    def num(self):
+        return sum([len(qreg) for qreg in self.qregs])
 
     @property
     def used_qubits(self) -> List:
@@ -279,7 +284,9 @@ class QuantumCircuit(object):
                 operations = operations_qbs[0]
                 if operations == "qreg":
                     qbs = operations_qbs[1]
-                    self.num = int(re.findall("\d+", qbs)[0])
+                    num = int(re.findall("\d+", qbs)[0])
+                    reg = QuantumRegister(num)
+                    self.qregs.append(reg)
                 elif operations == "creg":
                     pass
                 elif operations == "measure":
@@ -415,6 +422,17 @@ class QuantumCircuit(object):
 
         self.openqasm = qasm
         return qasm
+
+    def wrap_to_gate(self, name: str):
+        """
+        Wrap the circuit to a subclass of QuantumGate, create by metaclass.
+        """
+        # TODO: error check
+        from quafu.elements.quantum_element.quantum_gate import customize_gate
+        customized = customize_gate(cls_name=name.lower(),
+                                    qubit_num=self.num,
+                                    gate_structure=self.gates)
+        return customized
 
     def id(self, pos: int) -> "QuantumCircuit":
         """
