@@ -26,8 +26,9 @@ class MCZGate(ControlledGate):
 
 
 class ControlledU(ControlledGate):
-    """ Controlled gate class, where the matrix act non-trivially on target qubits"""
-    name = 'CU'
+    """Controlled gate class, where the matrix act non-trivially on target qubits"""
+
+    name = "CU"
 
     def __init__(self, ctrls: List[int], u: Union[SingleQubitGate, MultiQubitGate]):
         self.targ_gate = u
@@ -35,7 +36,9 @@ class ControlledU(ControlledGate):
         if isinstance(targs, int):
             targs = [targs]
 
-        super().__init__(u.name, ctrls, targs, u.paras, tar_matrix=self.targ_gate.get_targ_matrix())
+        super().__init__(
+            u.name, ctrls, targs, u.paras, tar_matrix=self.targ_gate.get_targ_matrix()
+        )
 
     def get_targ_matrix(self, reverse_order=False):
         return self.targ_gate.get_targ_matrix(reverse_order)

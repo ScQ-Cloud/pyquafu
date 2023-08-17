@@ -14,8 +14,7 @@ class HGate(FixedSingleQubitGate):
 
 class SGate(FixedSingleQubitGate):
     name = "S"
-    matrix = np.array([[1., 0.],
-                       [0., 1.j]], dtype=complex)
+    matrix = np.array([[1.0, 0.0], [0.0, 1.0j]], dtype=complex)
 
     def __init__(self, pos: int):
         super().__init__(pos)
@@ -31,8 +30,7 @@ class SdgGate(FixedSingleQubitGate):
 
 class TGate(FixedSingleQubitGate):
     name = "T"
-    matrix = np.array([[1., 0.],
-                       [0., np.exp(1.j * np.pi / 4)]], dtype=complex)
+    matrix = np.array([[1.0, 0.0], [0.0, np.exp(1.0j * np.pi / 4)]], dtype=complex)
 
     def __init__(self, pos: int):
         super().__init__(pos)

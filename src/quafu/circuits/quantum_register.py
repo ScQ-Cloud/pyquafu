@@ -12,19 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class Qubit:
     """
     Representation of logical qubits.
     """
-    def __init__(self, logic_pos: int, reg_name: str = None, label: str = None, ):
+
+    def __init__(
+        self,
+        logic_pos: int,
+        reg_name: str = None,
+        label: str = None,
+    ):
         self.pos = logic_pos
-        self.reg_name = 'q' if reg_name is None else reg_name
+        self.reg_name = "q" if reg_name is None else reg_name
         self.label = self.reg_name if label is None else label
         self.physical_info = None
         self._depth = 0  # present depth
 
     def __repr__(self):
-        return self.reg_name + '_%s' % self.pos
+        return self.reg_name + "_%s" % self.pos
 
     def load_physical_info(self, *args, **kwargs):
         raise NotImplementedError
@@ -46,6 +53,7 @@ class QuantumRegister:
     """
     Collection of Qubit(s)
     """
+
     def __init__(self, num: int = 0, name: str = None):
         self.name = name
         self.qubits = {i: Qubit(logic_pos=i, reg_name=name) for i in range(num)}
@@ -56,9 +64,12 @@ class QuantumRegister:
     def __len__(self):
         return len(self.qubits)
 
-    def __add__(self, other: 'QuantumRegister'):
+    def __add__(self, other: "QuantumRegister"):
         qreg = QuantumRegister(name=self.name)
-        qreg.qubits = {**{self.qubits}, **{i + len(self): qubit for i, qubit in other.qubits.item()}}
+        qreg.qubits = {
+            **{self.qubits},
+            **{i + len(self): qubit for i, qubit in other.qubits.item()},
+        }
         return QuantumRegister(len(self) + len(other), name=self.name)
 
     def exchange(self, p1, p2):

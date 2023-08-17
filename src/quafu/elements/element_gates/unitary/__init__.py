@@ -1,2 +1,1 @@
 from .decomposer import UnitaryDecomposer
-

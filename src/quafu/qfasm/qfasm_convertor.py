@@ -5,7 +5,7 @@ from quafu.circuits.quantum_circuit import QuantumCircuit
 
 
 def qasm_to_circuit(qasm):
-    parser = QfasmParser()     
+    parser = QfasmParser()
     nodes = parser.parse(qasm)
 
     n = 0
@@ -26,4 +26,3 @@ def qasm_to_circuit(qasm):
     q.openqasm = qasm
     q.measures = measures
     return q
-

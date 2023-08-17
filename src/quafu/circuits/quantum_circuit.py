@@ -861,7 +861,9 @@ class QuantumCircuit(object):
             if not len(set(cbits)) == len(cbits):
                 raise ValueError("Classical bits not uniquely assigned.")
             if not len(cbits) == n_num:
-                raise ValueError("Number of measured bits should equal to the number of classical bits")
+                raise ValueError(
+                    "Number of measured bits should equal to the number of classical bits"
+                )
         else:
             cbits = list(range(e_num, e_num + n_num))
 

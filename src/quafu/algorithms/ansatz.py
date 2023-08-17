@@ -17,7 +17,7 @@ class QAOACircuit(QuantumCircuit):
 
     def _build(self, pauli):
         """Construct circuit"""
-        gate_list = self._evol.evol(pauli, 0.)
+        gate_list = self._evol.evol(pauli, 0.0)
         for g in gate_list:
             self.add_gate(g)
 

@@ -7,17 +7,19 @@ import numpy as np
 from ..exceptions import QuafuError
 
 
-def simulate(qc: Union[QuantumCircuit, str],
-             psi: np.ndarray = np.array([]),
-             simulator: str = "qfvm_circ",
-             output: str = "probabilities",
-             use_gpu: bool = False,
-             use_custatevec: bool = False) -> SimuResult:
+def simulate(
+    qc: Union[QuantumCircuit, str],
+    psi: np.ndarray = np.array([]),
+    simulator: str = "qfvm_circ",
+    output: str = "probabilities",
+    use_gpu: bool = False,
+    use_custatevec: bool = False,
+) -> SimuResult:
     """Simulate quantum circuit
     Args:
         qc: quantum circuit or qasm string that need to be simulated.
         psi : Input state vector
-        simulator:`"qfvm_circ"`: The high performance C++ circuit simulator with optional GPU support. 
+        simulator:`"qfvm_circ"`: The high performance C++ circuit simulator with optional GPU support.
                 `"py_simu"`: Python implemented simulator by sparse matrix with low performace for large scale circuit.
                 `"qfvm_qasm"`: The high performance C++ qasm simulator with limited gate set.
 
@@ -28,8 +30,7 @@ def simulate(qc: Union[QuantumCircuit, str],
         use_custatevec: Use cuStateVec-based `qfvm_circ` simulator. The argument `use_gpu` must also be True.
 
     Returns:
-        SimuResult object that contain the results.
-"""
+        SimuResult object that contain the results."""
     qasm = ""
     if simulator == "qfvm_qasm":
         if not isinstance(qc, str):
@@ -87,4 +88,6 @@ def simulate(qc: Union[QuantumCircuit, str],
         return SimuResult(psi, output)
 
     else:
-        raise ValueError("output should in be 'density_matrix', 'probabilities', or 'state_vector'")
+        raise ValueError(
+            "output should in be 'density_matrix', 'probabilities', or 'state_vector'"
+        )
