@@ -18,6 +18,7 @@ from quafu import QuantumCircuit
 from quafu.simulators.simulator import simulate
 from quafu.tasks.tasks import Task
 
+
 class Estimator:
     """Estimate expectation for quantum circuits and observables"""
 
@@ -38,13 +39,16 @@ class Estimator:
         self._circ = circ
         self._backend = backend
         self._task = None
-        if task is not None:
-            self._task = task
+        if backend != "sim":
+            if task is not None:
+                self._task = task
+            else:
+                self._task = Task()
             self._task.config(backend=self._backend)
             self._task.config(**task_options)
 
     def _run_real_machine(self, observables):
-        """TODO"""
+        """Submit to quafu service"""
         if not isinstance(self._task, Task):
             raise ValueError("task not set")
         res, obsexp = self._task.submit(self._circ, observables)
@@ -55,17 +59,19 @@ class Estimator:
         sim_res = simulate(self._circ)
         # TODO
         # sim_res.calculate_obs()
+        return None, None
 
-    def run(self, observables, paras_list):
+    def run(self, observables, paras_list=None):
         """Calculate estimation for given observables
 
         Args:
             observables: observables to be estimated.
             paras_list: list of parameters of self.circ.
         """
-        self._circ.update_params(paras_list)
+        if paras_list is not None:
+            self._circ.update_params(paras_list)
 
         if self._backend == "sim":
-            self._run_simulation(observables)
+            return self._run_simulation(observables)
         else:
-            self._run_real_machine(observables)
+            return self._run_real_machine(observables)
