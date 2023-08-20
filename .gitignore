@@ -16,4 +16,4 @@ thirdparty
 *.so
 MANIFEST.in
 *.pyd
-dev*.py
+dev_*.py
