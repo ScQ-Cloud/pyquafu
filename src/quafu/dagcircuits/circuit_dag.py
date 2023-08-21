@@ -3,7 +3,7 @@ from quafu import QuantumCircuit
 
 from quafu.elements.element_gates import *
 from quafu.elements.quantum_element import Barrier, Delay, Measure, XYResonance
-from quafu.pulses.quantum_pulse import GaussianPulse, RectPulse, FlattopPulse
+from quafu.elements.quantum_element.pulses.quantum_pulse import GaussianPulse, RectPulse, FlattopPulse
 
 import networkx as nx
 from typing import Dict, Any, List, Union
