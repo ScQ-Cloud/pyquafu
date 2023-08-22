@@ -125,7 +125,7 @@ class CircuitPlotManager:
 
         # step2: initialize bit-label
         self.q_label = {i: r'$|q_{%d}\rangle$' % i for i in range(qc.num) if i in qubits_used}
-        self.c_label = {iq: f'c_{ic}' for iq, ic in qc.measures.items() if iq in qubits_used}
+        self.c_label = {iq: r'c_{ic}' % ic for iq, ic in qc.measures.items() if iq in qubits_used}
 
         # step3: figure coordination
         self.xs = np.arange(-3 / 2, self.depth + 3 / 2)
