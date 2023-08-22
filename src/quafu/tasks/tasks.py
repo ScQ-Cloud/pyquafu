@@ -39,7 +39,6 @@ class Task(object):
         priority (int): priority level of the task
         submit_history (dict): circuit submitted with this task
         backend (dict): quantum backend that execute the task.
-
     """
 
     def __init__(self, user: User = None):
