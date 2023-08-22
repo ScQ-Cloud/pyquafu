@@ -209,7 +209,7 @@ class QfasmParser(object):
         p[0] = p[1]
 
     def p_expression_term(self, p):
-        """expression : term"""
+        "expression : term"
         p[0] = p[1]
 
     def p_expression_m(self, p):
