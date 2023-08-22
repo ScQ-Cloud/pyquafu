@@ -9,8 +9,6 @@ import numpy as np
 
 class QfasmLexer(object):
     def __init__(self):
-        self.lexer = None
-        self.data = None
         self.build()
 
     def input(self, data):
@@ -93,7 +91,7 @@ class QfasmLexer(object):
         print("Illegal character '%s'" % t.value[0])
 
     def t_newline(self, t):
-        r"""\n+"""
+        r"\n+"
         t.lexer.lineno += len(t.value)
 
     def build(self, **kwargs):
