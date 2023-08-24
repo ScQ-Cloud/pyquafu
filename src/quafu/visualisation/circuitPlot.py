@@ -48,7 +48,7 @@ layers(zorder):
 
 su2_gate_names = ['x', 'y', 'z', 'id', 'w',
                   'h', 't', 'tdg', 's', 'sdg', 'sx', 'sy', 'sw',
-                  'phase',
+                  'p',
                   'rx', 'ry', 'rz',
                   ]
 
