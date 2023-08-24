@@ -16,4 +16,4 @@ __all__ = [
 
 
 def get_version():
-    return "0.3.5"
+    return "0.4.0"
