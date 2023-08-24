@@ -11,8 +11,8 @@ test
 _skbuild
 cmake
 *.egg-info
-test
 .vscode
 thirdparty
-.pyd
+*.pyd
 MANIFEST.in
+dev_*.py
