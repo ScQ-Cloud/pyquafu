@@ -69,7 +69,3 @@ def deutsch_jozsa(n: int, case: str):
     # Measure
     circuit.measure(list(range(n)), list(range(n)))
     return circuit
-
-
-dj_qc = deutsch_jozsa(n=4, case='constant')
-dj_qc.plot_circuit(title='Deutsch-Josza Circuit', show=True)
