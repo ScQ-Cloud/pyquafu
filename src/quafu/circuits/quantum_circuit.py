@@ -791,7 +791,7 @@ class QuantumCircuit(object):
         if pos is None:
             pos = list(range(self.num))
 
-        if np.any(np.array(pos) > self.num):
+        if np.any(np.array(pos) >= self.num):
             raise ValueError("Index out of range.")
 
         e_num = len(self.measures)  # existing num of measures
