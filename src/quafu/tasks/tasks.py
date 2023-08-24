@@ -225,9 +225,9 @@ class Task(object):
         }
 
         if wait:
-            url = User.exec_api
+            url = User.url + User.exec_api
         else:
-            url = User.exec_async_api
+            url = User.url + User.exec_async_api
 
         logging.debug("quantum circuit validated, sending task...")
         headers = {
@@ -279,7 +279,7 @@ class Task(object):
             taskid: The taskid of the task need to be retrieved.
         """
         data = {"task_id": taskid}
-        url = User.exec_recall_api
+        url = User.url + User.exec_recall_api
 
         headers = {
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
