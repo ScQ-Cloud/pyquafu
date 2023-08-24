@@ -87,10 +87,11 @@ class User(object):
         """
         file_dir = self.token_dir + "api"
         if not os.path.exists(file_dir):
-            return None
-        else:
-            f = open(file_dir, "r")
-            token = f.readline().strip()
+            raise UserError("Please first save api token using `User.save_apitoken()`")
+        with open(file_dir, "r") as f:
+            items = f.readlines()
+            token = items[0].strip()
+            self.url = items[1].strip()
         return token
 
     def _get_backends_info(self):
