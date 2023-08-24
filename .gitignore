@@ -15,4 +15,5 @@ cmake
 thirdparty
 *.so
 MANIFEST.in
-.pyd
+*.pyd
+dev_*.py
