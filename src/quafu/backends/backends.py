@@ -37,7 +37,8 @@ class Backend(object):
         api_token = user.api_token
         data = {"system_name": self.name.lower()}
         headers = {"api_token": api_token}
-        chip_info = requests.post(url=User.chip_api, data=data, headers=headers)
+        url = User.url + User.chip_api
+        chip_info = requests.post(url=url, data=data, headers=headers)
         chip_info = json.loads(chip_info.text)
         json_topo_struct = chip_info["topological_structure"]
         qubits_list = []

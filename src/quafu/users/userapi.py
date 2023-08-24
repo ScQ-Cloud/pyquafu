@@ -22,11 +22,11 @@ from ..utils.platform import get_homedir
 
 class User(object):
     url = "https://quafu.baqis.ac.cn/"
-    backends_api = url + "qbackend/get_backends/"
-    chip_api = url + "qbackend/scq_get_chip_info/"
-    exec_api = url + "qbackend/scq_kit/"
-    exec_async_api = url + "qbackend/scq_kit_asyc/"
-    exec_recall_api = url + "qbackend/scq_task_recall/"
+    backends_api = "qbackend/get_backends/"
+    chip_api = "qbackend/scq_get_chip_info/"
+    exec_api = "qbackend/scq_kit/"
+    exec_async_api = "qbackend/scq_kit_asyc/"
+    exec_recall_api = "qbackend/scq_task_recall/"
 
     def __init__(self, api_token: str = None, token_dir: str = None):
         """
@@ -91,7 +91,7 @@ class User(object):
         with open(file_dir, "r") as f:
             items = f.readlines()
             token = items[0].strip()
-            self.url = items[1].strip()
+            self.__class__.url = items[1].strip()
         return token
 
     def _get_backends_info(self):
@@ -99,7 +99,8 @@ class User(object):
         Get available backends information
         """
         headers = {"api_token": self.api_token}
-        response = requests.post(url=self.backends_api, headers=headers)
+        url = self.url + self.backends_api
+        response = requests.post(url=url, headers=headers)
         backends_info = response.json()
         if response.status_code == 201:
             raise UserError(backends_info["message"])
