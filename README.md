@@ -1,26 +1,28 @@
 # PyQuafu
 
-Python toolkit for submitting quantum circuits on the superconducting quantum computing cloud [Quafu](http://quafu.baqis.ac.cn/). 
+Python toolkit for submitting quantum circuits on the superconducting quantum computing cloud [Quafu](http://quafu.baqis.ac.cn/).
 
 
 ## Introduction
 
-PyQuafu is developed for the users of [Quafu](http://quafu.baqis.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use PyQuafu to interact with different quantum backends provides by the experimental group of [Quafu](http://quafu.baqis.ac.cn/). 
+PyQuafu is developed for the users of [Quafu](http://quafu.baqis.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use PyQuafu to interact with different quantum backends provides by the experimental group of [Quafu](http://quafu.baqis.ac.cn/).
 
 ## Installation
 
 You can directly install via PyPI,
 
 ```
-pip install pyquafu 
+pip install pyquafu
 ```
- 
+
 or build from source
 
 ```
 pip install -r requirements.txt
 python setup.py install
 ```
+
+Note that pygraphviz requires graphviz being installed on your system. Refer to [pygraphviz documentation](https://pygraphviz.github.io/documentation/stable/install.html) for detailed installation steps.
 
 ## GPU support
 To install PyQuafu with GPU-based circuit simulator, you need build from the source and make sure that [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) is installed. You can run
@@ -44,7 +46,7 @@ If you are using an Apple silicon Mac and meet the error "illegal hardware instr
 
 ### 1.quantum_rl
 
-The example shows quantum reinforcement learning interacts with Quafu to solve CartPole environment. 
+The example shows quantum reinforcement learning interacts with Quafu to solve CartPole environment.
 
 Refer to https://github.com/enchanted123/quantum-RL-with-quafu for more details.
 
