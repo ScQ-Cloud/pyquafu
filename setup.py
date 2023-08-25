@@ -41,11 +41,7 @@ setup(
     url="https://github.com/ScQ-Cloud/pyquafu",
     description="Python toolkit for Quafu-Cloud",
     install_requires=requirements,
-    # packages=find_packages(where="src"),
-    # FIXME(): avoid find_packages, thus `python setup.py develop`
-    # links correct dir: 'xxx/src',
-    # otherwise, it will link 'xxx' and encounter modulenotfound error
-    packages=["quafu"],
+    packages=find_packages(where="src"),
     package_dir={"": "src"},
     cmake_install_dir="src/quafu/simulators/",
     include_package_data=True,
