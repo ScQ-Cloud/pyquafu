@@ -220,23 +220,25 @@ class Task(object):
         response = requests.post(url, headers=headers, data=data)  # type: requests.models.Response
 
         # TODO: completing status code checks
-        # assert response.ok
+        if not response.ok:
+            logging.warning("Received a non-200 response from the server.\n")
         if response.status_code == 502:
             logging.critical("Received a 502 Bad Gateway response. Please try again later.\n"
                              "If there is persistent failure, please report it on our github page.")
-            raise UserError()
+            raise UserError('502 Bad Gateway response')
         else:
-            res_dict = response.json()
+            res_dict = response.json()  # type: dict
+            quafu_status = res_dict['status']
             if verbose:
                 import pprint
                 pprint.pprint(res_dict)
-            if response.status_code in [201, 205]:
+            if quafu_status in [201, 205]:
                 raise UserError(res_dict["message"])
-            elif response.status_code == 5001:
+            elif quafu_status == 5001:
                 raise CircuitError(res_dict["message"])
-            elif response.status_code == 5003:
+            elif quafu_status == 5003:
                 raise ServerError(res_dict["message"])
-            elif response.status_code == 5004:
+            elif quafu_status == 5004:
                 raise CompileError(res_dict["message"])
             else:
                 task_id = res_dict["task_id"]
