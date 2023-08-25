@@ -18,12 +18,19 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 requirements = [
+    "ipython>=8.14.0",
     "matplotlib>=3.5.2",
     "networkx>=2.6.3",
     "numpy>=1.20.3",
     "requests>=2.26.0",
     "scipy>=1.8.1",
+    "setuptools>=58.0.4",
     "sparse>=0.13.0",
+    "scikit-build>=0.16.1",
+    "pybind11>=2.10.3",
+    "pygraphviz>=1.11",
+    "ply~=3.11",
+    "Pillow~=10.0.0"
 ]
 
 setup(
