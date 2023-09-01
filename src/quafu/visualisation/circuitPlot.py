@@ -20,7 +20,6 @@ from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
 
 from quafu.elements.quantum_element import Instruction, ControlledGate
-from typing import Dict
 
 # this line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit
@@ -48,7 +47,7 @@ layers(zorder):
 
 su2_gate_names = ['x', 'y', 'z', 'id', 'w',
                   'h', 't', 'tdg', 's', 'sdg', 'sx', 'sy', 'sw',
-                  'p',
+                  'phase',
                   'rx', 'ry', 'rz',
                   ]
 
@@ -108,15 +107,16 @@ class CircuitPlotManager:
 
         self._text_list = []
 
+        # step0: mapping y-coordinate of used-qubits
+        qubits_used = qc.used_qubits
+        self.used_qbit_num = len(qubits_used)
+        self.used_qbit_y = {iq: y for y, iq in enumerate(qubits_used)}
+
         # step1: process gates/instructions
         self.dorders = np.zeros(qc.num, dtype=int)
         for gate in qc.gates:
             assert isinstance(gate, Instruction)
             self._process_ins(gate)
-        qubits_used = qc.used_qubits
-        self.used_qbit_num = len(qubits_used)
-        # TODO: drop off unused-qubits
-        # self.used_qbit_num = np.sum(qubits_used)
 
         self.depth = np.max(self.dorders) + 1
 
@@ -124,8 +124,8 @@ class CircuitPlotManager:
             self._proc_measure(self.depth - 1, q)
 
         # step2: initialize bit-label
-        self.q_label = {i: r'$|q_{%d}\rangle$' % i for i in range(qc.num) if i in qubits_used}
-        self.c_label = {iq: r'c_{%d}' % ic for iq, ic in qc.measures.items() if iq in qubits_used}
+        self.q_label = {y: r'$|q_{%d}\rangle$' % i for i, y in self.used_qbit_y.items()}
+        self.c_label = {self.used_qbit_y[iq]: r'c_{%d}' % ic for iq, ic in qc.measures.items()}
 
         # step3: figure coordination
         self.xs = np.arange(-3 / 2, self.depth + 3 / 2)
@@ -161,7 +161,6 @@ class CircuitPlotManager:
                          ha='center', va='baseline')
             self._text_list.append(title)
 
-        # TODO: adjust figure size according to title and other elements
         # initialize a figure
         _size_x = self._a_inch * abs(self.xs[-1] - self.xs[0])
         _size_y = self._a_inch * abs(self.ys[-1] - self.ys[0])
@@ -222,23 +221,12 @@ class CircuitPlotManager:
         """
         plot horizontal circuit wires
         """
-        for y in range(self.used_qbit_num):
+        for pos, y in self.used_qbit_y.items():
             x0 = self.xs[0] + 1
             x1 = self.xs[-1] - 1
             self._h_wire_points.append([[x0, y], [x1, y]])
 
-    def _gate_bbox(self, x, y, fc: str):
-        """ Single qubit gate box """
-        a = self._a
-        from matplotlib.patches import FancyBboxPatch
-        bbox = FancyBboxPatch((-a / 2 + x, -a / 2 + y), a, a,  # this warning belongs to matplotlib
-                              boxstyle=f'round, pad={0.2 * a}',
-                              edgecolor=DEEPCOLOR,
-                              facecolor=fc,
-                              )
-        self._closed_patches.append(bbox)
-
-    def _inits_label(self, labels: Dict[int, str] = None):
+    def _inits_label(self, labels: dict[int: str] = None):
         """ qubit-labeling """
         if labels is None:
             labels = self.q_label
@@ -269,7 +257,18 @@ class CircuitPlotManager:
                        )
             self._text_list.append(txt)
 
-    def _gate_label(self, s, x, y):
+    def _gate_bbox(self, x, y, fc: str):
+        """ Single qubit gate box """
+        a = self._a
+        from matplotlib.patches import FancyBboxPatch
+        bbox = FancyBboxPatch((-a / 2 + x, -a / 2 + y), a, a,  # this warning belongs to matplotlib
+                              boxstyle=f'round, pad={0.2 * a}',
+                              edgecolor=DEEPCOLOR,
+                              facecolor=fc,
+                              )
+        self._closed_patches.append(bbox)
+
+    def _gate_label(self, x, y, s):
         if not s:
             return None
         _dy = 0.05
@@ -283,7 +282,7 @@ class CircuitPlotManager:
         text.set_path_effects([self._stroke])
         self._text_list.append(text)
 
-    def _para_label(self, para_txt, x, y):
+    def _para_label(self, x, y, para_txt):
         """ label parameters """
         if not para_txt:
             return None
@@ -335,8 +334,7 @@ class CircuitPlotManager:
         self._mea_point_patches += [center_bkg, arrow, center]
 
     #########################################################################
-    # # # # processing-functions: decompose ins into graphical elements # # #
-    #########################################################################
+    # region # # # # processing-functions: decompose ins into graphical elements # # #
     def _proc_su2(self, id_name, depth, pos, paras):
         if id_name in ['x', 'y', 'z', 'h', 'id', 's', 't', 'p', 'u']:
             fc = '#EE7057'
@@ -354,33 +352,37 @@ class CircuitPlotManager:
         else:
             para_txt = None
 
-        self._gate_label(label, depth, pos)
-        self._para_label(para_txt, depth, pos)
-        self._gate_bbox(depth, pos, fc)
+        x = depth
+        y = self.used_qbit_y[pos]
+        self._gate_label(x=x, y=y, s=label)
+        self._para_label(x=x, y=y, para_txt=para_txt)
+        self._gate_bbox(x=x, y=y, fc=fc)
 
     def _proc_ctrl(self, depth, ins: ControlledGate, ctrl_type: bool = True):
         # control part
         p0, p1 = np.max(ins.pos), np.min(ins.pos)
-        self._ctrl_wire_points.append([[depth, p1], [depth, p0]])
+        x0, x1 = self.used_qbit_y[p0], self.used_qbit_y[p1]
+        self._ctrl_wire_points.append([[depth, x1], [depth, x0]])
 
         ctrl_pos = np.array(ins.ctrls)
         for c in ctrl_pos:
-            self._ctrl_points.append((depth, c, ctrl_type))
+            x = self.used_qbit_y[c]
+            self._ctrl_points.append((depth, x, ctrl_type))
 
         # target part
         name = ins.name.lower()
         if ins.ct_nums == (1, 1, 2) or name in mc_gate_names:
             tar_name = ins.targ_name.lower()[-1]
             pos = ins.targs if isinstance(ins.targs, int) else ins.targs[0]
+            x = self.used_qbit_y[pos]
             if tar_name == 'x':
-                self._not_points.append((depth, pos))
+                self._not_points.append((depth, x))
             else:
-                para = ins.paras
-                self._proc_su2(tar_name, depth, pos, para)
+                self._proc_su2(tar_name, depth, pos, None)
         elif name == 'cswap':
-            self._swap_points += [[depth, p] for p in ins.targs]
+            self._swap_points += [[depth, self.used_qbit_y[p]] for p in ins.targs]
         elif name == 'ccx':
-            self._not_points.append((depth, ins.targs))
+            self._not_points.append((depth, self.used_qbit_y[ins.targs]))
         else:
             from quafu.elements.element_gates import ControlledU
             assert isinstance(ins, ControlledU), f'unknown gate: {name}, {ins.__class__.__name__}'
@@ -388,9 +390,10 @@ class CircuitPlotManager:
 
     def _proc_swap(self, depth, pos, iswap: bool = False):
         p1, p2 = pos
-        nodes = [[depth, p] for p in pos]
+        x1, x2 = self.used_qbit_y[p1], self.used_qbit_y[p2]
+        nodes = [[depth, x] for x in [x1, x2]]
         self._swap_points += nodes
-        self._ctrl_wire_points.append([[depth, p1], [depth, p2]])
+        self._ctrl_wire_points.append([[depth, x1], [depth, x2]])
         if iswap:
             self._iswap_points += nodes
 
@@ -399,21 +402,26 @@ class CircuitPlotManager:
         x1 = depth + self._barrier_width
 
         for p in pos:
-            y0 = (p - 1 / 2)
-            y1 = (p + 1 / 2)
+            y = self.used_qbit_y[p]
+            y0 = (y - 1 / 2)
+            y1 = (y + 1 / 2)
             nodes = [[x0, y0], [x0, y1], [x1, y1], [x1, y0], [x0, y0]]
             self._barrier_points.append(nodes)
 
-    def _proc_measure(self, depth, pos):
+    def _proc_measure(self, depth, pos: int):
         fc = GOLDEN
-        self._gate_bbox(depth, pos, fc)
-        self._measure_label(depth, pos)
+        y = self.used_qbit_y[pos]
+        x = depth
+        self._gate_bbox(x, y, fc)
+        self._measure_label(x, y)
 
         # TODO: decide whether to draw double wire for measurement
         # y = pos + 0.02
         # x0 = depth
         # x1 = self.depth - 1 / 2
         # self._h_wire_points.append([[x0, y], [x1, y]])
+    # endregion
+    #########################################################################
 
     #########################################################################
     # # # # # # # # # # # # # # rendering functions # # # # # # # # # # # # #
