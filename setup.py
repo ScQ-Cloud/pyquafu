@@ -41,7 +41,6 @@ setup(
     url="https://github.com/ScQ-Cloud/pyquafu",
     description="Python toolkit for Quafu-Cloud",
     install_requires=requirements,
-    # packages=find_packages(where="src"),
     packages=find_packages(exclude=["test*"]),
     cmake_install_dir="quafu/simulators/",
     include_package_data=True,
