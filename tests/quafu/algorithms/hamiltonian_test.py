@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Quafu Hamiltonian class"""
+from quafu.algorithms.hamiltonian import Hamiltonian
 
+class TestHamiltonian:
 
-class Hamiltonian:
-    """TODO"""
-
-    def __init__(self) -> None:
-        pass
+    def test_init(self):
+        h = Hamiltonian()
