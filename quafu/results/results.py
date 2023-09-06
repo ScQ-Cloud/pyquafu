@@ -22,18 +22,21 @@ class ExecResult(Result):
         transpiled_circuit (QuantumCircuit): Quantum circuit transpiled on backend.
     """
 
-    def __init__(self, input_dict, measures):
-        status_map = {
-            0: "In Queue",
-            1: "Running",
-            2: "Completed",
-            "Canceled": 3,
-            4: "Failed",
-        }
-        self.measures = measures
+    def __init__(self, input_dict):
+        status_map = {0: "In Queue", 1: "Running", 2: "Completed", "Canceled": 3, 4: "Failed"}
+        self.taskid = input_dict['task_id']
+        self.taskname = input_dict['task_name']
+        self.transpiled_openqasm = input_dict["openqasm"]
+        from ..circuits.quantum_circuit import QuantumCircuit
+        self.transpiled_circuit = QuantumCircuit(0)
+        self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
+        self.measure_base = []
+
+        self.measures = self.transpiled_circuit.measures
         self.task_status = status_map[input_dict["status"]]
         self.res = eval(input_dict["res"])
         self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
+
         self.logicalq_res = {}
         cbits = list(self.measures.values())
         indexed_cbits = {bit: i for i, bit in enumerate(sorted(cbits))}
@@ -42,18 +45,10 @@ class ExecResult(Result):
             newkey = "".join([key[i] for i in squeezed_cbits])
             self.logicalq_res[newkey] = values
 
-        self.taskid = input_dict["task_id"]
-        self.taskname = input_dict["task_name"]
-        self.transpiled_openqasm = input_dict["openqasm"]
-        from ..circuits.quantum_circuit import QuantumCircuit
-
-        self.transpiled_circuit = QuantumCircuit(0)
-        self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
-        self.measure_base = []
         total_counts = sum(self.counts.values())
         self.probabilities = {}
-        for key in self.counts:
-            self.probabilities[key] = self.counts[key] / total_counts
+        for bit_str in self.counts:
+            self.probabilities[bit_str] = self.counts[bit_str] / total_counts
 
     def calculate_obs(self, pos):
         """

@@ -557,13 +557,14 @@ class QuantumCircuit(object):
         self.add_gate(qeg.CTGate(ctrl, tar))
         return self
 
-    def cp(self, ctrl: int, tar: int, para) -> "QuantumCircuit":
+    def cp(self, ctrl: int, tar: int, para: float) -> "QuantumCircuit":
         """
         Control-P gate.
 
         Args:
             ctrl (int): control qubit.
             tar (int): target qubit.
+            para: theta
         """
         self.add_gate(qeg.CPGate(ctrl, tar, para))
         return self
@@ -732,6 +733,9 @@ class QuantumCircuit(object):
         """
         if pos is None:
             pos = list(range(self.num))
+
+        if np.any(np.array(pos) >= self.num):
+            raise ValueError("Index out of range.")
 
         e_num = len(self.measures)  # existing num of measures
         n_num = len(pos)  # newly added num of measures
