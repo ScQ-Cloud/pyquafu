@@ -158,7 +158,9 @@ class Task(object):
 
         return exec_res, measure_results
 
-    def run(self, qc: QuantumCircuit, measure_base: List = None) -> ExecResult:
+    def run(self,
+            qc: QuantumCircuit,
+            measure_base: List = None) -> ExecResult:
         """Single run for measurement task.
 
         Args:
@@ -181,13 +183,13 @@ class Task(object):
 
         return res
 
-    def send(
-        self,
-        qc: QuantumCircuit,
-        name: str = "",
-        group: str = "",
-        wait: bool = True,
-    ) -> ExecResult:
+    def send(self,
+             qc: QuantumCircuit,
+             name: str = "",
+             group: str = "",
+             wait: bool = True,
+             verbose: bool = False,
+             ) -> ExecResult:
         """
         Run the circuit on experimental device.
 
@@ -196,6 +198,7 @@ class Task(object):
             name: Task name.
             group: The task belong which group.
             wait: Whether wait until the execution return.
+            verbose:
         Returns:
             ExecResult object that contain the dict return from quantum device.
         """
@@ -269,7 +272,7 @@ class Task(object):
                 else:
                     self.submit_history[group].append(task_id)
 
-                return ExecResult(res_dict, qc.measures)
+                return ExecResult(res_dict)
 
     def retrieve(self, taskid: str) -> ExecResult:
         """
@@ -281,25 +284,16 @@ class Task(object):
         data = {"task_id": taskid}
         url = User.url + User.exec_recall_api
 
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-            "api_token": self.user.api_token,
-        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
         response = requests.post(url, headers=headers, data=data)
 
         res_dict = response.json()
-        measures = eval(res_dict["measure"])
-        if measures is None:
-            raise Exception(
-                "Measure info returned is None. This may be the error under repairing."
-                " See https://github.com/ScQ-Cloud/pyquafu/issues/50"
-            )
+        return ExecResult(res_dict)
 
-        return ExecResult(res_dict, measures)
-
-    def retrieve_group(
-        self, group: str, history: Dict = None, verbose: bool = True
-    ) -> List[ExecResult]:
+    def retrieve_group(self,
+                       group: str,
+                       history: Dict = None,
+                       verbose: bool = True) -> List[ExecResult]:
         """
         Retrieve the results of submited task by group name.
 

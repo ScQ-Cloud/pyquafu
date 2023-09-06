@@ -43,7 +43,7 @@ class QuafuTaskDatabase:
     - Usage:
     Use this class by 'with' statement. For example:
     >>> with QuafuTaskDatabase(db_dir='./') as db:
-    ...     db.insert_task(1, "Done", "Group 1", "Task1", priority=2)
+    ...     db.insert_task(1, "Done", group_name="Group 1", task_name="Task1", priority=2)
     ...     print("Task list:")
     ...     for task_info in db.find_all_tasks():
     ...         print_task_info(task_info)
@@ -86,7 +86,7 @@ class QuafuTaskDatabase:
     def insert_task(self,
                     task_id,
                     status,
-                    send_time: str,
+                    send_time: str = None,
                     priority=2,
                     group_name=None,
                     task_name=None,
