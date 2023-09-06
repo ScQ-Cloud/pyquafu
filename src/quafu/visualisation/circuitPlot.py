@@ -379,7 +379,7 @@ class CircuitPlotManager:
             if tar_name == 'x':
                 self._not_points.append((depth, x))
             else:
-                self._proc_su2(tar_name, depth, pos, None)
+                self._proc_su2(tar_name, depth, pos, ins.paras)
         elif name == 'cswap':
             self._swap_points += [[depth, self.used_qbit_y[p]] for p in ins.targs]
         elif name == 'ccx':
