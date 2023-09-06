@@ -20,6 +20,7 @@ from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
 
 from quafu.elements.quantum_element import Instruction, ControlledGate
+from typing import Dict
 
 # this line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit
@@ -226,7 +227,7 @@ class CircuitPlotManager:
             x1 = self.xs[-1] - 1
             self._h_wire_points.append([[x0, y], [x1, y]])
 
-    def _inits_label(self, labels: dict[int: str] = None):
+    def _inits_label(self, labels: Dict[int, str] = None):
         """ qubit-labeling """
         if labels is None:
             labels = self.q_label
@@ -241,7 +242,7 @@ class CircuitPlotManager:
                        )
             self._text_list.append(txt)
 
-    def _measured_label(self, labels: dict[int: str] = None):
+    def _measured_label(self, labels: Dict[int, str] = None):
         """ measured qubit-labeling """
         if labels is None:
             labels = self.c_label
