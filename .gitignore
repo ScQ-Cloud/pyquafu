@@ -17,3 +17,4 @@ thirdparty
 MANIFEST.in
 *.pyd
 dev_*.py
+*temp.*
