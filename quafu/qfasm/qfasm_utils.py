@@ -1,10 +1,12 @@
 import quafu.elements.element_gates as qeg
+from exceptions import ParserError
 from quafu.elements.quantum_element.quantum_element import (
     Measure,
     Barrier,
     Delay,  
     XYResonance,                                                 
 )
+from qfasm_parser import QfasmParser
 
 class Node:
     """
@@ -126,3 +128,14 @@ gate_classes = {
     "measure" : Measure,
     # "xy": XYResonance,
 }
+
+# parse file and parse data
+def parse_str(filename:str=None, data:str=None):
+    if filename is None and data is None:
+        raise ParserError("Please provide a qasm str or a qasm file.")
+    if filename:
+        with open(filename) as ifile:
+            data = ifile.read()
+    
+    qasm = QfasmParser(filename)
+    return qasm.parse(data)

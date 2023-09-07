@@ -2,7 +2,7 @@ import ply.yacc as yacc
 from qfasm_utils import *
 from quafu.qfasm.exceptions import ParserError
 
-from .qfasmlex import QfasmLexer
+from qfasm_lexer import QfasmLexer
 import numpy as np
 from quafu import QuantumCircuit
 
@@ -75,7 +75,7 @@ def updateSymtab(symtabnode:Node):
 # 从最底层向上归约写
 class QfasmParser(object):
     """OPENQASM2.0 Parser"""
-    def __init__(self, filename,debug=False):
+    def __init__(self, filename:str=None, debug=False):
         self.lexer = QfasmLexer(filename)
         self.tokens = self.lexer.tokens
         self.precedence = (
@@ -88,6 +88,13 @@ class QfasmParser(object):
         self.stdgate = gate_classes.keys()
         self.parser = yacc.yacc(module=self, debug=debug)
 
+    # parse data
+    def parse(self, data, debug=False):
+        self.parser.parse(data, lexer=self.lexer, debug=debug)
+        if self.circuit is None:
+            raise ParserError("Exception in parser;")
+        return self.circuit
+
     def cal_column(self, data: str, p):
         "Compute the column"
         begin_of_line = data.rfind('\n', 0, p.lexpos)
@@ -95,8 +102,19 @@ class QfasmParser(object):
         column = p.lexpos - begin_of_line + 1
         return column
     
-    def addInstruction(self, qc, statement):
-        pass
+    def addInstruction(self, qc, instruction):
+        if instruction is None:
+            return
+        if isinstance(instruction, GateInstruction):
+            pass
+            # recurse the gate to the CircuitGate
+            
+            
+        elif isinstance(instruction, IfInstruction):
+            pass
+        else:
+            raise ParserError(f"Unexpected exception when parse.")
+        
     
 
     def check_measure_bit(self, gateins:GateInstruction):
@@ -770,5 +788,4 @@ class QfasmParser(object):
             raise ParserError("Error at end of file")
         
         print(f"Error near line{self.lexer.lexer.lineno}, Column {self.cal_column(self.lexer.data, p)}")
-    
     
