@@ -43,6 +43,8 @@ unarynp = {
 def updateSymtab(symtabnode:Node):
         # update Symtab
         # reg 
+        global qnum
+        global cnum
         global symtab
         global global_symtab
         if symtabnode.is_global:
@@ -96,6 +98,7 @@ class QfasmParser(object):
     def addInstruction(self, qc, statement):
         pass
     
+
     def check_measure_bit(self, gateins:GateInstruction):
         global global_symtab
         cbit = gateins.cbits[0]
@@ -131,7 +134,6 @@ class QfasmParser(object):
             raise ParserError(f"MEASURE: the num of qubit and clbit doesn's match at line {gateins.lineno} file {gateins.filename}")
 
 
-
     def check_qargs(self, gateins:GateInstruction):
         # check gatename declared
         global global_symtab
@@ -165,6 +167,7 @@ class QfasmParser(object):
         if len(qargslist) != len(set(qargslist)):
             raise ParserError(f"Qubit used as different argument when call gate {gateins.name} at line {gateins.lineno} file {gateins.filename}")
     
+
     def check_cargs(self, gateins:GateInstruction):
         # check that cargs belongs to unary (they must be int or float)
         # cargs is different from CREG
@@ -211,6 +214,7 @@ class QfasmParser(object):
                 raise ParserError(f"{qarg.name} is not declared as a qubit at line {qarg.lineno} file {qarg.filename}")
         if len(qargs) != len(set(qargsname)):
             raise ParserError(f"A qubit used as different argument when call gate {gateins.name} at line {gateins.lineno} file {gateins.filename}")
+
 
     def check_gate_cargs(self, gateins:GateInstruction):
         # check gate_op's classcal args, must matches num declared by gate
@@ -286,14 +290,37 @@ class QfasmParser(object):
     def p_statement_qif(self, p):
         """
         qif : IF '(' id MATCHES INT ')' qop 
-                |   IF '(' id MATCHES INT ')' error
-                |   IF '(' id MATCHES INT error
-                |   IF '(' id MATCHES error
-                |   IF '(' id error
-                |   IF error
+            | IF '(' id MATCHES INT error
+            | IF '(' id MATCHES error
+            | IF '(' id error
+            | IF '(' error
+            | IF error
         """
         # check id is a creg and check range
-        pass
+        if len(p) == 7:
+            raise ParserError(f"Illegal IF statement, missing ')' at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 6:
+            raise ParserError(f"Illegal IF statement, the Rvalue can only be INT at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 5:
+            raise ParserError(f"Illegal IF statement, missing '==' at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 4:
+            raise ParserError(f"Illegal IF statement, the Lvalue can only be creg at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 3:
+            raise ParserError(f"Illegal IF statement, missing '(' at line {p[1].lineno} file {p[1].filename}")
+        global global_symtab
+        cbit = p[3]
+        if cbit.name not in global_symtab:
+            raise ParserError(f"The classical bit {cbit.name} is undefined in classical bit register at line {cbit.lineno} file {cbit.filename}")
+        symnode = global_symtab[cbit.name]
+        if symnode.type != 'CREG':
+                raise ParserError(f"{cbit.name} is not declared as classical bit register at line {cbit.lineno} file {cbit.filename}")
+        # optimization: If the value that creg can represent is smaller than Rvalue, just throw it
+        num = symnode.num
+        if pow(2,num)-1 < p[5]:
+            p[0] = None
+        else:
+            p[0] = IfInstruction(node=p[1], cbits=p[3], value=p[5], instruction=p[7])
+
     
     def p_unitaryop(self, p):
         """
@@ -377,7 +404,7 @@ class QfasmParser(object):
     # gate_qarg_list
     def p_gate_qarg_list_begin(self, p):
         """
-        arg_list : id
+        qarg_list : id
         """
         p[0] = [p[1]]
         newsymtabnode = SymtabNode('QARG', p[1], False, True)
@@ -429,7 +456,7 @@ class QfasmParser(object):
         """
         statement : GATE id gate_scope '(' carg_list ')' qarg_list gate_body 
         """
-        newsymtabnode = SymtabNode('GATE', p[2]).fill_gate(p[7], p[8],p[5])
+        newsymtabnode = SymtabNode('GATE', p[2]).fill_gate(p[7], p[8], p[5])
         updateSymtab(newsymtabnode)
 
     def p_gate_scope(self, _):
@@ -743,4 +770,5 @@ class QfasmParser(object):
             raise ParserError("Error at end of file")
         
         print(f"Error near line{self.lexer.lexer.lineno}, Column {self.cal_column(self.lexer.data, p)}")
+    
     

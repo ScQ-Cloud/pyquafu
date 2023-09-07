@@ -42,6 +42,7 @@ class IndexedId(Node):
         self.lineno = node.lineno
         self.filename = node.filename
 
+
 class GateInstruction:
     def __init__(self, node, qargs, cargs = None, cbits = None):
         self.name = node.name
@@ -50,6 +51,15 @@ class GateInstruction:
         self.qargs = qargs
         self.cargs = cargs
         self.cbits = cbits
+
+class IfInstruction:
+    def __init__(self, node, cbits, value:int, instruction):
+        self.name = node.name
+        self.lineno = node.lineno
+        self.filename = node.filename
+        self.cbits = cbits
+        self.value = value
+        self.instruction = instruction
 
 class SymtabNode(Node):
     def __init__(self, type, node, is_global=True, is_qubit = False):
