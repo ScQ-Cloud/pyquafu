@@ -354,7 +354,9 @@ class QfasmParser(object):
         main : program
         """
         # now get the root node, return Citcuit
-        self.circuit = p[1]
+        self.circuit:QuantumCircuit = p[1]
+        self.circuit.executable_on_backend = self.executable_on_backend
+        self.circuit.has_measured = self.has_measured
 
     # when reduce statement into program, insert it to circuit and update symtab if it can.
     def p_program(self, p):
