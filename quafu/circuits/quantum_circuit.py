@@ -44,6 +44,8 @@ class QuantumCircuit(object):
         self.openqasm = ""
         self.circuit = []
         self.measures = {}
+        self.executable_on_backend = True
+        self.has_measured = False
         self._used_qubits = []
         self._parameterized_gates = []
 

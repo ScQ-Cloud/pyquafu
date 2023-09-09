@@ -1,10 +1,13 @@
+import copy
 import ply.yacc as yacc
 from qfasm_utils import *
+from quafu.elements.quantum_element.classical_element import Cif
 from quafu.qfasm.exceptions import ParserError
 
 from qfasm_lexer import QfasmLexer
 import numpy as np
 from quafu import QuantumCircuit
+from quafu.elements.quantum_element.quantum_element import *
 
 # global symtab
 global_symtab = {}
@@ -86,7 +89,12 @@ class QfasmParser(object):
         )
         self.nuop = ['barrier', 'reset', 'measure']
         self.stdgate = gate_classes.keys()
+        # extent keyword(the )
+        self.stdgate.extend(['U','CX'])
         self.parser = yacc.yacc(module=self, debug=debug)
+        # when there is reset/op after measure/if, set to false
+        self.executable_on_backend = True
+        self.has_measured = False
 
     # parse data
     def parse(self, data, debug=False):
@@ -102,14 +110,10 @@ class QfasmParser(object):
         column = p.lexpos - begin_of_line + 1
         return column
     
-
     def handle_gateins(self, gateins:GateInstruction):
         global global_symtab
-        symnode = global_symtab[gateins.name]
         gate_list = []
         # end of recurse
-        if gateins.name == 'U':
-            gateins.name = 'u3'
         if gateins.name in self.stdgate and gateins.name not in ['reset', 'barrier', 'measure']:
             args = []
             # add qubits to args, it's might be a qubit or a qreg
@@ -117,45 +121,100 @@ class QfasmParser(object):
                 if isinstance(qarg, IndexedId):
                     # check qreg's num is the same
                     if len(args) >= 1 and len(args[0]) != 1:
-                        raise ParserError(f"The num of qreg's qubit is different at line{qarg.lineno} file{qarg.filename}.")
-                    args.append([qarg.start + qarg.num])
+                        raise ParserError(f"The num of qreg's qubit is different at line{gateins.lineno} file{gateins.filename}.")
+                    symnode = global_symtab[qarg.name]
+                    args.append([symnode.start + qarg.num])
                 elif isinstance(qarg, Id):
                     # check qreg's num is the same
-                    if len(args) >= 1 and qarg.num != len(args[0]):
-                        raise ParserError(f"The num of qreg's qubit is different at line{qarg.lineno} file{qarg.filename}.")
+                    symnode = global_symtab[qarg.name]
+                    if len(args) >= 1 and symnode.num != len(args[0]):
+                        raise ParserError(f"The num of qreg's qubit is different at line{gateins.lineno} file{gateins.filename}.")
                     tempargs = []
-                    for i in range(qarg.num):
-                        tempargs.append(qarg.start + i)
+                    for i in range(symnode.num):
+                        tempargs.append(symnode.start + i)
                     args.append(tempargs)
             # call many times
             for i in range(len(args[0])):
                 oneargs = []
                 for arg in args:
                     oneargs.append(arg[i])
+                # if it's U or CX
+                if gateins.name == 'CX':
+                    gateins.name = 'cx'
+                if gateins.name == 'U':
+                    gate_list.append(gate_classes['rz'](*[*oneargs,gateins.cargs[2]]))
+                    gate_list.append(gate_classes['ry'](*[*oneargs,gateins.cargs[0]]))
+                    gate_list.append(gate_classes['rz'](*[*oneargs,gateins.cargs[1]]))
+                else:
                 # add carg to args if there is
-                if gateins.cargs is None or len(gateins.cargs) == 0:
-                    oneargs.extend(gateins.cargs)
+                    if gateins.cargs is None or len(gateins.cargs) == 0:
+                        oneargs.extend(gateins.cargs)
                     gate_list.append(gate_classes[gateins.name](*oneargs))
-                
-                
-
-        pass
-
-    def addInstruction(self, qc, instruction):
-        if instruction is None:
-            return
-        if isinstance(instruction, GateInstruction):
-
-            pass
-            # recurse the gate to the CircuitGate
-            
-            
-        elif isinstance(instruction, IfInstruction):
-            pass
+        # if op is barrier or reset or measure   
+        elif gateins.name in ['reset', 'barrier']:
+            nametoclass = {'reset': Reset, 'barrier': Barrier} 
+            for qarg in gateins.qargs:
+                symnode = global_symtab[qarg.name]
+                if isinstance(qarg, Id):
+                    for i in range(symnode.num):
+                        gate_list.append(nametoclass[gateins.name](symnode.start+i))
+                elif isinstance(qarg, IndexedId):
+                    gate_list.append(nametoclass[gateins.name](symnode.start+qarg.num))
+        # we have check the num of cbit and qbit
+        elif gateins.name == 'measure':
+            bitmap = {}
+            qarg = gateins.qargs[0]
+            cbit = gateins.cbits
+            symnode = global_symtab[qarg.name]
+            symnodec = global_symtab[cbit.name]
+            if isinstance(qarg, Id):
+                for i in range(symnode.num):
+                    bitmap[symnode.start+i] = symnodec.start+i
+            elif isinstance(qarg, IndexedId):
+                bitmap[symnode.start+qarg.num] = symnodec.start+cbit.num
+            gate_list.append(Measure(bitmap=bitmap))
+        # if it's not a gate that can be trans to circuit gate, just recurse
         else:
-            raise ParserError(f"Unexpected exception when parse.")
+            gatenode:SymtabNode = global_symtab[gateins.name]
+            qargdict = {}
+            for i in range(gatenode.qargs):
+                qargdict[gatenode.qargs[i].name] = i
+            cargdict = {}
+            for i in range(gatenode.cargs):
+                cargdict[gatenode.cargs[i].name] = i
+            for ins in gatenode.instructions:
+                # change qarg/carg, no cbit in gate param
+                # deep copy
+                newins = copy.deepcopy(ins)
+                for i in range(ins.qargs):
+                    newins.qargs[i] = gateins.qargs[qargdict[ins.qargs[i].name]]
+                for i in range(ins.cargs):
+                    newins.cargs[i] = gateins.cargs[cargdict[ins.cargs[i].name]]
+                # now, recurse
+                gate_list.extend(self.handle_gateins(newins))
         
-    
+        return gate_list
+
+    def addInstruction(self, qc: QuantumCircuit, ins):
+        global global_symtab
+        if ins is None:
+            return
+        if isinstance(ins, GateInstruction):
+            gate_list = self.handle_gateins(ins)
+            for gate in gate_list:
+                qc.add_gate(gate)
+        elif isinstance(ins, IfInstruction):
+            symtabnode = global_symtab[ins.cbits.name]
+            if isinstance(ins.cbits, Id):
+                cbit = [symtabnode.start, symtabnode.start.num]
+            else:
+                cbit = [symtabnode.start+ins.cbits.num]
+            # get quantum gate
+            gate_list = self.handle_gateins(ins.instruction)
+            qc.add_gate(Cif(cbit=cbit, condition=ins.value, instructions=gate_list))
+        else:
+            raise ParserError(f"Unexpected exception when parse.")    
+
 
     def check_measure_bit(self, gateins:GateInstruction):
         global global_symtab
@@ -346,14 +405,14 @@ class QfasmParser(object):
     
     def p_statement_qif(self, p):
         """
-        qif : IF '(' id MATCHES INT ')' qop 
-            | IF '(' id MATCHES INT error
-            | IF '(' id MATCHES error
-            | IF '(' id error
+        qif : IF '(' primary MATCHES INT ')' qop 
+            | IF '(' primary MATCHES INT error
+            | IF '(' primary MATCHES error
+            | IF '(' primary error
             | IF '(' error
             | IF error
         """
-        # check id is a creg and check range
+        # check primary is a creg and check range
         if len(p) == 7:
             raise ParserError(f"Illegal IF statement, missing ')' at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 6:
@@ -370,15 +429,25 @@ class QfasmParser(object):
             raise ParserError(f"The classical bit {cbit.name} is undefined in classical bit register at line {cbit.lineno} file {cbit.filename}")
         symnode = global_symtab[cbit.name]
         if symnode.type != 'CREG':
-                raise ParserError(f"{cbit.name} is not declared as classical bit register at line {cbit.lineno} file {cbit.filename}")
-        # optimization: If the value that creg can represent is smaller than Rvalue, just throw it
-        num = symnode.num
-        if pow(2,num)-1 < p[5]:
-            p[0] = None
-        else:
-            p[0] = IfInstruction(node=p[1], cbits=p[3], value=p[5], instruction=p[7])
+            raise ParserError(f"{cbit.name} is not declared as classical bit register at line {cbit.lineno} file {cbit.filename}")
+        # check range if IndexedId
+        if isinstance(cbit, IndexedId):
+            if cbit.num >= symnode.num:
+                raise ParserError(f"{cbit.name} out of range at line {cbit.lineno} file {cbit.filename}")
+            # optimization: If the value that creg can represent is smaller than Rvalue, just throw it
+            if p[5] > 2:
+                p[0] = None
+            else: 
+                p[0] = IfInstruction(node=p[1], cbits=p[3], value=p[5], instruction=p[7])
+        elif isinstance(cbit, Id):
+            # optimization: If the value that creg can represent is smaller than Rvalue, just throw it
+            num = symnode.num
+            if pow(2,num)-1 < p[5]:
+                p[0] = None
+            else:
+                p[0] = IfInstruction(node=p[1], cbits=p[3], value=p[5], instruction=p[7])
+        self.executable_on_backend = False
 
-    
     def p_unitaryop(self, p):
         """
         qop : id primary_list
@@ -395,6 +464,8 @@ class QfasmParser(object):
         # check args
         self.check_qargs(p[0])
         self.check_cargs(p[0])
+        if self.has_measured:
+            self.executable_on_backend = False
 
     def p_unitaryop_error(self, p):
         """
@@ -413,8 +484,9 @@ class QfasmParser(object):
         qop : MEASURE primary ASSIGN primary
         """
         # check and return gateInstruction
-        p[0] = GateInstruction(node=p[1], qargs=[p[2]], cbits=[p[4]])
+        p[0] = GateInstruction(node=p[1], qargs=[p[2]], cargs=[], cbits=[p[4]])
         self.check_measure_bit(p[0])
+        self.has_measured = True
 
     def p_measure_error(self, p):
         """
@@ -451,7 +523,8 @@ class QfasmParser(object):
         """
         p[0] = GateInstruction(node=p[1], qargs=[p[2]], cargs=[])
         self.check_qargs(p[0])
-    
+        self.executable_on_backend = False
+
     def p_reset(self, p):
         """
         qop : RESET error
