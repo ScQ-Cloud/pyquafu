@@ -102,10 +102,50 @@ class QfasmParser(object):
         column = p.lexpos - begin_of_line + 1
         return column
     
+
+    def handle_gateins(self, gateins:GateInstruction):
+        global global_symtab
+        symnode = global_symtab[gateins.name]
+        gate_list = []
+        # end of recurse
+        if gateins.name == 'U':
+            gateins.name = 'u3'
+        if gateins.name in self.stdgate and gateins.name not in ['reset', 'barrier', 'measure']:
+            args = []
+            # add qubits to args, it's might be a qubit or a qreg
+            for qarg in gateins.qargs:
+                if isinstance(qarg, IndexedId):
+                    # check qreg's num is the same
+                    if len(args) >= 1 and len(args[0]) != 1:
+                        raise ParserError(f"The num of qreg's qubit is different at line{qarg.lineno} file{qarg.filename}.")
+                    args.append([qarg.start + qarg.num])
+                elif isinstance(qarg, Id):
+                    # check qreg's num is the same
+                    if len(args) >= 1 and qarg.num != len(args[0]):
+                        raise ParserError(f"The num of qreg's qubit is different at line{qarg.lineno} file{qarg.filename}.")
+                    tempargs = []
+                    for i in range(qarg.num):
+                        tempargs.append(qarg.start + i)
+                    args.append(tempargs)
+            # call many times
+            for i in range(len(args[0])):
+                oneargs = []
+                for arg in args:
+                    oneargs.append(arg[i])
+                # add carg to args if there is
+                if gateins.cargs is None or len(gateins.cargs) == 0:
+                    oneargs.extend(gateins.cargs)
+                    gate_list.append(gate_classes[gateins.name](*oneargs))
+                
+                
+
+        pass
+
     def addInstruction(self, qc, instruction):
         if instruction is None:
             return
         if isinstance(instruction, GateInstruction):
+
             pass
             # recurse the gate to the CircuitGate
             
@@ -303,7 +343,6 @@ class QfasmParser(object):
         if p[2] != ';':
             raise ParserError(f"Missing ';' behind statement")
         p[0] = p[1]
-        self.addInstruction(p[0])
     
     def p_statement_qif(self, p):
         """
