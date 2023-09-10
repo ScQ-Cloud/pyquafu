@@ -1,5 +1,5 @@
 OPENQASM 2.0;
-include "./qe.inc";
+include "qe.inc";
 gate test c,t { cx c,t; }
 qreg q[3];
 qreg r[3];

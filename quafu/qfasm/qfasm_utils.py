@@ -1,12 +1,13 @@
+import sys
+sys.path.append('C:\\Users\\AFWZSL\\Desktop\\pyquafu')
 import quafu.elements.element_gates as qeg
-from exceptions import ParserError
+
 from quafu.elements.quantum_element.quantum_element import (
     Measure,
     Barrier,
     Delay,  
     XYResonance,                                                 
 )
-from qfasm_parser import QfasmParser
 
 class Node:
     """
@@ -69,22 +70,25 @@ class SymtabNode(Node):
         self.type = type
         self.name = node.name
         # for reg
-        self.num = node.num
+        self.num = 0
+        if isinstance(node, IndexedId):
+            self.num = node.num
         self.start = 0
-        # for error
+        # for debug
         self.lineno = node.lineno
         self.filename = node.filename
         # for check
         self.is_global = is_global
         # for gate
         self.is_qubit = is_qubit
-        self.qargs = None
-        self.cargs = None
-        self.instructions = None
+        self.qargs = []
+        self.cargs = []
+        self.instructions = []
     def fill_gate(self, qargs, instructions = None, cargs = None):
         self.qargs = qargs
         self.instructions = instructions
-        self.cargs = cargs
+        if cargs:
+            self.cargs = cargs
 
         
 gate_classes = {
@@ -129,13 +133,3 @@ gate_classes = {
     # "xy": XYResonance,
 }
 
-# parse file and parse data
-def parse_str(filename:str=None, data:str=None):
-    if filename is None and data is None:
-        raise ParserError("Please provide a qasm str or a qasm file.")
-    if filename:
-        with open(filename) as ifile:
-            data = ifile.read()
-    
-    qasm = QfasmParser(filename)
-    return qasm.parse(data)

@@ -6,7 +6,7 @@
 import os
 import ply.lex as lex
 import numpy as np
-from qfasm_parser import Id
+from qfasm_utils import Id
 from exceptions import LexerError
 
 class QfasmLexer(object):
@@ -16,7 +16,7 @@ class QfasmLexer(object):
         # read qelib1.inc
         qelib1 = os.path.join(os.path.dirname(__file__), 'qelib1.inc')
         self.file_lexer_stack = []
-        self.push_lexer(qelib1)
+        # self.push_lexer(qelib1)
 
     def build(self, filename:str = None):
         self.lexer = lex.lex(module=self)
@@ -176,11 +176,12 @@ class QfasmLexer(object):
             print(tok)
 
     def test_file(self):
+        print_file = open("lex.txt",'w+')
         while True:
             tok = self.lexer.token()
             if not tok:
                 break
-            print(tok) 
+            print(tok, file=print_file) 
 
 if __name__ == "__main__":
     m = QfasmLexer('qasm.qasm')

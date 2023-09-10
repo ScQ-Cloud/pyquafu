@@ -1,13 +1,16 @@
 import copy
 import ply.yacc as yacc
 from qfasm_utils import *
-from quafu.elements.quantum_element.classical_element import Cif
+import sys
+from quafu.circuits.quantum_register import QuantumRegister
+sys.path.append('C:\\Users\\AFWZSL\\Desktop\\pyquafu')
 from quafu.qfasm.exceptions import ParserError
 
 from qfasm_lexer import QfasmLexer
 import numpy as np
 from quafu import QuantumCircuit
 from quafu.elements.quantum_element.quantum_element import *
+from quafu.elements.quantum_element.classical_element import Cif
 
 # global symtab
 global_symtab = {}
@@ -43,37 +46,6 @@ unarynp = {
     "asin": np.arcsin,
 }
 
-def updateSymtab(symtabnode:Node):
-        # update Symtab
-        # reg 
-        global qnum
-        global cnum
-        global symtab
-        global global_symtab
-        if symtabnode.is_global:
-            if symtabnode.name in global_symtab:
-                hasnode = global_symtab[symtabnode.name]
-                raise ParserError(f"Duplicate declaration for {symtabnode.name} at line {symtabnode.lineno} file {symtabnode.filename}",
-                                  f"First occureence at line {hasnode.lineno} file {hasnode.filename}")
-        else:
-            # just for arg and qarg in gate declaration, so it can duplicate
-            if symtabnode.name in symtab:
-                hasnode = symtab[symtabnode.name]
-                raise ParserError(f"Duplicate declaration for {symtabnode.name} at line {symtabnode.lineno} file {symtabnode.filename}")
-
-        if symtabnode.type == 'QREG':
-            symtabnode.start = qnum
-            qnum += symtabnode.num
-
-        if symtabnode.type == 'CREG':
-            symtabnode.start = cnum
-            cnum += symtabnode.num
-
-        if symtabnode.is_global:
-            global_symtab[symtabnode.name] = symtabnode
-        else:
-            symtab[symtabnode.name] = symtabnode
-
 
 # 从最底层向上归约写
 class QfasmParser(object):
@@ -88,13 +60,14 @@ class QfasmParser(object):
             ("right","UMINUS")
         )
         self.nuop = ['barrier', 'reset', 'measure']
-        self.stdgate = gate_classes.keys()
+        self.stdgate = list(gate_classes.keys())
         # extent keyword(the )
         self.stdgate.extend(['U','CX'])
         self.parser = yacc.yacc(module=self, debug=debug)
         # when there is reset/op after measure/if, set to false
         self.executable_on_backend = True
         self.has_measured = False
+        self.circuit = QuantumCircuit(0)
 
     # parse data
     def parse(self, data, debug=False):
@@ -109,6 +82,42 @@ class QfasmParser(object):
         begin_of_line = max(0, begin_of_line)
         column = p.lexpos - begin_of_line + 1
         return column
+    
+    def updateSymtab(self, symtabnode:SymtabNode):
+        # update Symtab
+        # reg 
+        global qnum
+        global cnum
+        global symtab
+        global global_symtab
+        # print(symtabnode)
+        if symtabnode.is_global:
+            if symtabnode.name in global_symtab:
+                hasnode = global_symtab[symtabnode.name]
+                raise ParserError(f"Duplicate declaration for {symtabnode.name} at line {symtabnode.lineno} file {symtabnode.filename}",
+                                  f"First occureence at line {hasnode.lineno} file {hasnode.filename}")
+        else:
+            # just for arg and qarg in gate declaration, so it can duplicate
+            if symtabnode.name in symtab:
+                hasnode = symtab[symtabnode.name]
+                raise ParserError(f"Duplicate declaration for {symtabnode.name} at line {symtabnode.lineno} file {symtabnode.filename}")
+
+        if symtabnode.type == 'QREG':
+            symtabnode.start = qnum
+            qnum += symtabnode.num
+            # add QuantumRegister
+            if len(self.circuit.qregs) == 0 :
+                self.circuit.qregs.append(QuantumRegister(qnum, name='q'))
+            else:
+                self.circuit.qregs[0] = QuantumRegister(qnum, name='q')
+        if symtabnode.type == 'CREG':
+            symtabnode.start = cnum
+            cnum += symtabnode.num
+
+        if symtabnode.is_global:
+            global_symtab[symtabnode.name] = symtabnode
+        else:
+            symtab[symtabnode.name] = symtabnode
     
     def handle_gateins(self, gateins:GateInstruction):
         global global_symtab
@@ -133,6 +142,7 @@ class QfasmParser(object):
                     for i in range(symnode.num):
                         tempargs.append(symnode.start + i)
                     args.append(tempargs)
+
             # call many times
             for i in range(len(args[0])):
                 oneargs = []
@@ -141,15 +151,16 @@ class QfasmParser(object):
                 # if it's U or CX
                 if gateins.name == 'CX':
                     gateins.name = 'cx'
-                if gateins.name == 'U':
-                    gate_list.append(gate_classes['rz'](*[*oneargs,gateins.cargs[2]]))
-                    gate_list.append(gate_classes['ry'](*[*oneargs,gateins.cargs[0]]))
-                    gate_list.append(gate_classes['rz'](*[*oneargs,gateins.cargs[1]]))
+                elif gateins.name == 'U':
+                    gate_list.append(gate_classes['rz'](*[*oneargs, gateins.cargs[2]]))
+                    gate_list.append(gate_classes['ry'](*[*oneargs, gateins.cargs[0]]))
+                    gate_list.append(gate_classes['rz'](*[*oneargs, gateins.cargs[1]]))
                 else:
                 # add carg to args if there is
-                    if gateins.cargs is None or len(gateins.cargs) == 0:
+                    if gateins.cargs is not None and len(gateins.cargs) > 0:
                         oneargs.extend(gateins.cargs)
                     gate_list.append(gate_classes[gateins.name](*oneargs))
+        
         # if op is barrier or reset or measure   
         elif gateins.name in ['reset', 'barrier']:
             nametoclass = {'reset': Reset, 'barrier': Barrier} 
@@ -164,7 +175,7 @@ class QfasmParser(object):
         elif gateins.name == 'measure':
             bitmap = {}
             qarg = gateins.qargs[0]
-            cbit = gateins.cbits
+            cbit = gateins.cbits[0]
             symnode = global_symtab[qarg.name]
             symnodec = global_symtab[cbit.name]
             if isinstance(qarg, Id):
@@ -173,27 +184,56 @@ class QfasmParser(object):
             elif isinstance(qarg, IndexedId):
                 bitmap[symnode.start+qarg.num] = symnodec.start+cbit.num
             gate_list.append(Measure(bitmap=bitmap))
-        # if it's not a gate that can be trans to circuit gate, just recurse
+        # if it's not a gate that can be trans to circuit gate, just recurse it
         else:
             gatenode:SymtabNode = global_symtab[gateins.name]
             qargdict = {}
-            for i in range(gatenode.qargs):
-                qargdict[gatenode.qargs[i].name] = i
+            for i in range(len(gatenode.qargs)):
+                qargdict[gatenode.qargs[i].name] = gateins.qargs[i]
             cargdict = {}
-            for i in range(gatenode.cargs):
-                cargdict[gatenode.cargs[i].name] = i
+            for i in range(len(gatenode.cargs)):
+                cargdict[gatenode.cargs[i].name] = gateins.cargs[i]
             for ins in gatenode.instructions:
                 # change qarg/carg, no cbit in gate param
                 # deep copy
                 newins = copy.deepcopy(ins)
-                for i in range(ins.qargs):
-                    newins.qargs[i] = gateins.qargs[qargdict[ins.qargs[i].name]]
-                for i in range(ins.cargs):
-                    newins.cargs[i] = gateins.cargs[cargdict[ins.cargs[i].name]]
+                # change newins's qarg to real q
+                for i in range(len(newins.qargs)):
+                    newins.qargs[i] = qargdict[newins.qargs[i].name]
+                # change newins's carg to real carg (consider exp)
+                for i in range(len(newins.cargs)):
+                    if not (isinstance(newins.cargs[i], int) or isinstance(newins.cargs[i], float)):
+                        # for expression
+                        newins.cargs[i] = self.compute_exp(newins.cargs[i], cargdict)
                 # now, recurse
                 gate_list.extend(self.handle_gateins(newins))
         
         return gate_list
+
+    def compute_exp(self, carg, cargdict:dict):
+        # recurse
+        if isinstance(carg, int) or isinstance(carg, float):
+            return carg
+        # if it's id, should get real number from gateins
+        elif isinstance(carg, Id):
+            return cargdict[carg.name]
+        elif isinstance(carg, UnaryExpr):
+            if carg.type == '-':
+                return -self.compute_exp(carg.children[0], cargdict)
+            elif carg.type in unaryop:
+                return unarynp[carg.type](self.compute_exp(carg.children[0]), cargdict)
+        elif isinstance(carg, BinaryExpr):
+            if carg.type == '+':
+                return self.compute_exp(carg.children[0], cargdict) + self.compute_exp(carg.children[1], cargdict)
+            elif carg.type == '-':
+                return self.compute_exp(carg.children[0], cargdict) - self.compute_exp(carg.children[1], cargdict)
+            elif carg.type == '*':
+                return self.compute_exp(carg.children[0], cargdict) * self.compute_exp(carg.children[1], cargdict)
+            elif carg.type == '/':
+                return self.compute_exp(carg.children[0], cargdict) / self.compute_exp(carg.children[1], cargdict)
+            elif carg.type == '^':
+                return self.compute_exp(carg.children[0], cargdict) ** self.compute_exp(carg.children[1], cargdict)
+            
 
     def addInstruction(self, qc: QuantumCircuit, ins):
         global global_symtab
@@ -202,11 +242,12 @@ class QfasmParser(object):
         if isinstance(ins, GateInstruction):
             gate_list = self.handle_gateins(ins)
             for gate in gate_list:
+                # print(self.circuit.num)
                 qc.add_gate(gate)
         elif isinstance(ins, IfInstruction):
             symtabnode = global_symtab[ins.cbits.name]
             if isinstance(ins.cbits, Id):
-                cbit = [symtabnode.start, symtabnode.start.num]
+                cbit = [symtabnode.start, symtabnode.start+symtabnode.num]
             else:
                 cbit = [symtabnode.start+ins.cbits.num]
             # get quantum gate
@@ -278,7 +319,7 @@ class QfasmParser(object):
                     raise ParserError(f"Qubit arrays {qarg.name} are out of bounds at line {qarg.lineno} file {qarg.filename}")
                 qargslist.append((qarg.name, qarg.num))
             else:
-                for num in symnode.num:
+                for num in range(symnode.num):
                     qargslist.append((qarg.name, num))
         # check  distinct qubits
         if len(qargslist) != len(set(qargslist)):
@@ -346,7 +387,29 @@ class QfasmParser(object):
                 raise ParserError(f"The {gateins.name} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
             if len(gateins.cargs) != len(gatenode.cargs):
                 raise ParserError(f"The number of classical argument declared in gate {gateins.name} is different from instruction at line {gateins.lineno} file {gateins.filename}")
-        
+            # check carg must from gate declared argument or int/float
+            for carg in gateins.cargs:
+                # recurse check expression
+                self.check_carg_declartion(carg) 
+    
+    def check_carg_declartion(self, node):
+        if isinstance(node, int) or isinstance(node, float):
+            return
+        if isinstance(node, Id):
+            # check declaration
+            global symtab
+            if node.name not in symtab:
+                raise ParserError(f"The classical argument {node.name} is undefined at line {node.lineno} file {node.filename}")
+            symnode = symtab[node.name]
+            if symnode.type != "CARG":
+                raise ParserError(f"The {node.name} is not defined as a classical at line {node.lineno} file {node.filename}")
+            return
+        if isinstance(node, UnaryExpr):
+            self.check_carg_declartion(node.children[0])
+        elif isinstance(node, BinaryExpr):
+            for i in range(2):
+                self.check_carg_declartion(node.children[i])
+
     start = "main"
 
     def p_main(self, p):
@@ -354,7 +417,6 @@ class QfasmParser(object):
         main : program
         """
         # now get the root node, return Citcuit
-        self.circuit:QuantumCircuit = p[1]
         self.circuit.executable_on_backend = self.executable_on_backend
         self.circuit.has_measured = self.has_measured
 
@@ -363,7 +425,7 @@ class QfasmParser(object):
         """
         program : statement
         """
-        p[0] = QuantumCircuit(0)
+        p[0] = self.circuit
         self.addInstruction(p[0], p[1])
         
     def p_program_list(self, p):
@@ -371,7 +433,7 @@ class QfasmParser(object):
         program : program statement
         """    
         p[0] = p[1]
-        self.addInstruction(p[0],p[1])
+        self.addInstruction(p[0], p[2])
 
         # statement |= qdecl | gatedecl | qop | if | barrier
     
@@ -527,7 +589,7 @@ class QfasmParser(object):
         self.check_qargs(p[0])
         self.executable_on_backend = False
 
-    def p_reset(self, p):
+    def p_reset_error(self, p):
         """
         qop : RESET error
         """
@@ -540,7 +602,7 @@ class QfasmParser(object):
         """
         p[0] = [p[1]]
         newsymtabnode = SymtabNode('QARG', p[1], False, True)
-        updateSymtab(newsymtabnode)
+        self.updateSymtab(newsymtabnode)
 
     def p_gate_qarg_list_next(self, p):
         """
@@ -549,7 +611,7 @@ class QfasmParser(object):
         p[0] = p[1]
         p[0].append(p[3])
         newsymtabnode = SymtabNode('QARG', p[3], False, True)
-        updateSymtab(newsymtabnode)
+        self.updateSymtab(newsymtabnode)
 
     # gate_carg_list
     def p_gate_carg_list_begin(self, p):
@@ -558,7 +620,7 @@ class QfasmParser(object):
         """
         p[0] = [p[1]]
         newsymtabnode = SymtabNode('CARG', p[1], False)
-        updateSymtab(newsymtabnode)
+        self.updateSymtab(newsymtabnode)
 
     def p_gate_carg_list_next(self, p):
         """
@@ -567,29 +629,32 @@ class QfasmParser(object):
         p[0] = p[1]
         p[0].append(p[3])
         newsymtabnode = SymtabNode('CARG', p[3], False)
-        updateSymtab(newsymtabnode)
+        self.updateSymtab(newsymtabnode)
 
     # gatedecl
     def p_statement_gatedecl_nolr(self, p):
         """
         statement : GATE id gate_scope qarg_list gate_body 
         """
-        newsymtabnode = SymtabNode('GATE', p[2]).fill_gate(p[4], p[5])
-        updateSymtab(newsymtabnode)
+        newsymtabnode = SymtabNode('GATE', p[2])
+        newsymtabnode.fill_gate(p[4], p[5])
+        self.updateSymtab(newsymtabnode)
 
     def p_statement_gatedecl_noargs(self, p):
         """
         statement : GATE id gate_scope '(' ')' qarg_list gate_body 
         """
-        newsymtabnode = SymtabNode('GATE', p[2]).fill_gate(p[6], p[7])
-        updateSymtab(newsymtabnode)
+        newsymtabnode = SymtabNode('GATE', p[2])
+        newsymtabnode.fill_gate(p[6], p[7])
+        self.updateSymtab(newsymtabnode)
 
     def p_statement_gatedecl_args(self, p):
         """
         statement : GATE id gate_scope '(' carg_list ')' qarg_list gate_body 
         """
-        newsymtabnode = SymtabNode('GATE', p[2]).fill_gate(p[7], p[8], p[5])
-        updateSymtab(newsymtabnode)
+        newsymtabnode = SymtabNode('GATE', p[2])
+        newsymtabnode.fill_gate(p[7], p[8], p[5])
+        self.updateSymtab(newsymtabnode)
 
     def p_gate_scope(self, _):
         """
@@ -661,7 +726,7 @@ class QfasmParser(object):
             | id '(' expression_list ')' error
             | id '(' expression_list error
         """
-        if len(p) == 7 and p[6] != '!':
+        if len(p) == 7 and p[6] != ';':
             raise ParserError(f"Missing ';' after gate {p[1].name} at line {p[1].lineno}")
         if len(p) == 6:
             raise ParserError(f"Missing qubit id after gate {p[1].name} at line {p[1].lineno}")
@@ -706,23 +771,23 @@ class QfasmParser(object):
         """
         if not isinstance(p[2], IndexedId):
             raise ParserError(f"Expecting ID[int] after QREG at line {p[1].lineno} file {p[1].filename}, received {p[2].value}")
-        if p[2].index <= 0:
+        if p[2].num <= 0:
             raise ParserError(f"QREG size must be positive at line {p[2].lineno} file {p[2].filename}")
-        newsymtabnode = SymtabNode('QREG', p[2])
-        updateSymtab(newsymtabnode)
+        newsymtabnode = SymtabNode('QREG', p[2], True, True)
+        self.updateSymtab(newsymtabnode)
         p[0] = None
 
-    def p_qdecl(self, p):
+    def p_cdecl(self, p):
         """
         cdecl : CREG indexed_id
                 | CREG error
         """
         if not isinstance(p[2], IndexedId):
             raise ParserError(f"Expecting ID[int] after CREG at line {p[1].lineno} file {p[1].filename}, received {p[2].value}")
-        if p[2].index <= 0:
+        if p[2].num <= 0:
             raise ParserError(f"CREG size must be positive at line {p[2].lineno} file {p[2].filename}")
-        newsymtabnode = SymtabNode('CREG', p[2])
-        updateSymtab(newsymtabnode)
+        newsymtabnode = SymtabNode('CREG', p[2], True, False)
+        self.updateSymtab(newsymtabnode)
         p[0] = None
 
     # id  
