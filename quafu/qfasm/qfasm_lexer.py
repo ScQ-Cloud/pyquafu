@@ -13,10 +13,7 @@ class QfasmLexer(object):
 
     def __init__(self, filename:str = None):
         self.build(filename)
-        # read qelib1.inc
-        qelib1 = os.path.join(os.path.dirname(__file__), 'qelib1.inc')
         self.file_lexer_stack = []
-        # self.push_lexer(qelib1)
 
     def build(self, filename:str = None):
         self.lexer = lex.lex(module=self)
@@ -37,6 +34,9 @@ class QfasmLexer(object):
     def input(self, data):
         self.data = data
         self.lexer.input(data)
+        # read qelib1.inc
+        qelib1 = os.path.join(os.path.dirname(__file__), 'qelib1.inc')
+        self.push_lexer(qelib1)
 
     def token(self):
         ret = self.lexer.token()
@@ -85,6 +85,8 @@ class QfasmLexer(object):
             if semicolon_token is None or semicolon_token.value != ";":
                 raise LexerError(f'Expecting ";" for INCLUDE at line {semicolon_token.lineno}, in file {self.lexer.filename}')
             return self.lexer.token()
+        # if filename == 'qelib1.inc':
+        #     filename = os.path.join(os.path.dirname(__file__), 'qelib1.inc')
             
         if not os.path.exists(filename):
             raise LexerError(f"Include file {filename} cannot be found, at line {filename_token.lineno}, in file {self.lexer.filename}")
