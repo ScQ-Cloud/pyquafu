@@ -12,10 +12,8 @@ def parse_str(filename:str=None, data:str=None):
     qasm = QfasmParser(filename)
     return qasm.parse(data)
 
-qc = parse_str(filename='qasm.qasm')
+if __name__ == "__main__":
+    from parse import parse_str
+    qc = parse_str(filename='qasm.qasm')
 
-print(qc.gates)
-print(qc.gates[22].qbits, qc.gates[22].cbits)
-
-for qreg in qc.qregs:
-    print(qreg, qreg.name, qreg.qubits)
+    print(qc.gates)

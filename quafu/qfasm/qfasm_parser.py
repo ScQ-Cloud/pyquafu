@@ -12,26 +12,6 @@ from quafu import QuantumCircuit
 from quafu.elements.quantum_element.quantum_element import *
 from quafu.elements.quantum_element.classical_element import Cif
 
-# global symtab
-global_symtab = {}
-
-# Add U and CX in global_symtab
-U_Id = Id('U', -1, None)
-CX_Id = Id('CX', -1, None)
-UNode = SymtabNode('GATE', U_Id)
-UNode.fill_gate(qargs=[None], cargs=[None,None,None])
-CXNode = SymtabNode('GATE', CX_Id)
-CXNode.fill_gate(qargs=[None,None],cargs=[])
-global_symtab['U'] = UNode
-global_symtab['CX'] = CXNode
-
-# function argument symtab
-symtab = {}
-# qubit num used
-qnum = 0
-# cbit num used
-cnum = 0
-
 
 unaryop = ["sin", "cos", "tan", "exp", "ln", "sqrt", "acos", "atan", "asin"]
 unarynp = {
@@ -68,6 +48,26 @@ class QfasmParser(object):
         self.executable_on_backend = True
         self.has_measured = False
         self.circuit = QuantumCircuit(0)
+        self.global_symtab = {}
+        self.add_U_CX()
+        # function argument symtab
+        self.symtab = {}
+        # qubit num used
+        self.qnum = 0
+        # cbit num used
+        self.cnum = 0
+
+    def add_U_CX(self):
+        # Add U and CX in global_symtab
+        U_Id = Id('U', -1, None)
+        CX_Id = Id('CX', -1, None)
+        UNode = SymtabNode('GATE', U_Id)
+        UNode.fill_gate(qargs=[None], cargs=[None,None,None])
+        CXNode = SymtabNode('GATE', CX_Id)
+        CXNode.fill_gate(qargs=[None,None],cargs=[])
+        self.global_symtab['U'] = UNode
+        self.global_symtab['CX'] = CXNode
+
 
     # parse data
     def parse(self, data, debug=False):
@@ -86,41 +86,36 @@ class QfasmParser(object):
     def updateSymtab(self, symtabnode:SymtabNode):
         # update Symtab
         # reg 
-        global qnum
-        global cnum
-        global symtab
-        global global_symtab
         # print(symtabnode)
         if symtabnode.is_global:
-            if symtabnode.name in global_symtab:
-                hasnode = global_symtab[symtabnode.name]
+            if symtabnode.name in self.global_symtab:
+                hasnode = self.global_symtab[symtabnode.name]
                 raise ParserError(f"Duplicate declaration for {symtabnode.name} at line {symtabnode.lineno} file {symtabnode.filename}",
                                   f"First occureence at line {hasnode.lineno} file {hasnode.filename}")
         else:
             # just for arg and qarg in gate declaration, so it can duplicate
-            if symtabnode.name in symtab:
-                hasnode = symtab[symtabnode.name]
+            if symtabnode.name in self.symtab:
+                hasnode = self.symtab[symtabnode.name]
                 raise ParserError(f"Duplicate declaration for {symtabnode.name} at line {symtabnode.lineno} file {symtabnode.filename}")
 
         if symtabnode.type == 'QREG':
-            symtabnode.start = qnum
-            qnum += symtabnode.num
+            symtabnode.start = self.qnum
+            self.qnum += symtabnode.num
             # add QuantumRegister
             if len(self.circuit.qregs) == 0 :
-                self.circuit.qregs.append(QuantumRegister(qnum, name='q'))
+                self.circuit.qregs.append(QuantumRegister(self.qnum, name='q'))
             else:
-                self.circuit.qregs[0] = QuantumRegister(qnum, name='q')
+                self.circuit.qregs[0] = QuantumRegister(self.qnum, name='q')
         if symtabnode.type == 'CREG':
-            symtabnode.start = cnum
-            cnum += symtabnode.num
+            symtabnode.start = self.cnum
+            self.cnum += symtabnode.num
 
         if symtabnode.is_global:
-            global_symtab[symtabnode.name] = symtabnode
+            self.global_symtab[symtabnode.name] = symtabnode
         else:
-            symtab[symtabnode.name] = symtabnode
+            self.symtab[symtabnode.name] = symtabnode
     
     def handle_gateins(self, gateins:GateInstruction):
-        global global_symtab
         gate_list = []
         # end of recurse
         if gateins.name in self.stdgate and gateins.name not in ['reset', 'barrier', 'measure']:
@@ -131,11 +126,11 @@ class QfasmParser(object):
                     # check qreg's num is the same
                     if len(args) >= 1 and len(args[0]) != 1:
                         raise ParserError(f"The num of qreg's qubit is different at line{gateins.lineno} file{gateins.filename}.")
-                    symnode = global_symtab[qarg.name]
+                    symnode = self.global_symtab[qarg.name]
                     args.append([symnode.start + qarg.num])
                 elif isinstance(qarg, Id):
                     # check qreg's num is the same
-                    symnode = global_symtab[qarg.name]
+                    symnode = self.global_symtab[qarg.name]
                     if len(args) >= 1 and symnode.num != len(args[0]):
                         raise ParserError(f"The num of qreg's qubit is different at line{gateins.lineno} file{gateins.filename}.")
                     tempargs = []
@@ -165,28 +160,33 @@ class QfasmParser(object):
         elif gateins.name in ['reset', 'barrier']:
             nametoclass = {'reset': Reset, 'barrier': Barrier} 
             for qarg in gateins.qargs:
-                symnode = global_symtab[qarg.name]
+                symnode = self.global_symtab[qarg.name]
                 if isinstance(qarg, Id):
+                    qlist = []
                     for i in range(symnode.num):
-                        gate_list.append(nametoclass[gateins.name](symnode.start+i))
+                        qlist.append(symnode.start+i)
+                    gate_list.append(nametoclass[gateins.name](qlist))
                 elif isinstance(qarg, IndexedId):
-                    gate_list.append(nametoclass[gateins.name](symnode.start+qarg.num))
+                    gate_list.append(nametoclass[gateins.name]([symnode.start+qarg.num]))
+
         # we have check the num of cbit and qbit
         elif gateins.name == 'measure':
             bitmap = {}
             qarg = gateins.qargs[0]
             cbit = gateins.cbits[0]
-            symnode = global_symtab[qarg.name]
-            symnodec = global_symtab[cbit.name]
+            symnode = self.global_symtab[qarg.name]
+            symnodec = self.global_symtab[cbit.name]
             if isinstance(qarg, Id):
                 for i in range(symnode.num):
                     bitmap[symnode.start+i] = symnodec.start+i
             elif isinstance(qarg, IndexedId):
                 bitmap[symnode.start+qarg.num] = symnodec.start+cbit.num
-            gate_list.append(Measure(bitmap=bitmap))
+            # gate_list.append(Measure(bitmap=bitmap))
+            # TODO
+            self.circuit.measure(list(bitmap.keys()), list(bitmap.values()))
         # if it's not a gate that can be trans to circuit gate, just recurse it
         else:
-            gatenode:SymtabNode = global_symtab[gateins.name]
+            gatenode:SymtabNode = self.global_symtab[gateins.name]
             qargdict = {}
             for i in range(len(gatenode.qargs)):
                 qargdict[gatenode.qargs[i].name] = gateins.qargs[i]
@@ -221,7 +221,7 @@ class QfasmParser(object):
             if carg.type == '-':
                 return -self.compute_exp(carg.children[0], cargdict)
             elif carg.type in unaryop:
-                return unarynp[carg.type](self.compute_exp(carg.children[0]), cargdict)
+                return unarynp[carg.type](self.compute_exp(carg.children[0], cargdict))
         elif isinstance(carg, BinaryExpr):
             if carg.type == '+':
                 return self.compute_exp(carg.children[0], cargdict) + self.compute_exp(carg.children[1], cargdict)
@@ -236,7 +236,6 @@ class QfasmParser(object):
             
 
     def addInstruction(self, qc: QuantumCircuit, ins):
-        global global_symtab
         if ins is None:
             return
         if isinstance(ins, GateInstruction):
@@ -245,7 +244,7 @@ class QfasmParser(object):
                 # print(self.circuit.num)
                 qc.add_gate(gate)
         elif isinstance(ins, IfInstruction):
-            symtabnode = global_symtab[ins.cbits.name]
+            symtabnode = self.global_symtab[ins.cbits.name]
             if isinstance(ins.cbits, Id):
                 cbit = [symtabnode.start, symtabnode.start+symtabnode.num]
             else:
@@ -258,15 +257,14 @@ class QfasmParser(object):
 
 
     def check_measure_bit(self, gateins:GateInstruction):
-        global global_symtab
         cbit = gateins.cbits[0]
         qarg = gateins.qargs[0]
         cbit_num = 0
         qbit_num = 0
         # check qubit
-        if qarg.name not in global_symtab:
+        if qarg.name not in self.global_symtab:
             raise ParserError(f"The qubit {qarg.name} is undefined in qubit register at line {qarg.lineno} file {qarg.filename}")
-        symnode = global_symtab[qarg.name]
+        symnode = self.global_symtab[qarg.name]
         if symnode.type != 'QREG':
                 raise ParserError(f"{qarg.name} is not declared as qubit register at line {qarg.lineno} file {qarg.filename}")
         if isinstance(qarg, IndexedId):
@@ -276,9 +274,9 @@ class QfasmParser(object):
         else:
             qbit_num = symnode.num
         # check cbit
-        if cbit.name not in global_symtab:
+        if cbit.name not in self.global_symtab:
             raise ParserError(f"The classical bit {cbit.name} is undefined in classical bit register at line {cbit.lineno} file {cbit.filename}")
-        symnode = global_symtab[cbit.name]
+        symnode = self.global_symtab[cbit.name]
         if symnode.type != 'CREG':
                 raise ParserError(f"{cbit.name} is not declared as classical bit register at line {cbit.lineno} file {cbit.filename}")
         if isinstance(cbit, IndexedId):
@@ -294,13 +292,12 @@ class QfasmParser(object):
 
     def check_qargs(self, gateins:GateInstruction):
         # check gatename declared
-        global global_symtab
         qargslist = []
         if gateins.name not in self.nuop:
-            if gateins.name not in global_symtab:
+            if gateins.name not in self.global_symtab:
                 raise ParserError(f"The gate {gateins.name} is undefined at line {gateins.lineno} file {gateins.filename}")
             # check if gateins.name is a gate
-            gatenote = global_symtab[gateins.name]
+            gatenote = self.global_symtab[gateins.name]
             if gatenote.type != 'GATE':
                 raise ParserError(f"The {gateins.name} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
             # check args matches gate's declared args
@@ -308,9 +305,9 @@ class QfasmParser(object):
                  raise ParserError(f"The numbe of qubit declared in gate {gateins.name} is inconsistent with instruction at line {gateins.lineno} file {gateins.filename}")
         # check qubits must from global symtab
         for qarg in gateins.qargs:
-            if qarg.name not in global_symtab:
+            if qarg.name not in self.global_symtab:
                 raise ParserError(f"The qubit {qarg.name} is undefined in qubit register at line {qarg.lineno} file {qarg.filename}")
-            symnode = global_symtab[qarg.name]
+            symnode = self.global_symtab[qarg.name]
             if symnode.type != 'QREG':
                 raise ParserError(f"{qarg.name} is not declared as qubit register at line {qarg.lineno} file {qarg.filename}")
             # check if the qarg is out of bounds when qarg's type is indexed_id 
@@ -330,9 +327,9 @@ class QfasmParser(object):
         # check that cargs belongs to unary (they must be int or float)
         # cargs is different from CREG
         if gateins.name not in self.nuop:
-            if gateins.name not in global_symtab:
+            if gateins.name not in self.global_symtab:
                 raise ParserError(f"The gate {gateins.name} is undefined at line {gateins.lineno} file {gateins.filename}")
-            gatenote = global_symtab[gateins.name]
+            gatenote = self.global_symtab[gateins.name]
             if gatenote.type != 'GATE':
                 raise ParserError(f"The {gateins.name} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
             # check every carg in [int, float]
@@ -346,16 +343,14 @@ class QfasmParser(object):
     
     def check_gate_qargs(self, gateins:GateInstruction):
         # check type and number
-        global symtab
-        global global_symtab
         qargs = gateins.qargs
         gatename = gateins.name
         qargsname = []
         if gatename != 'barrier':
             # check gatename declared
-            if gatename not in global_symtab:
+            if gatename not in self.global_symtab:
                 raise ParserError(f"The gate {gatename} is undefined at line {gateins.lineno} file {gateins.filename}")
-            gatenode = global_symtab[gatename]
+            gatenode = self.global_symtab[gatename]
             if gatenode.type != "GATE":
                 raise ParserError(f"The {gatename} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
             # check qarg's num matches gate's qargs, except barrier
@@ -365,9 +360,9 @@ class QfasmParser(object):
         for qarg in qargs:
             qargsname.append(qarg.name)
             # check qarg declaration
-            if qarg.name not in symtab:
+            if qarg.name not in self.symtab:
                 raise ParserError(f"The qubit {qarg.name} is undefined in gate qubit parameters at line {qarg.lineno} file {qarg.filename}")
-            symnode = symtab[qarg.name]
+            symnode = self.symtab[qarg.name]
             if symnode.type != 'QARG':
                 raise ParserError(f"{qarg.name} is not declared as a qubit at line {qarg.lineno} file {qarg.filename}")
         if len(qargs) != len(set(qargsname)):
@@ -376,13 +371,12 @@ class QfasmParser(object):
 
     def check_gate_cargs(self, gateins:GateInstruction):
         # check gate_op's classcal args, must matches num declared by gate
-        global global_symtab
         if gateins.name == 'barrier' and len(gateins.cargs) > 0:
             raise ParserError(f"Barrier can not receive classical argument at line {gateins.lineno} file {gateins.filename}")
         if gateins.name != 'barrier':
-            if gateins.name not in global_symtab:
+            if gateins.name not in self.global_symtab:
                 raise ParserError(f"The gate {gateins.name} is undefined at line {gateins.lineno} file {gateins.filename}")
-            gatenode = global_symtab[gateins.name]
+            gatenode = self.global_symtab[gateins.name]
             if gatenode.type != "GATE":
                 raise ParserError(f"The {gateins.name} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
             if len(gateins.cargs) != len(gatenode.cargs):
@@ -397,10 +391,9 @@ class QfasmParser(object):
             return
         if isinstance(node, Id):
             # check declaration
-            global symtab
-            if node.name not in symtab:
+            if node.name not in self.symtab:
                 raise ParserError(f"The classical argument {node.name} is undefined at line {node.lineno} file {node.filename}")
-            symnode = symtab[node.name]
+            symnode = self.symtab[node.name]
             if symnode.type != "CARG":
                 raise ParserError(f"The {node.name} is not defined as a classical at line {node.lineno} file {node.filename}")
             return
@@ -487,11 +480,11 @@ class QfasmParser(object):
             raise ParserError(f"Illegal IF statement, the Lvalue can only be creg at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 3:
             raise ParserError(f"Illegal IF statement, missing '(' at line {p[1].lineno} file {p[1].filename}")
-        global global_symtab
+
         cbit = p[3]
-        if cbit.name not in global_symtab:
+        if cbit.name not in self.global_symtab:
             raise ParserError(f"The classical bit {cbit.name} is undefined in classical bit register at line {cbit.lineno} file {cbit.filename}")
-        symnode = global_symtab[cbit.name]
+        symnode = self.global_symtab[cbit.name]
         if symnode.type != 'CREG':
             raise ParserError(f"{cbit.name} is not declared as classical bit register at line {cbit.lineno} file {cbit.filename}")
         # check range if IndexedId
@@ -660,8 +653,7 @@ class QfasmParser(object):
         """
         gate_scope : 
         """
-        global symtab
-        symtab = {}
+        self.symtab = {}
 
     # gatebody
     def p_gate_body_emptybody(self, p):
