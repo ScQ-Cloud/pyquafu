@@ -253,9 +253,7 @@ class Task(object):
             raise UserError()
         else:
             res_dict = response.json()
-            import pprint
 
-            pprint.pprint(res_dict)
             if response.status_code in [201, 205]:
                 raise UserError(res_dict["message"])
             elif response.status_code == 5001:
