@@ -253,13 +253,13 @@ class OracleGateMeta(ABCMeta):
 
 
 def customize_gate(cls_name: str,
-                   gate_structure: list,
+                   gate_structure: list[Instruction],
                    qubit_num: int,
                    ):
     """
     helper function to create customized gate class
     :param cls_name:
-    :param gate_structure:
+    :param gate_structure: a list of instruction INSTANCES
     :param qubit_num:
     :return:
     """
