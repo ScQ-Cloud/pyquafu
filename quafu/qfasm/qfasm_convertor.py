@@ -2,7 +2,6 @@ from .qfasm_parser import QfasmParser, QregNode
 from quafu.dagcircuits.circuit_dag import node_to_gate
 from quafu.dagcircuits.instruction_node import InstructionNode
 from quafu.circuits import QuantumCircuit, QuantumRegister
-from quafu.elements.quantum_element import Instruction
 
 
 def qasm_to_circuit(qasm):
@@ -173,15 +172,3 @@ def qasm2_to_quafu_qc(qc: QuantumCircuit, openqasm: str):
         print(
             "Warning: All operations after measurement will be removed for executing on experiment"
         )
-
-
-if __name__ == '__main__':
-    import re
-
-    pattern = r"[a-z]"
-
-    text = "Hello, world! This is a test."
-
-    matches = re.findall(pattern, text)
-
-    print(matches)
