@@ -34,12 +34,13 @@ TEST_EXE_RES = ExecResult(MOCK_RES_DICT)
 class TestEstimator:
     """Test class of Estimator"""
 
-    @patch("quafu.users.userapi.User.get_available_backends")
-    @patch("quafu.tasks.tasks.Task.send")
-    def test_run(self, mock_send, mock_availabel_backends):
+    @patch("quafu.users.userapi.User._load_account_token", autospec=True)
+    @patch("quafu.users.userapi.User.get_available_backends", autospec=True)
+    @patch("quafu.tasks.tasks.Task.send", autospec=True)
+    def test_run(self, mock_send, mock_backends, mock_load_account):
         """Test Estimator.run"""
         mock_send.return_value = TEST_EXE_RES
-        mock_availabel_backends.return_value = {"ScQ-P10": None}
+        mock_backends.return_value = {"ScQ-P10": None}
         circ = QuantumCircuit(5)
 
         for i in range(5):

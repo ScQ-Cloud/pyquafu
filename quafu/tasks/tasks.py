@@ -14,7 +14,7 @@
 
 import copy
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 from urllib import parse
 
 import numpy as np
@@ -42,7 +42,7 @@ class Task(object):
 
     """
 
-    def __init__(self, user: User = None):
+    def __init__(self, user: Optional[User] = None):
         self.user = User() if user is None else user
 
         self.shots = 1000
