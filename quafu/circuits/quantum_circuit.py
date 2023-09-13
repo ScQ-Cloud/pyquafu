@@ -18,6 +18,7 @@ import numpy as np
 
 import quafu.elements.element_gates as qeg
 from quafu.elements.quantum_element.pulses.quantum_pulse import QuantumPulse
+from quafu.elements.quantum_element.quantum_element import Reset
 from ..elements.quantum_element import (
     Barrier,
     Delay,
@@ -263,14 +264,14 @@ class QuantumCircuit(object):
         cmp = CircuitPlotManager(self)
         return cmp(*args, **kwargs)
 
-    def from_openqasm(self, openqasm: str):
+    def from_openqasm(self, openqasm: str=None, filename:str=None):
         """
         Initialize the circuit from openqasm text.
         Args:
             openqasm: input openqasm str.
         """
         from quafu.qfasm.qfasm_convertor import qasm2_to_quafu_qc
-        return qasm2_to_quafu_qc(self, openqasm)
+        return qasm2_to_quafu_qc(self, openqasm, filename)
 
     def to_openqasm(self) -> str:
         """
@@ -641,6 +642,19 @@ class QuantumCircuit(object):
         self.add_gate(Delay(pos, duration, unit=unit))
         return self
 
+    def reset(self, qlist:List[int]= None) -> "QuantumCircuit":
+        """
+        Add reset for qubits in qlist.
+
+        Args:
+            qlist (list[int]): A list contain the qubit need add reset. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
+        """
+        if qlist is None:
+            qlist = list(range(self.num))
+        self.add_gate(Reset(qlist))
+        self.executable_on_backend = False
+        return self
+
     def xy(self, qs: int, qe: int, duration: int, unit: str = "ns") -> "QuantumCircuit":
         """
         XY resonance time evolution for quantum simulator
@@ -724,7 +738,7 @@ class QuantumCircuit(object):
         """
         compiler = qeg.UnitaryDecomposer(array=matrix, qubits=pos)
         compiler.apply_to_qc(self)
-
+    
     def measure(self, pos: List[int] = None, cbits: List[int] = None) -> None:
         """
         Measurement setting for experiment device.
