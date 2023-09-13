@@ -28,7 +28,7 @@ requirements = [
     "sparse>=0.13.0",
     "scikit-build>=0.16.1",
     "pybind11>=2.10.3",
-    "pygraphviz>=1.11",
+    "graphviz>=1.11",
     "ply~=3.11",
     "Pillow~=10.0.0"
 ]
