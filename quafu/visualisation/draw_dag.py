@@ -23,18 +23,17 @@ def draw_dag(qc: Union[QuantumCircuit, None],
     """
     TODO: complete docstring, test supports for notebook
 
-        Helper function to visualize the DAG
+    Helper function to visualize the DAG
 
-        Args:
-            qc (QuantumCircuit): pyquafu quantum circuit if provided
-            dag (DAG): DAG object with nodes and edges, built from qc if not provided
-            output_format (str): output format, including "png", "svg", "pdf"...
-            output_filename (str): file name of generated image
+    Args:
+        qc (QuantumCircuit): pyquafu quantum circuit if provided
+        dag (DAG): DAG object with nodes and edges, built from qc if not provided
+        output_format (str): output format, including "png", "svg", "pdf"...
+        output_filename (str): file name of generated image
 
-        Returns:
-            dot: graphviz.Digraph object
-
-        """
+    Returns:
+        dot: graphviz.Digraph object
+    """
     if dag is None:
         assert qc is not None
         dag = circuit_to_dag(qc)
