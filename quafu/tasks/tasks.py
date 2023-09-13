@@ -187,8 +187,7 @@ class Task(object):
              qc: QuantumCircuit,
              name: str = "",
              group: str = "",
-             wait: bool = True,
-             verbose: bool = False,
+             wait: bool = True
              ) -> ExecResult:
         """
         Run the circuit on experimental device.
@@ -198,7 +197,6 @@ class Task(object):
             name: Task name.
             group: The task belong which group.
             wait: Whether wait until the execution return.
-            verbose:
         Returns:
             ExecResult object that contain the dict return from quantum device.
         """
