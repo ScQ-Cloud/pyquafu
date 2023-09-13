@@ -16,6 +16,8 @@ def _extract_node_info(node):
 
 def draw_dag(qc: QuantumCircuit):
     """
+    # TODO: complete docstring, test supports for notebook, and format supports
+
         Helper function to visualize the DAG
 
         Args:
