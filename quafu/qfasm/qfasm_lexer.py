@@ -6,8 +6,8 @@
 import os
 import ply.lex as lex
 import numpy as np
-from qfasm_utils import Id
-from exceptions import LexerError
+from .qfasm_utils import Id
+from .exceptions import LexerError
 
 class QfasmLexer(object):
 
@@ -42,7 +42,7 @@ class QfasmLexer(object):
         ret = self.lexer.token()
         return ret
 
-    literals = r'=()[]{};<>,.+-/*^"'
+    literals = r'()[]{};<>,+-/*^"'
 
     reserved = {
         "creg": "CREG",
@@ -74,8 +74,11 @@ class QfasmLexer(object):
     def t_INCLUDE(self, _):
         "include"
         filename_token = self.lexer.token()
+        # print(filename_token.value)
         if isinstance(filename_token.value, str):
             filename = filename_token.value.strip('"')
+            if filename == "":
+                raise LexerError("Invalid include: need a quoted string as filename.")
         else:
             raise LexerError("Invalid include: need a quoted string as filename.")
         
@@ -89,6 +92,7 @@ class QfasmLexer(object):
         #     filename = os.path.join(os.path.dirname(__file__), 'qelib1.inc')
             
         if not os.path.exists(filename):
+            # print(filename)
             raise LexerError(f"Include file {filename} cannot be found, at line {filename_token.lineno}, in file {self.lexer.filename}")
 
         semicolon_token = self.lexer.token()
@@ -110,7 +114,7 @@ class QfasmLexer(object):
         return t
 
     def t_STRING(self, t):
-        r"\"([^\\\"]|\\.)*\""
+        r'"([^\\\"]|\\.)*"'
         return t
 
     def t_ASSIGN(self, t):

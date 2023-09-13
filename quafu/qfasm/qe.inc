@@ -1,1 +1,0 @@
-gate uni_test a {u2(0,pi) a;}

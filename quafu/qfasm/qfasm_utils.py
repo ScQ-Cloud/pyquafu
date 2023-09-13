@@ -2,13 +2,6 @@ import sys
 sys.path.append('C:\\Users\\AFWZSL\\Desktop\\pyquafu')
 import quafu.elements.element_gates as qeg
 
-from quafu.elements.quantum_element.quantum_element import (
-    Measure,
-    Barrier,
-    Delay,  
-    XYResonance,                                                 
-)
-
 class Node:
     """
     Node created in reduction.
@@ -37,6 +30,7 @@ class Id(Node):
         self.name = name
         self.lineno = lineno
         self.filename = filename
+        self.num = 0
 
 class IndexedId(Node):
     def __init__(self, node:Node, index):
@@ -90,7 +84,13 @@ class SymtabNode(Node):
         if cargs:
             self.cargs = cargs
 
-        
+from quafu.elements.quantum_element.quantum_element import (
+    Measure,
+    Barrier,
+    Delay,  
+    XYResonance,                                                 
+) 
+
 gate_classes = {
     "x": qeg.XGate,
     "y": qeg.YGate,
@@ -105,23 +105,23 @@ gate_classes = {
     "rz": qeg.RZGate,
     "id": qeg.IdGate,
     "sx": qeg.SXGate,
-    # "sy": qeg.SYGate,
-    # "w": qeg.WGate,
-    # "sw": qeg.SWGate,
+    "sy": qeg.SYGate,
+    "w": qeg.WGate,
+    "sw": qeg.SWGate,
     "p": qeg.PhaseGate,
     "cx": qeg.CXGate,
     "cnot": qeg.CXGate,
     "cp": qeg.CPGate,
     "swap": qeg.SwapGate,
     "rxx": qeg.RXXGate,
-    # "ryy": qeg.RYYGate,
+    "ryy": qeg.RYYGate,
     "rzz": qeg.RZZGate,
     "cy": qeg.CYGate,
     "cz": qeg.CZGate,
-    # "cs": qeg.CSGate,
-    # "ct": qeg.CTGate,
+    "cs": qeg.CSGate,
+    "ct": qeg.CTGate,
     "ccx": qeg.ToffoliGate,
-    # "toffoli": qeg.ToffoliGate,
+    "toffoli": qeg.ToffoliGate,
     "cswap": qeg.FredkinGate,
     "fredkin": qeg.FredkinGate,
     "mcx": qeg.MCXGate,
@@ -130,6 +130,6 @@ gate_classes = {
     "delay": Delay,
     "barrier": Barrier,
     "measure" : Measure,
-    # "xy": XYResonance,
+    "xy": XYResonance,
 }
 

@@ -1,12 +1,13 @@
 import copy
+from typing import List
 import ply.yacc as yacc
-from qfasm_utils import *
+from .qfasm_utils import *
 import sys
-from quafu.circuits.quantum_register import QuantumRegister
 sys.path.append('C:\\Users\\AFWZSL\\Desktop\\pyquafu')
+from quafu.circuits.quantum_register import QuantumRegister
 from quafu.qfasm.exceptions import ParserError
 
-from qfasm_lexer import QfasmLexer
+from .qfasm_lexer import QfasmLexer
 import numpy as np
 from quafu import QuantumCircuit
 from quafu.elements.quantum_element.quantum_element import *
@@ -30,13 +31,13 @@ unarynp = {
 # 从最底层向上归约写
 class QfasmParser(object):
     """OPENQASM2.0 Parser"""
-    def __init__(self, filename:str=None, debug=False):
-        self.lexer = QfasmLexer(filename)
+    def __init__(self, filepath:str=None, debug=False):
+        self.lexer = QfasmLexer(filepath)
         self.tokens = self.lexer.tokens
         self.precedence = (
             ('left', '+', '-'),
             ('left', '*', '/'),
-            ("left", "^"),
+            ("right", "^"),
             ("right","UMINUS")
         )
         self.nuop = ['barrier', 'reset', 'measure']
@@ -75,13 +76,6 @@ class QfasmParser(object):
         if self.circuit is None:
             raise ParserError("Exception in parser;")
         return self.circuit
-
-    def cal_column(self, data: str, p):
-        "Compute the column"
-        begin_of_line = data.rfind('\n', 0, p.lexpos)
-        begin_of_line = max(0, begin_of_line)
-        column = p.lexpos - begin_of_line + 1
-        return column
     
     def updateSymtab(self, symtabnode:SymtabNode):
         # update Symtab
@@ -146,7 +140,7 @@ class QfasmParser(object):
                 # if it's U or CX
                 if gateins.name == 'CX':
                     gateins.name = 'cx'
-                elif gateins.name == 'U':
+                if gateins.name == 'U':
                     gate_list.append(gate_classes['rz'](*[*oneargs, gateins.cargs[2]]))
                     gate_list.append(gate_classes['ry'](*[*oneargs, gateins.cargs[0]]))
                     gate_list.append(gate_classes['rz'](*[*oneargs, gateins.cargs[1]]))
@@ -460,6 +454,12 @@ class QfasmParser(object):
             raise ParserError(f"Missing ';' behind statement")
         p[0] = p[1]
     
+    def p_statement_empty(self, p):
+        """
+        statement : ';'
+        """
+        p[0] = None
+
     def p_statement_qif(self, p):
         """
         qif : IF '(' primary MATCHES INT ')' qop 
@@ -513,7 +513,7 @@ class QfasmParser(object):
         """
         # return circuit gate instance 
         if len(p) == 5:
-            p[0] = GateInstruction(node=p[1], qargs=p[2], cargs=[])
+            p[0] = GateInstruction(node=p[1], qargs=p[4], cargs=[])
         if len(p) == 3:
             p[0] = GateInstruction(node=p[1], qargs=p[2], cargs=[])
         if len(p) == 6:
@@ -587,7 +587,7 @@ class QfasmParser(object):
         qop : RESET error
         """
         raise ParserError(f"RESET only opperate qubit at line {p[1].lineno} file {p[1].filename}")
-    
+
     # gate_qarg_list
     def p_gate_qarg_list_begin(self, p):
         """
@@ -686,6 +686,8 @@ class QfasmParser(object):
         """
         p[0] = p[1]
         p[0].append(p[2])
+
+    
 
     # gop
     # CX | U | ID(cargs)qargs | reset | 
@@ -881,7 +883,7 @@ class QfasmParser(object):
                     | expression '^' expression
         """
         if p[2] == '/' and p[3] == 0:
-            raise ParserError(f"Divided by 0 at line {self.lexer.lineno} column {self.cal_column(self.lexer.data, p[3])}")
+            raise ParserError(f"Divided by 0 at line {self.lexer.lexer.lineno} file {self.lexer.lexer.filename}")
         if isinstance(p[1], Node) or isinstance(p[3], Node):
             p[0] = BinaryExpr(p[2], p[1], p[3])
         else:
@@ -960,3 +962,9 @@ class QfasmParser(object):
         
         print(f"Error near line{self.lexer.lexer.lineno}, Column {self.cal_column(self.lexer.data, p)}")
     
+    def cal_column(self, data: str, p):
+        "Compute the column"
+        begin_of_line = data.rfind('\n', 0, p.lexpos)
+        begin_of_line = max(0, begin_of_line)
+        column = p.lexpos - begin_of_line + 1
+        return column
