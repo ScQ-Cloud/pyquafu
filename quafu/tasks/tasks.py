@@ -14,7 +14,7 @@
 
 import copy
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 from urllib import parse
 
 import numpy as np
@@ -42,7 +42,7 @@ class Task(object):
 
     """
 
-    def __init__(self, user: User = None):
+    def __init__(self, user: Optional[User] = None):
         self.user = User() if user is None else user
 
         self.shots = 1000
@@ -242,28 +242,27 @@ class Task(object):
         )  # type: requests.models.Response
 
         # TODO: completing status code checks
-        # assert response.ok
+        if not response.ok:
+            logging.warning("Received a non-200 response from the server.\n")
         if response.status_code == 502:
-            logging.critical(
-                "Received a 502 Bad Gateway response. Please try again later.\n"
-                "If there is persistent failure, please report it on our github page."
-            )
-            raise UserError()
+            logging.critical("Received a 502 Bad Gateway response. Please try again later.\n"
+                             "If there is persistent failure, please report it on our github page.")
+            raise UserError('502 Bad Gateway response')
         else:
-            res_dict = response.json()
-
-            if response.status_code in [201, 205]:
+            res_dict = response.json()  # type: dict
+            quafu_status = res_dict['status']
+            if quafu_status in [201, 205]:
                 raise UserError(res_dict["message"])
-            elif response.status_code == 5001:
+            elif quafu_status == 5001:
                 raise CircuitError(res_dict["message"])
-            elif response.status_code == 5003:
+            elif quafu_status == 5003:
                 raise ServerError(res_dict["message"])
-            elif response.status_code == 5004:
+            elif quafu_status == 5004:
                 raise CompileError(res_dict["message"])
             else:
                 task_id = res_dict["task_id"]
 
-                if not (group in self.submit_history):
+                if group not in self.submit_history:
                     self.submit_history[group] = [task_id]
                 else:
                     self.submit_history[group].append(task_id)
