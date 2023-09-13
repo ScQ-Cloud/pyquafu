@@ -4,6 +4,8 @@ from quafu import QuantumCircuit
 from quafu.dagcircuits.circuit_dag import circuit_to_dag
 from quafu.dagcircuits.instruction_node import InstructionNode
 
+from typing import Union, Any
+
 
 def _extract_node_info(node):
     if isinstance(node, InstructionNode):
@@ -14,45 +16,30 @@ def _extract_node_info(node):
     return name, label
 
 
-def draw_dag(qc: QuantumCircuit):
+def draw_dag(qc: Union[QuantumCircuit, None],
+             dag: Any = None,
+             output_format: str = 'pdf',
+             output_filename: str = 'DAG'):
     """
-    # TODO: complete docstring, test supports for notebook, and format supports
+    TODO: complete docstring, test supports for notebook
 
         Helper function to visualize the DAG
 
         Args:
-            dep_g (DAG): DAG with Hashable Gates
-            output_format (str): output format, "png" or "svg"
+            qc (QuantumCircuit): pyquafu quantum circuit if provided
+            dag (DAG): DAG object with nodes and edges, built from qc if not provided
+            output_format (str): output format, including "png", "svg", "pdf"...
+            output_filename (str): file name of generated image
 
         Returns:
-            img (Image or SVG): show the image of DAG, which is Image(filename="dag.png") or SVG(filename="dag.svg")
-
-        example:
-            .. jupyter-execute::
-            ex1:
-                # directly draw  PNG picture
-                draw_dag(dep_g, output_format="png")    # save a png picture "dag.png" and show it in jupyter notebook
-
-                # directly draw  SVG   picture
-                draw_dag(dep_g, output_format="svg")    # save a svg picture "dag.svg" and show it in jupyter notebook
-
-            ex2:
-                # generate   PNG  picture
-                img_png = draw_dag(dep_g, output_format="png")
-
-                # generate   SVG  picture
-                img_svg = draw_dag(dep_g, output_format="svg")
-
-                # show PNG picture
-                img_png
-
-                # show SVG picture
-                img_svg
-
+            dot: graphviz.Digraph object
 
         """
-    dag = circuit_to_dag(qc)
-    dot = graphviz.Digraph()
+    if dag is None:
+        assert qc is not None
+        dag = circuit_to_dag(qc)
+
+    dot = graphviz.Digraph(filename=output_filename)
 
     for node in dag.nodes:
         name, label = _extract_node_info(node)
@@ -64,4 +51,5 @@ def draw_dag(qc: QuantumCircuit):
         name2, label2 = _extract_node_info(node2)
         dot.edge(name1, name2, label=link['label'])
 
-    dot.view(cleanup=True)
+    dot.render(format=output_format, cleanup=True)
+    return dot
