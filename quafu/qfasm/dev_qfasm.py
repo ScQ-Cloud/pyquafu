@@ -1,5 +1,4 @@
 import sys
-sys.path.append('C:\\Users\\AFWZSL\\Desktop\\pyquafu\\src')
 
 import re
 from collections import OrderedDict

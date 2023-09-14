@@ -3,13 +3,11 @@ import math
 import os
 import pathlib
 import random
-import sys
 import tempfile
 
 import pytest
 
 from quafu.circuits import QuantumCircuit
-from unittest.mock import patch
 from quafu.qfasm.exceptions import LexerError, ParserError
 from quafu.qfasm.qfasm_convertor import qasm_to_quafu
 

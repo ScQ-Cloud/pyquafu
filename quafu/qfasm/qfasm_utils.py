@@ -1,5 +1,3 @@
-import sys
-sys.path.append('C:\\Users\\AFWZSL\\Desktop\\pyquafu')
 import quafu.elements.element_gates as qeg
 
 class Node:

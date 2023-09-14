@@ -5,7 +5,6 @@
 
 import os
 import ply.lex as lex
-import numpy as np
 from .qfasm_utils import Id
 from .exceptions import LexerError
 
