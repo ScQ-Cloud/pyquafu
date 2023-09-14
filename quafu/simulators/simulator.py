@@ -1,6 +1,6 @@
 from typing import Union
 from .default_simulator import py_simulate, ptrace, permutebits
-# from qfvm import simulate_circuit, execute
+from .qfvm import simulate_circuit, execute
 from quafu import QuantumCircuit
 from ..results.results import SimuResult
 import numpy as np
