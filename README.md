@@ -22,7 +22,7 @@ pip install -r requirements.txt
 python setup.py install
 ```
 
-Note that pygraphviz requires graphviz being installed on your system. Refer to [pygraphviz documentation](https://pygraphviz.github.io/documentation/stable/install.html) for detailed installation steps.
+Note that we visualize DAG(directed acyclic graph) through python package ``graphviz``. And if you need it, make sure [Graphviz software](https://graphviz.org/) being installed on your system. Refer to [graphviz · PyPI](https://pypi.org/project/graphviz/#description) for installation guidance.
 
 ## GPU support
 To install PyQuafu with GPU-based circuit simulator, you need build from the source and make sure that [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) is installed. You can run

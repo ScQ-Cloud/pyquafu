@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+from typing import Optional
 
 import requests
 
@@ -28,7 +29,7 @@ class User(object):
     exec_async_api = "qbackend/scq_kit_asyc/"
     exec_recall_api = "qbackend/scq_task_recall/"
 
-    def __init__(self, api_token: str = None, token_dir: str = None):
+    def __init__(self, api_token: Optional[str] = None, token_dir: Optional[str] = None):
         """
         Initialize user account and load backend information.
 
