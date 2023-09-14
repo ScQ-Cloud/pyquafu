@@ -944,7 +944,7 @@ badstatement = getbadstatement()
 
 class TestParser2:
     @pytest.mark.parametrize('badstatement',badstatement)
-    def _bad_token(self, badstatement):
+    def test_bad_token(self, badstatement):
         qasm = f"qreg q[2]; creg c[2]; creg cond[1]; {badstatement}"
         with pytest.raises(Exception) as e:
             qasm_to_quafu(qasm)
