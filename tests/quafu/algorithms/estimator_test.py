@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
+import math
 from unittest.mock import patch
 from quafu import ExecResult
 from quafu.algorithms.estimator import Estimator
+from quafu.algorithms.hamiltonian import Hamiltonian
 
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.tasks.tasks import Task
@@ -34,6 +37,23 @@ TEST_EXE_RES = ExecResult(MOCK_RES_DICT)
 class TestEstimator:
     """Test class of Estimator"""
 
+    def build_circuit(self):
+        """Build a random circuit for testing purpose"""
+        circ = QuantumCircuit(5)
+
+        for i in range(5):
+            if i % 2 == 0:
+                circ.h(i)
+
+        circ.cnot(0, 1)
+        circ.draw_circuit()
+        measures = list(range(5))
+        circ.measure(measures)
+        test_ising = Hamiltonian(
+            ["IIIZZ", "ZZIII", "IZZII", "ZIIIZ"], np.array([1, 1, 1, 1])
+        )
+        return circ, test_ising
+
     @patch("quafu.users.userapi.User._load_account_token", autospec=True)
     @patch("quafu.users.userapi.User.get_available_backends", autospec=True)
     @patch("quafu.tasks.tasks.Task.send", autospec=True)
@@ -41,20 +61,15 @@ class TestEstimator:
         """Test Estimator.run"""
         mock_send.return_value = TEST_EXE_RES
         mock_backends.return_value = {"ScQ-P10": None}
-        circ = QuantumCircuit(5)
-
-        for i in range(5):
-            if i % 2 == 0:
-                circ.h(i)
-
-        circ.draw_circuit()
-        measures = list(range(5))
-        circ.measure(measures)
-        test_ising = [["X", [i]] for i in range(5)]
-        test_ising.extend([["ZZ", [i, i + 1]] for i in range(4)])
-
+        circ, test_ising = self.build_circuit()
         estimator = Estimator(circ, backend="ScQ-P10")
-        res, obsexp = estimator.run(test_ising)
+        expectation = estimator.run(test_ising, None)
         task = Task()
-        res_org, obsexp_org = task.submit(circ, test_ising)
-        assert res == res_org and obsexp == obsexp_org
+        res_org, obsexp_org = task.submit(circ, test_ising.to_legacy_quafu_pauli_list())
+        assert expectation == sum(obsexp_org)
+
+    def test_run_sim(self):
+        circ, test_ising = self.build_circuit()
+        estimator = Estimator(circ)
+        expectation = estimator.run(test_ising, None)
+        assert math.isclose(expectation, 1.0)
