@@ -26,6 +26,19 @@ unarynp = {
     "atan": np.arctan,
     "asin": np.arcsin,
 }
+reserved = [
+        "creg",
+        "qreg",
+        "pi",
+        "measure",
+        "include",
+        "barrier",
+        "gate",
+        "opaque",
+        "reset",
+        "if",
+        "OPENQASM",
+    ]
 
 
 # 从最底层向上归约写
@@ -81,6 +94,8 @@ class QfasmParser(object):
         # update Symtab
         # reg 
         # print(symtabnode)
+        if symtabnode.name in reserved:
+            raise ParserError(f"Name cannot be reserved word:{reserved}")
         if symtabnode.is_global:
             if symtabnode.name in self.global_symtab:
                 hasnode = self.global_symtab[symtabnode.name]
@@ -119,14 +134,14 @@ class QfasmParser(object):
                 if isinstance(qarg, IndexedId):
                     # check qreg's num is the same
                     if len(args) >= 1 and len(args[0]) != 1:
-                        raise ParserError(f"The num of qreg's qubit is different at line{gateins.lineno} file{gateins.filename}.")
+                        raise ParserError(f"The num of qreg's qubit is inconsistent at line{gateins.lineno} file{gateins.filename}.")
                     symnode = self.global_symtab[qarg.name]
                     args.append([symnode.start + qarg.num])
                 elif isinstance(qarg, Id):
                     # check qreg's num is the same
                     symnode = self.global_symtab[qarg.name]
                     if len(args) >= 1 and symnode.num != len(args[0]):
-                        raise ParserError(f"The num of qreg's qubit is different at line{gateins.lineno} file{gateins.filename}.")
+                        raise ParserError(f"The num of qreg's qubit is inconsistent at line{gateins.lineno} file{gateins.filename}.")
                     tempargs = []
                     for i in range(symnode.num):
                         tempargs.append(symnode.start + i)
@@ -188,6 +203,9 @@ class QfasmParser(object):
             for i in range(len(gatenode.cargs)):
                 cargdict[gatenode.cargs[i].name] = gateins.cargs[i]
             for ins in gatenode.instructions:
+                # cannot recurse itself!
+                if ins.name == gateins.name:
+                    raise ParserError(f"The gate {gateins.name} call itself, it's forbiddened at line {gateins.lineno} file {gateins.filename}")
                 # change qarg/carg, no cbit in gate param
                 # deep copy
                 newins = copy.deepcopy(ins)
@@ -281,7 +299,7 @@ class QfasmParser(object):
             cbit_num = symnode.num
         # check qubits'num matches cbits's num
         if cbit_num != qbit_num:
-            raise ParserError(f"MEASURE: the num of qubit and clbit doesn's match at line {gateins.lineno} file {gateins.filename}")
+            raise ParserError(f"MEASURE: the num of qubit and clbit doesn't match at line {gateins.lineno} file {gateins.filename}")
 
 
     def check_qargs(self, gateins:GateInstruction):
@@ -293,7 +311,7 @@ class QfasmParser(object):
             # check if gateins.name is a gate
             gatenote = self.global_symtab[gateins.name]
             if gatenote.type != 'GATE':
-                raise ParserError(f"The {gateins.name} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
+                raise ParserError(f"The {gateins.name} is not declared as a gate at line {gateins.lineno} file {gateins.filename}")
             # check args matches gate's declared args
             if len(gateins.qargs) != len(gatenote.qargs):
                  raise ParserError(f"The numbe of qubit declared in gate {gateins.name} is inconsistent with instruction at line {gateins.lineno} file {gateins.filename}")
@@ -325,14 +343,14 @@ class QfasmParser(object):
                 raise ParserError(f"The gate {gateins.name} is undefined at line {gateins.lineno} file {gateins.filename}")
             gatenote = self.global_symtab[gateins.name]
             if gatenote.type != 'GATE':
-                raise ParserError(f"The {gateins.name} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
+                raise ParserError(f"The {gateins.name} is not declared as a gate at line {gateins.lineno} file {gateins.filename}")
             # check every carg in [int, float]
             for carg in gateins.cargs:
                 if not (isinstance(carg, int) or isinstance(carg, float)): 
                     raise ParserError(f"Classical argument must be of type int or float at line {gateins.lineno} file {gateins.filename}")
             # check cargs's num matches gate's delcared cargs
             if len(gateins.cargs) != len(gatenote.cargs):
-               raise ParserError(f"The number of classical argument declared in gate {gateins.name} is different from instruction at line {gateins.lineno} file {gateins.filename}") 
+               raise ParserError(f"The number of classical argument declared in gate {gateins.name} is inconsistent with instruction at line {gateins.lineno} file {gateins.filename}") 
 
     
     def check_gate_qargs(self, gateins:GateInstruction):
@@ -346,7 +364,7 @@ class QfasmParser(object):
                 raise ParserError(f"The gate {gatename} is undefined at line {gateins.lineno} file {gateins.filename}")
             gatenode = self.global_symtab[gatename]
             if gatenode.type != "GATE":
-                raise ParserError(f"The {gatename} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
+                raise ParserError(f"The {gatename} is not declared as a gate at line {gateins.lineno} file {gateins.filename}")
             # check qarg's num matches gate's qargs, except barrier
             if len(gatenode.qargs) != len(qargs):
                 raise ParserError(f"The numbe of qubit declared in gate {gatename} is inconsistent with instruction at line {gateins.lineno} file {gateins.filename}")
@@ -372,9 +390,9 @@ class QfasmParser(object):
                 raise ParserError(f"The gate {gateins.name} is undefined at line {gateins.lineno} file {gateins.filename}")
             gatenode = self.global_symtab[gateins.name]
             if gatenode.type != "GATE":
-                raise ParserError(f"The {gateins.name} is not defined as a gate at line {gateins.lineno} file {gateins.filename}")
+                raise ParserError(f"The {gateins.name} is not declared as a gate at line {gateins.lineno} file {gateins.filename}")
             if len(gateins.cargs) != len(gatenode.cargs):
-                raise ParserError(f"The number of classical argument declared in gate {gateins.name} is different from instruction at line {gateins.lineno} file {gateins.filename}")
+                raise ParserError(f"The number of classical argument declared in gate {gateins.name} is inconsistent with instruction at line {gateins.lineno} file {gateins.filename}")
             # check carg must from gate declared argument or int/float
             for carg in gateins.cargs:
                 # recurse check expression
@@ -389,7 +407,7 @@ class QfasmParser(object):
                 raise ParserError(f"The classical argument {node.name} is undefined at line {node.lineno} file {node.filename}")
             symnode = self.symtab[node.name]
             if symnode.type != "CARG":
-                raise ParserError(f"The {node.name} is not defined as a classical at line {node.lineno} file {node.filename}")
+                raise ParserError(f"The {node.name} is not declared as a classical bit at line {node.lineno} file {node.filename}")
             return
         if isinstance(node, UnaryExpr):
             self.check_carg_declartion(node.children[0])
@@ -435,9 +453,9 @@ class QfasmParser(object):
                     | OPENQASM error
         """
         if len(p) == 3:
-            raise ParserError(f"Expected FLOAT after OPENQASM, received {p[2].value}")
+            raise ParserError(f"Expecting FLOAT after OPENQASM, received {p[2].value}")
         if p[3] != ';':
-            raise ParserError("Missing ';' at end of OPENQASM statement")
+            raise ParserError("Expecting ';' at end of OPENQASM statement")
         if p[2] != 2.0:
             raise ParserError("Only support OPENQASM 2.0 version")
         p[0] = None
@@ -451,7 +469,7 @@ class QfasmParser(object):
                 | qif error
         """
         if p[2] != ';':
-            raise ParserError(f"Missing ';' behind statement")
+            raise ParserError(f"Expecting ';' behind statement")
         p[0] = p[1]
     
     def p_statement_empty(self, p):
@@ -471,15 +489,15 @@ class QfasmParser(object):
         """
         # check primary is a creg and check range
         if len(p) == 7:
-            raise ParserError(f"Illegal IF statement, missing ')' at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Illegal IF statement, Expecting ')' at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 6:
-            raise ParserError(f"Illegal IF statement, the Rvalue can only be INT at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Illegal IF statement, Expecting INT: the Rvalue can only be INT at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 5:
-            raise ParserError(f"Illegal IF statement, missing '==' at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Illegal IF statement, Expecting '==' at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 4:
-            raise ParserError(f"Illegal IF statement, the Lvalue can only be creg at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Illegal IF statement, Expecting Cbit: the Lvalue can only be cbit at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 3:
-            raise ParserError(f"Illegal IF statement, missing '(' at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Illegal IF statement, Expecting '(' at line {p[1].lineno} file {p[1].filename}")
 
         cbit = p[3]
         if cbit.name not in self.global_symtab:
@@ -532,7 +550,7 @@ class QfasmParser(object):
             | id '(' expression_list error
         """
         if len(p) == 4 or (len(p) == 5 and p[4] != ')'):
-            raise ParserError(f"Missing ')' after '(' at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Expecting ')' after '(' at line {p[1].lineno} file {p[1].filename}")
         raise ParserError(f"Expecting qubit list, received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
 
     # measure
@@ -571,7 +589,7 @@ class QfasmParser(object):
         """
         qop : BARRIER error
         """
-        raise ParserError(f"BARRIER only opperate qubits at line {p[1].lineno} file {p[1].filename}")
+        raise ParserError(f"Expecting Qubit:BARRIER only opperate qubits at line {p[1].lineno} file {p[1].filename}")
 
     # reset
     def p_reset(self, p):
@@ -586,7 +604,7 @@ class QfasmParser(object):
         """
         qop : RESET error
         """
-        raise ParserError(f"RESET only opperate qubit at line {p[1].lineno} file {p[1].filename}")
+        raise ParserError(f"Expecting Qubit: RESET only opperate qubit at line {p[1].lineno} file {p[1].filename}")
 
     # gate_qarg_list
     def p_gate_qarg_list_begin(self, p):
@@ -628,7 +646,16 @@ class QfasmParser(object):
     def p_statement_gatedecl_nolr(self, p):
         """
         statement : GATE id gate_scope qarg_list gate_body 
+                | GATE error 
+                | GATE id gate_scope error
+                | GATE id gate_scope qarg_list error
         """
+        if len(p) == 3:
+            raise ParserError(f"Expecting ID after 'gate', received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 5:
+            raise ParserError(f"Expecting '(' or qubit list after gate name, received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 6 and not isinstance(p[5], list):
+            raise ParserError(f"Expecting gate body qubit list, received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
         newsymtabnode = SymtabNode('GATE', p[2])
         newsymtabnode.fill_gate(p[4], p[5])
         self.updateSymtab(newsymtabnode)
@@ -636,15 +663,35 @@ class QfasmParser(object):
     def p_statement_gatedecl_noargs(self, p):
         """
         statement : GATE id gate_scope '(' ')' qarg_list gate_body 
+                | GATE id gate_scope '(' error
+                | GATE id gate_scope '(' ')' error
+                | GATE id gate_scope '(' ')' qarg_list error
         """
+        if len(p) == 6:
+            raise ParserError(f"Expecting ')' or argument list after '(', received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 7:
+            raise ParserError(f"Expecting qubit list after ')', received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 8 and not isinstance(p[7], list):
+            raise ParserError(f"Expecting gate body after qubit list, received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
         newsymtabnode = SymtabNode('GATE', p[2])
         newsymtabnode.fill_gate(p[6], p[7])
         self.updateSymtab(newsymtabnode)
 
     def p_statement_gatedecl_args(self, p):
         """
-        statement : GATE id gate_scope '(' carg_list ')' qarg_list gate_body 
+        statement : GATE id gate_scope '(' carg_list ')' qarg_list gate_body
+                | GATE id gate_scope '(' carg_list ')' qarg_list error
+                | GATE id gate_scope '(' carg_list ')' error
+                | GATE id gate_scope '(' carg_list error
         """
+        if len(p) == 7:
+            raise ParserError(f"Expecting ')' after argument list, received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 8:
+            raise ParserError(f"Expecting qubit list after ')', received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
+        if len(p) == 9 and not isinstance(p[8], list):
+            raise ParserError(f"Expecting gate body after qubit list, received {p[len(p)-1].value} at line {p[1].lineno} file {p[1].filename}")
+        if len(p) != 9:
+            raise ParserError(f"Invaild GATE statement")
         newsymtabnode = SymtabNode('GATE', p[2])
         newsymtabnode.fill_gate(p[7], p[8], p[5])
         self.updateSymtab(newsymtabnode)
@@ -655,6 +702,7 @@ class QfasmParser(object):
         """
         self.symtab = {}
 
+ 
     # gatebody
     def p_gate_body_emptybody(self, p):
         """
@@ -662,7 +710,7 @@ class QfasmParser(object):
                     | '{' gate_scope error
         """
         if p[3] != '}':
-            raise ParserError("Missing '}' at the end of gate definition; received " + p[3].value)
+            raise ParserError("Expecting '}' at the end of gate definition; received " + p[3].value)
         p[0] = []
 
     def p_gate_body(self, p):
@@ -671,7 +719,7 @@ class QfasmParser(object):
                     | '{' gop_list gate_scope error
         """
         if p[4] != '}':
-            raise ParserError("Missing '}' at the end of gate definition; received " + p[4].value)
+            raise ParserError("Expecting '}' at the end of gate definition; received " + p[4].value)
         p[0] = p[2]
 
     def p_gop_list_begin(self, p):
@@ -688,7 +736,6 @@ class QfasmParser(object):
         p[0].append(p[2])
 
     
-
     # gop
     # CX | U | ID(cargs)qargs | reset | 
     def p_gop_nocargs(self, p):
@@ -701,13 +748,13 @@ class QfasmParser(object):
             | id '(' error
         """
         if len(p) == 4 and p[2] == '(':
-            raise ParserError(f"Missing ')' for gate {p[1].name} at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Expecting ')' for gate {p[1].name} at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 4 and p[3] !=';':
-            raise ParserError(f"Missing ';' after gate {p[1].name} at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Expecting ';' after gate {p[1].name} at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 6 and p[5] != ';':
-            raise ParserError(f"Missing ';' after gate {p[1].name} at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Expecting ';' after gate {p[1].name} at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 5:
-            raise ParserError(f"Invalid qubit list for gate {p[1].name} at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Expecting ID: Invalid qubit list for gate {p[1].name} at line {p[1].lineno} file {p[1].filename}")
         qargs = p[2] if len(p) == 4 else p[4]
         p[0] = GateInstruction(node=p[1], qargs=qargs, cargs=[])
         self.check_gate_qargs(p[0])
@@ -721,11 +768,11 @@ class QfasmParser(object):
             | id '(' expression_list error
         """
         if len(p) == 7 and p[6] != ';':
-            raise ParserError(f"Missing ';' after gate {p[1].name} at line {p[1].lineno}")
+            raise ParserError(f"Expecting ';' after gate {p[1].name} at line {p[1].lineno}")
         if len(p) == 6:
-            raise ParserError(f"Missing qubit id after gate {p[1].name} at line {p[1].lineno}")
+            raise ParserError(f"Expecting qubit id after gate {p[1].name} at line {p[1].lineno}")
         if len(p) == 5:
-            raise ParserError(f"Missing ')' after gate {p[1].name} at line {p[1].lineno}")
+            raise ParserError(f"Expecting ')' after gate {p[1].name} at line {p[1].lineno}")
         p[0] = GateInstruction(node=p[1], qargs=p[5], cargs=p[3])
         # check qubit
         self.check_gate_qargs(p[0])
@@ -739,11 +786,12 @@ class QfasmParser(object):
             | BARRIER error
         """
         if len(p) == 3:
-            raise ParserError(f"Invalid barrier qubit list inside gate definition, at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Expecting ID: Invalid barrier qubit list inside gate definition, at line {p[1].lineno} file {p[1].filename}")
         if len(p) == 4 and p[3] != ';':
-            raise ParserError(f"Missing ';' after barrier at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(f"Expecting ';' after barrier at line {p[1].lineno} file {p[1].filename}")
         p[0] = GateInstruction(node=p[1], qargs=p[2], cargs=[])
         self.check_gate_qargs(p[0])
+
 
     # regdecl
     def p_statement_bitdecl(self, p):
@@ -752,9 +800,12 @@ class QfasmParser(object):
                     | cdecl ';'
                     | qdecl error
                     | cdecl error
+                    | error
         """
+        if len(p) == 2:
+            raise ParserError(f"Expecting valid statement")
         if p[2] != ';':
-            raise ParserError(f"Missing ';' in qreg or creg declaration at line {p.lineno(2)}")
+            raise ParserError(f"Expecting ';' in qreg or creg declaration at line {p.lineno(2)}")
         p[0] = p[1]
 
 
@@ -792,7 +843,7 @@ class QfasmParser(object):
         """
         # It's instance of Id class, passed from t.value
         if not isinstance(p[1], Id):
-            raise ParserError(f"Expected an ID, received {str(p[1].value)}")
+            raise ParserError(f"Expecting an ID, received {str(p[1].value)}")
         p[0] = p[1]
 
 
@@ -804,7 +855,7 @@ class QfasmParser(object):
                     | id '[' error
         """
         if len(p) == 4 or (len(p) == 5 and p[4] != ']'):
-            raise ParserError(f"Invalid character after [, received{str(p[len(p)-1].value)}")
+            raise ParserError(f"Expecting INT after [, received{str(p[len(p)-1].value)}")
         if len(p) == 5 and p[4] == ']':
             p[0] = IndexedId(p[1], p[3])
     
@@ -954,13 +1005,18 @@ class QfasmParser(object):
         ignore : STRING
         """
         pass
-        
+    
+    def p_empty(self, p):
+        """
+        empty :
+        """
+        pass 
+
     def p_error(self, p):
         # EOF case
-        if p is None:
+        if p is None or self.lexer.lexer.token() is None:
             raise ParserError("Error at end of file")
-        
-        print(f"Error near line{self.lexer.lexer.lineno}, Column {self.cal_column(self.lexer.data, p)}")
+        print(f"Error near line {self.lexer.lexer.lineno}, Column {self.cal_column(self.lexer.data, p)}")
     
     def cal_column(self, data: str, p):
         "Compute the column"

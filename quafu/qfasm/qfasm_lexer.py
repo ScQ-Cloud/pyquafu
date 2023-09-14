@@ -74,6 +74,8 @@ class QfasmLexer(object):
     def t_INCLUDE(self, _):
         "include"
         filename_token = self.lexer.token()
+        if filename_token is None:
+            raise LexerError("Expecting filename, received nothing.")
         # print(filename_token.value)
         if isinstance(filename_token.value, str):
             filename = filename_token.value.strip('"')
@@ -168,7 +170,7 @@ class QfasmLexer(object):
         t.lexer.lineno += len(t.value)
 
     def t_eof(self, _):
-        if self.file_lexer_stack:
+        if len(self.file_lexer_stack) > 0:
             self.pop_lexer()
             return self.lexer.token()
         return None
