@@ -1,4 +1,3 @@
-from typing import List
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from .qfasm_parser import QfasmParser
 from .exceptions import ParserError

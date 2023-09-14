@@ -1,9 +1,6 @@
 import copy
-from typing import List
 import ply.yacc as yacc
 from .qfasm_utils import *
-import sys
-sys.path.append('C:\\Users\\AFWZSL\\Desktop\\pyquafu')
 from quafu.circuits.quantum_register import QuantumRegister
 from quafu.qfasm.exceptions import ParserError
 
