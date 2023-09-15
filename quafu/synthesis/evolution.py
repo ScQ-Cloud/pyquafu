@@ -22,12 +22,13 @@ import quafu.elements.element_gates as qeg
 def two_qubit_evol(pauli: str, time: float, cx_structure: str = "chain"):
     """
     Args:
-        pauli: Pauli string
+        pauli: Pauli string (little endian convention)
         time: Evolution time
         cx_structure: TODO
     """
-    qubits = [i for i in range(len(pauli)) if pauli[i] != "I"]
-    labels = np.array([pauli[i] for i in qubits])
+    reversed_pauli = pauli[::-1]
+    qubits = [i for i in range(len(reversed_pauli)) if reversed_pauli[i] != "I"]
+    labels = np.array([reversed_pauli[i] for i in qubits])
     gates = []
 
     if all(labels == "X"):

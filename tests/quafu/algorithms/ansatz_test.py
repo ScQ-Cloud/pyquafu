@@ -24,3 +24,6 @@ class TestQAOACircuit:
         qaoa = QAOACircuit(self.TEST_HAM)
         print("\n ::: testing ::: \n")
         qaoa.draw_circuit()
+
+    def test_update_params(self):
+        pass
