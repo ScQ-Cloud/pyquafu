@@ -12,21 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+from typing import List
 import numpy as np
+import pytest
 from quafu.algorithms import Hamiltonian, QAOACircuit, Estimator
 from quafu import simulate
 from scipy.optimize import minimize
+import heapq
 
 
 class TestQAOA:
     """Example of a QAOA algorithm to solve maxcut problem"""
 
+    def check_solution(self, probs: List[float], correct_answers: List[str]):
+        """Check the MAX-CUT solution
+        Args:
+            probs: probabilities of simulation result.
+            correct_answers: List of optimal solutions in str format.
+        """
+
+        # Get top # correct_answers probabilities and find indexes
+        num_answers = len(correct_answers)
+        eval_answers = heapq.nlargest(2, range(len(probs)), key=probs.__getitem__)
+
+        # Transform to binary string
+        num_bit = len(correct_answers[0])
+        eval_answers = sorted(
+            [bin(eans)[2:].rjust(num_bit, "0") for eans in eval_answers]
+        )
+
+        assert eval_answers == sorted(correct_answers)
+        print("::: PASSED ::: Find Correct Answers:: 01111 and 10000")
+
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_run(self):
         """
         A simple graph with 5 nodes and connected as below
             a -> b -> c
             d ---^
             e ---^
+        We use 5 qubits to solve this problem and
+        the measurement result "10000" and "01111"
+        should have the highest probability
         """
         num_layers = 2
         hamlitonian = Hamiltonian.from_pauli_list(
@@ -51,3 +81,4 @@ class TestQAOA:
         ansatz.draw_circuit()
         probs = simulate(ansatz).probabilities
         print(probs)
+        self.check_solution(list(probs), ["10000", "01111"])

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 import numpy as np
 import pytest
 import math
@@ -69,7 +70,9 @@ class TestEstimator:
         res_org, obsexp_org = task.submit(circ, test_ising.to_legacy_quafu_pauli_list())
         assert expectation == sum(obsexp_org)
 
-    @pytest.mark.skip(reason="Avoid error on MacOS arm arch.")
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_run_sim(self):
         circ, test_ising = self.build_circuit()
         estimator = Estimator(circ)
