@@ -43,7 +43,6 @@ class TestQAOA:
         )
 
         assert eval_answers == sorted(correct_answers)
-        print("::: PASSED ::: Find Correct Answers:: 01111 and 10000")
 
     @pytest.mark.skipif(
         sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
@@ -82,3 +81,4 @@ class TestQAOA:
         probs = simulate(ansatz).probabilities
         print(probs)
         self.check_solution(list(probs), ["10000", "01111"])
+        print("::: PASSED ::: Find Correct Answers:: 01111 and 10000")
