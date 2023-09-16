@@ -53,6 +53,9 @@ class Estimator:
         """Submit to quafu service"""
         if not isinstance(self._task, Task):
             raise ValueError("task not set")
+        # TODO(zhaoyilun): replace old `submit` API in the future,
+        #   investigate the best implementation for calculating
+        #   expectation on real devices.
         obs = observables.to_legacy_quafu_pauli_list()
         _, obsexp = self._task.submit(self._circ, obs)
         return sum(obsexp)
