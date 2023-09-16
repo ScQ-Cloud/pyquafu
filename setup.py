@@ -47,7 +47,7 @@ setup(
     package_data={"quafu":["qfasm/*.inc"]},
     long_description=long_description,
     long_description_content_type="text/markdown",
-    extras_require={"test": ["pytest"]},
+    extras_require={"test": ["pytest"]}, 
     python_requires=">=3.8",
     zip_safe=False,
     setup_cfg=True,
