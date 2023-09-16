@@ -18,3 +18,5 @@ MANIFEST.in
 *.pyd
 dev_*.py
 *temp.*
+.idea
+parsetab.py

@@ -44,6 +44,29 @@ class Barrier(Instruction):
         )
 
 
+class Reset(Instruction):
+    name = 'reset'
+
+    def __init__(self, pos):
+        super().__init__(pos)
+    
+    @property
+    def pos(self):
+        return self.__pos
+    
+    @pos.setter
+    def pos(self, pos):
+        self.__pos = pos
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}"
+    
+    def to_qasm(self):
+        return "reset " + ",".join(
+            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
+        )
+
+
 class Delay(Instruction):
     name = "delay"
 
@@ -94,3 +117,4 @@ Instruction.register_ins(Barrier)
 Instruction.register_ins(Delay)
 Instruction.register_ins(XYResonance)
 Instruction.register_ins(Measure)
+Instruction.register_ins(Reset)
