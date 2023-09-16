@@ -19,14 +19,10 @@ from __future__ import annotations
 from collections.abc import Iterable
 import numpy as np
 from quafu.exceptions import QuafuError
+from quafu.elements.element_gates.matrices import XMatrix, YMatrix, ZMatrix, IdMatrix
 
 
-PAULI_MAT = {
-    "I": np.array([[1, 0], [0, 1]], dtype=complex),
-    "X": np.array([[0, 1], [1, 0]], dtype=complex),
-    "Y": np.array([[0, -1j], [1j, 0]], dtype=complex),
-    "Z": np.array([[1, 0], [0, -1]], dtype=complex)
-}
+PAULI_MAT = {"I": IdMatrix, "X": XMatrix, "Y": YMatrix, "Z": ZMatrix}
 
 
 class Hamiltonian:
@@ -40,6 +36,21 @@ class Hamiltonian:
         """
         self._pauli_str_list = pauli_str_list
         self._coeffs = coeffs
+
+    @property
+    def num_qubits(self):
+        """Get the number of qubits of the system"""
+        return len(self.pauli_list[0])
+
+    @property
+    def pauli_list(self):
+        """Get pauli string list"""
+        return self._pauli_str_list
+
+    @property
+    def coeffs(self):
+        """Get coefficients of each pauli string"""
+        return self._coeffs
 
     @staticmethod
     def from_pauli_list(pauli_list: Iterable[tuple[str, complex]]) -> Hamiltonian:
@@ -64,6 +75,17 @@ class Hamiltonian:
             coeffs[i] = coef
 
         return Hamiltonian(pauli_str_list, coeffs)
+
+    # TODO(zhaoyilun): delete this in the future
+    def to_legacy_quafu_pauli_list(self):
+        """Transform to legacy quafu pauli list format,
+        this is a temperal function and should be deleted later"""
+        res = []
+        for pauli in self._pauli_str_list:
+            for i, p in enumerate(pauli[::-1]):
+                if p in ["X", "Y", "Z"]:
+                    res.append([p, [i]])
+        return res
 
     def _get_pauli_mat(self, pauli_str: str):
         """Calculate the matrix of a pauli string"""
