@@ -44,6 +44,7 @@ setup(
     packages=find_packages(exclude=["test*"]),
     cmake_install_dir="quafu/simulators/",
     include_package_data=True,
+    package_data={"quafu":["qfasm/*.inc"]},
     long_description=long_description,
     long_description_content_type="text/markdown",
     extras_require={"test": ["pytest"]},
