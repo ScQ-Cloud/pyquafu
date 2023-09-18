@@ -69,9 +69,7 @@ class TestQAOA:
         ansatz.draw_circuit()
 
         def cost_func(params, ham, estimator: Estimator):
-            beta = params[:num_layers]
-            gamma = params[num_layers:]
-            cost = estimator.run(ham, beta, gamma)
+            cost = estimator.run(ham, params)
             return cost
 
         est = Estimator(ansatz)
