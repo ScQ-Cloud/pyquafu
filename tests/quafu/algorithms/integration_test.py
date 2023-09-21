@@ -16,10 +16,12 @@ import sys
 from typing import List
 import numpy as np
 import pytest
-from quafu.algorithms import Hamiltonian, QAOACircuit, Estimator
+from quafu.algorithms import Hamiltonian, QAOAAnsatz, Estimator
 from quafu import simulate
 from scipy.optimize import minimize
 import heapq
+
+from quafu.algorithms.ansatz import AlterLayeredAnsatz
 
 
 class TestQAOA:
@@ -61,9 +63,9 @@ class TestQAOA:
         hamlitonian = Hamiltonian.from_pauli_list(
             [("IIIZZ", 1), ("IIZIZ", 1), ("IZIIZ", 1), ("ZIIIZ", 1)]
         )
-        ref_mat = np.load("tests/quafu/algorithms/test_hamiltonian.npy")
+        ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
         assert np.array_equal(ref_mat, hamlitonian.get_matrix())
-        ansatz = QAOACircuit(hamlitonian, num_layers=num_layers)
+        ansatz = QAOAAnsatz(hamlitonian, num_layers=num_layers)
         ansatz.draw_circuit()
 
         def cost_func(params, ham, estimator: Estimator):
@@ -73,7 +75,8 @@ class TestQAOA:
             return cost
 
         est = Estimator(ansatz)
-        params = 2 * np.pi * np.random.rand(num_layers * 2)
+        # params = 2 * np.pi * np.random.rand(num_layers * 2)
+        params = 2 * np.pi * np.random.rand(ansatz.num_parameters)
         res = minimize(cost_func, params, args=(hamlitonian, est), method="COBYLA")
         print(res)
         ansatz.measure(list(range(5)))
@@ -82,3 +85,31 @@ class TestQAOA:
         print(probs)
         self.check_solution(list(probs), ["10000", "01111"])
         print("::: PASSED ::: Find Correct Answers:: 01111 and 10000")
+
+
+class TestVQE:
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
+    def test_run(self):
+        """A sample VQE algorithm"""
+
+        num_layers = 4
+        num_qubits = 2
+        hamlitonian = Hamiltonian.from_pauli_list(
+            [("YZ", 0.3980), ("ZI", -0.3980), ("ZZ", -0.0113), ("XX", 0.1810)]
+        )
+        ref_mat = np.load("tests/quafu/algorithms/data/vqe_hamiltonian.npy")
+        assert np.array_equal(ref_mat, hamlitonian.get_matrix())
+        ansatz = AlterLayeredAnsatz(num_qubits, num_layers)
+
+        def cost_func(params, ham, estimator: Estimator):
+            cost = estimator.run(ham, params)
+            return cost
+
+        est = Estimator(ansatz)
+        num_params = ansatz.num_parameters
+        assert num_params == 10
+        params = 2 * np.pi * np.random.rand(num_params)
+        res = minimize(cost_func, params, args=(hamlitonian, est), method="COBYLA")
+        print(res)
