@@ -18,7 +18,7 @@ import numpy as np
 from matplotlib.collections import PolyCollection, PatchCollection, LineCollection
 from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
-
+from typing import Dict
 from quafu.elements.quantum_element import Instruction, ControlledGate
 from typing import Dict
 
