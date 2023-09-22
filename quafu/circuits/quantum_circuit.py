@@ -23,6 +23,7 @@ from quafu.elements.quantum_element.classical_element import Cif
 from quafu.elements.quantum_element.instruction import Instruction
 from quafu.elements.quantum_element.pulses.quantum_pulse import QuantumPulse
 from quafu.elements.quantum_element.quantum_element import Measure, Reset
+from quafu.elements.quantum_element.pulses import QuantumPulse
 from ..elements.quantum_element import (
     Barrier,
     Delay,
@@ -107,6 +108,9 @@ class QuantumCircuit(object):
         self._gates = gates
     
     def add_gate(self, gate: QuantumGate):
+        """
+        Add quantum gate to circuit, with some checking.
+        """
         pos = np.array(gate.pos)
         if np.any(pos >= self.num):
             raise CircuitError(f"Gate position out of range: {gate.pos}")
@@ -608,6 +612,9 @@ class QuantumCircuit(object):
         return self
 
     def cx(self, ctrl: int, tar: int) -> "QuantumCircuit":
+        """
+        Ally of cnot.
+        """
         return self.cnot(ctrl=ctrl, tar=tar)
 
     def cy(self, ctrl: int, tar: int) -> "QuantumCircuit":
@@ -635,6 +642,7 @@ class QuantumCircuit(object):
     def cs(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
         Control-S gate.
+
         Args:
             ctrl (int): control qubit.
             tar (int): target qubit.
@@ -645,6 +653,7 @@ class QuantumCircuit(object):
     def ct(self, ctrl: int, tar: int) -> "QuantumCircuit":
         """
         Control-T gate.
+
         Args:
             ctrl (int): control qubit.
             tar (int): target qubit.
@@ -726,6 +735,7 @@ class QuantumCircuit(object):
     def xy(self, qs: int, qe: int, duration: int, unit: str = "ns") -> "QuantumCircuit":
         """
         XY resonance time evolution for quantum simulator
+
         Args:
             qs: start position of resonant qubits.
             qe: end position of resonant qubits.
@@ -739,6 +749,7 @@ class QuantumCircuit(object):
     def rxx(self, q1: int, q2: int, theta):
         """
         Rotation about 2-qubit XX axis.
+
         Args:
             q1 (int): qubit the gate act.
             q2 (int): qubit the gate act.
@@ -750,6 +761,7 @@ class QuantumCircuit(object):
     def ryy(self, q1: int, q2: int, theta):
         """
         Rotation about 2-qubit YY axis.
+
         Args:
             q1 (int): qubit the gate act.
             q2 (int): qubit the gate act.
@@ -761,6 +773,7 @@ class QuantumCircuit(object):
     def rzz(self, q1: int, q2: int, theta):
         """
         Rotation about 2-qubit ZZ axis.
+
         Args:
             q1 (int): qubit the gate act.
             q2 (int): qubit the gate act.
@@ -772,6 +785,7 @@ class QuantumCircuit(object):
     def mcx(self, ctrls: List[int], targ: int):
         """
         Multi-controlled X gate.
+
         Args:
             ctrls: A list of control qubits.
             targ: Target qubits.
@@ -781,6 +795,7 @@ class QuantumCircuit(object):
     def mcy(self, ctrls: List[int], targ: int):
         """
         Multi-controlled Y gate.
+
         Args:
             ctrls: A list of control qubits.
             targ: Target qubits.
@@ -790,6 +805,7 @@ class QuantumCircuit(object):
     def mcz(self, ctrls: List[int], targ: int):
         """
         Multi-controlled Z gate.
+
         Args:
             ctrls: A list of control qubits.
             targ: Target qubits.
