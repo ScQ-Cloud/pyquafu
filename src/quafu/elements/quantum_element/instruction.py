@@ -16,16 +16,30 @@ from abc import ABC, abstractmethod
 from typing import Union, List
 
 
+__all__ = ['Instruction', 'Barrier', 'Measure', 'PosType', 'ParaType']
+
 PosType = Union[int, List[int]]
-ParaType = Union[float, int]
+ParaType = Union[float, int, List]
 
 
 class Instruction(ABC):
+    """Base class for ALL the possible instructions on Quafu superconducting quantum circuits.
+
+    Attributes:
+        pos: Qubit position(s) of the instruction on the circuit.
+        paras: Parameters of the instruction.
+
+    """
     ins_classes = {}
+
+    def __init__(self, pos: PosType, paras: ParaType = None, *args, **kwargs):
+        self.pos = pos
+        self.paras = paras
 
     @property
     @abstractmethod
     def name(self) -> str:
+        """Name of the instruction."""
         raise NotImplementedError('name is not implemented for %s' % self.__class__.__name__
                                   + ', this should never happen.')
 
@@ -44,32 +58,43 @@ class Instruction(ABC):
             raise ValueError(f"Name {name} already exists.")
         cls.ins_classes[name] = subclass
 
-    def __init__(self, pos: PosType, paras: ParaType = None, *args, **kwargs):
-        self.pos = pos
-        self.paras = paras
 
-    # @_ins_id.setter
-    # def sd_name(self, name: str):
-    #     if self.sd_name is None:
-    #         self.sd_name = name
-    #     else:
-    #         import warnings
-    #         warnings.warn(message='Invalid assignment, names of standard '
-    #                               'instructions are not alterable.')
+class Barrier(Instruction):
+    """
+    Barrier instruction.
+    """
+    name = "barrier"
 
-    # def to_dag_node(self):
-    #     name = self.get_ins_id()
-    #     label = self.__repr__()
-    #
-    #     pos = self.pos
-    #     paras = self.paras
-    #     paras = {} if paras is None else paras
-    #     duration = paras.get('duration', None)
-    #     unit = paras.get('unit', None)
-    #     channel = paras.get('channel', None)
-    #     time_func = paras.get('time_func', None)
-    #
-    #     return InstructionNode(name, pos, paras, duration, unit, channel, time_func, label)
+    def __init__(self, pos):
+        super().__init__(pos)
+        self.symbol = "||"
+
+    @property
+    def pos(self):
+        return self.__pos
+
+    @pos.setter
+    def pos(self, pos):
+        self.__pos = pos
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}"
+
+    def to_qasm(self):
+        return "barrier " + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
 
 
+class Measure(Instruction):
+    """
+    Measure instruction.
+    """
+    name = "measure"
 
+    def __init__(self, bitmap: dict):
+        super().__init__(list(bitmap.keys()))
+        self.qbits = bitmap.keys()
+        self.cbits = bitmap.values()
+
+
+Instruction.register_ins(Barrier)
+Instruction.register_ins(Measure)
