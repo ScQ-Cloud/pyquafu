@@ -231,6 +231,44 @@ class GaussianPulse(QuantumPulse):
         return super().__call__(t, shift, offset, args)
 
 
+class Delay(Instruction):
+    name = "delay"
+
+    def __init__(self, pos: int, duration: int, unit="ns"):
+        if isinstance(duration, int):
+            self.duration = duration
+        else:
+            raise TypeError("duration must be int")
+        super().__init__(pos)
+        self.unit = unit
+        self.symbol = "Delay(%d%s)" % (duration, unit)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}"
+
+    def to_qasm(self):
+        return "delay(%d%s) q[%d]" % (self.duration, self.unit, self.pos)
+
+
+class XYResonance(Instruction):
+    name = "XY"
+
+    def __init__(self, qs: int, qe: int, duration: int, unit="ns"):
+        if isinstance(duration, int):
+            self.duration = duration
+        else:
+            raise TypeError("duration must be int")
+        super().__init__(list(range(qs, qe + 1)))
+        self.unit = unit
+        self.symbol = "XY(%d%s)" % (duration, unit)
+
+    def to_qasm(self):
+        return "xy(%d%s) " % (self.duration, self.unit) + ",".join(
+            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+
+
 QuantumPulse.register_pulse(RectPulse)
 QuantumPulse.register_pulse(FlattopPulse)
 QuantumPulse.register_pulse(GaussianPulse)
+Instruction.register_ins(Delay)
+Instruction.register_ins(XYResonance)

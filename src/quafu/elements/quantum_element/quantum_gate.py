@@ -17,6 +17,8 @@ def reorder_matrix(matrix: np.ndarray, pos: List):
 
 
 class QuantumGate(Instruction):
+    """Base class for standard and combined quantum gates.
+    """
     gate_classes = {}
 
     def __init__(self,
@@ -76,6 +78,7 @@ class QuantumGate(Instruction):
         return qstr
 
 
+# gate types
 class SingleQubitGate(QuantumGate, ABC):
     def __init__(self, pos: int, paras: float = None):
         super().__init__(pos, paras=paras)
@@ -130,6 +133,7 @@ class ParaMultiQubitGate(MultiQubitGate, ABC):
         super().__init__(pos, paras)
 
 
+# controlled gate types
 class ControlledGate(MultiQubitGate, ABC):
     """ Controlled gate class, where the matrix act non-trivaly on target qubits"""
 

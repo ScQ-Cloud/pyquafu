@@ -1,5 +1,9 @@
 import numpy as np
 
+"""
+Matrices library for quantum gates.
+"""
+
 IdMatrix = np.eye(2, dtype=complex)
 XMatrix = np.array([[0., 1.], [1., 0.]], dtype=complex)
 YMatrix = np.array([[0., -1.j], [1.j, 0.]], dtype=complex)

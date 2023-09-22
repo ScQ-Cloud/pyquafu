@@ -1,4 +1,6 @@
-from .quantum_element import Barrier, Delay, XYResonance, Measure
+from .instruction import Instruction, Barrier, Measure
+from .pulses import Delay, XYResonance
+
 from .quantum_gate import QuantumGate, SingleQubitGate, MultiQubitGate, \
     ParaSingleQubitGate, ParaMultiQubitGate, ControlledGate, FixedSingleQubitGate, FixedMultiQubitGate
-from .instruction import Instruction
+
