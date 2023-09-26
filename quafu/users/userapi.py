@@ -103,7 +103,8 @@ class User(object):
         url = self.url + self.backends_api
         response = requests.post(url=url, headers=headers)
         backends_info = response.json()
-        if response.status_code == 201:
+        print(backends_info)
+        if backends_info['status'] == 201:
             raise UserError(backends_info["message"])
         else:
             return backends_info["data"]
