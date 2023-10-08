@@ -96,7 +96,7 @@ class User(object):
         headers = {"api_token": self.api_token}
         response = requests.post(url=self.backends_api, headers=headers)
         backends_info = response.json()
-        if response.status_code == 201:
+        if backends_info['status'] == 201:
             raise UserError(backends_info["message"])
         else:
             return backends_info["data"]
