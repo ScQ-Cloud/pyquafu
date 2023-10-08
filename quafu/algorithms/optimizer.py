@@ -12,27 +12,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from quafu import QuantumCircuit
+import numpy as np
+from typing import List
 from quafu.algorithms import Estimator
+from quafu.algorithms.hamiltonian import Hamiltonian
 
 
 class ParamShift:
     """Parameter shift rule to calculate gradients"""
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, estimator: Estimator) -> None:
+        self._est = estimator
 
-    def _grad(self, estimater: Estimator, params):
-        """
-        Calculate gradients of each parameter based
-        on parameter shift rule
+    def __call__(self, obs: Hamiltonian, params: List[float]):
+        """Calculate gradients using paramshift.
 
         Args:
-            estimater: Estimator to calculate expectation value
-            params: Parameters to optimize
+            estimator (Estimator): estimator to calculate expectation values
+            params (List[float]): params to optimize
         """
-        pass
+        return self._grad(obs, params)
 
-    def run(self):
-        """Run parameter shift until converged"""
-        pass
+    def _gen_param_shift_vals(self, params):
+        """Given a param list with n values, replicate to 2*n param list"""
+        num_vals = len(params)
+        params = np.array(params)
+        offsets = np.identity(num_vals)
+        plus_params = params + offsets * np.pi / 2
+        minus_params = params - offsets * np.pi / 2
+        return plus_params.tolist() + minus_params.tolist()
+
+    def _grad(self, obs: Hamiltonian, params: List[float]):
+        shifted_params_lists = self._gen_param_shift_vals(params)
+
+        res = np.zeros(len(shifted_params_lists))
+        for i, shifted_params in enumerate(shifted_params_lists):
+            res[i] = self._est.run(obs, shifted_params)
+
+        n = len(res)
+        grads = (res[: n // 2] - res[n // 2 :]) / 2
+        return grads
