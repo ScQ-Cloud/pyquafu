@@ -63,7 +63,7 @@ class TestQAOA:
         hamlitonian = Hamiltonian.from_pauli_list(
             [("IIIZZ", 1), ("IIZIZ", 1), ("IZIIZ", 1), ("ZIIIZ", 1)]
         )
-        ref_mat = np.load("tests/quafu/algorithms/test_hamiltonian.npy")
+        ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
         assert np.array_equal(ref_mat, hamlitonian.get_matrix())
         ansatz = QAOAAnsatz(hamlitonian, num_layers=num_layers)
         ansatz.draw_circuit()
@@ -97,7 +97,8 @@ class TestVQE:
         hamlitonian = Hamiltonian.from_pauli_list(
             [("YZ", 0.3980), ("ZI", -0.3980), ("ZZ", -0.0113), ("XX", 0.1810)]
         )
-        # TODO: ref mat
+        ref_mat = np.load("tests/quafu/algorithms/data/vqe_hamiltonian.npy")
+        assert np.array_equal(ref_mat, hamlitonian.get_matrix())
         ansatz = AlterLayeredAnsatz(num_qubits, num_layers)
 
         def cost_func(params, ham, estimator: Estimator):
