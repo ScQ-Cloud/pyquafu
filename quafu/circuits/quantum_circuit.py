@@ -30,6 +30,8 @@ from ..elements.quantum_element import (
 from .quantum_register import QuantumRegister
 from ..exceptions import CircuitError
 
+import copy
+
 
 class QuantumCircuit(object):
     def __init__(self, num: int, *args, **kwargs):
@@ -293,11 +295,27 @@ class QuantumCircuit(object):
         """
         Wrap the circuit to a subclass of QuantumGate, create by metaclass.
         """
-        # TODO: error check
         from quafu.elements.quantum_element.quantum_gate import customize_gate
+
+        gate_structure = []
+        qubit_mapping = {q: i for i, q in enumerate(self.used_qubits)}
+        for gate in self.gates:
+            if isinstance(gate, QuantumGate):
+                gate = copy.deepcopy(gate)
+                # TODO: handel control pos
+                if isinstance(gate.pos, int):
+                    gate.pos = qubit_mapping[gate.pos]
+                else:
+                    gate.pos = [qubit_mapping[p] for p in gate.pos]
+                gate_structure.append(gate)
+            else:
+                raise ValueError()
+
+        # TODO: error check
+
         customized = customize_gate(cls_name=name.lower(),
-                                    qubit_num=self.num,
-                                    gate_structure=self.gates)
+                                    qubit_num=len(self.used_qubits),
+                                    gate_structure=gate_structure)
         return customized
 
     def id(self, pos: int) -> "QuantumCircuit":
