@@ -226,7 +226,7 @@ class CircuitPlotManager:
             x1 = self.xs[-1] - 1
             self._h_wire_points.append([[x0, y], [x1, y]])
 
-    def _inits_label(self, labels: dict[int: str] = None):
+    def _inits_label(self, labels: dict = None):
         """ qubit-labeling """
         if labels is None:
             labels = self.q_label
@@ -241,7 +241,7 @@ class CircuitPlotManager:
                        )
             self._text_list.append(txt)
 
-    def _measured_label(self, labels: dict[int: str] = None):
+    def _measured_label(self, labels: dict = None):
         """ measured qubit-labeling """
         if labels is None:
             labels = self.c_label
