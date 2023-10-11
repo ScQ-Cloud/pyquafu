@@ -4,7 +4,11 @@ cmake_minimum_required(VERSION 3.14...3.22)
 
 project(qfvm LANGUAGES CXX C)
 
-set (CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Build type not set - defaulting to Release")
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_ARCHITECTURES 70;75;80;90)
 if(SKBUILD)
