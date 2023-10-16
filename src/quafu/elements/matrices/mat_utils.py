@@ -5,6 +5,17 @@ from numpy import ndarray
 
 from .mat_lib import IdMatrix
 
+from typing import List
+
+
+def reorder_matrix(matrix: np.ndarray, pos: List):
+    """Reorder the input sorted matrix to the pos order """
+    qnum = len(pos)
+    dim = 2 ** qnum
+    inds = np.argsort(pos)
+    inds = np.concatenate([inds, inds + qnum])
+    tensorm = matrix.reshape([2] * 2 * qnum)
+    return np.transpose(tensorm, inds).reshape([dim, dim])
 
 def split_matrix(matrix: ndarray):
     """
