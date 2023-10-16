@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:quafu/elements/quantum_element/quantum_gate.py
 # (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +15,18 @@
 
 from abc import ABC, abstractmethod, ABCMeta
 from typing import List, Union, Iterable
+========
+from abc import ABC, abstractmethod
+from typing import List, Union, Iterable, Dict
+>>>>>>>> 3cd63e3 (unify interface of quantum_gates, remove some duplicates):quafu/elements/quantum_gate.py
 
 import numpy as np
 
-from quafu.elements.quantum_element.instruction import Instruction, PosType
+from quafu.elements.matrices.mat_utils import reorder_matrix
+from .instruction import Instruction, PosType
 
 
+<<<<<<<< HEAD:quafu/elements/quantum_element/quantum_gate.py
 def reorder_matrix(matrix: np.ndarray, pos: List):
     """Reorder the input sorted matrix to the pos order"""
     qnum = len(pos)
@@ -31,7 +38,13 @@ def reorder_matrix(matrix: np.ndarray, pos: List):
 
 
 class QuantumGate(Instruction):
+========
+class QuantumGate(Instruction, ABC):
+>>>>>>>> 3cd63e3 (unify interface of quantum_gates, remove some duplicates):quafu/elements/quantum_gate.py
     """Base class for standard and combined quantum gates.
+
+    Attributes:
+
     """
     gate_classes = {}
 
@@ -68,11 +81,12 @@ class QuantumGate(Instruction):
         )
 
     @classmethod
-    def register_gate(cls, subclass, name: str = None):
+    def register_gate(cls, subclass):
         assert issubclass(subclass, cls)
 
-        if name is None:
-            name = subclass.name
+        name = subclass.name
+        assert isinstance(name, str)
+
         if name in cls.gate_classes:
             raise ValueError(f"Name {name} already exists.")
         cls.gate_classes[name] = subclass
@@ -111,20 +125,31 @@ class QuantumGate(Instruction):
         return qstr
 
 
-# gate types
+# Gate types are statically implemented to support type identification
+# and provide shared attributes. However, single/multi qubit may be
+# inferred from ``pos``, while para/fixed type may be inferred by ``paras``.
+# Therefore, these types may be (partly) deprecated in the future.
+
 class SingleQubitGate(QuantumGate, ABC):
     def __init__(self, pos: int, paras: float = None):
-        super().__init__(pos, paras=paras)
+        QuantumGate.__init__(self, pos=pos, paras=paras)
 
     def get_targ_matrix(self):
         return self.matrix
 
+    @property
+    def named_pos(self) -> Dict:
+        return {'pos': self.pos}
+
 
 class MultiQubitGate(QuantumGate, ABC):
-    def __init__(self, pos: List[int], paras: float = None):
-        super().__init__(pos, paras)
+    def __init__(self, pos: List, paras: float = None):
+        QuantumGate.__init__(self, pos, paras)
 
     def get_targ_matrix(self, reverse_order=False):
+        """
+
+        """
         targ_matrix = self.matrix
 
         if reverse_order and (len(self.pos) > 1):
@@ -137,45 +162,80 @@ class MultiQubitGate(QuantumGate, ABC):
         return targ_matrix
 
 
-class ParaSingleQubitGate(SingleQubitGate, ABC):
-    def __init__(self, pos, paras: float):
+class ParametricGate(QuantumGate, ABC):
+    def __init__(self, pos: PosType, paras: Union[float, List[float]]):
         if paras is None:
-            raise ValueError("`paras` can not be None for ParaSingleQubitGate")
-        elif isinstance(paras, int):
-            paras = float(paras)
+            raise ValueError("`paras` can not be None for ParametricGate")
+        super().__init__(pos, paras)
 
+<<<<<<<< HEAD:quafu/elements/quantum_element/quantum_gate.py
         if not isinstance(paras, float):
             raise TypeError(
                 f"`paras` must be float or int for ParaSingleQubitGate, instead of {type(paras)}"
             )
         super().__init__(pos, paras=paras)
+========
+    @property
+    def named_paras(self) -> Dict:
+        return {'paras': self.paras}
+
+    @property
+    def named_pos(self) -> Dict:
+        return {'pos': self.pos}
+>>>>>>>> 3cd63e3 (unify interface of quantum_gates, remove some duplicates):quafu/elements/quantum_gate.py
 
 
-class FixedSingleQubitGate(SingleQubitGate, ABC):
+class FixedGate(QuantumGate, ABC):
     def __init__(self, pos):
         super().__init__(pos=pos, paras=None)
 
-
-class FixedMultiQubitGate(MultiQubitGate, ABC):
-    def __init__(self, pos: List[int]):
-        super().__init__(pos=pos, paras=None)
-
-
-class ParaMultiQubitGate(MultiQubitGate, ABC):
-    def __init__(self, pos, paras):
-        if paras is None:
-            raise ValueError("`paras` can not be None for ParaMultiQubitGate")
-        super().__init__(pos, paras)
+    @property
+    def named_paras(self) -> Dict:
+        return {}
 
 
-# controlled gate types
+# class ParaSingleQubitGate(SingleQubitGate, ABC):
+#     def __init__(self, pos, paras: float):
+#         if paras is None:
+#             raise ValueError("`paras` can not be None for ParaSingleQubitGate")
+#         elif isinstance(paras, int):
+#             paras = float(paras)
+#
+#         if not isinstance(paras, float):
+#             raise TypeError(f"`paras` must be float or int for ParaSingleQubitGate, "
+#                             f"instead of {type(paras)}")
+#         super().__init__(pos, paras=paras)
+#
+#     @property
+#     def named_paras(self) -> Dict:
+#         return {'paras': self.paras}
+
+# class FixedMultiQubitGate(MultiQubitGate, ABC):
+#     def __init__(self, pos: List[int]):
+#         super().__init__(pos=pos, paras=None)
+
+
+# class ParaMultiQubitGate(MultiQubitGate, ABC):
+#     def __init__(self, pos, paras):
+#         if paras is None:
+#             raise ValueError("`paras` can not be None for ParaMultiQubitGate")
+#         super().__init__(pos, paras)
+
+
 class ControlledGate(MultiQubitGate, ABC):
+<<<<<<<< HEAD:quafu/elements/quantum_element/quantum_gate.py
     """Controlled gate class, where the matrix act non-trivaly on target qubits"""
 
     def __init__(
         self, targe_name, ctrls: List[int], targs: List[int], paras, tar_matrix
     ):
         super().__init__(ctrls + targs, paras)
+========
+    """ Controlled gate class, where the matrix act non-trivially on target qubits"""
+
+    def __init__(self, targe_name, ctrls: List[int], targs: List[int], paras, tar_matrix):
+        MultiQubitGate.__init__(self, ctrls + targs, paras)
+>>>>>>>> 3cd63e3 (unify interface of quantum_gates, remove some duplicates):quafu/elements/quantum_gate.py
         self.ctrls = ctrls
         self.targs = targs
         self.targ_name = targe_name
@@ -226,6 +286,7 @@ class ControlledGate(MultiQubitGate, ABC):
             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
         return targ_matrix
 
+<<<<<<<< HEAD:quafu/elements/quantum_element/quantum_gate.py
 
 class OracleGate(QuantumGate):
     name = None
@@ -279,3 +340,8 @@ def customize_gate(cls_name: str,
     assert issubclass(customized_cls, OracleGate)
     QuantumGate.register_gate(customized_cls)
     return customized_cls
+========
+    @property
+    def named_pos(self) -> Dict:
+        return {'ctrls': self.ctrls, 'targs': self.targs}
+>>>>>>>> 3cd63e3 (unify interface of quantum_gates, remove some duplicates):quafu/elements/quantum_gate.py
