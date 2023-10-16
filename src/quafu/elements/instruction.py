@@ -108,7 +108,7 @@ class Measure(Instruction):
 
     def __init__(self, bitmap: dict):
         super().__init__(list(bitmap.keys()))
-        self.qbits = list(bitmap.keys())
+        self.qbits = self.pos
         self.cbits = list(bitmap.values())
 
     @property
