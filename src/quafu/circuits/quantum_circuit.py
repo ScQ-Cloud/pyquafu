@@ -13,12 +13,15 @@
 # limitations under the License.
 
 from typing import List
+import warnings
 
 import numpy as np
 
 import quafu.elements.element_gates as qeg
-from quafu.elements.quantum_element.pulses import QuantumPulse
-from ..elements.quantum_element import (
+
+from quafu.elements import (
+    Instruction,
+    Measure,
     Barrier,
     Delay,
     MultiQubitGate,
@@ -26,6 +29,7 @@ from ..elements.quantum_element import (
     ControlledGate,
     SingleQubitGate,
     XYResonance,
+    QuantumPulse,
 )
 from ..exceptions import CircuitError
 
@@ -39,16 +43,51 @@ class QuantumCircuit(object):
             num (int): Total qubit number used
         """
         self.num = num
-        self.gates = []
+        self.instructions = []
         self.openqasm = ""
-        self.circuit = []
-        self.measures = {}
+        self.circuit = []  # TODO: ?
+        self._measures = []  # type: list[Measure]
+        self._gates = []
         self._used_qubits = []
 
     @property
     def used_qubits(self) -> List:
         self.layered_circuit()
         return self._used_qubits
+
+    @property
+    def measures(self):
+        measures = {}
+        for meas in self._measures:
+            if not set(measures.keys()).isdisjoint(set(meas.qbits)):
+                raise ValueError("Measured qubits overlap with existing measurements.")
+            measures = {**measures, **dict(zip(meas.qbits, meas.cbits))}
+        return measures
+
+    @measures.setter
+    def measures(self, measures):
+        self._measures = [Measure(measures)]
+
+    @property
+    def gates(self):
+        warnings.warn('Deprecated warning: due to historical reason, ``gates`` contains not only instances of '
+                      'QuantumGate, meanwhile not contains measurements. This attributes might be deprecated in'
+                      ' the future. Better to use ``instructions`` which contains all the instructions.')
+        return self._gates
+
+    @gates.setter
+    def gates(self, gates):
+        self._gates = gates
+
+    def add_ins(self, ins: Instruction):
+        """
+        Add instruction to circuit, with NO checking yet.
+        """
+        if isinstance(ins, (QuantumGate, Delay, Barrier, XYResonance)):
+            # TODO: Delay, Barrier added by add_gate for backward compatibility.
+            #       Figure out better handling in the future.
+            self.add_gate(ins)
+        self.instructions.append(ins)
 
     def add_gate(self, gate: QuantumGate):
         """
@@ -57,7 +96,7 @@ class QuantumCircuit(object):
         pos = np.array(gate.pos)
         if np.any(pos >= self.num):
             raise CircuitError(f"Gate position out of range: {gate.pos}")
-        self.gates.append(gate)
+        self._gates.append(gate)
 
     def layered_circuit(self) -> np.ndarray:
         """
@@ -71,19 +110,19 @@ class QuantumCircuit(object):
         gateQlist = [[] for i in range(num)]
         used_qubits = []
         for gate in gatelist:
-            if isinstance(gate, SingleQubitGate) or isinstance(gate, Delay) or isinstance(gate, QuantumPulse):
+            if isinstance(gate, (SingleQubitGate, Delay, QuantumPulse)):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
 
-            elif isinstance(gate, Barrier) or isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
+            elif isinstance(gate, (Barrier, MultiQubitGate, XYResonance)):
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
                 gateQlist[pos1].append(gate)
                 for j in range(pos1 + 1, pos2 + 1):
                     gateQlist[j].append(None)
 
-                if isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
+                if isinstance(gate, (MultiQubitGate, XYResonance)):
                     for pos in gate.pos:
                         if pos not in used_qubits:
                             used_qubits.append(pos)
@@ -230,12 +269,12 @@ class QuantumCircuit(object):
                 operations = operations_qbs[0]
                 if operations == "qreg":
                     qbs = operations_qbs[1]
-                    self.num = int(re.findall("\d+", qbs)[0])
+                    self.num = int(re.findall(r"\d+", qbs)[0])
                 elif operations == "creg":
                     pass
                 elif operations == "measure":
                     qbs = operations_qbs[1]
-                    indstr = re.findall("\d+", qbs)
+                    indstr = re.findall(r"\d+", qbs)
                     inds = [int(indst) for indst in indstr]
                     mb = inds[0]
                     cb = inds[1]
@@ -243,7 +282,7 @@ class QuantumCircuit(object):
                     measured_qubits.append(mb)
                 else:
                     qbs = operations_qbs[1]
-                    indstr = re.findall("\d+", qbs)
+                    indstr = re.findall(r"\d+", qbs)
                     inds = [int(indst) for indst in indstr]
                     valid = True
                     for pos in inds:
@@ -261,12 +300,12 @@ class QuantumCircuit(object):
                             gatename = sp_op[0]
                             if gatename == "delay":
                                 paras = sp_op[1].strip("()")
-                                duration = int(re.findall("\d+", paras)[0])
+                                duration = int(re.findall(r"\d+", paras)[0])
                                 unit = re.findall("[a-z]+", paras)[0]
                                 self.delay(inds[0], duration, unit)
                             elif gatename == "xy":
                                 paras = sp_op[1].strip("()")
-                                duration = int(re.findall("\d+", paras)[0])
+                                duration = int(re.findall(r"\d+", paras)[0])
                                 unit = re.findall("[a-z]+", paras)[0]
                                 self.xy(min(inds), max(inds), duration, unit)
                             else:
@@ -369,7 +408,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         gate = qeg.IdGate(pos)
-        self.add_gate(gate)
+        self.add_ins(gate)
         return self
 
     def h(self, pos: int) -> "QuantumCircuit":
@@ -380,7 +419,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         gate = qeg.HGate(pos)
-        self.add_gate(gate)
+        self.add_ins(gate)
         return self
 
     def x(self, pos: int) -> "QuantumCircuit":
@@ -391,7 +430,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         gate = qeg.XGate(pos)
-        self.add_gate(gate)
+        self.add_ins(gate)
         return self
 
     def y(self, pos: int) -> "QuantumCircuit":
@@ -402,7 +441,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         gate = qeg.YGate(pos)
-        self.add_gate(gate)
+        self.add_ins(gate)
         return self
 
     def z(self, pos: int) -> "QuantumCircuit":
@@ -412,7 +451,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.ZGate(pos))
+        self.add_ins(qeg.ZGate(pos))
         return self
 
     def t(self, pos: int) -> "QuantumCircuit":
@@ -422,7 +461,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.TGate(pos))
+        self.add_ins(qeg.TGate(pos))
         return self
 
     def tdg(self, pos: int) -> "QuantumCircuit":
@@ -432,7 +471,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.TdgGate(pos))
+        self.add_ins(qeg.TdgGate(pos))
         return self
 
     def s(self, pos: int) -> "QuantumCircuit":
@@ -442,7 +481,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SGate(pos))
+        self.add_ins(qeg.SGate(pos))
         return self
 
     def sdg(self, pos: int) -> "QuantumCircuit":
@@ -452,7 +491,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SdgGate(pos))
+        self.add_ins(qeg.SdgGate(pos))
         return self
 
     def sx(self, pos: int) -> "QuantumCircuit":
@@ -462,7 +501,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SXGate(pos))
+        self.add_ins(qeg.SXGate(pos))
         return self
 
     def sxdg(self, pos: int) -> "QuantumCircuit":
@@ -473,7 +512,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         gate = qeg.SXdgGate(pos)
-        self.add_gate(gate)
+        self.add_ins(gate)
         return self
 
     def sy(self, pos: int) -> "QuantumCircuit":
@@ -483,7 +522,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SYGate(pos))
+        self.add_ins(qeg.SYGate(pos))
         return self
 
     def sydg(self, pos: int) -> "QuantumCircuit":
@@ -494,7 +533,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
         """
         gate = qeg.SYdgGate(pos)
-        self.add_gate(gate)
+        self.add_ins(gate)
         return self
 
     def w(self, pos: int) -> "QuantumCircuit":
@@ -504,7 +543,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.WGate(pos))
+        self.add_ins(qeg.WGate(pos))
         return self
 
     def sw(self, pos: int) -> "QuantumCircuit":
@@ -514,7 +553,7 @@ class QuantumCircuit(object):
         Args:
             pos (int): qubit the gate act.
         """
-        self.add_gate(qeg.SWGate(pos))
+        self.add_ins(qeg.SWGate(pos))
         return self
 
     def rx(self, pos: int, para: float) -> "QuantumCircuit":
@@ -525,7 +564,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        self.add_gate(qeg.RXGate(pos, para))
+        self.add_ins(qeg.RXGate(pos, para))
         return self
 
     def ry(self, pos: int, para: float) -> "QuantumCircuit":
@@ -536,7 +575,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        self.add_gate(qeg.RYGate(pos, para))
+        self.add_ins(qeg.RYGate(pos, para))
         return self
 
     def rz(self, pos: int, para: float) -> "QuantumCircuit":
@@ -547,7 +586,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        self.add_gate(qeg.RZGate(pos, para))
+        self.add_ins(qeg.RZGate(pos, para))
         return self
 
     def p(self, pos: int, para: float) -> "QuantumCircuit":
@@ -558,7 +597,7 @@ class QuantumCircuit(object):
             pos (int): qubit the gate act.
             para (float): rotation angle
         """
-        self.add_gate(qeg.PhaseGate(pos, para))
+        self.add_ins(qeg.PhaseGate(pos, para))
         return self
 
     def cnot(self, ctrl: int, tar: int) -> "QuantumCircuit":
@@ -569,7 +608,7 @@ class QuantumCircuit(object):
             ctrl (int): control qubit.
             tar (int): target qubit.
         """
-        self.add_gate(qeg.CXGate(ctrl, tar))
+        self.add_ins(qeg.CXGate(ctrl, tar))
         return self
 
     def cx(self, ctrl: int, tar: int) -> "QuantumCircuit":
@@ -586,7 +625,7 @@ class QuantumCircuit(object):
             ctrl (int): control qubit.
             tar (int): target qubit.
         """
-        self.add_gate(qeg.CYGate(ctrl, tar))
+        self.add_ins(qeg.CYGate(ctrl, tar))
         return self
 
     def cz(self, ctrl: int, tar: int) -> "QuantumCircuit":
@@ -597,7 +636,7 @@ class QuantumCircuit(object):
             ctrl (int): control qubit.
             tar (int): target qubit.
         """
-        self.add_gate(qeg.CZGate(ctrl, tar))
+        self.add_ins(qeg.CZGate(ctrl, tar))
         return self
 
     def cs(self, ctrl: int, tar: int) -> "QuantumCircuit":
@@ -608,7 +647,7 @@ class QuantumCircuit(object):
             ctrl (int): control qubit.
             tar (int): target qubit.
         """
-        self.add_gate(qeg.CSGate(ctrl, tar))
+        self.add_ins(qeg.CSGate(ctrl, tar))
         return self
 
     def ct(self, ctrl: int, tar: int) -> "QuantumCircuit":
@@ -620,7 +659,7 @@ class QuantumCircuit(object):
             tar (int): target qubit.
         """
 
-        self.add_gate(qeg.CTGate(ctrl, tar))
+        self.add_ins(qeg.CTGate(ctrl, tar))
         return self
 
     def cp(self, ctrl: int, tar: int, para: float) -> "QuantumCircuit":
@@ -632,7 +671,7 @@ class QuantumCircuit(object):
             tar (int): target qubit.
             para: theta
         """
-        self.add_gate(qeg.CPGate(ctrl, tar, para))
+        self.add_ins(qeg.CPGate(ctrl, tar, para))
         return self
 
     def swap(self, q1: int, q2: int) -> "QuantumCircuit":
@@ -643,7 +682,7 @@ class QuantumCircuit(object):
             q1 (int): qubit the gate act.
             q2 (int): qubit the gate act.
         """
-        self.add_gate(qeg.SwapGate(q1, q2))
+        self.add_ins(qeg.SwapGate(q1, q2))
         return self
 
     def iswap(self, q1: int, q2: int) -> "QuantumCircuit":
@@ -654,7 +693,7 @@ class QuantumCircuit(object):
             q1 (int): qubit the gate act.
             q2 (int): qubit the gate act.
         """
-        self.add_gate(qeg.ISwapGate(q1, q2))
+        self.add_ins(qeg.ISwapGate(q1, q2))
         return self
 
     def toffoli(self, ctrl1: int, ctrl2: int, targ: int) -> "QuantumCircuit":
@@ -666,7 +705,7 @@ class QuantumCircuit(object):
             ctrl2 (int): control qubit
             targ (int): target qubit
         """
-        self.add_gate(qeg.ToffoliGate(ctrl1, ctrl2, targ))
+        self.add_ins(qeg.ToffoliGate(ctrl1, ctrl2, targ))
         return self
 
     def fredkin(self, ctrl: int, targ1: int, targ2: int) -> "QuantumCircuit":
@@ -678,7 +717,7 @@ class QuantumCircuit(object):
             targ1 (int): target qubit
             targ2 (int): target qubit
         """
-        self.add_gate(qeg.FredkinGate(ctrl, targ1, targ2))
+        self.add_ins(qeg.FredkinGate(ctrl, targ1, targ2))
         return self
 
     def barrier(self, qlist: List[int] = None) -> "QuantumCircuit":
@@ -690,7 +729,7 @@ class QuantumCircuit(object):
         """
         if qlist is None:
             qlist = list(range(self.num))
-        self.add_gate(Barrier(qlist))
+        self.add_ins(Barrier(qlist))
         return self
 
     def delay(self, pos, duration, unit="ns") -> "QuantumCircuit":
@@ -702,7 +741,7 @@ class QuantumCircuit(object):
             duration (int): duration of qubit delay, which represents integer times of unit.
             unit (str): time unit for the duration. Can be "ns" and "us".
         """
-        self.add_gate(Delay(pos, duration, unit=unit))
+        self.add_ins(Delay(pos, duration, unit=unit))
         return self
 
     def xy(self, qs: int, qe: int, duration: int, unit: str = "ns") -> "QuantumCircuit":
@@ -716,7 +755,7 @@ class QuantumCircuit(object):
             unit: time unit of duration.
 
         """
-        self.add_gate(XYResonance(qs, qe, duration, unit=unit))
+        self.add_ins(XYResonance(qs, qe, duration, unit=unit))
         return self
 
     def rxx(self, q1: int, q2: int, theta):
@@ -729,7 +768,7 @@ class QuantumCircuit(object):
             theta: rotation angle.
 
         """
-        self.add_gate(qeg.RXXGate(q1, q2, theta))
+        self.add_ins(qeg.RXXGate(q1, q2, theta))
 
     def ryy(self, q1: int, q2: int, theta):
         """
@@ -741,7 +780,7 @@ class QuantumCircuit(object):
             theta: rotation angle.
 
         """
-        self.add_gate(qeg.RYYGate(q1, q2, theta))
+        self.add_ins(qeg.RYYGate(q1, q2, theta))
 
     def rzz(self, q1: int, q2: int, theta):
         """
@@ -753,7 +792,7 @@ class QuantumCircuit(object):
             theta: rotation angle.
 
         """
-        self.add_gate(qeg.RZZGate(q1, q2, theta))
+        self.add_ins(qeg.RZZGate(q1, q2, theta))
 
     def mcx(self, ctrls: List[int], targ: int):
         """
@@ -763,7 +802,7 @@ class QuantumCircuit(object):
             ctrls: A list of control qubits.
             targ: Target qubits.
         """
-        self.add_gate(qeg.MCXGate(ctrls, targ))
+        self.add_ins(qeg.MCXGate(ctrls, targ))
 
     def mcy(self, ctrls: List[int], targ: int):
         """
@@ -773,7 +812,7 @@ class QuantumCircuit(object):
             ctrls: A list of control qubits.
             targ: Target qubits.
         """
-        self.add_gate(qeg.MCYGate(ctrls, targ))
+        self.add_ins(qeg.MCYGate(ctrls, targ))
 
     def mcz(self, ctrls: List[int], targ: int):
         """
@@ -783,7 +822,7 @@ class QuantumCircuit(object):
             ctrls: A list of control qubits.
             targ: Target qubits.
         """
-        self.add_gate(qeg.MCZGate(ctrls, targ))
+        self.add_ins(qeg.MCZGate(ctrls, targ))
 
     def unitary(self, matrix: np.ndarray, pos: List[int]):
         """
@@ -804,17 +843,14 @@ class QuantumCircuit(object):
             pos: Qubits need measure.
             cbits: Classical bits keeping the measure results.
         """
+        # checking
         if pos is None:
             pos = list(range(self.num))
-
         if np.any(np.array(pos) >= self.num):
             raise ValueError("Index out of range.")
 
         e_num = len(self.measures)  # existing num of measures
         n_num = len(pos)  # newly added num of measures
-        if not set(self.measures.keys()).isdisjoint(set(pos)):
-            raise ValueError("Measured qubits overlap with existing measurements.")
-
         if n_num > len(set(pos)):
             raise ValueError("Measured qubits not uniquely assigned.")
 
@@ -825,12 +861,12 @@ class QuantumCircuit(object):
                 raise ValueError("Number of measured bits should equal to the number of classical bits")
         else:
             cbits = list(range(e_num, e_num + n_num))
+        # _sorted_indices = sorted(range(n_num), key=lambda k: cbits[k])
+        # cbits = [_sorted_indices.index(i) + e_num for i in range(n_num)]
 
-        _sorted_indices = sorted(range(n_num), key=lambda k: cbits[k])
-        cbits = [_sorted_indices.index(i) + e_num for i in range(n_num)]
-
-        newly_measures = dict(zip(pos, cbits))
-        self.measures = {**self.measures, **newly_measures}
+        measure = Measure(dict(zip(pos, cbits)))
+        self._measures.append(measure)
+        self.add_ins(measure)
 
     def add_pulse(self,
                   pulse: QuantumPulse,
@@ -839,6 +875,6 @@ class QuantumCircuit(object):
         Add quantum gate from pulse.
         """
         if pos is not None:
-            pulse.set_pos(pos)
-        self.add_gate(pulse)
+            pulse.pos = pos
+        self.add_ins(pulse)
         return self

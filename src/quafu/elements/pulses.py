@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Union, Optional
+from typing import Union, Optional, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from quafu.elements.quantum_element.instruction import Instruction, PosType
+from .instruction import Instruction, PosType
 
 TimeType = Union[np.ndarray, float, int]
 
@@ -15,10 +15,10 @@ class QuantumPulse(Instruction, ABC):
 
     def __init__(self,
                  pos: PosType,
-                 paras: list,
                  duration: Union[float, int],
-                 unit: str,
-                 channel: str,
+                 unit: str = 'ns',
+                 channel: str = None,
+                 paras: list = None,
                  ):
         """
         Quantum Pulse for generating a quantum gate.
@@ -29,9 +29,7 @@ class QuantumPulse(Instruction, ABC):
             duration (float, int): Pulse duration.
             unit (str): Duration unit.
         """
-        super().__init__()
-        self.pos = pos
-        self.paras = paras
+        super().__init__(pos, paras)
         self.duration = duration
         self.unit = unit
         if channel in ["XY", "Z"]:
@@ -43,14 +41,17 @@ class QuantumPulse(Instruction, ABC):
     def symbol(self):
         return "%s(%d%s, %s)" % (self.name, self.duration, self.unit, self.channel)
 
+    @property
+    def named_pos(self) -> Dict:
+        return {'pos': self.pos}
+
     @abstractmethod
-    def time_func(self, t: Union[np.ndarray, float, int], **kwargs):
+    def time_func(self, t: Union[np.ndarray, float, int]):
         """
         Return the pulse data.
 
         Args:
             t (np.ndarray, float, int): Time list.
-            kwargs (dict): Keyword arguments for the pulse.
         """
         pass
 
@@ -79,8 +80,7 @@ class QuantumPulse(Instruction, ABC):
     def __call__(self,
                  t: TimeType,
                  shift: Union[float, int] = 0.,
-                 offset: Union[float, int] = 0.,
-                 args: dict = None
+                 offset: Union[float, int] = 0.
                  ):
         """
         Return pulse data.
@@ -91,10 +91,7 @@ class QuantumPulse(Instruction, ABC):
             offset (float, int): Pulse amplitude offset.
         """
         window = np.logical_and(0 <= t, t <= self.duration)
-        if args is None:
-            return window * self.time_func(t - shift)
-        else:
-            return window * self.time_func(t - shift, **args)
+        return window * self.time_func(t - shift)
 
     def __copy__(self):
         """ Return a deepcopy of the pulse """
@@ -103,6 +100,7 @@ class QuantumPulse(Instruction, ABC):
     def to_qasm(self):
         return self.__str__() + " q[%d]" % self.pos
 
+    # TODO: deprecate this
     def plot(self,
              t: Optional[np.ndarray] = None,
              shift: Union[float, int] = 0.,
@@ -139,11 +137,6 @@ class QuantumPulse(Instruction, ABC):
         ax.legend()
         plt.show()
 
-    def set_pos(self, pos: int):
-        """ Set qubit position """
-        self.pos = pos
-        return self
-
     def set_unit(self, unit="ns"):
         """ Set duration unit """
         self.unit = unit
@@ -156,21 +149,17 @@ class RectPulse(QuantumPulse):
     def __init__(self, pos, amp, duration, unit, channel):
         self.amp = amp
 
-        super().__init__(pos, [amp], duration, unit, channel)
+        super().__init__(pos, duration, unit, channel, amp)
 
-    def time_func(self, t: Union[np.ndarray, float, int], **kwargs):
+    @property
+    def named_paras(self) -> Dict:
+        named_paras = {'amp': self.amp,
+                       'duration': self.duration}
+        return named_paras
+
+    def time_func(self, t: Union[np.ndarray, float, int]):
         """ rect_time_func """
-        amp_ = kwargs["amp"]
-        return amp_ * np.ones(np.array(t).shape)
-
-    def __call__(self,
-                 t: TimeType,
-                 shift: Union[float, int] = 0,
-                 offset: Union[float, int] = 0,
-                 *args,
-                 **kwargs):
-        args = {"amp": self.amp}
-        return super().__call__(t, shift, offset, args)
+        return self.amp * np.ones(np.array(t).shape)
 
 
 class FlattopPulse(QuantumPulse):
@@ -180,55 +169,46 @@ class FlattopPulse(QuantumPulse):
         self.amp = amp
         self.fwhm = fwhm
 
-        super().__init__(pos, [amp, fwhm], duration, unit, channel)
+        super().__init__(pos, duration, unit, channel, [amp, fwhm])
 
-    def time_func(self, t, **kws):
+    @property
+    def named_paras(self) -> Dict:
+        named_paras = {'amp': self.amp,
+                       'duration': self.duration,
+                       "fwhm": self.fwhm}
+        return named_paras
+    
+    def time_func(self, t):
         """ flattop_time_func """
         from scipy.special import erf
-
-        amp_, fwhm_ = kws["amp"], kws["fwhm"]
-        sigma_ = fwhm_ / (2 * np.sqrt(np.log(2)))
-        return amp_ * (erf((self.duration - t) / sigma_) + erf(t / sigma_) - 1.)
-
-    def __call__(self,
-                 t: TimeType,
-                 shift: Union[float, int] = 0,
-                 offset: Union[float, int] = 0,
-                 *args,
-                 **kwargs):
-        args = {"amp": self.amp, "fwhm": self.fwhm}
-        return super().__call__(t, shift, offset, args)
+        sigma_ = self.fwhm / (2 * np.sqrt(np.log(2)))
+        return self.amp * (erf((self.duration - t) / sigma_) + erf(t / sigma_) - 1.)
 
 
 class GaussianPulse(QuantumPulse):
     name = "gaussian"
 
-    def __init__(self, pos, amp, fwhm, phase, duration, unit, channel):
+    def __init__(self, pos, duration, unit, channel, amp, fwhm, phase):
         self.amp = amp
-        if fwhm is None:
-            self.fwhm = 0.5 * duration
-        else:
-            self.fwhm = fwhm
+        self.fwhm = 0.5 * duration if fwhm is None else fwhm
         self.phase = phase
 
-        super().__init__(pos, [amp, fwhm, phase], duration, unit, channel)
+        super().__init__(pos, duration, unit, channel, [amp, fwhm, phase])
 
-    def time_func(self, t, **kws):
+    def time_func(self, t):
         """ gaussian_time_func """
-        amp_, fwhm_, phase_ = kws["amp"], kws["fwhm"], kws["phase"]
         # start: t = 0, center: t = 0.5 * duration, end: t = duration
-        sigma_ = fwhm_ / np.sqrt(8 * np.log(2))  # fwhm to std. deviation
-        return amp_ * np.exp(
-            -(t - 0.5 * self.duration) ** 2 / (2 * sigma_ ** 2) + 1j * phase_)
+        sigma_ = self.fwhm / np.sqrt(8 * np.log(2))  # fwhm to std. deviation
+        return self.amp * np.exp(
+            -(t - 0.5 * self.duration) ** 2 / (2 * sigma_ ** 2) + 1j * self.phase)
 
-    def __call__(self,
-                 t: TimeType,
-                 shift: Union[float, int] = 0,
-                 offset: Union[float, int] = 0,
-                 *args,
-                 **kwargs):
-        args = {"amp": self.amp, "fwhm": self.fwhm, "phase": self.phase}
-        return super().__call__(t, shift, offset, args)
+    @property
+    def named_paras(self) -> Dict:
+        named_paras = {'amp': self.amp,
+                       'duration': self.duration,
+                       "fwhm": self.fwhm,
+                       "phase": self.phase}
+        return named_paras
 
 
 class Delay(Instruction):
@@ -249,6 +229,14 @@ class Delay(Instruction):
     def to_qasm(self):
         return "delay(%d%s) q[%d]" % (self.duration, self.unit, self.pos)
 
+    @property
+    def named_paras(self) -> Dict:
+        return {}
+
+    @property
+    def named_pos(self) -> Dict:
+        return {'pos': self.pos}
+
 
 class XYResonance(Instruction):
     name = "XY"
@@ -265,6 +253,14 @@ class XYResonance(Instruction):
     def to_qasm(self):
         return "xy(%d%s) " % (self.duration, self.unit) + ",".join(
             ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+
+    @property
+    def named_pos(self) -> Dict:
+        return {'pos': self.pos}
+
+    @property
+    def named_paras(self) -> Dict:
+        return {'duration': self.duration}
 
 
 QuantumPulse.register_pulse(RectPulse)
