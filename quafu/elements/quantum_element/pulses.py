@@ -5,7 +5,7 @@ from typing import Union, Optional
 import matplotlib.pyplot as plt
 import numpy as np
 
-from quafu.elements.quantum_element.instruction import Instruction, PosType
+from quafu.elements.instruction import Instruction, PosType
 
 TimeType = Union[np.ndarray, float, int]
 
