@@ -40,7 +40,7 @@ class Ansatz(QuantumCircuit, ABC):
 
 
 class QAOAAnsatz(Ansatz):
-    """QAOA circuit"""
+    """QAOA Ansatz"""
 
     def __init__(self, hamiltonian: Hamiltonian, num_layers: int = 1):
         """Instantiate a QAOAAnsatz"""
@@ -93,10 +93,11 @@ class QAOAAnsatz(Ansatz):
             for i in range(self.num):
                 self.rx(i, self._beta[layer])
 
-    def update_params(self, beta: List[float], gamma: List[float]):
+    def update_params(self, params: List[float]):
         """Update parameters of QAOA circuit"""
         # First build parameter list
-        assert len(beta) == self._num_layers and len(gamma) == self._num_layers
+        assert len(params) == 2 * self._num_layers
+        beta, gamma = params[: self._num_layers], params[self._num_layers :]
         num_para_gates = len(self.parameterized_gates)
         assert num_para_gates % self._num_layers == 0
         self._beta, self._gamma = beta, gamma
