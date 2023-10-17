@@ -8,8 +8,9 @@ from .c12 import FredkinGate
 from .cm1 import MCXGate, MCYGate, MCZGate, ToffoliGate
 from .unitary import UnitaryDecomposer
 
-__all__ = ['XGate', 'YGate', 'ZGate', 'IdGate', 'WGate', 'SWGate',
+__all__ = ['XGate', 'YGate', 'ZGate', 'IdGate', 'WGate', 'SWGate', 'SXGate', 'SXdgGate', 'SYGate', 'SYdgGate',
            'PhaseGate',
+           'HGate', 'SGate', 'SdgGate', 'TGate', 'TdgGate',
            'RXGate', 'RYGate', 'RZGate', 'RXXGate', 'RYYGate', 'RZZGate',
            'SwapGate', 'ISwapGate', 'FredkinGate',
            'CXGate', 'CYGate', 'CZGate', 'CSGate', 'CTGate', 'CPGate',

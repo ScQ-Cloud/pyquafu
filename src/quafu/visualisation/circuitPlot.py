@@ -346,6 +346,9 @@ class CircuitPlotManager:
                 label = r'$\sqrt{%s}^\dagger$' % id_name[1]
             else:
                 label = r'$\sqrt{%s}$' % id_name[1]
+        elif id_name in ['sdg', 'tdg']:
+            fc = '#EE7057'
+            label = id_name[0] + r'$^\dagger$'
         elif id_name in ['rx', 'ry', 'rz']:
             fc = '#6366F1'
             label = id_name.upper()
