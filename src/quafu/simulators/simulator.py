@@ -18,7 +18,7 @@ def simulate(qc: Union[QuantumCircuit, str],
         qc: quantum circuit or qasm string that need to be simulated.
         psi : Input state vector
         simulator:`"qfvm_circ"`: The high performance C++ circuit simulator with optional GPU support. 
-                `"py_simu"`: Python implemented simulator by sparse matrix with low performace for large scale circuit.
+                `"py_simu"`: Python implemented simulator by sparse matrix with low performance for large scale circuit.
                 `"qfvm_qasm"`: The high performance C++ qasm simulator with limited gate set.
 
         output: `"probabilities"`: Return probabilities on measured qubits, ordered in big endian convention.

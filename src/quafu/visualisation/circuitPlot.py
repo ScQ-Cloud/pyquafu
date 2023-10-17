@@ -18,8 +18,7 @@ import numpy as np
 from matplotlib.collections import PolyCollection, PatchCollection, LineCollection
 from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
-from typing import Dict
-from quafu.elements.quantum_element import Instruction, ControlledGate
+from quafu.elements import Instruction, ControlledGate
 from typing import Dict
 
 # this line for developers only
@@ -47,7 +46,7 @@ layers(zorder):
 """
 
 su2_gate_names = ['x', 'y', 'z', 'id', 'w',
-                  'h', 't', 'tdg', 's', 'sdg', 'sx', 'sy', 'sw',
+                  'h', 't', 'tdg', 's', 'sdg', 'sx', 'sy', 'sw', 'sxdg', 'sydg', 'swdg',
                   'p',
                   'rx', 'ry', 'rz',
                   ]
@@ -203,8 +202,9 @@ class CircuitPlotManager:
             self._proc_swap(depth, ins.pos, name == 'iswap')
         elif name in r2_gate_names:
             # TODO: combine into one box
-            self._proc_su2(name[-1], depth, ins.pos[0], paras)
-            self._proc_su2(name[-1], depth, ins.pos[1], paras)
+            self._ctrl_wire_points.append([[depth, ins.pos[0]], [depth, ins.pos[1]]])
+            self._proc_su2(name[:-1], depth, ins.pos[0], paras)
+            self._proc_su2(name[:-1], depth, ins.pos[1], paras)
         elif isinstance(ins, ControlledGate):
             self._proc_ctrl(depth, ins)
         else:
@@ -337,15 +337,25 @@ class CircuitPlotManager:
     #########################################################################
     # region # # # # processing-functions: decompose ins into graphical elements # # #
     def _proc_su2(self, id_name, depth, pos, paras):
-        if id_name in ['x', 'y', 'z', 'h', 'id', 's', 't', 'p', 'u']:
+        if id_name in ['x', 'y', 'z', 'h', 'id', 's', 't', 'p', 'w']:
             fc = '#EE7057'
-            label = id_name.capitalize()
+            label = id_name.capitalize()[0]
+        elif id_name in ['sw', 'swdg', 'sx', 'sxdg', 'sy', 'sydg']:
+            fc = '#EE7057'
+            if id_name[-2:] == 'dg':
+                label = r'$\sqrt{%s}^\dagger$' % id_name[1]
+            else:
+                label = r'$\sqrt{%s}$' % id_name[1]
+        elif id_name in ['sdg', 'tdg']:
+            fc = '#EE7057'
+            label = id_name[0] + r'$^\dagger$'
         elif id_name in ['rx', 'ry', 'rz']:
             fc = '#6366F1'
             label = id_name.upper()
         else:
             fc = '#8C9197'
             label = '?'
+            print(f'Label of {id_name} gate is not supported yet.\n')
 
         if id_name in ['rx', 'ry', 'rz', 'p']:
             # too long to display: r'$\theta=$' + f'{paras:.3f}' (TODO)
@@ -383,7 +393,7 @@ class CircuitPlotManager:
         elif name == 'cswap':
             self._swap_points += [[depth, self.used_qbit_y[p]] for p in ins.targs]
         elif name == 'ccx':
-            self._not_points.append((depth, self.used_qbit_y[ins.targs]))
+            self._not_points.append((depth, self.used_qbit_y[ins.targs[0]]))
         else:
             from quafu.elements.element_gates import ControlledU
             assert isinstance(ins, ControlledU), f'unknown gate: {name}, {ins.__class__.__name__}'
