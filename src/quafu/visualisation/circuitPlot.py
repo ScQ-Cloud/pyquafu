@@ -22,7 +22,6 @@ from quafu.elements import Instruction, ControlledGate
 from typing import Dict
 
 from matplotlib.path import Path
-from matplotlib.patches import PathPatch
 from matplotlib.collections import PathCollection
 # this line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit
