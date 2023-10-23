@@ -1,12 +1,11 @@
-import numpy as np
 from quafu import QuantumCircuit
 
 from quafu.elements.element_gates import * 
-from quafu.elements.quantum_element import Barrier, Delay, Measure, XYResonance
-from quafu.pulses.quantum_pulse import GaussianPulse, RectPulse, FlattopPulse
+from quafu.elements import Barrier, Delay, Measure, XYResonance
+from quafu.elements.pulses import GaussianPulse, RectPulse, FlattopPulse
 
 import networkx as nx
-from typing import Dict, Any, List, Union
+from typing import Any, List
 import copy
 
 from quafu.dagcircuits.instruction_node import InstructionNode  # instruction_node.py in the same folder as circuit_dag.py now
