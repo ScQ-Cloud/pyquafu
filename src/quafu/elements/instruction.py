@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Union, List
+from typing import Union, List, Dict
 
 
 __all__ = ['Instruction', 'Barrier', 'Measure', 'PosType', 'ParaType']
@@ -43,6 +43,18 @@ class Instruction(ABC):
         raise NotImplementedError('name is not implemented for %s' % self.__class__.__name__
                                   + ', this should never happen.')
 
+    @property
+    @abstractmethod
+    def named_paras(self) -> Dict:
+        """dict-mapping for parameters"""
+        return {}
+
+    @property
+    @abstractmethod
+    def named_pos(self) -> Dict:
+        """dict-mapping for positions"""
+        return {'pos': self.pos}
+
     @name.setter
     def name(self, _):
         import warnings
@@ -58,6 +70,10 @@ class Instruction(ABC):
             raise ValueError(f"Name {name} already exists.")
         cls.ins_classes[name] = subclass
 
+    @abstractmethod
+    def to_qasm(self):
+        pass
+
 
 class Barrier(Instruction):
     """
@@ -70,12 +86,12 @@ class Barrier(Instruction):
         self.symbol = "||"
 
     @property
-    def pos(self):
-        return self.__pos
+    def named_pos(self):
+        return self.named_pos
 
-    @pos.setter
-    def pos(self, pos):
-        self.__pos = pos
+    @property
+    def named_paras(self):
+        return self.named_paras
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
@@ -92,8 +108,21 @@ class Measure(Instruction):
 
     def __init__(self, bitmap: dict):
         super().__init__(list(bitmap.keys()))
-        self.qbits = bitmap.keys()
-        self.cbits = bitmap.values()
+        self.qbits = self.pos
+        self.cbits = list(bitmap.values())
+
+    @property
+    def named_pos(self):
+        return {'pos': self.pos}  # TODO
+
+    @property
+    def named_paras(self):
+        return self.named_paras
+
+    def to_qasm(self):
+        lines = ["measure q[%d] -> meas[%d];\n" % (q, c) for q, c in zip(self.qbits, self.cbits)]
+        qasm = ''.join(lines)
+        return qasm
 
 
 Instruction.register_ins(Barrier)

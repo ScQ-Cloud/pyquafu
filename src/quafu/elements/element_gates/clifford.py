@@ -1,53 +1,54 @@
 import numpy as np
 
-from quafu.elements.element_gates.matrices import HMatrix
-from quafu.elements.quantum_element import FixedSingleQubitGate
+from quafu.elements.matrices import HMatrix, SMatrix
+from ..quantum_gate import SingleQubitGate, FixedGate
+
+__all__ = ['HGate', 'SGate', 'SdgGate', 'TGate', 'TdgGate']
 
 
-class HGate(FixedSingleQubitGate):
+class HGate(SingleQubitGate, FixedGate):
     name = "H"
     matrix = HMatrix
 
     def __init__(self, pos: int):
-        super().__init__(pos)
+        FixedGate.__init__(self, pos)
 
 
-class SGate(FixedSingleQubitGate):
+class SGate(SingleQubitGate, FixedGate):
     name = "S"
-    matrix = np.array([[1., 0.],
-                       [0., 1.j]], dtype=complex)
+    matrix = SMatrix
 
     def __init__(self, pos: int):
-        super().__init__(pos)
+        FixedGate.__init__(self, pos)
 
 
-class SdgGate(FixedSingleQubitGate):
+class SdgGate(SingleQubitGate, FixedGate):
     name = "Sdg"
-    matrix = SGate.matrix.conj().T
+    matrix = SMatrix.conj().T
 
     def __init__(self, pos: int):
-        super().__init__(pos)
+        FixedGate.__init__(self, pos)
 
 
-class TGate(FixedSingleQubitGate):
+class TGate(SingleQubitGate, FixedGate):
     name = "T"
     matrix = np.array([[1., 0.],
                        [0., np.exp(1.j * np.pi / 4)]], dtype=complex)
 
     def __init__(self, pos: int):
-        super().__init__(pos)
+        FixedGate.__init__(self, pos)
 
 
-class TdgGate(FixedSingleQubitGate):
+class TdgGate(SingleQubitGate, FixedGate):
     name = "Tdg"
     matrix = TGate.matrix.conj().T
 
     def __init__(self, pos: int):
-        super().__init__(pos)
+        FixedGate.__init__(self, pos)
 
 
-FixedSingleQubitGate.register_gate(HGate)
-FixedSingleQubitGate.register_gate(SGate)
-FixedSingleQubitGate.register_gate(SdgGate)
-FixedSingleQubitGate.register_gate(TGate)
-FixedSingleQubitGate.register_gate(TdgGate)
+FixedGate.register_gate(HGate)
+FixedGate.register_gate(SGate)
+FixedGate.register_gate(SdgGate)
+FixedGate.register_gate(TGate)
+FixedGate.register_gate(TdgGate)

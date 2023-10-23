@@ -3,9 +3,8 @@
 from typing import Iterable, List, Union
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from ..results.results import SimuResult
-from ..elements.quantum_element import Barrier, Delay, QuantumGate, SingleQubitGate, MultiQubitGate, XYResonance
+from quafu.elements import Barrier, Delay, QuantumGate, SingleQubitGate, MultiQubitGate, XYResonance
 import numpy as np
-from functools import reduce
 from sparse import COO, SparseArray
 from scipy.sparse import kron, eye, coo_matrix
 
