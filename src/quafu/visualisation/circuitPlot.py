@@ -21,6 +21,8 @@ from matplotlib.text import Text
 from quafu.elements import Instruction, ControlledGate
 from typing import Dict
 
+from matplotlib.path import Path
+from matplotlib.collections import PathCollection
 # this line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit
 
@@ -104,6 +106,7 @@ class CircuitPlotManager:
         self._swap_points = []
         self._iswap_points = []
         self._barrier_points = []
+        self._white_path_points = []
 
         self._text_list = []
 
@@ -207,6 +210,8 @@ class CircuitPlotManager:
             self._proc_su2(name[:-1], depth, ins.pos[1], paras)
         elif isinstance(ins, ControlledGate):
             self._proc_ctrl(depth, ins)
+        elif name == 'delay':
+            self._delay(depth, ins.pos, ins.duration, ins.unit)
         else:
             raise NotImplementedError(f'Gate {name} is not supported yet.\n'
                                       f'If this should occur, please report a bug.')
@@ -355,7 +360,6 @@ class CircuitPlotManager:
         else:
             fc = '#8C9197'
             label = '?'
-            print(f'Label of {id_name} gate is not supported yet.\n')
 
         if id_name in ['rx', 'ry', 'rz', 'p']:
             # too long to display: r'$\theta=$' + f'{paras:.3f}' (TODO)
@@ -366,6 +370,19 @@ class CircuitPlotManager:
         x = depth
         y = self.used_qbit_y[pos]
         self._gate_label(x=x, y=y, s=label)
+        self._para_label(x=x, y=y, para_txt=para_txt)
+        self._gate_bbox(x=x, y=y, fc=fc)
+
+    def _delay(self, depth, pos, paras, unit):
+        fc = BLUE
+
+        para_txt = '%d%s' % (paras, unit)
+
+        x = depth
+        y = self.used_qbit_y[pos]
+        xs = self._a * np.array([-1, 0, 1, -1, 0, 1, -1, 0]) / 4 + x
+        ys = self._a * np.array([1, 0, -1, -1, 0, 1, 1, 0]) / 3 + y
+        self._white_path_points.append(np.column_stack((xs, ys)))
         self._para_label(x=x, y=y, para_txt=para_txt)
         self._gate_bbox(x=x, y=y, fc=fc)
 
@@ -554,6 +571,14 @@ class CircuitPlotManager:
         for txt in self._text_list:
             plt.gca().add_artist(txt)
 
+    def _render_white_path(self):
+        path_collection = PathCollection([Path(points) for points in self._white_path_points],
+                                         facecolor='none',
+                                         edgecolor='white',
+                                         zorder=4,
+                                         linewidth=2)
+        plt.gca().add_collection(path_collection)
+
     def _render_circuit(self):
         self._render_h_wires()
         self._render_ctrl_wires()
@@ -564,4 +589,6 @@ class CircuitPlotManager:
         self._render_measure()
         self._render_barrier()
         self._render_closed_patch()
+        self._render_white_path()
         self._render_txt()
+

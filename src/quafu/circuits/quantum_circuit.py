@@ -14,11 +14,9 @@
 
 from typing import List
 import warnings
-
 import numpy as np
 
 import quafu.elements.element_gates as qeg
-
 from quafu.elements import (
     Instruction,
     Measure,
@@ -37,7 +35,7 @@ from ..exceptions import CircuitError
 class QuantumCircuit(object):
     def __init__(self, num: int, *args, **kwargs):
         """
-        Initialize a QuantumCircuit object
+        Initialize a QuantumCircuit object.
 
         Args:
             num (int): Total qubit number used
