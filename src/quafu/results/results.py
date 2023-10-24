@@ -99,7 +99,7 @@ class SimuResult(Result):
             reverse_basis: Whether reverse the bitstring of basis. (Little endian convention).
             sort:  Sort the results by probabilities values. Can be `"ascend"` order or `"descend"` order. 
         """
-
+        plt.close()
         probs = self.probabilities
         inds = range(len(probs))
         if not full:
@@ -120,7 +120,7 @@ class SimuResult(Result):
             basis = basis[orders][::-1]
 
         plt.figure()
-        plt.bar(inds, probs, tick_label=basis)
+        plt.bar(range(len(inds)), probs, tick_label=basis)
         plt.xticks(rotation=70)
         plt.ylabel("probabilities")
 
