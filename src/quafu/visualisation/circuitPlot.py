@@ -206,8 +206,9 @@ class CircuitPlotManager:
         elif name in r2_gate_names:
             # TODO: combine into one box
             self._ctrl_wire_points.append([[depth, ins.pos[0]], [depth, ins.pos[1]]])
-            self._proc_su2(name[:-1], depth, ins.pos[0], paras)
-            self._proc_su2(name[:-1], depth, ins.pos[1], paras)
+
+            self._proc_su2(name[:-1], depth, min(ins.pos), None)
+            self._proc_su2(name[:-1], depth, max(ins.pos), paras)
         elif isinstance(ins, ControlledGate):
             self._proc_ctrl(depth, ins)
         elif name == 'delay':
@@ -363,7 +364,7 @@ class CircuitPlotManager:
 
         if id_name in ['rx', 'ry', 'rz', 'p']:
             # too long to display: r'$\theta=$' + f'{paras:.3f}' (TODO)
-            para_txt = f'({paras:.3f})'
+            para_txt = f'({paras:.3f})' if paras else None
         else:
             para_txt = None
 
