@@ -109,9 +109,13 @@ class Measure(Instruction):
 
     def __init__(self, bitmap: dict):
         super().__init__(list(bitmap.keys()))
-        self.qbits = bitmap.keys()
-        self.cbits = bitmap.values()
-
+        self.qbits = self.pos
+        self.cbits = list(bitmap.values())
+    
+    def to_qasm(self):
+        lines = ["measure q[%d] -> meas[%d];\n" % (q, c) for q, c in zip(self.qbits, self.cbits)]
+        qasm = ''.join(lines)
+        return qasm
 
 Instruction.register_ins(Barrier)
 Instruction.register_ins(Delay)

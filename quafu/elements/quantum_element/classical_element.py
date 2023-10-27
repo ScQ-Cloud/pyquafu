@@ -12,11 +12,18 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-class Cif:
-    name = 'if'
-    pos = 0
-    def __init__(self, cbit, condition, instructions):
+from typing import List
+from .instruction import Instruction
+
+class Cif(Instruction):
+    name = 'cif'
+    def __init__(self, cbits:List[int], condition:int, instructions=None):
         # cbit can be a list of cbit or just a cbit
-        self.cbit = cbit
-        self.cond = condition
+        self.cbits = cbits
+        self.condition = condition
         self.instructions = instructions
+        
+    def set_ins(self, instructions: List[Instruction]):
+        self.instructions = instructions
+
+Instruction.register_ins(Cif)
