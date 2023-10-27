@@ -31,7 +31,7 @@ class ExecResult(Result):
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
-
+        
         self.measures = self.transpiled_circuit.measures
         self.task_status = status_map[input_dict["status"]]
         self.res = eval(input_dict["res"])
@@ -76,12 +76,13 @@ class SimuResult(Result):
     Class that save the execute simulation results returned from classical simulator.
 
     Attributes:
-        num (int): Numbers of measured qubits
+        num (int): Numbers of measured qubits.
         probabilities (ndarray): Calculated probabilities on each bitstring.
-        rho (ndarray): Simulated density matrix of measured qubits
+        rho (ndarray): Simulated density matrix of measured qubits.
+        count_dict: The num of cbits measured. Only support for `qfvm_circuit`.
     """
 
-    def __init__(self, input, input_form):
+    def __init__(self, input, input_form, count_dict:dict=None):
         self.num = int(np.log2(input.shape[0]))
         if input_form == "density_matrix":
             self.rho = np.array(input)
@@ -90,6 +91,12 @@ class SimuResult(Result):
             self.probabilities = input
         elif input_form == "state_vector":
             self.state_vector = input
+        
+        if count_dict is not None:
+            self.count = {}
+            for key,value in count_dict.items():
+                bitstr = bin(key)[2:].zfill(self.num)
+                self.count[bitstr] = value               
 
     def plot_probabilities(
         self, full: bool = False, reverse_basis: bool = False, sort: bool = None
