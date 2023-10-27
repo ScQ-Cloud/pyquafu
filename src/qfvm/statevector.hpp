@@ -7,6 +7,7 @@
 #include <omp.h>
 #include <functional>
 #include <algorithm>
+#include <random>
 #ifdef USE_SIMD
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -19,15 +20,31 @@ template <class real_t = double>
 class StateVector{
     private:
         uint num_;
+         // classical bit
+        uint cbit_num_;  
+        vector<uint> creg_;
         size_t size_;
         std::unique_ptr<complex<real_t>[]> data_;
+        //random engine
+        std::mt19937_64 rng_;
 
     public:
         //construct function
         StateVector();
         explicit StateVector(uint num);
         explicit StateVector(complex<real_t> *data, size_t data_size);
+        //move assign
+        // StateVector& operator=(StateVector&& other){
+        //     if(this != &other){
+        //         data_ = std::move(other.data_);
+        //         creg_ = std::move(other.creg_);
+        //         num_ = other.num_;
+        //         cbit_num_ = other.cbit_num_;
+        //         size_ = other.size_;
 
+        //     }
+        //     return *this;
+        // }
 
         //Named gate function
         void apply_x(pos_t pos);
@@ -64,8 +81,38 @@ class StateVector{
         //Multiple-target gate
         void apply_multi_targe_gate_general(vector<pos_t> const& posv, uint control_num, RowMatrixXcd const&mat);
 
+        // Measure and Reset
+        std::pair<uint, double> sample_measure_probs(vector<pos_t> const& qbits);
+        vector<double> probabilities() const;
+        void apply_diagonal_matrix(vector<pos_t> const& qbits, vector<std::complex<double> > const& mdiag);
+        void update(vector<pos_t> const& qbits, const uint final_state, const uint meas_state, const double meas_prob);
+        void apply_measure(vector<pos_t> const& qbits,const vector<pos_t> &cbits);
+        void apply_reset(vector<pos_t> const& qbits);
+
+        // cif check
+        bool check_cif(const vector<pos_t> &cbits, const uint condition);
+
         complex<real_t> operator[] (size_t j) const ;
         void set_num(uint num);
+        void set_creg(uint num){
+            if(num > 0){
+                cbit_num_ = num;
+                creg_.resize(cbit_num_, 0);
+            }else{
+                throw std::logic_error("The number of cbit must be positive.");
+            }
+        }
+
+        vector<uint> creg(){
+            return creg_;
+        }
+
+        std::mt19937_64 rng(){
+            std::random_device rd;
+            rng_.seed(rd());
+            return rng_;
+        }
+
         void print_state();
         std::tuple<std::complex<real_t>*, size_t> move_data_to_python() {
             auto data_ptr = data_.release();
@@ -75,6 +122,7 @@ class StateVector{
         complex<real_t>* data(){ return data_.get(); }
         size_t size(){ return size_; }
         uint num(){ return num_; }
+        uint cbit_num(){ return cbit_num_; }
 };
 
 
@@ -123,6 +171,15 @@ void StateVector<real_t>::set_num(uint num){
         data_ = std::make_unique<complex<real_t>[]>(size_);
         data_[0] = complex<real_t>(1, 0);
     }
+}
+template <class real_t>
+bool StateVector<real_t>::check_cif(const vector<pos_t> &cbits, const uint condition){
+    uint out = 0;
+    for(uint i = 0; i < cbits.size(); i++){
+        out *= 2;
+        out += creg_[cbits[i]];
+    }
+    return out == condition; 
 }
 
 template <class real_t>
@@ -390,6 +447,7 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
     size_t setbit;
     size_t poffset;
     bool has_control=false;
+    vector<pos_t> posv_sorted = posv;
     if (ctrl_num == 0){
         targe = posv[0];
         offset = 1ll<<targe;
@@ -404,7 +462,6 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
 
     }
     else if(ctrl_num == 1){
-
         has_control = true;
         control = posv[0];
         targe = posv[1];
@@ -430,7 +487,6 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
         control = *min_element(posv.begin(), posv.end()-1);
         targe = *(posv.end()-1);
         offset = 1ll<<targe;
-        vector<pos_t> posv_sorted = posv;
         sort(posv_sorted.begin(), posv_sorted.end());
         rsize = size_>>posv.size();
         getind_func = [&](size_t j)-> size_t{
@@ -658,6 +714,7 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
     size_t setbit;
     size_t poffset;
     bool has_control=false;
+    vector<pos_t> posv_sorted = posv;
     if (ctrl_num == 0){
         targe = posv[0];
         offset = 1ll<<targe;
@@ -672,7 +729,6 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
 
     }
     else if(ctrl_num == 1){
-
         has_control = true;
         control = posv[0];
         targe = posv[1];
@@ -696,7 +752,6 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
         control = *min_element(posv.begin(), posv.end()-1);
         targe = *(posv.end()-1);
         offset = 1ll<<targe;
-        vector<pos_t> posv_sorted = posv;
         sort(posv_sorted.begin(), posv_sorted.end());
         rsize = size_>>posv.size();
         getind_func = [&](size_t j)-> size_t{
@@ -796,6 +851,7 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
     size_t setbit;
     size_t poffset;
     bool has_control=false;
+    vector<pos_t> posv_sorted = posv;
     if (ctrl_num == 0){
         targe = posv[0];
         offset = 1ll<<targe;
@@ -835,7 +891,6 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
         control = *min_element(posv.begin(), posv.end()-1);
         targe = *(posv.end()-1);
         offset = 1ll<<targe;
-        vector<pos_t> posv_sorted = posv;
         sort(posv_sorted.begin(), posv_sorted.end());
         rsize = size_>>posv.size();
         getind_func = [&](size_t j)-> size_t
@@ -970,3 +1025,315 @@ void StateVector<real_t>::apply_multi_targe_gate_general(vector<pos_t> const& po
 }
 
 
+uint64_t index0(vector<pos_t> const& qubits_sorted, const uint64_t k) {
+    uint64_t lowbits, retval = k;
+    for (size_t j = 0; j < qubits_sorted.size(); j++) {
+        lowbits = retval & ((1LL << qubits_sorted[j]) -1);
+        retval >>= qubits_sorted[j];
+        retval <<= qubits_sorted[j] + 1;
+        retval |= lowbits;
+    }
+    return retval;
+}
+
+using indexes_t = std::unique_ptr<uint[]>;
+inline indexes_t indexes(vector<pos_t> const& qbits, vector<pos_t> const& qubits_sorted, const uint64_t k) {
+  const auto N = qubits_sorted.size();
+  indexes_t ret(new uint[1LL << N]);
+  // Get index0
+  ret[0] = index0(qubits_sorted, k);
+  for (size_t i = 0; i < N; i++) {
+    const auto n = 1LL << i;
+    const auto bit = 1ll << qbits[i];
+    for (size_t j = 0; j < n; j++)
+      ret[n + j] = ret[j] | bit;
+  }
+  return ret;
+}
+
+template <class real_t>
+vector<double> StateVector<real_t>::probabilities() const {
+    const int len = 1LL << num_;
+    vector<double> probs(len, 0.);
+#pragma omp parallel for
+    for (int j = 0; j < len; j++) {
+        probs[j] = std::real(data_[j] * std::conj(data_[j]));
+    }
+    return probs;
+}
+
+vector<std::complex<double>> convert(const vector<std::complex<double>> &v){
+    vector<std::complex<double>> ret(v.size());
+    for (size_t i = 0; i< v.size(); ++i)
+        ret[i] = v[i];
+    return ret;
+}
+
+template <class real_t>
+void StateVector<real_t>::apply_diagonal_matrix(vector<pos_t> const&qbits, vector<std::complex<double> > const&diag){
+    // just one qubit
+    if(qbits.size() == 1){
+        const uint qubit = qbits[0];
+        vector<pos_t> qbit0{qubit};
+        if (diag[0] == 1.0) { // [[1, 0], [0, z]] matrix
+            if (diag[1] == 1.0)
+                return; // Identity
+            if (diag[1] == std::complex<double>(0., -1.)) { // [[1, 0], [0, -i]]
+                auto func = [&](const indexes_t &inds) -> void {
+                    const auto k = inds[1];
+                    double cache = data_[k].imag();
+                    data_[k].imag(data_[k].real() * -1.);
+                    data_[k].real(cache);
+                };
+#pragma omp parallel for
+                for (int k = 0; k < (size_ >> 1); k+=1){
+                    const auto inds = indexes(qbit0, qbit0, k);
+                    func(inds);
+                }
+                return;
+            }
+            if (diag[1] == std::complex<double>(0., 1.)) {
+            // [[1, 0], [0, i]]
+                auto func = [&](const indexes_t &inds) -> void {
+                    const auto k = inds[1];
+                    double cache = data_[k].imag();
+                    data_[k].imag(data_[k].real());
+                    data_[k].real(cache * -1.);
+                };
+#pragma omp parallel for
+                for (int k = 0; k < (size_ >> 1); k+=1){
+                    const auto inds = indexes(qbit0, qbit0, k);
+                    func(inds);
+                }
+                return;
+            }
+            if (diag[0] == 0.0) {
+            // [[1, 0], [0, 0]]
+                auto func = [&](const indexes_t &inds) -> void {
+                    data_[inds[1]] = 0.0;
+                };
+#pragma omp parallel for
+                for (int k = 0; k < (size_ >> 1); k+=1){
+                    const auto inds = indexes(qbit0, qbit0, k);
+                    func(inds);
+                }
+                return;
+            }
+            // general [[1, 0], [0, z]]
+            auto func = [&](const indexes_t &inds, const vector<std::complex<double> > &_mat) -> void {
+                const auto k = inds[1];
+                data_[k] *= _mat[1];
+            };
+#pragma omp parallel for
+            for (int k = 0; k < (size_ >> 1); k+=1){
+                const auto inds = indexes(qbit0, qbit0, k);
+                func(inds, convert(diag));
+            }
+            return;
+        } else if (diag[1] == 1.0) {
+            // [[z, 0], [0, 1]] matrix
+            if (diag[0] == std::complex<double>(0., -1.)) {
+                // [[-i, 0], [0, 1]]
+                auto func = [&](const indexes_t &inds) -> void {
+                    const auto k = inds[1];
+                    double cache = data_[k].imag();
+                    data_[k].imag(data_[k].real() * -1.);
+                    data_[k].real(cache);
+                };
+#pragma omp parallel for
+                for (int k = 0; k < (size_ >> 1); k+=1){
+                    const auto inds = indexes(qbit0, qbit0, k);
+                    func(inds);
+                }
+                return;
+            }
+            if (diag[0] == std::complex<double>(0., 1.)) {
+                // [[i, 0], [0, 1]]
+                auto func = [&](const indexes_t &inds) -> void {
+                    const auto k = inds[1];
+                    double cache = data_[k].imag();
+                    data_[k].imag(data_[k].real());
+                    data_[k].real(cache * -1.);
+                };
+#pragma omp parallel for
+                for (int k = 0; k < (size_ >> 1); k+=1){
+                    const auto inds = indexes(qbit0, qbit0, k);
+                    func(inds);
+                }
+                return;
+            }
+            if (diag[0] == 0.0) {
+                // [[0, 0], [0, 1]]
+                auto func = [&](const indexes_t &inds) -> void {
+                    data_[inds[0]] = 0.0;
+                };
+#pragma omp parallel for
+                for (int k = 0; k < (size_ >> 1); k+=1){
+                    const auto inds = indexes(qbit0, qbit0, k);
+                    func(inds);
+                }                
+                return;
+            }
+            // general [[z, 0], [0, 1]]
+            auto func = [&](const indexes_t &inds, const vector<std::complex<double> > &_mat) -> void {
+                const auto k = inds[0];
+                data_[k] *= _mat[0];
+            };
+#pragma omp parallel for
+            for (int k = 0; k < (size_ >> 1); k+=1){
+                const auto inds = indexes(qbit0, qbit0, k);
+                func(inds, convert(diag));
+            }   
+            return;
+        } else {
+            // Lambda function for diagonal matrix multiplication
+            auto func = [&](const indexes_t &inds, const vector<std::complex<double> > &_mat) -> void {
+                const auto k0 = inds[0];
+                const auto k1 = inds[1];
+                data_[k0] *= _mat[0];
+                data_[k1] *= _mat[1];
+            };
+#pragma omp parallel for
+            for (int k = 0; k < (size_ >> 1); k+=1){
+                const auto inds = indexes(qbit0, qbit0, k);
+                func(inds, convert(diag));
+            }  
+        }
+        return;
+    }
+    const uint N = qbits.size();
+    auto func = [&](const indexes_t &inds, const vector<std::complex<double>> &_diag) -> void { 
+        for(int i=0; i<2; ++i){
+            const int k = inds[i];
+            int iv = 0;
+            for(int j=0;j<N;j++){
+                if((k & (1ULL << qbits[j])) !=0 )
+                    iv += (1ULL << j);
+            }
+            if(_diag[iv] != (double)1.0)
+                data_[k] *= _diag[iv];
+        }
+    };
+    // apply func
+    vector<pos_t> qbit0{qbits[0]};
+#pragma omp parallel for
+    for (int k = 0; k < (size_ >> 1); k+=1){
+        const auto inds = indexes(qbit0, qbit0, k);
+        func(inds, convert(diag));
+    }
+}
+
+template <class real_t>
+void StateVector<real_t>::update(vector<pos_t> const& qbits, const uint final_state, const uint meas_state, const double meas_prob){
+    const uint dim = 1ULL << qbits.size();
+    vector<std::complex<double> >  matdiag(dim, 0.);
+    matdiag[meas_state] = 1./ std::sqrt(meas_prob);
+    apply_diagonal_matrix(qbits, matdiag);
+    
+    //TODO: Add reset
+    // for reset
+     if(final_state != meas_state){
+        if(qbits.size() == 1){
+            // apply a x gate
+            apply_x(qbits[0]);
+        }else{
+            // Diagonal matrix for projecting and renormalizing to measurement outcome
+            vector<std::complex<double> > perm(dim*dim, 0.);
+            perm[final_state * dim + meas_state] = 1.;
+            perm[meas_state * dim + final_state] = 1.;
+            for (uint j = 0; j < dim; j++){
+                if(j != final_state && j != meas_state) 
+                    perm[j * dim + j] = 1.;
+            }
+            // apply permutation to swap state
+            const uint N = qbits.size();
+            const uint DIM = 1ULL << N;
+            auto func = [&](const indexes_t &inds, const vector<std::complex<double> > &_mat) -> void {
+                // std::array<std::complex<double>, 1ULL << N > cache;
+                vector<std::complex<double> > cache(1ULL << N, 0.);
+                for(uint i = 0; i< DIM; i++){
+                    const auto ii = inds[i];
+                    cache[i] = data_[ii];
+                    data_[ii] = 0.;
+                }
+                for(uint i=0; i< DIM; i++)
+                    for(uint j=0; j<DIM; j++)
+                        data_[inds[i]] += _mat[i + DIM * j] * cache[j];
+            };
+            vector<pos_t> qs;
+            std::copy_n(qbits.begin(), N, qs.begin());
+            vector<pos_t> qs_sorted = qs;
+            std::sort(qs_sorted.begin(), qs_sorted.end());
+#pragma omp parallel for
+            for (int k = 0; k < (size_ >> 1); k+=1){
+                const auto inds = indexes(qs, qs_sorted, k);
+                func(inds, convert(perm));
+            }   
+        }
+    }
+}
+
+template <class real_t>
+std::pair<uint, double> StateVector<real_t>::sample_measure_probs(vector<pos_t> const& qbits){
+    // 1. caculate actual measurement outcome
+    const int64_t N = qbits.size();
+    const int64_t DIM = 1LL << N;
+    const int64_t END = 1LL << (num_ - N);
+    vector<double> probs(DIM, 0.);
+    auto qubits_sorted = qbits;
+    
+    std::sort(qubits_sorted.begin(), qubits_sorted.end());
+    if ((num_ == N) && ( qubits_sorted == qbits )){
+        probs = probabilities();
+    }else{
+        vector<double> probs_private(DIM, 0.);
+#pragma omp parallel for
+        for (int64_t k = 0; k < END; k++){
+            auto idx = indexes(qbits, qubits_sorted, k);
+            for(int64_t m = 0; m < DIM; ++m){
+                probs_private[m] += std::real(data_[idx[m]] * std::conj(data_[idx[m]]));
+            }
+        }
+#pragma omp critical
+        for(int64_t m = 0; m < DIM; ++m){
+            probs[m] += probs_private[m];
+        }
+    }
+    uint64_t outcome = std::discrete_distribution<uint64_t>(probs.begin(), probs.end())(rng());
+    return std::make_pair(outcome, probs[outcome]);
+}
+
+// change to bit endian
+vector<uint> int2vec(uint n, uint base){
+    vector<uint> ret;
+    while(n >= base){
+        ret.push_back(n%base);
+        n /= base;
+    }
+    ret.push_back(n);
+    return ret;
+}
+
+template <class real_t>
+void StateVector<real_t>::apply_measure(vector<pos_t> const& qbits, vector<pos_t> const& cbits){
+    // 1. caculate actual measurement outcome
+    const auto meas = sample_measure_probs(qbits);
+    //2. update statevector
+    update(qbits, meas.first, meas.first, meas.second);
+    //3. store measure
+    vector<uint> outcome = int2vec(meas.first, 2);
+    if(outcome.size() < qbits.size()){
+        outcome.resize(qbits.size());
+    }
+    for(uint j=0; j < outcome.size(); j++){
+        // const uint pos = creg_.size() - cbits[j] - 1;
+        // creg_[pos] = outcome[j];
+        creg_[cbits[j]] = outcome[j];
+    }
+}
+
+template <class real_t>
+void StateVector<real_t>::apply_reset(vector<pos_t> const& qbits){
+    const auto meas = sample_measure_probs(qbits);
+    update(qbits, 0, meas.first, meas.second);
+}
