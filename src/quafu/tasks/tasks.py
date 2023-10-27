@@ -248,7 +248,12 @@ class Task(object):
                 else:
                     self.submit_history[group].append(task_id)
 
-                return ExecResult(res_dict)
+                result = ExecResult(res_dict)
+                while wait and (self.shots > 0) and (not result.counts):
+                    if verbose:
+                        logging.warning('warning for quafu status: empty result.counts, retrieving task...')
+                    result = self.retrieve(result.taskid)
+                return result
 
     def retrieve(self, taskid: str) -> ExecResult:
         """
