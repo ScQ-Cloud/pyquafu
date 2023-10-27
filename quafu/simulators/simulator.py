@@ -12,6 +12,7 @@ def simulate(
     psi: np.ndarray = np.array([]),
     simulator: str = "qfvm_circ",
     output: str = "probabilities",
+    shots: int = 100,
     use_gpu: bool = False,
     use_custatevec: bool = False,
 ) -> SimuResult:
@@ -25,7 +26,8 @@ def simulate(
 
         output: `"probabilities"`: Return probabilities on measured qubits, ordered in big endian convention.
                 `"density_matrix"`: Return reduced density_amtrix on measured qubits, ordered in big endian convention.
-                `"state_vector`: Return original full statevector. The statevector returned by `qfvm` backend is ordered in little endian convention (same as qiskit), while `py_simu` backend is orderd in big endian convention.
+                `"state_vector"`: Return original full statevector. The statevector returned by `qfvm` backend is ordered in little endian convention (same as qiskit), while `py_simu` backend is orderd in big endian convention.
+        shots: The shots of simulator executions. Only supported for cpu.
         use_gpu: Use the GPU version of `qfvm_circ` simulator.
         use_custatevec: Use cuStateVec-based `qfvm_circ` simulator. The argument `use_gpu` must also be True.
 
@@ -35,16 +37,32 @@ def simulate(
     if simulator == "qfvm_qasm":
         if not isinstance(qc, str):
             raise ValueError("Must input valid qasm str for qfvm_qasm simulator")
-
         qasm = qc
         qc = QuantumCircuit(0)
         qc.from_openqasm(qasm)
 
-    measures = [qc.used_qubits.index(i) for i in qc.measures.keys()]
+    # two type measures for py_simu and qfvm_circ
+    measures = []
+    values = []
     num = 0
-    if simulator == "qfvm_circ":
-        num = max(qc.used_qubits) + 1
+    if simulator == "py_simu":
+        measures = [qc.used_qubits.index(i) for i in qc.measures.keys()]
+        values = list(qc.measures.values())
+        if len(measures) == 0:
+            measures = list(range(qc.used_qubits))
+            values = list(range(qc.used_qubits))
+    else:
         measures = list(qc.measures.keys())
+        values = list(qc.measures.values())
+        num = max(qc.used_qubits) + 1
+        if len(measures) == 0:
+            measures = list(range(num))
+            values = list(range(num))
+
+    count_dict = None
+    
+    # simulate
+    if simulator == "qfvm_circ":
         if use_gpu:
             if use_custatevec:
                 try:
@@ -59,33 +77,33 @@ def simulate(
                     raise QuafuError("you are not using the GPU version of pyquafu")
                 psi = simulate_circuit_gpu(qc, psi)
         else:
-            psi = simulate_circuit(qc, psi)
-
+            count_dict, psi = simulate_circuit(qc, psi, shots)
+            
     elif simulator == "py_simu":
         psi = py_simulate(qc, psi)
+        
     elif simulator == "qfvm_qasm":
-        num = qc.num
-        measures = list(qc.measures.keys())
-        psi = execute(qasm)
+        psi = simulate_circuit(qc, psi, shots)
+        
     else:
         raise ValueError("invalid circuit")
-
+    
     if output == "density_matrix":
         if simulator in ["qfvm_circ", "qfvm_qasm"]:
             psi = permutebits(psi, range(num)[::-1])
         rho = ptrace(psi, measures, diag=False)
-        rho = permutebits(rho, list(qc.measures.values()))
-        return SimuResult(rho, output)
+        rho = permutebits(rho, values)
+        return SimuResult(rho, output, count_dict)
 
     elif output == "probabilities":
         if simulator in ["qfvm_circ", "qfvm_qasm"]:
             psi = permutebits(psi, range(num)[::-1])
         probabilities = ptrace(psi, measures)
-        probabilities = permutebits(probabilities, list(qc.measures.values()))
-        return SimuResult(probabilities, output)
+        probabilities = permutebits(probabilities, values)
+        return SimuResult(probabilities, output, count_dict)
 
     elif output == "state_vector":
-        return SimuResult(psi, output)
+        return SimuResult(psi, output, count_dict)
 
     else:
         raise ValueError(
