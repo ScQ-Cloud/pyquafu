@@ -8,4 +8,4 @@ __all__ = ["QuantumCircuit", "ExecResult", "Task", "User", "SimuResult", "simula
 
 
 def get_version():
-    return "0.3.5"
+    return "0.3.6"
