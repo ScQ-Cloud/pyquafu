@@ -68,9 +68,10 @@ class QuantumCircuit(object):
 
     @property
     def gates(self):
-        warnings.warn('Deprecated warning: due to historical reason, ``gates`` contains not only instances of '
+        warnings.warn('Due to historical reason, ``gates`` contains not only instances of '
                       'QuantumGate, meanwhile not contains measurements. This attributes might be deprecated in'
-                      ' the future. Better to use ``instructions`` which contains all the instructions.')
+                      ' the future. Better to use ``instructions`` which contains all the instructions.',
+                      category=DeprecationWarning)
         return self._gates
 
     @gates.setter
