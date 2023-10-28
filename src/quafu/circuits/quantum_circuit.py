@@ -276,7 +276,7 @@ class QuantumCircuit(object):
                     inds = [int(indst) for indst in indstr]
                     mb = inds[0]
                     cb = inds[1]
-                    self.measures[mb] = cb
+                    self.measure([mb], [cb])
                     measured_qubits.append(mb)
                 else:
                     qbs = operations_qbs[1]
