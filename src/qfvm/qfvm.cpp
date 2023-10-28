@@ -2,6 +2,7 @@
 #include <pybind11/numpy.h>
 #include "simulator.hpp"
 #include <iostream>
+#include <random>
 #ifdef _USE_GPU
 #include <cuda_simulator.cuh>
 #endif
@@ -71,8 +72,10 @@ std::pair<std::map<uint, uint>, py::array_t<complex<double>> > simulate_circuit(
     if(circuit.final_measure() && !measures.empty()){
         vector<uint> tmpcount(global_state.size(), 0);
         vector<double> probs = global_state.probabilities();
+        std::random_device rd;
+        std::mt19937 global_rng(rd());
         for(uint i = 0; i < shots; i++){
-            uint outcome = std::discrete_distribution<uint>(probs.begin(), probs.end())(global_state.rng());
+            uint outcome = std::discrete_distribution<uint>(probs.begin(), probs.end())(global_rng);
             tmpcount[outcome]++;
         }
         // map to reg

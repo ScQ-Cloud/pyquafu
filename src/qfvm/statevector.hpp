@@ -107,10 +107,9 @@ class StateVector{
             return creg_;
         }
 
-        std::mt19937_64 rng(){
+        void set_rng(){
             std::random_device rd;
             rng_.seed(rd());
-            return rng_;
         }
 
         void print_state();
@@ -1299,7 +1298,8 @@ std::pair<uint, double> StateVector<real_t>::sample_measure_probs(vector<pos_t> 
             probs[m] += probs_private[m];
         }
     }
-    uint64_t outcome = std::discrete_distribution<uint64_t>(probs.begin(), probs.end())(rng());
+    set_rng();
+    uint64_t outcome = std::discrete_distribution<uint64_t>(probs.begin(), probs.end())(rng_);
     return std::make_pair(outcome, probs[outcome]);
 }
 
