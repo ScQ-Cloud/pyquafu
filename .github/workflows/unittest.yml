@@ -17,5 +17,12 @@ jobs:
       - name: Install dependency
         run: python -m pip install -r requirements.txt && python -m pip install pytest
 
-      - name: Run unit test
-        run: python -m pip install . && pytest tests/
+        # TODO(zhaoyilun): Build seperate package for pyquafu-torch
+      - name: Install torch
+      - run: python -m pip install torch torchvision torchaudio
+
+      - name: Install pyquafu
+        run: python -m pip install
+
+      - name: Run unit tests
+      - run: pytest tests/
