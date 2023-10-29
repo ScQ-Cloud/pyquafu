@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+from typing import List, Optional
 import numpy as np
 from quafu import QuantumCircuit
 from quafu.algorithms import Hamiltonian
@@ -30,15 +31,17 @@ def _generate_expval_z(num_qubits: int):
 
 
 # TODO(zhaoyilun): support more measurement types
-def execute(circ: QuantumCircuit):
-    """execute.
+def run_circ(circ: QuantumCircuit, params: Optional[List[float]] = None):
+    """Execute a circuit
 
     Args:
         circ (QuantumCircuit): circ
+        params (Optional[List[float]]): params
     """
     obs_list = _generate_expval_z(circ.num)
     estimator = Estimator(circ)
-    params = [g.paras for g in circ.parameterized_gates]
+    if params is None:
+        params = [g.paras for g in circ.parameterized_gates]
     output = [estimator.run(obs, params) for obs in obs_list]
     return np.array(output)
 
@@ -53,10 +56,10 @@ def jacobian(circ: QuantumCircuit, params_input: np.ndarray):
     """
     batch_size, num_params = params_input.shape
     obs_list = _generate_expval_z(circ.num)
-    num_expvals = len(obs_list)
+    num_outputs = len(obs_list)
     estimator = Estimator(circ)
     calc_grad = ParamShift(estimator)
-    output = np.zeros((batch_size, num_expvals, num_params))
+    output = np.zeros((batch_size, num_outputs, num_params))
     for i in range(batch_size):
         grad_list = [
             np.array(calc_grad(obs, params_input[i, :].tolist())) for obs in obs_list
@@ -69,16 +72,15 @@ def compute_vjp(jac: np.ndarray, dy: np.ndarray):
     """compute vector-jacobian product
 
     Args:
-        jac (np.ndarray): jac with shape (batch_size, num_expvals, num_params)
-        dy (np.ndarray): dy
+        jac (np.ndarray): jac with shape (batch_size, num_outputs, num_params)
+        dy (np.ndarray): dy with shape (batch_size, num_outputs)
     """
-    batch_size, num_expvals, num_params = jac.shape
-    assert dy.shape[0] == batch_size and dy.shape[1] == num_expvals
+    batch_size, num_outputs, num_params = jac.shape
+    assert dy.shape[0] == batch_size and dy.shape[1] == num_outputs
 
     vjp = np.zeros((batch_size, num_params))
 
     for i in range(batch_size):
         vjp[i] = dy[i, :].T @ jac[i, :, :]
 
-    vjp = vjp.sum(0)
     return vjp

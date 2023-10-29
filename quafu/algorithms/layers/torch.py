@@ -14,28 +14,36 @@
 
 """quafu PyTorch quantum layer"""
 
-from typing import Any
 import torch
+import numpy as np
 from quafu import QuantumCircuit
-from quafu import QuantumCircuit, simulate
-from quafu.elements.element_gates.matrices import ZMatrix
+from quafu.algorithms.layers.qnode import compute_vjp, jacobian
 
 
 class ExecuteCircuits(torch.autograd.Function):
     """TODO(zhaoyilun): document"""
 
     @staticmethod
-    def forward(ctx, parameters, **kwargs) -> Any:
+    def forward(ctx, parameters, kwargs):
         ctx.run_fn = kwargs["run_fn"]
         ctx.circ = kwargs["circ"]
-        out = ctx.run_fn(ctx.circ, parameters)
-        return out
+        ctx.save_for_backward(parameters)
+        parameters = parameters.numpy().tolist()
+        outputs = []
+        for para in parameters:
+            out = ctx.run_fn(ctx.circ, para)
+            outputs.append(out)
+        outputs = np.stack(outputs)
+        outputs = torch.from_numpy(outputs)
+        return outputs
 
     @staticmethod
-    def backward(ctx: Any, grad_out) -> Any:
-        circ, grad_fn = ctx.saved_tensors
-        grad = grad_fn(circ, grad_out)
-        return grad
+    def backward(ctx, grad_out):
+        (parameters,) = ctx.saved_tensors
+        jac = jacobian(ctx.circ, parameters.numpy())
+        vjp = compute_vjp(jac, grad_out.numpy())
+        vjp = torch.from_numpy(vjp)
+        return vjp, None
 
 
 # TODO(zhaoyilun): doc
@@ -50,4 +58,4 @@ def execute(circ: QuantumCircuit, run_fn, grad_fn, parameters: torch.Tensor):
 
     kwargs = {"circ": circ, "run_fn": run_fn, "grad_fn": grad_fn}
 
-    return ExecuteCircuits.apply(parameters, **kwargs)
+    return ExecuteCircuits.apply(parameters, kwargs)
