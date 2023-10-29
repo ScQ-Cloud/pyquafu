@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Quafu parameter shift"""
 
-import numpy as np
 from typing import List
+import numpy as np
+
 from quafu.algorithms import Estimator
 from quafu.algorithms.hamiltonian import Hamiltonian
 
@@ -31,7 +33,7 @@ class ParamShift:
             estimator (Estimator): estimator to calculate expectation values
             params (List[float]): params to optimize
         """
-        return self._grad(obs, params)
+        return self.grad(obs, params)
 
     def _gen_param_shift_vals(self, params):
         """Given a param list with n values, replicate to 2*n param list"""
@@ -42,13 +44,19 @@ class ParamShift:
         minus_params = params - offsets * np.pi / 2
         return plus_params.tolist() + minus_params.tolist()
 
-    def _grad(self, obs: Hamiltonian, params: List[float]):
+    def grad(self, obs: Hamiltonian, params: List[float]):
+        """grad.
+
+        Args:
+            obs (Hamiltonian): obs
+            params (List[float]): params
+        """
         shifted_params_lists = self._gen_param_shift_vals(params)
 
         res = np.zeros(len(shifted_params_lists))
         for i, shifted_params in enumerate(shifted_params_lists):
             res[i] = self._est.run(obs, shifted_params)
 
-        n = len(res)
-        grads = (res[: n // 2] - res[n // 2 :]) / 2
+        num_shift_params = len(res)
+        grads = (res[: num_shift_params // 2] - res[num_shift_params // 2 :]) / 2
         return grads

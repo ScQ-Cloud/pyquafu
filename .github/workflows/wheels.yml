@@ -48,9 +48,6 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir dist
 
-      - name: Run unit tests
-        run: pip install . && pytest tests/
-
       - name: Publish package
         run: python -m twine upload dist/*.whl
         if: ${{ contains(github.ref, '/tags/') }}

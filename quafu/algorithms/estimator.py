@@ -21,6 +21,17 @@ from quafu.tasks.tasks import Task
 from quafu.algorithms.hamiltonian import Hamiltonian
 
 
+def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
+    """Execute circuit on quafu simulator"""
+    sim_state = simulate(circ, output="state_vector").get_statevector()
+
+    expectation = np.matmul(
+        np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
+    ).real
+
+    return expectation
+
+
 class Estimator:
     """Estimate expectation for quantum circuits and observables"""
 
@@ -62,11 +73,12 @@ class Estimator:
 
     def _run_simulation(self, observables: Hamiltonian):
         """Run using quafu simulator"""
-        sim_state = simulate(self._circ, output="state_vector").get_statevector()
-        expectation = np.matmul(
-            np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
-        ).real
-        return expectation
+        # sim_state = simulate(self._circ, output="state_vector").get_statevector()
+        # expectation = np.matmul(
+        #     np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
+        # ).real
+        # return expectation
+        return execute_circuit(self._circ, observables)
 
     def run(self, observables: Hamiltonian, params: List[float]):
         """Calculate estimation for given observables

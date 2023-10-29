@@ -16,7 +16,7 @@ import pytest
 import sys
 from quafu.algorithms.estimator import Estimator
 from quafu.algorithms.hamiltonian import Hamiltonian
-from quafu.algorithms.optimizer import ParamShift
+from quafu.algorithms.gradients import ParamShift
 from quafu.circuits.quantum_circuit import QuantumCircuit
 
 
