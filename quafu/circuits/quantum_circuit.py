@@ -93,9 +93,9 @@ class QuantumCircuit(object):
     
     @property
     def gates(self):
-        warnings.warn('Deprecated warning: due to historical reason, ``gates`` contains not only instances of '
-                      'QuantumGate, meanwhile not contains measurements. This attributes might be deprecated in'
-                      ' the future. Better to use ``instructions`` which contains all the instructions.')
+        """Deprecated warning: due to historical reason, ``gates`` contains not only instances of
+                      QuantumGate, meanwhile not contains measurements. This attributes might be deprecated in
+                      the future. Better to use ``instructions`` which contains all the instructions."""
         return self._gates
     
     @gates.setter
@@ -188,11 +188,11 @@ class QuantumCircuit(object):
                     for pos in used_q_h:
                         if pos not in used_q:
                             used_q.append(pos)
-                elif(isinstance(ins, Barrier, Measure)):
+                elif(isinstance(ins, Barrier)):
                     continue
                 elif(isinstance(ins.pos, int)):
                     if ins.pos not in used_q:
-                        used_q.append(pos)
+                        used_q.append(ins.pos)
                 elif(isinstance(ins.pos, list)):
                     for pos in ins.pos:
                         if pos not in used_q:
@@ -887,12 +887,14 @@ class QuantumCircuit(object):
         yield
 
         instructions = []
-        for i in range(len(self.gates) - 1, -1, -1):
-            if isinstance(self.gates[i], Cif) and self.gates[i].instruction is None:
+        for i in range(len(self.instructions) - 1, -1, -1):
+            if isinstance(self.instructions[i], Cif) and self.instructions[i].instructions is None:
                 instructions.reverse()
-                self.gates[i].set_ins(instructions)
+                self.instructions[i].set_ins(instructions)
+                self.instructions = self.instructions[0:i+1]
+                return
             else:
-                instructions.append(self.gate[i])
+                instructions.append(self.instructions[i])
 
     def add_pulse(self, pulse: QuantumPulse, pos: int = None) -> "QuantumCircuit":
         """
