@@ -1302,12 +1302,14 @@ std::pair<uint, double> StateVector<real_t>::sample_measure_probs(vector<pos_t> 
             // std::cout<<"indexes"<<k<<": ";
             // printVector(idx);
             for(int64_t m = 0; m < DIM; ++m){
-                probs_private[m] += std::real(data_[idx[m]] * std::conj(data_[idx[m]]));
+                double local_prob = std::real(data_[idx[m]] * std::conj(data_[idx[m]]));
+                #pragma omp critical
+                probs_private[m] += local_prob;
             }
         }
-#pragma omp critical
         // std::cout<<"probs_private:";
         // printVector(probs_private);
+        #pragma omp critical
         for(int64_t m = 0; m < DIM; ++m){
             probs[m] += probs_private[m];
         }
