@@ -183,9 +183,11 @@ bool StateVector<real_t>::check_cif(const vector<pos_t> &cbits, const uint condi
 
 template <class real_t>
 void StateVector<real_t>::print_state(){
+    std::cout << "state_data: ";
     for (auto i=0;i<size_;i++){
-        std::cout << data_[i] << std::endl;
+        std::cout << data_[i] << " ";
     }
+    std::cout << std::endl;
 }
 
 
@@ -442,7 +444,7 @@ void StateVector<real_t>::apply_one_targe_gate_general(vector<pos_t> const& posv
     size_t rsize;
     size_t offset;
     size_t targe;
-    size_t control;
+    size_t control = 0;
     size_t setbit;
     size_t poffset;
     bool has_control=false;
@@ -709,7 +711,7 @@ void StateVector<real_t>::apply_one_targe_gate_real(vector<pos_t> const& posv, c
     size_t rsize;
     size_t offset;
     size_t targe;
-    size_t control;
+    size_t control = 0;
     size_t setbit;
     size_t poffset;
     bool has_control=false;
@@ -846,7 +848,7 @@ void StateVector<real_t>::apply_one_targe_gate_diag(vector<pos_t> const& posv, c
     size_t rsize;
     size_t offset;
     size_t targe;
-    size_t control;
+    size_t control = 0;
     size_t setbit;
     size_t poffset;
     bool has_control=false;
@@ -1024,8 +1026,8 @@ void StateVector<real_t>::apply_multi_targe_gate_general(vector<pos_t> const& po
 }
 
 
-uint64_t index0(vector<pos_t> const& qubits_sorted, const uint64_t k) {
-    uint64_t lowbits, retval = k;
+uint index0(vector<pos_t> const& qubits_sorted, const uint k) {
+    uint lowbits, retval = k;
     for (size_t j = 0; j < qubits_sorted.size(); j++) {
         lowbits = retval & ((1LL << qubits_sorted[j]) -1);
         retval >>= qubits_sorted[j];
@@ -1035,10 +1037,10 @@ uint64_t index0(vector<pos_t> const& qubits_sorted, const uint64_t k) {
     return retval;
 }
 
-using indexes_t = std::unique_ptr<uint[]>;
-inline indexes_t indexes(vector<pos_t> const& qbits, vector<pos_t> const& qubits_sorted, const uint64_t k) {
+using indexes_t = vector<uint>;
+inline indexes_t indexes(vector<pos_t> const& qbits, vector<pos_t> const& qubits_sorted, const uint k) {
   const auto N = qubits_sorted.size();
-  indexes_t ret(new uint[1LL << N]);
+  indexes_t ret(1LL << N, 0);
   // Get index0
   ret[0] = index0(qubits_sorted, k);
   for (size_t i = 0; i < N; i++) {
@@ -1272,6 +1274,14 @@ void StateVector<real_t>::update(vector<pos_t> const& qbits, const uint final_st
     }
 }
 
+template <typename T>
+void printVector(const std::vector<T>& vec) {
+    for (const T& element : vec) {
+        std::cout << element << " ";
+    }
+    std::cout << std::endl;
+}
+
 template <class real_t>
 std::pair<uint, double> StateVector<real_t>::sample_measure_probs(vector<pos_t> const& qbits){
     // 1. caculate actual measurement outcome
@@ -1279,7 +1289,7 @@ std::pair<uint, double> StateVector<real_t>::sample_measure_probs(vector<pos_t> 
     const int64_t DIM = 1LL << N;
     const int64_t END = 1LL << (num_ - N);
     vector<double> probs(DIM, 0.);
-    auto qubits_sorted = qbits;
+    vector<uint> qubits_sorted(qbits.begin(), qbits.end());
     
     std::sort(qubits_sorted.begin(), qubits_sorted.end());
     if ((num_ == N) && ( qubits_sorted == qbits )){
@@ -1289,17 +1299,23 @@ std::pair<uint, double> StateVector<real_t>::sample_measure_probs(vector<pos_t> 
 #pragma omp parallel for
         for (int64_t k = 0; k < END; k++){
             auto idx = indexes(qbits, qubits_sorted, k);
+            // std::cout<<"indexes"<<k<<": ";
+            // printVector(idx);
             for(int64_t m = 0; m < DIM; ++m){
                 probs_private[m] += std::real(data_[idx[m]] * std::conj(data_[idx[m]]));
             }
         }
 #pragma omp critical
+        // std::cout<<"probs_private:";
+        // printVector(probs_private);
         for(int64_t m = 0; m < DIM; ++m){
             probs[m] += probs_private[m];
         }
     }
     set_rng();
-    uint64_t outcome = std::discrete_distribution<uint64_t>(probs.begin(), probs.end())(rng_);
+    // std::cout<<"probs:";
+    // printVector(probs);
+    uint outcome = std::discrete_distribution<uint>(probs.begin(), probs.end())(rng_);
     return std::make_pair(outcome, probs[outcome]);
 }
 
