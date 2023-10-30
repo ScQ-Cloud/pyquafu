@@ -1,3 +1,4 @@
+import sys
 import pytest
 from quafu import QuantumCircuit
 from quafu import simulate
@@ -45,6 +46,9 @@ class TestSimulatorBasis(BaseTest):
     assertListEqual = unittest.TestCase.assertListEqual
     assertTrue = unittest.TestCase.assertTrue
     
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_simulate(self):
         self.circuit = BellCircuits.bell_no_measure()
         result = simulate(qc=self.circuit)
