@@ -45,6 +45,7 @@ std::pair<std::map<uint, uint>, py::array_t<complex<double>> > simulate_circuit(
     // Store outcome's count
     std::map<uint, uint> outcount;
     for(uint i =0; i < actual_shots; i++){
+        // std::cout<<"shots:" << i << std::endl;
         StateVector<double> state;
         if(data_size == 0){
             simulate(circuit, state);
@@ -54,8 +55,7 @@ std::pair<std::map<uint, uint>, py::array_t<complex<double>> > simulate_circuit(
             state = std::move(StateVector<double>(data_copy.data(), data_copy.size()));
             simulate(circuit, state);
         }
-        if (circuit.final_measure() || i == actual_shots-1) global_state = std::move(state);
-        else{
+        if(!circuit.final_measure()){
             // store reg
             vector<uint> tmpcreg = state.creg();
             uint outcome = 0;
@@ -67,6 +67,7 @@ std::pair<std::map<uint, uint>, py::array_t<complex<double>> > simulate_circuit(
             if(outcount.find(outcome) != outcount.end()) outcount[outcome]++;
             else outcount[outcome] = 1;
         }
+        if (circuit.final_measure() || i == actual_shots-1) global_state = std::move(state);
     }
     // sample outcome if final_measure is true
     if(circuit.final_measure() && !measures.empty()){
