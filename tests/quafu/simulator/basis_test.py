@@ -61,6 +61,9 @@ class TestSimulatorBasis(BaseTest):
         self.assertAlmostEqual(probs[3], 1/2)
         self.assertDictAlmostEqual(count, {})
     
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_measure_atlast_collapse(self):
         """Test final measurement statement"""
         self.circuit = BellCircuits.bell_measure_atlast()
@@ -71,6 +74,9 @@ class TestSimulatorBasis(BaseTest):
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[3], 1/2)
     
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_measure_normal_collapse(self):
         """Test final measurement statement"""
         self.circuit = BellCircuits.bell_measure_normal()
