@@ -47,13 +47,15 @@ def simulate(
     num = 0
     if simulator == "py_simu":
         measures = [qc.used_qubits.index(i) for i in qc.measures.keys()]
-        values = list(qc.measures.values())
+        values_tmp = list(qc.measures.values())
+        values = np.argsort(values_tmp)
         if len(measures) == 0:
             measures = list(range(qc.used_qubits))
             values = list(range(qc.used_qubits))
     else:
         measures = list(qc.measures.keys())
-        values = list(qc.measures.values())
+        values_tmp = list(qc.measures.values())
+        values = np.argsort(values_tmp)
         num = max(qc.used_qubits) + 1
         if len(measures) == 0:
             measures = list(range(num))
