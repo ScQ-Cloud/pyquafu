@@ -17,7 +17,7 @@ std::unordered_map<string, Opname> OPMAP{Pair(creg), Pair(x), Pair(y), Pair(z), 
                             Pair(crx), Pair(cp), Pair(ccx), Pair(swap), Pair(iswap), Pair(rxx), Pair(ryy), 
                             Pair(rzz), Pair(measure), Pair(reset), Pair(cif)};
 
-typedef struct{
+struct Operation{
     string name;
     vector<pos_t> positions;
     vector<double> params; 
@@ -40,7 +40,7 @@ typedef struct{
         printf("-----\n");
     }
 
-} Operation;
+} ;
 
 Operation compile_line(string const& line){
     auto operation_qbits = split_string(line, ' ', 1);
