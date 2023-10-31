@@ -1064,7 +1064,7 @@ vector<double> StateVector<real_t>::probabilities() const {
 }
 
 vector<std::complex<double>> convert(const vector<std::complex<double>> &v){
-    vector<std::complex<double>> ret(v.size());
+    vector<std::complex<double>> ret(v.size(), 0.);
     for (size_t i = 0; i< v.size(); ++i)
         ret[i] = v[i];
     return ret;
@@ -1261,15 +1261,15 @@ void StateVector<real_t>::update(vector<pos_t> const& qbits, const uint final_st
                     for(uint j=0; j<DIM; j++)
                         data_[inds[i]] += _mat[i + DIM * j] * cache[j];
             };
-            vector<pos_t> qs;
-            std::copy_n(qbits.begin(), N, qs.begin());
-            vector<pos_t> qs_sorted = qs;
+            vector<pos_t> qs(qbits.begin(), qbits.end());
+            vector<pos_t> qs_sorted(qs.begin(), qs.end());
             std::sort(qs_sorted.begin(), qs_sorted.end());
+            uint END = size_ >> qs.size();
 #pragma omp parallel for
-            for (int k = 0; k < (size_ >> 1); k+=1){
+            for (int k = 0; k < END; k+=1){
                 const auto inds = indexes(qs, qs_sorted, k);
                 func(inds, convert(perm));
-            }   
+            }  
         }
     }
 }
