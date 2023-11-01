@@ -106,6 +106,7 @@ void apply_op(QuantumOperator &op, StateVector<data_t> &state){
 void simulate(Circuit const& circuit, StateVector<data_t> & state){
     state.set_num(circuit.qubit_num());
     state.set_creg(circuit.cbit_num());
+    // skip measure and handle it in qfvm.cpp 
     bool skip_measure = circuit.final_measure();
     for (auto op : circuit.instructions()){
         if(skip_measure == true && op.name() == "measure") continue;

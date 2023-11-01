@@ -1344,8 +1344,6 @@ void StateVector<real_t>::apply_measure(vector<pos_t> const& qbits, vector<pos_t
         outcome.resize(qbits.size());
     }
     for(uint j=0; j < outcome.size(); j++){
-        // const uint pos = creg_.size() - cbits[j] - 1;
-        // creg_[pos] = outcome[j];
         creg_[cbits[j]] = outcome[j];
     }
 }

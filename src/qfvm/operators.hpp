@@ -25,7 +25,6 @@ class QuantumOperator{
         QuantumOperator(string name, vector<pos_t> const &cbits, const uint condition, vector<QuantumOperator> const &ins);
         QuantumOperator(string name, vector<double> paras, vector<pos_t> const &control_qubits, vector<pos_t> const &targe_qubits, RowMatrixXcd const &mat, bool diag=false, bool real=false);
         QuantumOperator(string name,vector<double> paras, vector<pos_t> const &positions, uint control_num, RowMatrixXcd const &mat, bool diag=false, bool real=false);
-        // virtual ~QuantumOperator();
 
         //data accessor
         string name() const {return name_;}

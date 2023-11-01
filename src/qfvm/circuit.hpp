@@ -50,6 +50,7 @@ class Circuit{
         vector<QuantumOperator> instructions_;
         uint max_targe_num_;
         uint cbit_num_;
+        // to sample count
         vector<std::pair<uint,uint>> measure_vec_;
         bool final_measure_ = true;
 

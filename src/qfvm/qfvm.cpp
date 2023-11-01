@@ -45,7 +45,6 @@ std::pair<std::map<uint, uint>, py::array_t<complex<double>> > simulate_circuit(
     // Store outcome's count
     std::map<uint, uint> outcount;
     for(uint i =0; i < actual_shots; i++){
-        // std::cout<<"shots:" << i << std::endl;
         StateVector<double> state;
         if(data_size == 0){
             simulate(circuit, state);

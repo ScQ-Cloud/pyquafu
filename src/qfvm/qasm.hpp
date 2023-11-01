@@ -39,20 +39,4 @@ struct Operation{
         printf("\n");
         printf("-----\n");
     }
-
 } ;
-
-Operation compile_line(string const& line){
-    auto operation_qbits = split_string(line, ' ', 1);
-    auto operation = operation_qbits[0];
-    auto qbits = operation_qbits[1];
-    auto positions = find_numbers<pos_t>(qbits);
-    auto opname_params = split_string(operation, '(', 1);
-    auto opname = opname_params[0]; 
-    vector<double> params;
-    if (opname_params.size() > 1){
-        params = find_numbers<double>(opname_params[1]);
-    }
-
-    return Operation{opname, positions, params};
-}
