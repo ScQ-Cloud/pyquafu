@@ -135,6 +135,7 @@ class QfasmParser(object):
         if symtabnode.type == "CREG":
             symtabnode.start = self.cnum
             self.cnum += symtabnode.num
+            # add ClassicalRegister
             if len(self.circuit.cregs) == 0:
                 self.circuit.cregs.append(ClassicalRegister(self.cnum, name="c"))
             else:
