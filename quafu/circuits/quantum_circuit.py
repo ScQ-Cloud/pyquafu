@@ -38,6 +38,10 @@ from ..exceptions import CircuitError
 
 
 class QuantumCircuit(object):
+    """
+    Representation of quantum circuit.
+    """
+    
     def __init__(self, qnum: int, cnum: int=None, *args, **kwargs):
         """
         Initialize a QuantumCircuit object
@@ -902,3 +906,4 @@ class QuantumCircuit(object):
             pulse.set_pos(pos)
         self.add_ins(pulse)
         return self
+ 

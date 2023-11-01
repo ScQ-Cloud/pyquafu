@@ -14,7 +14,7 @@
 
 class ClassicalRegister:
     """
-    Collection of Qubit(s)
+    Collection of cbit(s)
     """
 
     def __init__(self, num: int = 0, name: str = None):
