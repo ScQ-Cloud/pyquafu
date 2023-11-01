@@ -87,7 +87,7 @@ class QAOAAnsatz(Ansatz):
             for pauli_str in self._pauli_list:
                 gate_list = self._evol.evol(pauli_str, self._gamma[layer])
                 for g in gate_list:
-                    self.add_ins(g)
+                    self.add_ins(g) 
 
             # Add H_B layer
             for i in range(self.num):
