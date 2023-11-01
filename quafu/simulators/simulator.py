@@ -41,7 +41,7 @@ def simulate(
         qc = QuantumCircuit(0)
         qc.from_openqasm(qasm)
 
-    # two type measures for py_simu and qfvm_circ
+    # two type of measures for py_simu and qfvm_circ
     measures = []
     values = []
     num = 0
