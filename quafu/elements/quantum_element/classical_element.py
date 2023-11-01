@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# Classes of classical operation.
+
 from typing import List
 from .instruction import Instruction
 
@@ -24,6 +26,6 @@ class Cif(Instruction):
         self.instructions = instructions
         
     def set_ins(self, instructions: List[Instruction]):
-        self.instructions = instructions
+        self.instructions = instructions 
 
 Instruction.register_ins(Cif)

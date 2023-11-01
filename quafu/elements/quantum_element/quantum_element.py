@@ -12,12 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from quafu.elements.quantum_element.instruction import Instruction
+# Base classes for ALL kinds of possible instructions on superconducting 
+# quantum circuits.
 
-"""
-Base classes for ALL kinds of possible instructions on superconducting 
-quantum circuits.
-"""
+from quafu.elements.quantum_element.instruction import Instruction
 
 
 class Barrier(Instruction):
