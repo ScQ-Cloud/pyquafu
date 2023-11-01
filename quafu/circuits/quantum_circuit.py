@@ -81,10 +81,8 @@ class QuantumCircuit(object):
     @property
     def measures(self):
         measures = {}
-        for meas in self._measures:
-            if not set(measures.keys()).isdisjoint(set(meas.qbits)):
-                raise ValueError("Measured qubits overlap with existing measurements.")
-            measures = {**measures, **dict(zip(meas.qbits, meas.cbits))}
+        for meas in self._measures: 
+            measures.update(dict(zip(meas.qbits, meas.cbits)))
         return measures
 
     @measures.setter
