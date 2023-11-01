@@ -91,7 +91,8 @@ class SimuResult(Result):
             self.probabilities = input
         elif input_form == "state_vector":
             self.state_vector = input
-        
+        # come form c++ simulator
+        # TODO: add count for py_simu
         if count_dict is not None:
             self.count = {}
             for key,value in count_dict.items():
