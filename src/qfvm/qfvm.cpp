@@ -37,7 +37,7 @@ std::pair<std::map<uint, uint>, py::array_t<complex<double>> > simulate_circuit(
     uint actual_shots = shots;
     if (circuit.final_measure()) actual_shots = 1;
     StateVector<double> global_state;
-    std::map<uint,uint>measures = circuit.measure_map();
+    vector<std::pair<uint,uint>>measures = circuit.measure_vec();
     std::map<uint,bool>cbit_measured;
     for(auto &pair: measures){
         cbit_measured[pair.second] = true;        
@@ -59,10 +59,10 @@ std::pair<std::map<uint, uint>, py::array_t<complex<double>> > simulate_circuit(
             // store reg
             vector<uint> tmpcreg = state.creg();
             uint outcome = 0;
-            for(uint i=0;i<tmpcreg.size();i++){
-                if(cbit_measured.find(i) == cbit_measured.end()) continue; 
+            for(uint j=0;j<tmpcreg.size();j++){
+                if(cbit_measured.find(j) == cbit_measured.end()) continue; 
                 outcome *= 2;
-                outcome += tmpcreg[i];
+                outcome += tmpcreg[j];
             }
             if(outcount.find(outcome) != outcount.end()) outcount[outcome]++;
             else outcount[outcome] = 1;
@@ -90,10 +90,10 @@ std::pair<std::map<uint, uint>, py::array_t<complex<double>> > simulate_circuit(
                 tmpcreg[pair.second] = tmpout[pair.first];
             }
             uint outcome = 0;
-            for(uint i=0;i<tmpcreg.size();i++){
-                if(cbit_measured.find(i) == cbit_measured.end()) continue; 
+            for(uint j=0;j<tmpcreg.size();j++){
+                if(cbit_measured.find(j) == cbit_measured.end()) continue; 
                 outcome *= 2;
-                outcome += tmpcreg[i];
+                outcome += tmpcreg[j];
             }
             if(outcount.find(outcome) != outcount.end()) outcount[outcome] += tmpcount[i];
             else outcount[outcome] = tmpcount[i];

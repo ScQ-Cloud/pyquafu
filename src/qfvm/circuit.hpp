@@ -50,7 +50,7 @@ class Circuit{
         vector<QuantumOperator> instructions_;
         uint max_targe_num_;
         uint cbit_num_;
-        std::map<uint,uint> measure_map_;
+        vector<std::pair<uint,uint>> measure_vec_;
         bool final_measure_ = true;
 
     public:
@@ -65,7 +65,7 @@ class Circuit{
     uint cbit_num() const { return cbit_num_; }
     uint max_targe_num() const { return max_targe_num_; }
     bool final_measure() const { return final_measure_; }
-    std::map<uint,uint> measure_map() { return measure_map_;}
+    vector<std::pair<uint,uint>> measure_vec() { return measure_vec_; }
     vector<QuantumOperator> instructions() const { return instructions_; }
     QuantumOperator from_pyops(py::object const &obj);
 };
@@ -154,7 +154,7 @@ QuantumOperator Circuit::from_pyops(py::object const &obj){
         }
         //record qbit-cbit measure map
         for(uint i = 0; i < qbits.size(); i++){
-            measure_map_[qbits[i]] = cbits[i];
+            measure_vec_.push_back(std::make_pair(qbits[i], cbits[i]));
         }
         return QuantumOperator(name, qbits, cbits);
 
