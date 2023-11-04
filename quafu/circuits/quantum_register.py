@@ -71,13 +71,12 @@ class QuantumRegister:
         return self
 
     def __next__(self):
-        if self._i < len(self.qubits):
+        if self._i < len(self):
             x = self._i
             self._i += 1
             return self.qubits[x]
         else:
             raise StopIteration
-
 
     def __len__(self):
         return len(self.qubits)
@@ -86,7 +85,7 @@ class QuantumRegister:
         qreg = QuantumRegister(name=self.name)
         qreg.qubits = {
             **{self.qubits},
-            **{i + len(self): qubit for i, qubit in other.qubits.item()},
+            **{i + len(self): qubit for i, qubit in other.qubits.items()},
         }
         return QuantumRegister(len(self) + len(other), name=self.name)
 
