@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import OrderedDict
+
 
 class Qubit:
     """
@@ -56,10 +58,26 @@ class QuantumRegister:
 
     def __init__(self, num: int = 0, name: str = None):
         self.name = name
-        self.qubits = {i: Qubit(logic_pos=i, reg_name=name) for i in range(num)}
+        self.qubits = OrderedDict({i: Qubit(logic_pos=i, reg_name=name) for i in range(num)})
 
     def __getitem__(self, item):
-        return self.qubits[item]
+        if item < len(self.qubits):
+            return self.qubits[item]
+        else:
+            raise IndexError('Index out of range:', item)
+
+    def __iter__(self):
+        self._i = 0
+        return self
+
+    def __next__(self):
+        if self._i < len(self.qubits):
+            x = self._i
+            self._i += 1
+            return self.qubits[x]
+        else:
+            raise StopIteration
+
 
     def __len__(self):
         return len(self.qubits)

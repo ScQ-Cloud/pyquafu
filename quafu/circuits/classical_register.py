@@ -22,16 +22,31 @@ class ClassicalRegister:
         self.num = num
         self.cbits = {i: 0 for i in range(num)}
         self.pos_start = 0
-        
+
     def __getitem__(self, item):
         """Get mapped global pos"""
-        return self.pos_start + item
+        if item < self.num:
+            return self.pos_start + item
+        else:
+            raise IndexError('Index out of range:', item)
+
+    def __iter__(self):
+        self._i = 0
+        return self
+
+    def __next__(self):
+        if self._i < self.num:
+            x = self._i
+            self._i += 1
+            return self.__getitem__(x)
+        else:
+            raise StopIteration
 
     def __len__(self):
         return self.num
-    
+
     @property
-    def value(self, item:int=None):
+    def value(self, item: int = None):
         """Get value stored in register"""
         if item is None:
             return self.cbits
