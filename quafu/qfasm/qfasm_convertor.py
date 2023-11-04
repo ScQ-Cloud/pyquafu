@@ -45,8 +45,10 @@ def qasm2_to_quafu_qc(qc: QuantumCircuit, openqasm: str):
     newqc = qparser.parse(openqasm)
     qc.openqasm = openqasm
     qc.gates = newqc.gates
-    qc.measures = newqc.measures
+    qc.instructions = newqc.instructions
+    qc._measures = newqc._measures 
     qc.qregs = newqc.qregs
+    qc.cregs = newqc.cregs
     qc.executable_on_backend = newqc.executable_on_backend
     if not qc.executable_on_backend:
         print(

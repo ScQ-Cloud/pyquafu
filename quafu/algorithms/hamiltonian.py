@@ -66,7 +66,6 @@ class Hamiltonian:
         if size == 0:
             raise QuafuError("Pauli list cannot be empty.")
 
-        num_qubits = len(pauli_list[0][0])
         coeffs = np.zeros(size, dtype=complex)
 
         pauli_str_list = []
@@ -81,31 +80,29 @@ class Hamiltonian:
         """Transform to legacy quafu pauli list format,
         this is a temperal function and should be deleted later"""
         res = []
-        for pauli in self._pauli_str_list:
-            for i, p in enumerate(pauli[::-1]):
-                if p in ["X", "Y", "Z"]:
-                    res.append([p, [i]])
+        for pauli_str in self._pauli_str_list:
+            for i, pauli in enumerate(pauli_str[::-1]):
+                if pauli in ["X", "Y", "Z"]:
+                    res.append([pauli, [i]])
         return res
 
     def _get_pauli_mat(self, pauli_str: str):
         """Calculate the matrix of a pauli string"""
         mat = None
-        for p in pauli_str[::-1]:
-            mat = PAULI_MAT[p] if mat is None else np.kron(PAULI_MAT[p], mat)
+        for pauli in pauli_str[::-1]:
+            mat = PAULI_MAT[pauli] if mat is None else np.kron(PAULI_MAT[pauli], mat)
         return mat
 
     def matrix_generator(self):
         """Generating matrix for each Pauli str"""
-        for i, p in enumerate(self._pauli_str_list):
-            yield self._coeffs[i] * self._get_pauli_mat(p)
+        for i, pauli_str in enumerate(self._pauli_str_list):
+            yield self._coeffs[i] * self._get_pauli_mat(pauli_str)
 
     def get_matrix(self):
         """Generate matrix of Hamiltonian"""
 
-        mat = None
-        for m in self.matrix_generator():
-            if mat is None:
-                mat = m
-                continue
-            mat += m
-        return mat
+        dim = 2**self.num_qubits
+        matrix = np.zeros((dim, dim), dtype=complex)
+        for mat in self.matrix_generator():
+            matrix += mat
+        return matrix

@@ -14,11 +14,22 @@
 """Pre-build wrapper to calculate expectation value"""
 import numpy as np
 
-from typing import Optional
+from typing import List, Optional
 from quafu import QuantumCircuit
 from quafu.simulators.simulator import simulate
 from quafu.tasks.tasks import Task
 from quafu.algorithms.hamiltonian import Hamiltonian
+
+
+def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
+    """Execute circuit on quafu simulator"""
+    sim_state = simulate(circ, output="state_vector").get_statevector()
+
+    expectation = np.matmul(
+        np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
+    ).real
+
+    return expectation
 
 
 class Estimator:
@@ -62,13 +73,14 @@ class Estimator:
 
     def _run_simulation(self, observables: Hamiltonian):
         """Run using quafu simulator"""
-        sim_state = simulate(self._circ, output="state_vector").get_statevector()
-        expectation = np.matmul(
-            np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
-        ).real
-        return expectation
+        # sim_state = simulate(self._circ, output="state_vector").get_statevector()
+        # expectation = np.matmul(
+        #     np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
+        # ).real
+        # return expectation
+        return execute_circuit(self._circ, observables)
 
-    def run(self, observables, *params):
+    def run(self, observables: Hamiltonian, params: List[float]):
         """Calculate estimation for given observables
 
         Args:
@@ -83,8 +95,8 @@ class Estimator:
                 "The number of qubits in the observables does not match the circuit"
             )
 
-        if params[0] is not None:
-            self._circ.update_params(*params)
+        if params is not None:
+            self._circ.update_params(params)
 
         if self._backend == "sim":
             return self._run_simulation(observables)

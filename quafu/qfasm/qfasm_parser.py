@@ -15,8 +15,10 @@
 
 import copy
 import ply.yacc as yacc
+
 from .qfasm_utils import *
 from quafu.circuits.quantum_register import QuantumRegister
+from quafu.circuits.classical_register import ClassicalRegister
 from quafu.qfasm.exceptions import ParserError
 
 from .qfasm_lexer import QfasmLexer
@@ -133,7 +135,12 @@ class QfasmParser(object):
         if symtabnode.type == "CREG":
             symtabnode.start = self.cnum
             self.cnum += symtabnode.num
-
+            # add ClassicalRegister
+            if len(self.circuit.cregs) == 0:
+                self.circuit.cregs.append(ClassicalRegister(self.cnum, name="c"))
+            else:
+                self.circuit.cregs[0] = ClassicalRegister(self.cnum, name="c")
+            
         if symtabnode.is_global:
             self.global_symtab[symtabnode.name] = symtabnode
         else:
@@ -215,9 +222,8 @@ class QfasmParser(object):
                     bitmap[symnode.start + i] = symnodec.start + i
             elif isinstance(qarg, IndexedId):
                 bitmap[symnode.start + qarg.num] = symnodec.start + cbit.num
-            # gate_list.append(Measure(bitmap=bitmap))
-            # TODO
-            self.circuit.measure(list(bitmap.keys()), list(bitmap.values()))
+            gate_list.append(Measure(bitmap=bitmap))
+            # self.circuit.measure(list(bitmap.keys()), list(bitmap.values()))
         # if it's not a gate that can be trans to circuit gate, just recurse it
         else:
             gatenode: SymtabNode = self.global_symtab[gateins.name]
@@ -293,16 +299,20 @@ class QfasmParser(object):
             gate_list = self.handle_gateins(ins)
             for gate in gate_list:
                 # print(self.circuit.num)
-                qc.add_gate(gate)
+                qc.add_ins(gate)
+                if isinstance(gate, Measure):
+                    qc._measures.append(gate)
         elif isinstance(ins, IfInstruction):
             symtabnode = self.global_symtab[ins.cbits.name]
             if isinstance(ins.cbits, Id):
-                cbit = [symtabnode.start, symtabnode.start + symtabnode.num]
+                cbits = []
+                for i in range(symtabnode.num):
+                    cbits.append(symtabnode.start + i)
             else:
-                cbit = [symtabnode.start + ins.cbits.num]
+                cbits = [symtabnode.start + ins.cbits.num]
             # get quantum gate
             gate_list = self.handle_gateins(ins.instruction)
-            qc.add_gate(Cif(cbit=cbit, condition=ins.value, instructions=gate_list))
+            qc.add_ins(Cif(cbits=cbits, condition=ins.value, instructions=gate_list))
         else:
             raise ParserError(f"Unexpected exception when parse.")
 
