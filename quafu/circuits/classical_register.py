@@ -58,7 +58,7 @@ class ClassicalRegister:
         creg = ClassicalRegister(name=self.name)
         creg.cbits = {
             **{self.cbits},
-            **{i + len(self): cbit for i, cbit in other.cbits.item()},
+            **{i + len(self): cbit for i, cbit in other.cbits.items()},
         }
         creg.num = self.num + other.num
         creg.pos_start = self.pos_start
