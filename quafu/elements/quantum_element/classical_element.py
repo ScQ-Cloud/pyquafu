@@ -17,15 +17,18 @@
 from typing import List
 from .instruction import Instruction
 
+
 class Cif(Instruction):
     name = 'cif'
-    def __init__(self, cbits:List[int], condition:int, instructions=None):
+
+    def __init__(self, cbits: List[int], condition: int, instructions=None):
         # cbit can be a list of cbit or just a cbit
         self.cbits = cbits
         self.condition = condition
         self.instructions = instructions
-        
+
     def set_ins(self, instructions: List[Instruction]):
-        self.instructions = instructions 
+        self.instructions = instructions
+
 
 Instruction.register_ins(Cif)
