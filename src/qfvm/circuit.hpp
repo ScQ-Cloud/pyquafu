@@ -65,6 +65,7 @@ class Circuit{
     uint cbit_num() const { return cbit_num_; }
     uint max_targe_num() const { return max_targe_num_; }
     bool final_measure() const { return final_measure_; }
+    vector<QuantumOperator> gates();
     vector<std::pair<uint,uint>> measure_vec() { return measure_vec_; }
     vector<QuantumOperator> instructions() const { return instructions_; }
     QuantumOperator from_pyops(py::object const &obj);
@@ -98,6 +99,18 @@ void Circuit::add_op(QuantumOperator &op){
             if (pos+1 > qubit_num_){ qubit_num_ = pos+1; }
         }
     }
+}
+
+vector<QuantumOperator> Circuit::gates(){
+    // provide gates for gpu and custate
+    std::vector<std::string> classics = {"measure", "cif", "reset"};
+    vector<QuantumOperator> gates;
+    for(auto op : instructions_){
+        if(std::find(classics.begin(), classics.end(), op.name()) == classics.end()){
+            gates.push_back(op);
+        }
+    }
+    return gates;
 }
 
 // Construct C++ operators from pygates
