@@ -66,11 +66,13 @@ def simulate(
     # simulate
     if simulator == "qfvm_circ":
         if use_gpu:
+            if qc.executable_on_backend == False:
+                raise QuafuError("classical operation only support for `qfvm_qasm`")
             if use_custatevec:
                 try:
                     from .qfvm import simulate_circuit_custate
                 except ImportError:
-                    raise QuafuError(" pyquafu is installed with cuquantum support")
+                    raise QuafuError("pyquafu isn't installed with cuquantum support")
                 psi = simulate_circuit_custate(qc, psi)
             else:
                 try:
@@ -82,6 +84,8 @@ def simulate(
             count_dict, psi = simulate_circuit(qc, psi, shots)
             
     elif simulator == "py_simu":
+        if qc.executable_on_backend == False:
+                raise QuafuError("classical operation only support for `qfvm_qasm`")
         psi = py_simulate(qc, psi)
         
     elif simulator == "qfvm_qasm":
