@@ -20,8 +20,7 @@ import numpy as np
 
 class TestAngleEmbedding:
      """Example of angle embedding"""
-  
-    def test_build(self):
+     def test_build(self):
         num_qubits = 4
         qc = QuantumCircuit(num_qubits)
         feature = np.array([[6,-12.5,11.15,7],[8,9.5,-11,-5],[5,0.5,8,-7]])
