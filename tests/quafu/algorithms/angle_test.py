@@ -19,8 +19,7 @@ import numpy as np
 
 
 class TestAngleEmbedding:
-     """Example of angle embedding"""
-  
+    """Example of angle embedding"""
     def test_build(self):
         num_qubits = 4
         qc = QuantumCircuit(num_qubits)

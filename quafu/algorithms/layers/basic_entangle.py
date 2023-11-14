@@ -28,7 +28,7 @@ class BasicEntangleLayers:
             rotation(str): one-parameter single-qubit gate to use
         """
         weights = np.asarray(weights)
-        """convert weights to numpy array if weights is list otherwise keep unchanged"""
+        #convert weights to numpy array if weights is list otherwise keep unchanged
         shape = np.shape(weights)
       
         ##TODO(qtzhuang): If weights are batched, i.e. dim>3, additional processing is required
@@ -69,7 +69,7 @@ class BasicEntangleLayers:
 
             elif self.num_qubits > 2:
                 for i in range(self.num_qubits):
-                    gate_list.append(qeg.CXGate(i,(i+1)%self.num_qubits))
+                    gate_list.append(qeg.CXGate(i, (i+1)%self.num_qubits))
 
         return gate_list
     
