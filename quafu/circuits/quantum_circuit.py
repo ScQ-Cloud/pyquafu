@@ -105,6 +105,11 @@ class QuantumCircuit(object):
     @gates.setter
     def gates(self, gates:list):
         self._gates = gates
+
+    #TODO(qtzhuang): add_gates is just a temporary call function to add gate from gate_list
+    def add_gates(self, gates: list):
+        for gate in gates:
+            self.add_gate(gate)
     
     def add_gate(self, gate: QuantumGate):
         pos = np.array(gate.pos)
