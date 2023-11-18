@@ -104,6 +104,11 @@ class QuantumCircuit(object):
     @gates.setter
     def gates(self, gates:list):
         self._gates = gates
+
+    #TODO(qtzhuang): add_gates is just a temporary call function to add gate from gate_list
+    def add_gates(self, gates: list):
+        for gate in gates:
+            self.add_gate(gate)
     
     def add_gate(self, gate: QuantumGate):
         """
@@ -836,9 +841,11 @@ class QuantumCircuit(object):
     def reset(self, qlist:List[int]= None) -> "QuantumCircuit":
         """
         Add reset for qubits in qlist.
-
+     
         Args:
             qlist (list[int]): A list contain the qubit need add reset. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
+        
+        Note: reset only support for simulator `qfvm_circ`.
         """
         if qlist is None:
             qlist = list(range(self.num))
@@ -905,6 +912,8 @@ class QuantumCircuit(object):
             with qc.cif(cbits=[0], condition=1):
                 qc.x(2)
             qc.measure([2],[2])
+            
+        Note: cif only support for simulator `qfvm_circ`.
         """
         # check cbits
         if not len(set(cbits)) == len(cbits):
