@@ -14,16 +14,14 @@
 
 from contextlib import contextmanager
 from typing import Any, List
-import warnings
 
 import numpy as np
 
 import quafu.elements.element_gates as qeg
-from quafu.elements.quantum_element.classical_element import Cif
+from quafu.elements.classical_element import Cif
 from quafu.elements.quantum_element.instruction import Instruction
-from quafu.elements.quantum_element.pulses.quantum_pulse import QuantumPulse
 from quafu.elements.quantum_element.quantum_element import Measure, Reset
-from quafu.elements.quantum_element.pulses import QuantumPulse
+from quafu.elements.pulses import QuantumPulse
 from ..elements.quantum_element import (
     Barrier,
     Delay,

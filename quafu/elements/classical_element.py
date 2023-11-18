@@ -15,7 +15,7 @@
 # Classes of classical operation.
 
 from typing import List, Dict
-from ..instruction import Instruction
+from quafu.elements.instruction import Instruction
 
 
 class Cif(Instruction):
@@ -35,7 +35,6 @@ class Cif(Instruction):
 
     def to_qasm(self):
         raise NotImplementedError
-
 
     def set_ins(self, instructions: List[Instruction]):
         self.instructions = instructions
