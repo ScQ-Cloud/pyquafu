@@ -381,7 +381,7 @@ class QuantumCircuit(object):
         """
         Wrap the circuit to a subclass of QuantumGate, create by metaclass.
         """
-        from quafu.elements.quantum_element.quantum_gate import customize_gate
+        from quafu.elements.quantum_gate import customize_gate
 
         gate_structure = []
         qubit_mapping = {q: i for i, q in enumerate(self.used_qubits)}

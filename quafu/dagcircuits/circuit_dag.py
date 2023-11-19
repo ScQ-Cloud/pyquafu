@@ -11,7 +11,7 @@ from quafu.dagcircuits.instruction_node import (
     InstructionNode,
 )  # instruction_node.py in the same folder as circuit_dag.py now
 from quafu.elements.element_gates import *
-from quafu.elements.quantum_element import Barrier, Delay, Measure, XYResonance
+from quafu.elements import Barrier, Delay, Measure, XYResonance
 from quafu.elements.pulses import GaussianPulse, RectPulse, FlattopPulse
 
 

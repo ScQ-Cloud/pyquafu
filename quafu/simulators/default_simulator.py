@@ -3,7 +3,7 @@
 from typing import Iterable, List, Union
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from ..results.results import SimuResult
-from ..elements.quantum_element import (
+from ..elements import (
     Barrier,
     Delay,
     QuantumGate,
