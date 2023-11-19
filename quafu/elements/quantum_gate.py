@@ -3,7 +3,7 @@ from typing import List, Union, Iterable, Dict
 
 import numpy as np
 
-from .element_gates.matrices.mat_utils import reorder_matrix
+from quafu.elements.matrices.mat_utils import reorder_matrix
 from .instruction import Instruction, PosType
 
 
