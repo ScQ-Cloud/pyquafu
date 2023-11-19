@@ -29,6 +29,20 @@ class QuantumGate(Instruction, ABC):
         else:
             self.symbol = "%s" % self.name
 
+    def update_params(self, paras: Union[float, List[float]]):
+        """Update parameters of this gate"""
+        if paras is None:
+            return
+        self.paras = paras
+        if isinstance(paras, Iterable):
+            self.symbol = (
+                "%s(" % self.name
+                + ",".join(["%.3f" % para for para in self.paras])
+                + ")"
+            )
+        else:
+            self.symbol = "%s(%.3f)" % (self.name, paras)
+
     @property
     @abstractmethod
     def matrix(self):
