@@ -19,10 +19,10 @@ import numpy as np
 
 import quafu.elements.element_gates as qeg
 from quafu.elements.classical_element import Cif
-from quafu.elements.quantum_element.instruction import Instruction
-from quafu.elements.quantum_element.quantum_element import Measure, Reset
+from quafu.elements.instruction import Instruction
+from quafu.elements import Measure, Reset
 from quafu.elements.pulses import QuantumPulse
-from ..elements.quantum_element import (
+from ..elements import (
     Barrier,
     Delay,
     MultiQubitGate,
@@ -42,8 +42,8 @@ class QuantumCircuit(object):
     """
     Representation of quantum circuit.
     """
-    
-    def __init__(self, qnum: int, cnum: int=None, *args, **kwargs):
+
+    def __init__(self, qnum: int, cnum: int = None, *args, **kwargs):
         """
         Initialize a QuantumCircuit object
 
@@ -86,30 +86,30 @@ class QuantumCircuit(object):
     @property
     def measures(self):
         measures = {}
-        for meas in self._measures: 
+        for meas in self._measures:
             measures.update(dict(zip(meas.qbits, meas.cbits)))
         return measures
 
     @measures.setter
-    def measures(self, measures:dict):
+    def measures(self, measures: dict):
         self._measures = [Measure(measures)]
-    
+
     @property
     def gates(self):
         """Deprecated warning: due to historical reason, ``gates`` contains not only instances of
                       QuantumGate, meanwhile not contains measurements. This attributes might be deprecated in
                       the future. Better to use ``instructions`` which contains all the instructions."""
         return self._gates
-    
+
     @gates.setter
-    def gates(self, gates:list):
+    def gates(self, gates: list):
         self._gates = gates
 
-    #TODO(qtzhuang): add_gates is just a temporary call function to add gate from gate_list
+    # TODO(qtzhuang): add_gates is just a temporary call function to add gate from gate_list
     def add_gates(self, gates: list):
         for gate in gates:
             self.add_gate(gate)
-    
+
     def add_gate(self, gate: QuantumGate):
         """
         Add quantum gate to circuit, with some checking.
@@ -119,7 +119,7 @@ class QuantumCircuit(object):
             raise CircuitError(f"Gate position out of range: {gate.pos}")
         self.gates.append(gate)
 
-    def add_ins(self, ins:Instruction):
+    def add_ins(self, ins: Instruction):
         """
         Add instruction to circuit, with NO checking yet.
         """
@@ -128,7 +128,7 @@ class QuantumCircuit(object):
             #       Figure out better handling in the future.
             self.add_gate(ins)
         self.instructions.append(ins)
-    
+
     def update_params(self, paras_list: List[Any]):
         """Update parameters of parameterized gates
         Args:
@@ -159,18 +159,18 @@ class QuantumCircuit(object):
         used_qubits = []
         for gate in gatelist:
             if (
-                isinstance(gate, SingleQubitGate)
-                or isinstance(gate, Delay)
-                or isinstance(gate, QuantumPulse)
+                    isinstance(gate, SingleQubitGate)
+                    or isinstance(gate, Delay)
+                    or isinstance(gate, QuantumPulse)
             ):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
 
             elif (
-                isinstance(gate, Barrier)
-                or isinstance(gate, MultiQubitGate)
-                or isinstance(gate, XYResonance)
+                    isinstance(gate, Barrier)
+                    or isinstance(gate, MultiQubitGate)
+                    or isinstance(gate, XYResonance)
             ):
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
@@ -190,25 +190,27 @@ class QuantumCircuit(object):
                     if not layerj == maxlayer:
                         for i in range(abs(layerj - maxlayer)):
                             gateQlist[j].insert(pos, None)
+
         # Add support of used_qubits for Reset and Cif
         def get_used_qubits(instructions):
             used_q = []
             for ins in instructions:
-                if(isinstance(ins, Cif)):
+                if (isinstance(ins, Cif)):
                     used_q_h = get_used_qubits(ins.instructions)
                     for pos in used_q_h:
                         if pos not in used_q:
                             used_q.append(pos)
-                elif(isinstance(ins, Barrier)):
+                elif (isinstance(ins, Barrier)):
                     continue
-                elif(isinstance(ins.pos, int)):
+                elif (isinstance(ins.pos, int)):
                     if ins.pos not in used_q:
                         used_q.append(ins.pos)
-                elif(isinstance(ins.pos, list)):
+                elif (isinstance(ins.pos, list)):
                     for pos in ins.pos:
                         if pos not in used_q:
                             used_q.append(pos)
             return used_q
+
         # Only consider of reset and cif
         for ins in self.instructions:
             if isinstance(ins, (Reset, Cif)):
@@ -216,8 +218,7 @@ class QuantumCircuit(object):
                 for pos in used_q:
                     if pos not in used_qubits:
                         used_qubits.append(pos)
-        
-        
+
         maxdepth = max([len(gateQlist[i]) for i in range(num)])
 
         for gates in gateQlist:
@@ -262,9 +263,9 @@ class QuantumCircuit(object):
             for i in range(num):
                 gate = layergates[i]
                 if (
-                    isinstance(gate, SingleQubitGate)
-                    or isinstance(gate, Delay)
-                    or (isinstance(gate, QuantumPulse))
+                        isinstance(gate, SingleQubitGate)
+                        or isinstance(gate, Delay)
+                        or (isinstance(gate, QuantumPulse))
                 ):
                     printlist[i * 2, l] = gate.symbol
                     maxlen = max(maxlen, len(gate.symbol) + width)
@@ -272,7 +273,7 @@ class QuantumCircuit(object):
                 elif isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
                     q1 = reduce_map[min(gate.pos)]
                     q2 = reduce_map[max(gate.pos)]
-                    printlist[2 * q1 + 1 : 2 * q2, l] = "|"
+                    printlist[2 * q1 + 1: 2 * q2, l] = "|"
                     printlist[q1 * 2, l] = "#"
                     printlist[q2 * 2, l] = "#"
                     if isinstance(gate, ControlledGate):  # Controlled-Multiqubit gate
@@ -308,7 +309,7 @@ class QuantumCircuit(object):
                     pos = [i for i in gate.pos if i in reduce_map.keys()]
                     q1 = reduce_map[min(pos)]
                     q2 = reduce_map[max(pos)]
-                    printlist[2 * q1 : 2 * q2 + 1, l] = "||"
+                    printlist[2 * q1: 2 * q2 + 1, l] = "||"
                     maxlen = max(maxlen, len("||"))
 
             printlist[-1, l] = maxlen
@@ -825,7 +826,7 @@ class QuantumCircuit(object):
         """
         compiler = qeg.UnitaryDecomposer(array=matrix, qubits=pos)
         compiler.apply_to_qc(self)
-    
+
     def delay(self, pos, duration, unit="ns") -> "QuantumCircuit":
         """
         Let the qubit idle for a certain duration.
@@ -838,7 +839,7 @@ class QuantumCircuit(object):
         self.add_ins(Delay(pos, duration, unit=unit))
         return self
 
-    def reset(self, qlist:List[int]= None) -> "QuantumCircuit":
+    def reset(self, qlist: List[int] = None) -> "QuantumCircuit":
         """
         Add reset for qubits in qlist.
      
@@ -852,7 +853,7 @@ class QuantumCircuit(object):
         self.add_ins(Reset(qlist))
         self.executable_on_backend = False
         return self
-    
+
     def measure(self, pos: List[int] = None, cbits: List[int] = None) -> None:
         """
         Measurement setting for experiment device.
@@ -891,7 +892,7 @@ class QuantumCircuit(object):
         self.add_ins(measure)
 
     @contextmanager
-    def cif(self, cbits:List[int], condition:int):
+    def cif(self, cbits: List[int], condition: int):
         """
         Create an `if` statement on this circuit. 
         If cbits equals to condition, the subsequent operaterations will be performed. 
@@ -918,14 +919,14 @@ class QuantumCircuit(object):
         # check cbits
         if not len(set(cbits)) == len(cbits):
             raise ValueError("Classical bits not uniquely assigned.")
-        if max(cbits) > self.cbits_num -1 or min(cbits) < 0:
+        if max(cbits) > self.cbits_num - 1 or min(cbits) < 0:
             raise ValueError("Classical bits index out of range.")
         # check condition
         if condition < 0:
             raise ValueError("Classical should be a positive integer.")
         self.executable_on_backend = False
         cif_ins = Cif(cbits=cbits, condition=condition)
-        self.add_ins(cif_ins) 
+        self.add_ins(cif_ins)
 
         yield
 
@@ -934,7 +935,7 @@ class QuantumCircuit(object):
             if isinstance(self.instructions[i], Cif) and self.instructions[i].instructions is None:
                 instructions.reverse()
                 self.instructions[i].set_ins(instructions)
-                self.instructions = self.instructions[0:i+1]
+                self.instructions = self.instructions[0:i + 1]
                 return
             else:
                 instructions.append(self.instructions[i])
@@ -947,4 +948,3 @@ class QuantumCircuit(object):
             pulse.set_pos(pos)
         self.add_ins(pulse)
         return self
- 

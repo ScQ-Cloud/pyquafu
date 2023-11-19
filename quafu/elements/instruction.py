@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from typing import Union, List, Dict
 
 
-__all__ = ['Instruction', 'Barrier', 'Measure', 'PosType', 'ParaType']
+__all__ = ['Instruction', 'Barrier', 'Measure', 'PosType', 'ParaType', 'Reset']
 
 PosType = Union[int, List[int]]
 ParaType = Union[float, int, List]
@@ -116,6 +116,37 @@ class Barrier(Instruction):
 
     def to_qasm(self):
         return "barrier " + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+
+
+class Reset(Instruction):
+    name = 'reset'
+
+    def __init__(self, pos):
+        super().__init__(pos)
+
+    @property
+    def pos(self):
+        return self.__pos
+
+    @pos.setter
+    def pos(self, pos):
+        self.__pos = pos
+
+    @property
+    def named_pos(self):
+        return self.named_pos
+
+    @property
+    def named_paras(self):
+        return self.named_paras
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}"
+
+    def to_qasm(self):
+        return "reset " + ",".join(
+            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
+        )
 
 
 class Measure(Instruction):
