@@ -9,8 +9,8 @@ __all__ = ['RXGate', 'RYGate', 'RZGate', 'RXXGate', 'RYYGate', 'RZZGate']
 class RXGate(ParametricGate, SingleQubitGate):
     name = "RX"
     
-    def __init__(self, pos: int, theta: float = 0.):
-        ParametricGate.__init__(self, pos, paras=theta)
+    def __init__(self, pos: int, paras: float = 0.):
+        ParametricGate.__init__(self, pos, paras=paras)
 
     @property
     def matrix(self):
@@ -20,8 +20,8 @@ class RXGate(ParametricGate, SingleQubitGate):
 class RYGate(ParametricGate, SingleQubitGate):
     name = "RY"
     
-    def __init__(self, pos: int, theta: float = 0.):
-        ParametricGate.__init__(self, pos, paras=theta)
+    def __init__(self, pos: int, paras: float = 0.):
+        ParametricGate.__init__(self, pos, paras=paras)
 
     @property
     def matrix(self):
@@ -32,8 +32,8 @@ class RZGate(ParametricGate, SingleQubitGate):
     name = "RZ"
 
     
-    def __init__(self, pos: int, theta: float = 0.):
-        ParametricGate.__init__(self, pos, paras=theta)
+    def __init__(self, pos: int, paras: float = 0.):
+        ParametricGate.__init__(self, pos, paras=paras)
         
     @property
     def matrix(self):
@@ -43,8 +43,8 @@ class RZGate(ParametricGate, SingleQubitGate):
 class RXXGate(ParametricGate):
     name = "RXX"
 
-    def __init__(self, q1: int, q2: int, theta: float = 0.):
-        ParametricGate.__init__(self, [q1, q2], paras=theta)
+    def __init__(self, q1: int, q2: int, paras: float = 0.):
+        ParametricGate.__init__(self, [q1, q2], paras=paras)
 
     @property
     def matrix(self):
@@ -58,8 +58,8 @@ class RXXGate(ParametricGate):
 class RYYGate(ParametricGate):
     name = "RYY"
 
-    def __init__(self, q1: int, q2: int, theta: float = 0.):
-        ParametricGate.__init__(self, [q1, q2], paras=theta)
+    def __init__(self, q1: int, q2: int, paras: float = 0.):
+        ParametricGate.__init__(self, [q1, q2], paras=paras)
 
     @property
     def matrix(self):
@@ -73,8 +73,8 @@ class RYYGate(ParametricGate):
 class RZZGate(ParametricGate):
     name = "RZZ"
 
-    def __init__(self, q1: int, q2: int, theta: float = 0.):
-        ParametricGate.__init__(self, [q1, q2], paras=theta)
+    def __init__(self, q1: int, q2: int, paras: float = 0.):
+        ParametricGate.__init__(self, [q1, q2], paras=paras)
 
     @property
     def matrix(self):
