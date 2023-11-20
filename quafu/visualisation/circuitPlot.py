@@ -19,7 +19,7 @@ from matplotlib.collections import PolyCollection, PatchCollection, LineCollecti
 from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
 
-from quafu.elements.quantum_element import Instruction, ControlledGate
+from quafu.elements import Instruction, ControlledGate
 
 # this line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit

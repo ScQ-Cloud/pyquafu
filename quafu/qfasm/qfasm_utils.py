@@ -106,7 +106,7 @@ class SymtabNode(Node):
             self.cargs = cargs
 
 
-from quafu.elements.quantum_element.quantum_element import (
+from quafu.elements import (
     Measure,
     Barrier,
     Delay,

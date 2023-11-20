@@ -1,8 +1,9 @@
-from ..quantum_element import ParaSingleQubitGate
-from .matrices import pmatrix
+from ..quantum_gate import SingleQubitGate
+from quafu.elements.matrices import pmatrix
+from typing import Dict
 
 
-class PhaseGate(ParaSingleQubitGate):
+class PhaseGate(SingleQubitGate):
     name = "P"
 
     def __init__(self, pos: int, paras: float = 0.0):
@@ -12,5 +13,9 @@ class PhaseGate(ParaSingleQubitGate):
     def matrix(self):
         return pmatrix(self.paras)
 
+    @property
+    def named_paras(self) -> Dict:
+        return {'phase': self.paras}
 
-ParaSingleQubitGate.register_gate(PhaseGate)
+
+SingleQubitGate.register_gate(PhaseGate)

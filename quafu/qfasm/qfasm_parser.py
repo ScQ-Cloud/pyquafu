@@ -24,8 +24,8 @@ from quafu.qfasm.exceptions import ParserError
 from .qfasm_lexer import QfasmLexer
 import numpy as np
 from quafu import QuantumCircuit
-from quafu.elements.quantum_element.quantum_element import *
-from quafu.elements.quantum_element.classical_element import Cif
+from quafu.elements import *
+from quafu.elements.classical_element import Cif
 
 
 unaryop = ["sin", "cos", "tan", "exp", "ln", "sqrt", "acos", "atan", "asin"]
