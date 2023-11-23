@@ -25,7 +25,7 @@ class TestAngleEmbedding:
         qc = QuantumCircuit(num_qubits)
         feature = np.array([[6,-12.5,11.15,7],[8,9.5,-11,-5],[5,0.5,8,-7]])
         for i in range(4):
-            qc.add_gate(qeg.HGate(pos=i))
+            qc.add_ins(qeg.HGate(pos=i))
         for i in range(len(feature)):
             qc.add_gates(AngleEmbedding(features=feature[i], num_qubits=num_qubits,rotation='Y'))
         qc.draw_circuit(width=num_qubits)
