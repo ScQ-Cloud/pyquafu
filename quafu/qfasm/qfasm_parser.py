@@ -196,19 +196,29 @@ class QfasmParser(object):
                     gate_list.append(gate_classes[gateins.name](*oneargs))
 
         # if op is barrier or reset or measure
-        elif gateins.name in ["reset", "barrier"]:
-            nametoclass = {"reset": Reset, "barrier": Barrier}
+        elif gateins.name == "reset":
             for qarg in gateins.qargs:
                 symnode = self.global_symtab[qarg.name]
                 if isinstance(qarg, Id):
                     qlist = []
                     for i in range(symnode.num):
                         qlist.append(symnode.start + i)
-                    gate_list.append(nametoclass[gateins.name](qlist))
+                    gate_list.append(Reset(qlist))
                 elif isinstance(qarg, IndexedId):
                     gate_list.append(
-                        nametoclass[gateins.name]([symnode.start + qarg.num])
+                        Reset([symnode.start + qarg.num])
                     )
+
+        elif gateins.name == "barrier":
+            qlist = []
+            for qarg in gateins.qargs:
+                symnode = self.global_symtab[qarg.name]
+                if isinstance(qarg, Id):
+                    for i in range(symnode.num):
+                        qlist.append(symnode.start + i)
+                elif isinstance(qarg, IndexedId):
+                    qlist.append(symnode.start + qarg.num)
+            gate_list.append(Barrier(qlist))
 
         # we have check the num of cbit and qbit
         elif gateins.name == "measure":

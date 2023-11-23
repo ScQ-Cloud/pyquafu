@@ -662,10 +662,40 @@ theta ,
         qc = QuantumCircuit(2)
         qc.barrier([0])
         qc.barrier([1])
-        qc.barrier([0])
-        qc.barrier([1])
+        qc.barrier([0, 1])
         self.compare_cir(cir, qc)
 
+    def test_barrier_single(self):
+        qasm = """
+        qreg q[2];
+        barrier q[0];
+        barrier q[1];
+        barrier q;
+        """
+        cir = qasm_to_quafu(qasm)
+        qc = QuantumCircuit(2)
+        qc.barrier([0])
+        qc.barrier([1])
+        qc.barrier([0, 1])
+        self.compare_cir(cir, qc)
+
+    def test_barrier_mul(self):
+        qasm = """
+        qreg q[2];
+        qreg q2[2];
+        barrier q[0], q[1];
+        barrier q[1], q2[0];
+        barrier q[0], q2;
+        barrier q, q2[0];
+        """
+        cir = qasm_to_quafu(qasm)
+        qc = QuantumCircuit(4)
+        qc.barrier([0,1])
+        qc.barrier([1,2])
+        qc.barrier([0,2,3])
+        qc.barrier([0,1,2])
+        self.compare_cir(cir, qc)
+            
     def test_double_call_gate(self):
         qasm = """
             gate test(x, y) a {
