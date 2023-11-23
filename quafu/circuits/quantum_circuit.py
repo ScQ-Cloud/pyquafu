@@ -108,7 +108,7 @@ class QuantumCircuit(object):
     # TODO(qtzhuang): add_gates is just a temporary call function to add gate from gate_list
     def add_gates(self, gates: list):
         for gate in gates:
-            self.add_gate(gate)
+            self.add_ins(gate)
 
     def add_gate(self, gate: QuantumGate):
         """
