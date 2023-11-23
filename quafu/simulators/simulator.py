@@ -1,6 +1,21 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""simulator for quantum circuit and qasm"""
+
 from typing import Union
 from .default_simulator import py_simulate, ptrace, permutebits
-from .qfvm import simulate_circuit
 from quafu import QuantumCircuit
 from ..results.results import SimuResult
 import numpy as np
@@ -62,7 +77,7 @@ def simulate(
             values = list(range(num))
 
     count_dict = None
-    
+    from .qfvm import simulate_circuit
     # simulate
     if simulator == "qfvm_circ":
         if use_gpu:
