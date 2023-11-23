@@ -12,4 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Pre-built quafu circuit blocks"""
+from .interface.torch import TorchTransformer
+
+PROVIDERS = {"torch": TorchTransformer}
+
+
+class InterfaceProvider:
+    @classmethod
+    def get(cls, name: str):
+        if name not in PROVIDERS:
+            raise NotImplementedError(f"Unsupported interface: {name}")
+        return PROVIDERS[name]
