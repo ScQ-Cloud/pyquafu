@@ -18,9 +18,11 @@ import numpy as np
 from matplotlib.collections import PolyCollection, PatchCollection, LineCollection
 from matplotlib.patches import Circle, Arc
 from matplotlib.text import Text
-
 from quafu.elements import Instruction, ControlledGate
+from typing import Dict
 
+from matplotlib.path import Path
+from matplotlib.collections import PathCollection
 # this line for developers only
 # from quafu.circuits.quantum_circuit import QuantumCircuit
 
@@ -46,7 +48,7 @@ layers(zorder):
 """
 
 su2_gate_names = ['x', 'y', 'z', 'id', 'w',
-                  'h', 't', 'tdg', 's', 'sdg', 'sx', 'sy', 'sw',
+                  'h', 't', 'tdg', 's', 'sdg', 'sx', 'sy', 'sw', 'sxdg', 'sydg', 'swdg',
                   'p',
                   'rx', 'ry', 'rz',
                   ]
@@ -104,6 +106,7 @@ class CircuitPlotManager:
         self._swap_points = []
         self._iswap_points = []
         self._barrier_points = []
+        self._white_path_points = []
 
         self._text_list = []
 
@@ -202,10 +205,14 @@ class CircuitPlotManager:
             self._proc_swap(depth, ins.pos, name == 'iswap')
         elif name in r2_gate_names:
             # TODO: combine into one box
-            self._proc_su2(name[-1], depth, ins.pos[0], paras)
-            self._proc_su2(name[-1], depth, ins.pos[1], paras)
+            self._ctrl_wire_points.append([[depth, ins.pos[0]], [depth, ins.pos[1]]])
+
+            self._proc_su2(name[:-1], depth, min(ins.pos), None)
+            self._proc_su2(name[:-1], depth, max(ins.pos), paras)
         elif isinstance(ins, ControlledGate):
             self._proc_ctrl(depth, ins)
+        elif name == 'delay':
+            self._delay(depth, ins.pos, ins.duration, ins.unit)
         else:
             raise NotImplementedError(f'Gate {name} is not supported yet.\n'
                                       f'If this should occur, please report a bug.')
@@ -226,7 +233,7 @@ class CircuitPlotManager:
             x1 = self.xs[-1] - 1
             self._h_wire_points.append([[x0, y], [x1, y]])
 
-    def _inits_label(self, labels: dict = None):
+    def _inits_label(self, labels: Dict[int, str] = None):
         """ qubit-labeling """
         if labels is None:
             labels = self.q_label
@@ -241,7 +248,7 @@ class CircuitPlotManager:
                        )
             self._text_list.append(txt)
 
-    def _measured_label(self, labels: dict = None):
+    def _measured_label(self, labels: Dict[int, str] = None):
         """ measured qubit-labeling """
         if labels is None:
             labels = self.c_label
@@ -336,9 +343,18 @@ class CircuitPlotManager:
     #########################################################################
     # region # # # # processing-functions: decompose ins into graphical elements # # #
     def _proc_su2(self, id_name, depth, pos, paras):
-        if id_name in ['x', 'y', 'z', 'h', 'id', 's', 't', 'p', 'u']:
+        if id_name in ['x', 'y', 'z', 'h', 'id', 's', 't', 'p', 'w']:
             fc = '#EE7057'
-            label = id_name.capitalize()
+            label = id_name.capitalize()[0]
+        elif id_name in ['sw', 'swdg', 'sx', 'sxdg', 'sy', 'sydg']:
+            fc = '#EE7057'
+            if id_name[-2:] == 'dg':
+                label = r'$\sqrt{%s}^\dagger$' % id_name[1]
+            else:
+                label = r'$\sqrt{%s}$' % id_name[1]
+        elif id_name in ['sdg', 'tdg']:
+            fc = '#EE7057'
+            label = id_name[0] + r'$^\dagger$'
         elif id_name in ['rx', 'ry', 'rz']:
             fc = '#6366F1'
             label = id_name.upper()
@@ -348,13 +364,26 @@ class CircuitPlotManager:
 
         if id_name in ['rx', 'ry', 'rz', 'p']:
             # too long to display: r'$\theta=$' + f'{paras:.3f}' (TODO)
-            para_txt = f'({paras:.3f})'
+            para_txt = f'({paras:.3f})' if paras else None
         else:
             para_txt = None
 
         x = depth
         y = self.used_qbit_y[pos]
         self._gate_label(x=x, y=y, s=label)
+        self._para_label(x=x, y=y, para_txt=para_txt)
+        self._gate_bbox(x=x, y=y, fc=fc)
+
+    def _delay(self, depth, pos, paras, unit):
+        fc = BLUE
+
+        para_txt = '%d%s' % (paras, unit)
+
+        x = depth
+        y = self.used_qbit_y[pos]
+        xs = self._a * np.array([-1, 0, 1, -1, 0, 1, -1, 0]) / 4 + x
+        ys = self._a * np.array([1, 0, -1, -1, 0, 1, 1, 0]) / 3 + y
+        self._white_path_points.append(np.column_stack((xs, ys)))
         self._para_label(x=x, y=y, para_txt=para_txt)
         self._gate_bbox(x=x, y=y, fc=fc)
 
@@ -378,11 +407,11 @@ class CircuitPlotManager:
             if tar_name == 'x':
                 self._not_points.append((depth, x))
             else:
-                self._proc_su2(tar_name, depth, pos, None)
+                self._proc_su2(tar_name, depth, pos, ins.paras)
         elif name == 'cswap':
             self._swap_points += [[depth, self.used_qbit_y[p]] for p in ins.targs]
         elif name == 'ccx':
-            self._not_points.append((depth, self.used_qbit_y[ins.targs]))
+            self._not_points.append((depth, self.used_qbit_y[ins.targs[0]]))
         else:
             from quafu.elements.element_gates import ControlledU
             assert isinstance(ins, ControlledU), f'unknown gate: {name}, {ins.__class__.__name__}'
@@ -543,6 +572,14 @@ class CircuitPlotManager:
         for txt in self._text_list:
             plt.gca().add_artist(txt)
 
+    def _render_white_path(self):
+        path_collection = PathCollection([Path(points) for points in self._white_path_points],
+                                         facecolor='none',
+                                         edgecolor='white',
+                                         zorder=4,
+                                         linewidth=2)
+        plt.gca().add_collection(path_collection)
+
     def _render_circuit(self):
         self._render_h_wires()
         self._render_ctrl_wires()
@@ -553,4 +590,6 @@ class CircuitPlotManager:
         self._render_measure()
         self._render_barrier()
         self._render_closed_patch()
+        self._render_white_path()
         self._render_txt()
+
