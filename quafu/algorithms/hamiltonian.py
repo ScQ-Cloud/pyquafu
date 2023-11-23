@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 import numpy as np
 from quafu.exceptions import QuafuError
-from quafu.elements.element_gates.matrices import XMatrix, YMatrix, ZMatrix, IdMatrix
+from quafu.elements.matrices import XMatrix, YMatrix, ZMatrix, IdMatrix
 
 
 PAULI_MAT = {"I": IdMatrix, "X": XMatrix, "Y": YMatrix, "Z": ZMatrix}
