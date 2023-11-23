@@ -30,7 +30,6 @@ class RYGate(ParametricGate, SingleQubitGate):
 
 class RZGate(ParametricGate, SingleQubitGate):
     name = "RZ"
-
     
     def __init__(self, pos: int, paras: float = 0.):
         ParametricGate.__init__(self, pos, paras=paras)
