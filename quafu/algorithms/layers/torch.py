@@ -17,7 +17,7 @@
 import torch
 import numpy as np
 from quafu import QuantumCircuit
-from quafu.algorithms.layers.qnode import compute_vjp, jacobian
+from quafu.algorithms.layers.qnode import compute_vjp, jacobian, run_circ
 
 
 class ExecuteCircuits(torch.autograd.Function):
@@ -47,7 +47,9 @@ class ExecuteCircuits(torch.autograd.Function):
 
 
 # TODO(zhaoyilun): doc
-def execute(circ: QuantumCircuit, run_fn, grad_fn, parameters: torch.Tensor):
+def exec(
+    circ: QuantumCircuit, parameters: torch.Tensor, run_fn=run_circ, grad_fn=None
+):
     """execute.
 
     Args:

@@ -15,8 +15,7 @@ import numpy as np
 
 import torch.nn
 from quafu.algorithms.layers import jacobian, compute_vjp
-from quafu.algorithms.layers.torch import execute
-from quafu.algorithms.layers.qnode import run_circ
+from quafu.algorithms.layers.torch import exec
 from quafu.circuits.quantum_circuit import QuantumCircuit
 
 
@@ -28,7 +27,7 @@ class MyModel(torch.nn.Module):
 
     def forward(self, features):
         out = self.linear(features)
-        out = execute(self.circ, run_circ, None, out)
+        out = exec(self.circ, out)
         return out
 
 
