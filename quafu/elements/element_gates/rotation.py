@@ -3,7 +3,7 @@ from typing import Dict
 from quafu.elements.matrices import rx_mat, ry_mat, rz_mat, rxx_mat, ryy_mat, rzz_mat, pmatrix
 from ..quantum_gate import QuantumGate, SingleQubitGate, ParametricGate
 
-__all__ = ['RXGate', 'RYGate', 'RZGate', 'RXXGate', 'RYYGate', 'RZZGate']
+__all__ = ['RXGate', 'RYGate', 'RZGate', 'RXXGate', 'RYYGate', 'RZZGate', 'PhaseGate']
 
 
 @QuantumGate.register('rx')
@@ -92,6 +92,7 @@ class RZZGate(ParametricGate):
 
 @SingleQubitGate.register(name='p')
 class PhaseGate(SingleQubitGate):
+    """Ally of rz gate, but with a different name and global phase."""
     name = "P"
 
     def __init__(self, pos: int, paras: float = 0.0):
