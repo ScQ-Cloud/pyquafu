@@ -74,6 +74,15 @@ class Instruction(ABC):
             raise ValueError(f"Name {name} already exists.")
         cls.ins_classes[name] = subclass
 
+    @classmethod
+    def register(cls, name: str = None):
+        def wrapper(subclass):
+            name_ = name if name is not None else subclass.name.lower()
+            cls.register_ins(subclass, name_)
+            return subclass
+
+        return wrapper
+
     @abstractmethod
     def to_qasm(self):
         pass
