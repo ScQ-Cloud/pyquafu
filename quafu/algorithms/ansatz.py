@@ -14,12 +14,13 @@
 
 """Ansatz circuits for VQA"""
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Any, List
 import numpy as np
 
-from quafu.algorithms.hamiltonian import Hamiltonian
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.synthesis.evolution import ProductFormula
+from .hamiltonian import Hamiltonian
+from .interface_provider import InterfaceProvider
 
 
 class Ansatz(QuantumCircuit, ABC):
@@ -138,3 +139,29 @@ class AlterLayeredAnsatz(Ansatz):
                 self.cnot(ctrl, targ)
         for qubit in range(self.num):
             self.ry(qubit, self._theta[self._layer, qubit])
+
+
+class QuantumNeuralNetwork(Ansatz):
+    """A Wrapper of quantum circuit as QNN"""
+
+    # TODO(zhaoyilun): docs
+    def __init__(self, num_qubits: int, layers: List[Any], interface="torch"):
+        """"""
+        # Get transformer according to specified interface
+        self._transformer = InterfaceProvider.get(interface)
+        self._layers = layers
+
+        # FIXME(zhaoyilun): don't use this default value
+        self._weights = np.empty((1, 1))
+        super().__init__(num_qubits)
+
+    def _build(self):
+        """Essentially initialize weights using transformer"""
+        for layer in self._layers:
+            self.add_gates(layer)
+
+        self._weights = self._transformer.init_weights((1, self.num_parameters))
+
+    @property
+    def weights(self):
+        return self._weights

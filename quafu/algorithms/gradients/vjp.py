@@ -84,3 +84,13 @@ def compute_vjp(jac: np.ndarray, dy: np.ndarray):
         vjp[i] = dy[i, :].T @ jac[i, :, :]
 
     return vjp
+
+
+# class QNode:
+#     """Quantum node which essentially wraps the execution of a quantum circuit"""
+#
+#     def __init__(self, circ: QuantumCircuit) -> None:
+#         self._circ = circ
+#
+#     def __call__(self):
+#         return execu

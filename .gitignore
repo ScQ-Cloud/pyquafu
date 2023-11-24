@@ -1,3 +1,4 @@
+*.dot
 *.egg-info
 *.pyc
 *.pyd

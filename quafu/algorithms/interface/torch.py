@@ -17,11 +17,18 @@
 import torch
 import numpy as np
 from quafu import QuantumCircuit
-from quafu.algorithms.layers.qnode import compute_vjp, jacobian
+from ..gradients import compute_vjp, jacobian, run_circ
+
+
+class TorchTransformer:
+    @staticmethod
+    def init_weights(shape):
+        """Return torch gradient tensor with specified shape"""
+        return torch.randn(*shape, requires_grad=True, dtype=torch.double)
 
 
 class ExecuteCircuits(torch.autograd.Function):
-    """TODO(zhaoyilun): document"""
+    """Parameters are input from previous layers"""
 
     @staticmethod
     def forward(ctx, parameters, kwargs):
@@ -47,7 +54,13 @@ class ExecuteCircuits(torch.autograd.Function):
 
 
 # TODO(zhaoyilun): doc
-def execute(circ: QuantumCircuit, run_fn, grad_fn, parameters: torch.Tensor):
+def execute(
+    circ: QuantumCircuit,
+    parameters: torch.Tensor,
+    run_fn=run_circ,
+    grad_fn=None,
+    method="internal",
+):
     """execute.
 
     Args:
@@ -58,4 +71,9 @@ def execute(circ: QuantumCircuit, run_fn, grad_fn, parameters: torch.Tensor):
 
     kwargs = {"circ": circ, "run_fn": run_fn, "grad_fn": grad_fn}
 
-    return ExecuteCircuits.apply(parameters, kwargs)
+    if method == "external":
+        return ExecuteCircuits.apply(parameters, kwargs)
+    elif method == "internal":
+        return ExecuteCircuits.apply(circ.weights, kwargs)
+    else:
+        raise NotImplementedError(f"Unsupported execution method: {method}")

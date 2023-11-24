@@ -19,6 +19,7 @@ import numpy as np
 
 ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
+
 class BasicEntangleLayers:
     def __init__(self, weights, num_qubits, rotation="X"):
         """
@@ -28,16 +29,16 @@ class BasicEntangleLayers:
             rotation(str): one-parameter single-qubit gate to use
         """
         weights = np.asarray(weights)
-        #convert weights to numpy array if weights is list otherwise keep unchanged
+        # convert weights to numpy array if weights is list otherwise keep unchanged
         shape = np.shape(weights)
-      
+
         ##TODO(qtzhuang): If weights are batched, i.e. dim>3, additional processing is required
         if weights.ndim > 2:
-            raise ValueError(
-                f"Weights tensor must be 2-dimensional "
-            )
+            raise ValueError(f"Weights tensor must be 2-dimensional ")
 
-        if not (len(shape) == 3 or len(shape) == 2):  # 3 is when batching, 2 is no batching
+        if not (
+            len(shape) == 3 or len(shape) == 2
+        ):  # 3 is when batching, 2 is no batching
             raise ValueError(
                 f"Weights tensor must be 2-dimensional "
                 f"or 3-dimensional if batching; got shape {shape}"
@@ -51,7 +52,7 @@ class BasicEntangleLayers:
         self.weights = weights
         self.num_qubits = num_qubits
         self.op = ROT[rotation]
-      
+
         """Build the quantum basic_entangle layer and get the gate_list"""
         self.gate_list = self._build()
 
@@ -62,17 +63,17 @@ class BasicEntangleLayers:
             for i in range(self.num_qubits):
                 gate = self.op(pos=i, paras=self.weights[layer][i])
                 gate_list.append(gate)
-                
+
             # if num_qubits equals two, it just need to apply CNOT one time
             if self.num_qubits == 2:
-                gate_list.append(qeg.CXGate(0,1))
+                gate_list.append(qeg.CXGate(0, 1))
 
             elif self.num_qubits > 2:
                 for i in range(self.num_qubits):
-                    gate_list.append(qeg.CXGate(i, (i+1)%self.num_qubits))
+                    gate_list.append(qeg.CXGate(i, (i + 1) % self.num_qubits))
 
         return gate_list
-    
+
     def __iter__(self):
         return iter(self.gate_list)
 

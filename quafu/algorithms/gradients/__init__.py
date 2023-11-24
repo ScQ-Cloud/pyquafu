@@ -13,3 +13,4 @@
 # limitations under the License.
 
 from .param_shift import ParamShift
+from .vjp import run_circ, compute_vjp, jacobian
