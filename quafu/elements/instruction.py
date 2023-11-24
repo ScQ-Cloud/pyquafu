@@ -69,7 +69,7 @@ class Instruction(ABC):
         assert issubclass(subclass, cls)
 
         if name is None:
-            name = subclass.name
+            name = str(subclass.name).lower()
         if name in cls.ins_classes:
             raise ValueError(f"Name {name} already exists.")
         cls.ins_classes[name] = subclass
@@ -77,8 +77,7 @@ class Instruction(ABC):
     @classmethod
     def register(cls, name: str = None):
         def wrapper(subclass):
-            name_ = name if name is not None else subclass.name.lower()
-            cls.register_ins(subclass, name_)
+            cls.register_ins(subclass, name)
             return subclass
 
         return wrapper
