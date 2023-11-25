@@ -19,6 +19,7 @@ import numpy as np
 
 ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
+
 class AngleEmbedding:
     def __init__(self, features, num_qubits: int, rotation="X"):
         """
@@ -29,13 +30,11 @@ class AngleEmbedding:
         """
         if rotation not in ROT:
             raise ValueError(f"Rotation option {rotation} not recognized.")
-        
+
         shape = np.shape(features)[-1:]
         n_features = shape[0]
         if n_features != num_qubits:
-            raise ValueError(
-                "The length of Features must match num_qubits"
-            )
+            raise ValueError("The length of Features must match num_qubits")
         self.features = features
         self.num_qubits = num_qubits
         self.op = ROT[rotation]
@@ -49,7 +48,7 @@ class AngleEmbedding:
             gate = self.op(pos=i, paras=self.features[i])
             gate_list.append(gate)
         return gate_list
-    
+
     def __iter__(self):
         return iter(self.gate_list)
 

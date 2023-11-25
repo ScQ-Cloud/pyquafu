@@ -14,22 +14,26 @@
 
 from quafu.circuits import QuantumCircuit
 import quafu.elements.element_gates as qeg
-from quafu.algorithms.layers.basic_entangle import BasicEntangleLayers
+from quafu.algorithms import BasicEntangleLayers
 import numpy as np
+
 
 class TestBasicEntangleLayers:
     """Example of building basic_entangle layer"""
+
     def test_build(self):
         num_qubits = 3
         qc = QuantumCircuit(num_qubits)
         weights = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.7, 0.8, 0.9]])
         # weights = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
         # weights = np.array([[0.1, 0.2], [0.3, 0.4]])
-        qc.add_gates(BasicEntangleLayers(weights=weights, num_qubits=num_qubits,rotation='Y'))
+        qc.add_gates(
+            BasicEntangleLayers(weights=weights, num_qubits=num_qubits, rotation="Y")
+        )
         qc.draw_circuit(width=num_qubits)
 
         ##TODO(): if weights are as follows, it need additional processing.
-                # weights = np.array([
+        # weights = np.array([
         #     [
         #         [1, 2, 3, 4],
         #         [5, 6, 7, 8],

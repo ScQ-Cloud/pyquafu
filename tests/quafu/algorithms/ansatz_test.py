@@ -14,7 +14,7 @@
 """TODO: test of ansatz needs improvement once ansatz has more featuers"""
 
 import numpy as np
-from quafu.algorithms.ansatz import AlterLayeredAnsatz, QAOAAnsatz
+from quafu.algorithms.ansatz import AlterLayeredAnsatz, QAOAAnsatz, QuantumNeuralNetwork
 from quafu.algorithms.hamiltonian import Hamiltonian
 
 
@@ -35,3 +35,8 @@ class TestAlterLayeredAnsatz:
         circ = AlterLayeredAnsatz(4, 4)
         # print("\n ::: testing ::: \n")
         # circ.plot_circuit(save_path="TestAlterLayeredAnsatz.svg")
+
+
+class TestQuantumNeuralNetwork:
+    def test_build(self):
+        circ = QuantumNeuralNetwork(2, [])
