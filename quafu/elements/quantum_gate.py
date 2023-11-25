@@ -50,16 +50,24 @@ class QuantumGate(Instruction, ABC):
                                   ", this should never happen.")
 
     @classmethod
-    def register_gate(cls, subclass):
+    def register_gate(cls, subclass, name: str = None):
         assert issubclass(subclass, cls)
 
-        name = subclass.name
+        name = str(subclass.name).lower() if name is None else name
         assert isinstance(name, str)
 
         if name in cls.gate_classes:
             raise ValueError(f"Name {name} already exists.")
         cls.gate_classes[name] = subclass
         Instruction.register_ins(subclass, name)
+
+    @classmethod
+    def register(cls, name: str = None):
+        def wrapper(subclass):
+            cls.register_gate(subclass, name)
+            return subclass
+
+        return wrapper
 
     def __str__(self):
         properties_names = ['pos', 'paras', 'matrix']

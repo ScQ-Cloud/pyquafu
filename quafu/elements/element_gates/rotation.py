@@ -1,11 +1,12 @@
 from typing import Dict
 
-from quafu.elements.matrices import rx_mat, ry_mat, rz_mat, rxx_mat, ryy_mat, rzz_mat
+from quafu.elements.matrices import rx_mat, ry_mat, rz_mat, rxx_mat, ryy_mat, rzz_mat, pmatrix
 from ..quantum_gate import QuantumGate, SingleQubitGate, ParametricGate
 
-__all__ = ['RXGate', 'RYGate', 'RZGate', 'RXXGate', 'RYYGate', 'RZZGate']
+__all__ = ['RXGate', 'RYGate', 'RZGate', 'RXXGate', 'RYYGate', 'RZZGate', 'PhaseGate']
 
 
+@QuantumGate.register('rx')
 class RXGate(ParametricGate, SingleQubitGate):
     name = "RX"
     
@@ -17,6 +18,7 @@ class RXGate(ParametricGate, SingleQubitGate):
         return rx_mat(self.paras)
 
 
+@QuantumGate.register('ry')
 class RYGate(ParametricGate, SingleQubitGate):
     name = "RY"
     
@@ -28,6 +30,7 @@ class RYGate(ParametricGate, SingleQubitGate):
         return ry_mat(self.paras)
 
 
+@QuantumGate.register('rz')
 class RZGate(ParametricGate, SingleQubitGate):
     name = "RZ"
     
@@ -39,6 +42,7 @@ class RZGate(ParametricGate, SingleQubitGate):
         return rz_mat(self.paras)
 
 
+@QuantumGate.register('rxx')
 class RXXGate(ParametricGate):
     name = "RXX"
 
@@ -54,6 +58,7 @@ class RXXGate(ParametricGate):
         return {'pos': self.pos}
 
 
+@QuantumGate.register('ryy')
 class RYYGate(ParametricGate):
     name = "RYY"
 
@@ -69,6 +74,7 @@ class RYYGate(ParametricGate):
         return {'pos': self.pos}
 
 
+@QuantumGate.register('rzz')
 class RZZGate(ParametricGate):
     name = "RZZ"
 
@@ -84,9 +90,18 @@ class RZZGate(ParametricGate):
         return {'pos': self.pos}
 
 
-QuantumGate.register_gate(RXGate)
-QuantumGate.register_gate(RYGate)
-QuantumGate.register_gate(RZGate)
-QuantumGate.register_gate(RXXGate)
-QuantumGate.register_gate(RYYGate)
-QuantumGate.register_gate(RZZGate)
+@SingleQubitGate.register(name='p')
+class PhaseGate(SingleQubitGate):
+    """Ally of rz gate, but with a different name and global phase."""
+    name = "P"
+
+    def __init__(self, pos: int, paras: float = 0.0):
+        super().__init__(pos, paras=paras)
+
+    @property
+    def matrix(self):
+        return pmatrix(self.paras)
+
+    @property
+    def named_paras(self) -> Dict:
+        return {'phase': self.paras}
