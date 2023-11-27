@@ -147,43 +147,6 @@ class ParametricGate(QuantumGate, ABC):
         return {'pos': self.pos}
 
 
-class FixedGate(QuantumGate, ABC):
-    def __init__(self, pos):
-        super().__init__(pos=pos, paras=None)
-
-    @property
-    def named_paras(self) -> Dict:
-        return {}
-
-
-# class ParaSingleQubitGate(SingleQubitGate, ABC):
-#     def __init__(self, pos, paras: float):
-#         if paras is None:
-#             raise ValueError("`paras` can not be None for ParaSingleQubitGate")
-#         elif isinstance(paras, int):
-#             paras = float(paras)
-#
-#         if not isinstance(paras, float):
-#             raise TypeError(f"`paras` must be float or int for ParaSingleQubitGate, "
-#                             f"instead of {type(paras)}")
-#         super().__init__(pos, paras=paras)
-#
-#     @property
-#     def named_paras(self) -> Dict:
-#         return {'paras': self.paras}
-
-# class FixedMultiQubitGate(MultiQubitGate, ABC):
-#     def __init__(self, pos: List[int]):
-#         super().__init__(pos=pos, paras=None)
-
-
-# class ParaMultiQubitGate(MultiQubitGate, ABC):
-#     def __init__(self, pos, paras):
-#         if paras is None:
-#             raise ValueError("`paras` can not be None for ParaMultiQubitGate")
-#         super().__init__(pos, paras)
-
-
 class ControlledGate(MultiQubitGate, ABC):
     """ Controlled gate class, where the matrix act non-trivially on target qubits"""
 
@@ -238,3 +201,40 @@ class ControlledGate(MultiQubitGate, ABC):
     @property
     def named_pos(self) -> Dict:
         return {'ctrls': self.ctrls, 'targs': self.targs}
+
+
+# class ParaSingleQubitGate(SingleQubitGate, ABC):
+#     def __init__(self, pos, paras: float):
+#         if paras is None:
+#             raise ValueError("`paras` can not be None for ParaSingleQubitGate")
+#         elif isinstance(paras, int):
+#             paras = float(paras)
+#
+#         if not isinstance(paras, float):
+#             raise TypeError(f"`paras` must be float or int for ParaSingleQubitGate, "
+#                             f"instead of {type(paras)}")
+#         super().__init__(pos, paras=paras)
+#
+#     @property
+#     def named_paras(self) -> Dict:
+#         return {'paras': self.paras}
+
+# class FixedMultiQubitGate(MultiQubitGate, ABC):
+#     def __init__(self, pos: List[int]):
+#         super().__init__(pos=pos, paras=None)
+
+
+# class ParaMultiQubitGate(MultiQubitGate, ABC):
+#     def __init__(self, pos, paras):
+#         if paras is None:
+#             raise ValueError("`paras` can not be None for ParaMultiQubitGate")
+#         super().__init__(pos, paras)
+
+
+class FixedGate(QuantumGate, ABC):
+    def __init__(self, pos):
+        super().__init__(pos=pos, paras=None)
+
+    @property
+    def named_paras(self) -> Dict:
+        return {}
