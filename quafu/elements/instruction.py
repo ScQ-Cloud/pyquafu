@@ -113,11 +113,11 @@ class Barrier(Instruction):
 
     @property
     def named_pos(self):
-        return self.named_pos
+        return super().named_pos
 
     @property
     def named_paras(self):
-        return self.named_paras
+        return super().named_pos
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
