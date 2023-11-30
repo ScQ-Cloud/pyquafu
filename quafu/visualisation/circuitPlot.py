@@ -187,10 +187,9 @@ class CircuitPlotManager:
             plt.show()
 
     def _process_ins(self, ins: Instruction, append: bool = True):
-        name = ins.name
-        assert name in Instruction.ins_classes, 'If this should occur, please report a bug.'
+        name = ins.name.lower()
+        assert name in Instruction.ins_classes, 'Name: %s not registered, if this should occur, please report a bug.' % name
 
-        name = name.lower()
         _which = slice(np.min(ins.pos), np.max(ins.pos) + 1)
         depth = np.max(self.dorders[_which])
         paras = ins.paras
