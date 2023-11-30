@@ -381,27 +381,12 @@ class QuantumCircuit(object):
         """
         Wrap the circuit to a subclass of QuantumGate, create by metaclass.
         """
-        from quafu.elements.quantum_gate import customize_gate
+        from quafu.elements.oracle import customize_gate
+        from copy import deepcopy
 
-        gate_structure = []
-        qubit_mapping = {q: i for i, q in enumerate(self.used_qubits)}
-        for gate in self.gates:
-            if isinstance(gate, QuantumGate):
-                gate = copy.deepcopy(gate)
-                # TODO: handel control pos
-                if isinstance(gate.pos, int):
-                    gate.pos = qubit_mapping[gate.pos]
-                else:
-                    gate.pos = [qubit_mapping[p] for p in gate.pos]
-                gate_structure.append(gate)
-            else:
-                raise ValueError()
-
-        # TODO: error check
-
-        customized = customize_gate(cls_name=name.lower(),
-                                    qubit_num=len(self.used_qubits),
-                                    gate_structure=gate_structure)
+        # TODO: check validity of instructions
+        gate_structure = [deepcopy(ins) for ins in self.instructions]
+        customized = customize_gate(name, gate_structure, self.num)
         return customized
 
     def id(self, pos: int) -> "QuantumCircuit":
