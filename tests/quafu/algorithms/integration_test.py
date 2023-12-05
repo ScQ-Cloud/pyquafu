@@ -139,14 +139,14 @@ class TestQAOA:
         )
         ansatz_multi = QAOAAnsatz(hamiltonian_multi, num_layers=num_layers)
         ansatz_multi.draw_circuit()
-        ansatz_multi.plot_circuit(title='MULTI QUBITS')
-        plt.show()
+        # ansatz_multi.plot_circuit(title='MULTI QUBITS')
+        # plt.show()
 
         hamiltonian = Hamiltonian.from_pauli_list(
             [("IIIZZ", 1), ("IIZIZ", 1), ("IZIIZ", 1), ("ZIIIZ", 1)]
         )
-        # ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
-        ref_mat = np.load("data/qaoa_hamiltonian.npy")
+        ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
+        # ref_mat = np.load("data/qaoa_hamiltonian.npy")
         assert np.array_equal(ref_mat, hamiltonian.get_matrix())
         ansatz = QAOAAnsatz(hamiltonian, num_layers=num_layers)
         ansatz.draw_circuit()
