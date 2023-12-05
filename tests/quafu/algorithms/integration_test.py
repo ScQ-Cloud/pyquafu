@@ -20,7 +20,7 @@ from quafu.algorithms import Hamiltonian, QAOAAnsatz, Estimator
 from quafu import simulate
 from scipy.optimize import minimize
 import heapq
-
+import matplotlib.pyplot as plt
 from quafu.algorithms.ansatz import AlterLayeredAnsatz
 
 
@@ -60,12 +60,95 @@ class TestQAOA:
         should have the highest probability
         """
         num_layers = 2
-        hamlitonian = Hamiltonian.from_pauli_list(
+        print("The test for ansatz.")
+        
+        # test the zero qubit evolution
+        hamiltonian__ = Hamiltonian.from_pauli_list(
+            [("IIIII", 1), ("IIIII", 1), ("IIIII", 1), ("IIIII", 1)]
+        )
+        ansatz__ = QAOAAnsatz(hamiltonian__, num_layers=num_layers)
+        ansatz__.draw_circuit()
+
+        # test the single qubit evolution
+        hamiltonian_x = Hamiltonian.from_pauli_list(
+            [("IIIIX", 1), ("IIIXI", 1), ("IXIII", 1), ("XIIII", 1)]
+        )
+        ansatz_x = QAOAAnsatz(hamiltonian_x, num_layers=num_layers)
+        ansatz_x.draw_circuit()
+        hamiltonian_y = Hamiltonian.from_pauli_list(
+            [("IIIIY", 1), ("IIIYI", 1), ("IYIII", 1), ("YIIII", 1)]
+        )
+        ansatz_y = QAOAAnsatz(hamiltonian_y, num_layers=num_layers)
+        ansatz_y.draw_circuit()
+        hamiltonian_z = Hamiltonian.from_pauli_list(
+            [("IIIIZ", 1), ("IIIZI", 1), ("IZIII", 1), ("ZIIII", 1)]
+        )
+        ansatz_z = QAOAAnsatz(hamiltonian_z, num_layers=num_layers)
+        ansatz_z.draw_circuit()
+
+        # test the two qubits evolution
+        hamiltonian_xx = Hamiltonian.from_pauli_list(
+            [("IIIXX", 1), ("IIXIX", 1), ("IXIIX", 1), ("XIIIX", 1)]
+        )
+        ansatz_xx = QAOAAnsatz(hamiltonian_xx, num_layers=num_layers)
+        ansatz_xx.draw_circuit()
+        hamiltonian_xy = Hamiltonian.from_pauli_list(
+            [("IIIYX", 1), ("IIYIX", 1), ("IYIIX", 1), ("YIIIX", 1)]
+        )
+        ansatz_xy = QAOAAnsatz(hamiltonian_xy, num_layers=num_layers)
+        ansatz_xy.draw_circuit()
+        hamiltonian_xz = Hamiltonian.from_pauli_list(
+            [("IIIXZ", 1), ("IIZIX", 1), ("IZIIX", 1), ("ZIIIX", 1)]
+        )
+        ansatz_xz = QAOAAnsatz(hamiltonian_xz, num_layers=num_layers)
+        ansatz_xz.draw_circuit()
+        hamiltonian_yx = Hamiltonian.from_pauli_list(
+            [("IIIXY", 1), ("IIXIY", 1), ("IXIIY", 1), ("XIIIY", 1)]
+        )
+        ansatz_yx = QAOAAnsatz(hamiltonian_yx, num_layers=num_layers)
+        ansatz_yx.draw_circuit()
+        hamiltonian_yy = Hamiltonian.from_pauli_list(
+            [("IIIYY", 1), ("IIYIY", 1), ("IYIIY", 1), ("YIIIY", 1)]
+        )
+        ansatz_yy = QAOAAnsatz(hamiltonian_yy, num_layers=num_layers)
+        ansatz_yy.draw_circuit()
+        hamiltonian_yz = Hamiltonian.from_pauli_list(
+            [("IIIZY", 1), ("IIZIY", 1), ("IZIIY", 1), ("ZIIIY", 1)]
+        )
+        ansatz_yz = QAOAAnsatz(hamiltonian_yz, num_layers=num_layers)
+        ansatz_yz.draw_circuit()
+        hamiltonian_zx = Hamiltonian.from_pauli_list(
+            [("IIIXZ", 1), ("IIXIZ", 1), ("IXIIZ", 1), ("XIIIZ", 1)]
+        )
+        ansatz_zx = QAOAAnsatz(hamiltonian_zx, num_layers=num_layers)
+        ansatz_zx.draw_circuit()
+        hamiltonian_zy = Hamiltonian.from_pauli_list(
+            [("IIIYZ", 1), ("IIYIZ", 1), ("IYIIZ", 1), ("YIIIZ", 1)]
+        )
+        ansatz_zy = QAOAAnsatz(hamiltonian_zy, num_layers=num_layers)
+        ansatz_zy.draw_circuit()
+        hamiltonian_zz = Hamiltonian.from_pauli_list(
             [("IIIZZ", 1), ("IIZIZ", 1), ("IZIIZ", 1), ("ZIIIZ", 1)]
         )
-        ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
-        assert np.array_equal(ref_mat, hamlitonian.get_matrix())
-        ansatz = QAOAAnsatz(hamlitonian, num_layers=num_layers)
+        ansatz_zz = QAOAAnsatz(hamiltonian_zz, num_layers=num_layers)
+        ansatz_zz.draw_circuit()
+
+        # test the multiple qubits evolution
+        hamiltonian_multi = Hamiltonian.from_pauli_list(
+            [("XYZIX", 1), ("XYIZX", 1), ("XIYZX", 1), ("IXYZX", 1)]
+        )
+        ansatz_multi = QAOAAnsatz(hamiltonian_multi, num_layers=num_layers)
+        ansatz_multi.draw_circuit()
+        ansatz_multi.plot_circuit(title='MULTI QUBITS')
+        plt.show()
+
+        hamiltonian = Hamiltonian.from_pauli_list(
+            [("IIIZZ", 1), ("IIZIZ", 1), ("IZIIZ", 1), ("ZIIIZ", 1)]
+        )
+        # ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
+        ref_mat = np.load("data/qaoa_hamiltonian.npy")
+        assert np.array_equal(ref_mat, hamiltonian.get_matrix())
+        ansatz = QAOAAnsatz(hamiltonian, num_layers=num_layers)
         ansatz.draw_circuit()
 
         def cost_func(params, ham, estimator: Estimator):
@@ -75,7 +158,7 @@ class TestQAOA:
         est = Estimator(ansatz)
         # params = 2 * np.pi * np.random.rand(num_layers * 2)
         params = 2 * np.pi * np.random.rand(ansatz.num_parameters)
-        res = minimize(cost_func, params, args=(hamlitonian, est), method="COBYLA")
+        res = minimize(cost_func, params, args=(hamiltonian, est), method="COBYLA")
         print(res)
         ansatz.measure(list(range(5)))
         ansatz.draw_circuit()
