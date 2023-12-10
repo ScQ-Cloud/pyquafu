@@ -20,11 +20,37 @@ from quafu import QuantumCircuit
 from ..gradients import compute_vjp, jacobian, run_circ
 
 
+# TODO(zhaoyilun): impl a ABC for transformers
 class TorchTransformer:
     @staticmethod
     def init_weights(shape):
         """Return torch gradient tensor with specified shape"""
         return torch.randn(*shape, requires_grad=True, dtype=torch.double)
+
+    # TODO(zhaoyilun): doc
+    @staticmethod
+    def execute(
+        circ: QuantumCircuit,
+        parameters: torch.Tensor,
+        run_fn=run_circ,
+        grad_fn=None,
+        method="internal",
+    ):
+        """execute.
+
+        Args:
+            circ:
+            run_fn:
+            grad_fn:
+        """
+
+        kwargs = {"circ": circ, "run_fn": run_fn, "grad_fn": grad_fn}
+
+        if method == "external":
+            return ExecuteCircuits.apply(parameters, kwargs)
+        if method == "internal":
+            return ExecuteCircuits.apply(circ.weights, kwargs)
+        raise NotImplementedError(f"Unsupported execution method: {method}")
 
 
 class ExecuteCircuits(torch.autograd.Function):
@@ -51,29 +77,3 @@ class ExecuteCircuits(torch.autograd.Function):
         vjp = compute_vjp(jac, grad_out.numpy())
         vjp = torch.from_numpy(vjp)
         return vjp, None
-
-
-# TODO(zhaoyilun): doc
-def execute(
-    circ: QuantumCircuit,
-    parameters: torch.Tensor,
-    run_fn=run_circ,
-    grad_fn=None,
-    method="internal",
-):
-    """execute.
-
-    Args:
-        circ:
-        run_fn:
-        grad_fn:
-    """
-
-    kwargs = {"circ": circ, "run_fn": run_fn, "grad_fn": grad_fn}
-
-    if method == "external":
-        return ExecuteCircuits.apply(parameters, kwargs)
-    elif method == "internal":
-        return ExecuteCircuits.apply(circ.weights, kwargs)
-    else:
-        raise NotImplementedError(f"Unsupported execution method: {method}")

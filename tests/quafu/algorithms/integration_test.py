@@ -61,7 +61,7 @@ class TestQAOA:
         """
         num_layers = 2
         print("The test for ansatz.")
-        
+
         # test the zero qubit evolution
         hamiltonian__ = Hamiltonian.from_pauli_list(
             [("IIIII", 1), ("IIIII", 1), ("IIIII", 1), ("IIIII", 1)]
