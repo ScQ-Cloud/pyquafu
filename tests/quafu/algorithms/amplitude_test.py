@@ -17,7 +17,7 @@ from quafu.algorithms import AmplitudeEmbedding
 import numpy as np
 
 class TestAmplitudeEmbedding:
-    """Example of angle embedding"""
+    """Example of amplitude embedding"""
 
     def test_build(self):
         num_qubits = 2
