@@ -123,7 +123,7 @@ def customize_gate(cls_name: str,
         raise ValueError(f"Gate class {cls_name} already exists.")
 
     attrs = {'cls_name': cls_name,
-             'gate_structure': gate_structure,  # TODO: translate
+             'gate_structure': gate_structure,
              'qubit_num': qubit_num,
              }
 

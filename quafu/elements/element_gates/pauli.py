@@ -1,13 +1,14 @@
 import numpy as np
 
 from quafu.elements.matrices import XMatrix, YMatrix, ZMatrix, WMatrix, SWMatrix
-from quafu.elements.quantum_gate import FixedGate, SingleQubitGate
+from quafu.elements.quantum_gate import FixedGate, SingleQubitGate, QuantumGate
 
 __all__ = ['IdGate', 'XGate', 'YGate', 'ZGate',
            'WGate', 'SWGate', 'SWdgGate',
            'SXGate', 'SYGate', 'SXdgGate', 'SYdgGate']  # hint: "SZ" gate is S contained in Clifford gates
 
 
+@QuantumGate.register('id')
 class IdGate(FixedGate, SingleQubitGate):
     name = "Id"
     matrix = XMatrix
@@ -16,6 +17,7 @@ class IdGate(FixedGate, SingleQubitGate):
         FixedGate.__init__(self, pos)
 
 
+@QuantumGate.register('x')
 class XGate(FixedGate, SingleQubitGate):
     name = "X"
     matrix = XMatrix
@@ -24,6 +26,7 @@ class XGate(FixedGate, SingleQubitGate):
         FixedGate.__init__(self, pos)
 
 
+@QuantumGate.register('y')
 class YGate(FixedGate, SingleQubitGate):
     name = "Y"
     matrix = YMatrix
@@ -32,6 +35,7 @@ class YGate(FixedGate, SingleQubitGate):
         FixedGate.__init__(self, pos)
 
 
+@QuantumGate.register('z')
 class ZGate(FixedGate, SingleQubitGate):
     name = "Z"
     matrix = ZMatrix
@@ -40,6 +44,7 @@ class ZGate(FixedGate, SingleQubitGate):
         FixedGate.__init__(self, pos)
 
 
+@QuantumGate.register('w')
 class WGate(FixedGate, SingleQubitGate):
     """ (X+Y)/sqrt(2) """
     name = "W"
@@ -57,6 +62,7 @@ class WGate(FixedGate, SingleQubitGate):
         )
 
 
+@QuantumGate.register('sw')
 class SWGate(FixedGate, SingleQubitGate):
     name = "SW"
     matrix = SWMatrix
@@ -73,6 +79,7 @@ class SWGate(FixedGate, SingleQubitGate):
         )
 
 
+@QuantumGate.register('swdg')
 class SWdgGate(FixedGate, SingleQubitGate):
     name = "SWdg"
     matrix = SWMatrix
@@ -89,6 +96,7 @@ class SWdgGate(FixedGate, SingleQubitGate):
         )
 
 
+@QuantumGate.register('sx')
 class SXGate(FixedGate, SingleQubitGate):
     name = "SX"
     matrix = np.array(
@@ -99,6 +107,7 @@ class SXGate(FixedGate, SingleQubitGate):
         FixedGate.__init__(self, pos)
 
 
+@QuantumGate.register('sxdg')
 class SXdgGate(FixedGate, SingleQubitGate):
     name = "SXdg"
     matrix = SXGate.matrix.conj().T
@@ -108,6 +117,7 @@ class SXdgGate(FixedGate, SingleQubitGate):
         self.symbol = "√X†"
 
 
+@QuantumGate.register('sy')
 class SYGate(FixedGate, SingleQubitGate):
     name = "SY"
     matrix = np.array(
@@ -122,6 +132,7 @@ class SYGate(FixedGate, SingleQubitGate):
         return "ry(pi/2) q[%d];" % self.pos
 
 
+@QuantumGate.register('sydg')
 class SYdgGate(FixedGate, SingleQubitGate):
     name = "SYdg"
     matrix = SYGate.matrix.conj().T
@@ -134,14 +145,14 @@ class SYdgGate(FixedGate, SingleQubitGate):
         return "ry(-pi/2) q[%d]" % self.pos
 
 
-SingleQubitGate.register_gate(IdGate)
-SingleQubitGate.register_gate(XGate)
-SingleQubitGate.register_gate(YGate)
-SingleQubitGate.register_gate(ZGate)
-SingleQubitGate.register_gate(WGate)
-SingleQubitGate.register_gate(SWGate)
-SingleQubitGate.register_gate(SWdgGate)
-SingleQubitGate.register_gate(SXGate)
-SingleQubitGate.register_gate(SXdgGate)
-SingleQubitGate.register_gate(SYGate)
-SingleQubitGate.register_gate(SYdgGate)
+# SingleQubitGate.register_gate(IdGate)
+# SingleQubitGate.register_gate(XGate)
+# SingleQubitGate.register_gate(YGate)
+# SingleQubitGate.register_gate(ZGate)
+# SingleQubitGate.register_gate(WGate)
+# SingleQubitGate.register_gate(SWGate)
+# SingleQubitGate.register_gate(SWdgGate)
+# SingleQubitGate.register_gate(SXGate)
+# SingleQubitGate.register_gate(SXdgGate)
+# SingleQubitGate.register_gate(SYGate)
+# SingleQubitGate.register_gate(SYdgGate)
