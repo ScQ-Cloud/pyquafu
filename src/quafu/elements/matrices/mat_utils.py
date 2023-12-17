@@ -17,6 +17,7 @@ def reorder_matrix(matrix: np.ndarray, pos: List):
     tensorm = matrix.reshape([2] * 2 * qnum)
     return np.transpose(tensorm, inds).reshape([dim, dim])
 
+
 def split_matrix(matrix: ndarray):
     """
     Evenly split a matrix into 4 sub-matrices.

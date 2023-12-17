@@ -87,7 +87,7 @@ class Barrier(Instruction):
 
     @property
     def named_pos(self):
-        return self.named_pos
+        return {'pos': self.pos}
 
     @property
     def named_paras(self):

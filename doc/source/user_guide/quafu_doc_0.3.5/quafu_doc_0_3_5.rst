@@ -25,7 +25,7 @@ Set up your Quafu account
 
 If you haven’t have an account, you may register on the
 `Quafu <http://quafu.baqis.ac.cn/>`__ website at first. Then you will
-find your apitoken ``<your API token>``\ on the ``Dashboard`` page,
+find your apitoken ``<your API token>`` on the ``Dashboard`` page,
 which is required when you send tasks to ScQ-chips.
 
 By executing the following codes your token will be saved to your local
@@ -98,12 +98,11 @@ circuit.
    gate = qeg.XGate(pos=0)
    qc.add_gate(gate)
 
-This is actually what ’\ ``.name(args)`` functions do. You would find
+This is actually what ``.name(args)`` functions do. You would find
 the second style convenient when build a new circuit from existing one.
 
-For quantum gates Quafu supports, please check the API reference for
-```QuantumCircuit`` <apiref/#quafu.QuantumCircuit>`__ or use
-python-buitin ``dir()`` method.
+For quantum gates Quafu supports, please check the API reference for :ref:`quantum_circuit`
+or use python-buitin ``dir()`` method.
 
 .. code:: python
 
@@ -136,8 +135,7 @@ Visualize
 
 From ``version=0.3.2``, ``PyQuafu`` provides two similiar ways to
 visualize quantum circuits. You can draw the circuit using the
-```draw_circuit`` <apiref/#quafu.circuits.quantum_circuit.QuantumCircuit.draw_circuit>`__
-method and use ``width`` parameter to adjust the length of the circuit.
+``draw_circuit`` method and use ``width`` parameter to adjust the length of the circuit.
 
 .. code:: python
 
@@ -224,7 +222,7 @@ First, initialize a Task object
    task = Task()
 
 You can configure your task properties using the
-```config`` <apiref/#quafu.tasks.tasks.Task.config>`__ method. Here we
+``config`` method. Here we
 choose the backend (``backend``) as ``ScQ-P18``, the single shots number
 (``shots``) as 2000 and compile the circuit on the backend
 (``compile``).
@@ -286,8 +284,7 @@ provide simple circuit similator
 
 If you don’t want to plot the results for basis with zero probabilities,
 set the parameter ``full`` in method
-```plot_probabilities`` <apiref/#quafu.results.results.SimuResult.plot_probabilities>`__
-to False. Note that this parameter is only valid for results returned by
+``plot_probabilities`` to False. Note that this parameter is only valid for results returned by
 the simulator.
 
 A Subtle detail
@@ -347,11 +344,11 @@ Measure observables
 
 Quafu provides measuring observables with an executed quantum circuit.
 You can input Pauli operators that need to measure expectation values to
-the ```submit`` <apiref/#quafu.tasks.tasks.Task.submit>`__ method. For
+the ``submit`` <apiref/#quafu.tasks.tasks.Task.submit>`__ method. For
 example, you can input [[“XYX”, [0, 1, 2]], [“Z”, [1]]] to calculate the
 expectation of operators :math:`\sigma^x_0\sigma^y_1\sigma^x_2` and
 :math:`\sigma^z_1`. The
-```submit`` <apiref/#quafu.tasks.tasks.Task.submit>`__ method will
+``submit`` <apiref/#quafu.tasks.tasks.Task.submit>`__ method will
 minimize the executing times of the circuit with different measurement
 basis that can calculate all expectations of input operators.
 
@@ -387,7 +384,7 @@ First, we initialize a circuit with three Hadamard gate
 
 Next, we set operators that need to be measured to calculate the energy
 expectation, and submit the circuit using
-```submit`` <apiref/#quafu.tasks.tasks.Task.submit>`__ method
+``submit`` method
 
 .. code:: python
 
@@ -438,7 +435,7 @@ Submit task asynchronously
 
 In the above examples, we chose opening python kernal and waiting for
 the result. You may also set the ``wait=False`` in
-```send`` <apiref/#quafu.tasks.tasks.Task.send>`__ function to submit
+``send`` function to submit
 the task asynchronously. Here we use another example that measures the
 qubit decoherence time :math:`T_1` to demonstrate the usage.
 
@@ -461,13 +458,13 @@ Prepare parameters of a group of tasks and send the task asynchronously.
        res = task.send(q, wait=False, name=name, group="Q3_T1")
 
 Here the ``delay`` options will idle the target qubit ``2`` for a
-duration ``t`` in the time unit ``us``\ (microsecond) and do nothing. In
+duration ``t`` in the time unit ``us`` (microsecond) and do nothing. In
 the send function, we set ``wait`` to false to execute the task
 asynchronously, give each task a name by duration time and set all tasks
-to a group named “Q3_T1”.
+to a group named "Q3_T1".
 
 Now we can try to retrieve the group of tasks using the
-```retrieve_group`` <apiref/#quafu.tasks.tasks.Task.retrieve_group>`__
+``retrieve_group``
 method.
 
 .. code:: python
