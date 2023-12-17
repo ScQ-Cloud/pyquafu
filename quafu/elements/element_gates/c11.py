@@ -13,7 +13,7 @@ class _C11Gate(ControlledGate, ABC):
     ct_dims = (1, 1, 2)
 
 
-@QuantumGate.register_gate('cx')
+@QuantumGate.register('cx')
 class CXGate(_C11Gate, FixedGate):
     name = "CX"
 
@@ -22,7 +22,7 @@ class CXGate(_C11Gate, FixedGate):
         self.symbol = "+"
 
 
-@QuantumGate.register_gate('cy')
+@QuantumGate.register('cy')
 class CYGate(_C11Gate, FixedGate):
     name = "CY"
 
@@ -30,7 +30,7 @@ class CYGate(_C11Gate, FixedGate):
         _C11Gate.__init__(self, "Y", [ctrl], [targ], None, tar_matrix=YMatrix)
 
 
-@QuantumGate.register_gate('cz')
+@QuantumGate.register('cz')
 class CZGate(_C11Gate, FixedGate):
     name = "CZ"
 
@@ -38,7 +38,7 @@ class CZGate(_C11Gate, FixedGate):
         _C11Gate.__init__(self, "Z", [ctrl], [targ], None, tar_matrix=ZMatrix)
 
 
-@QuantumGate.register_gate('cs')
+@QuantumGate.register('cs')
 class CSGate(_C11Gate, FixedGate):
     name = "CS"
 
@@ -49,7 +49,7 @@ class CSGate(_C11Gate, FixedGate):
         return "cp(pi/2) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 
-@QuantumGate.register_gate('ct')
+@QuantumGate.register('ct')
 class CTGate(_C11Gate, FixedGate):
     name = "CT"
 
@@ -60,7 +60,7 @@ class CTGate(_C11Gate, FixedGate):
         return "cp(pi/4) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 
-@QuantumGate.register_gate('cp')
+@QuantumGate.register('cp')
 class CPGate(_C11Gate):
     name = "CP"
 

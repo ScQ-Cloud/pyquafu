@@ -4,7 +4,7 @@ from quafu.elements.matrices import XMatrix, YMatrix, ZMatrix
 __all__ = ['MCXGate', 'MCYGate', 'MCZGate', 'ToffoliGate']
 
 
-@QuantumGate.register_gate('mcx')
+@QuantumGate.register('mcx')
 class MCXGate(ControlledGate, FixedGate):
     name = "MCX"
 
@@ -12,7 +12,7 @@ class MCXGate(ControlledGate, FixedGate):
         ControlledGate.__init__(self, "X", ctrls, [targ], None, tar_matrix=XMatrix)
 
 
-@QuantumGate.register_gate('mcy')
+@QuantumGate.register('mcy')
 class MCYGate(ControlledGate, FixedGate):
     name = "MCY"
 
@@ -20,7 +20,7 @@ class MCYGate(ControlledGate, FixedGate):
         ControlledGate.__init__(self, "Y", ctrls, [targ], None, tar_matrix=YMatrix)
 
 
-@QuantumGate.register_gate('mcz')
+@QuantumGate.register('mcz')
 class MCZGate(ControlledGate, FixedGate):
     name = "MCZ"
 
@@ -28,7 +28,7 @@ class MCZGate(ControlledGate, FixedGate):
         ControlledGate.__init__(self, "Z", ctrls, [targ], None, tar_matrix=ZMatrix)
 
 
-@QuantumGate.register_gate('ccx')
+@QuantumGate.register('ccx')
 class ToffoliGate(ControlledGate, FixedGate):
     name = "CCX"
 
