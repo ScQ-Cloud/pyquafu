@@ -21,8 +21,14 @@ from quafu.circuits.quantum_circuit import QuantumCircuit
 from scipy.sparse import coo_matrix, eye, kron
 from sparse import COO, SparseArray
 
-from ..elements import (Barrier, Delay, MultiQubitGate, QuantumGate,
-                        SingleQubitGate, XYResonance)
+from ..elements import (
+    Barrier,
+    Delay,
+    MultiQubitGate,
+    QuantumGate,
+    SingleQubitGate,
+    XYResonance,
+)
 from ..results.results import SimuResult
 
 
@@ -32,7 +38,7 @@ def global_op(gate: QuantumGate, global_qubits: List) -> coo_matrix:
     if isinstance(gate, SingleQubitGate):
         local_mat = coo_matrix(gate.matrix)
         pos = global_qubits.index(gate.pos)
-        local_mat = kron(kron(eye(2**pos), local_mat), eye(2**(num - pos - 1)))
+        local_mat = kron(kron(eye(2**pos), local_mat), eye(2 ** (num - pos - 1)))
         return local_mat
 
     elif isinstance(gate, MultiQubitGate):
@@ -41,21 +47,19 @@ def global_op(gate: QuantumGate, global_qubits: List) -> coo_matrix:
         num_left = min(pos)
         num_right = num - max(pos) - 1
         num_center = max(pos) - min(pos) + 1
-        center_mat = kron(local_mat, eye(2**(num_center - len(pos))))
+        center_mat = kron(local_mat, eye(2 ** (num_center - len(pos))))
         origin_order = sorted(pos)
-        origin_order.extend(
-            [p for p in range(min(pos),
-                              max(pos) + 1) if p not in pos])
+        origin_order.extend([p for p in range(min(pos), max(pos) + 1) if p not in pos])
         new_order = np.argsort(origin_order)
         center_mat = COO.from_scipy_sparse(center_mat)
         center_mat = permutebits(center_mat, new_order).to_scipy_sparse()
-        center_mat = kron(kron(eye(2**num_left), center_mat),
-                          eye(2**num_right))
+        center_mat = kron(kron(eye(2**num_left), center_mat), eye(2**num_right))
         return center_mat
 
 
-def permutebits(mat: Union[SparseArray, np.ndarray],
-                order: Iterable) -> Union[SparseArray, np.ndarray]:
+def permutebits(
+    mat: Union[SparseArray, np.ndarray], order: Iterable
+) -> Union[SparseArray, np.ndarray]:
     """permute qubits for operators or states"""
     num = len(order)
     order = np.array(order)
@@ -75,19 +79,19 @@ def ptrace(psi, ind_A: List, diag: bool = True) -> np.ndarray:
 
     psi = permutebits(psi, order)
     if diag:
-        psi = np.abs(psi)**2
-        psi = np.reshape(psi, [2**len(ind_A), 2**(num - len(ind_A))])
+        psi = np.abs(psi) ** 2
+        psi = np.reshape(psi, [2 ** len(ind_A), 2 ** (num - len(ind_A))])
         psi = np.sum(psi, axis=1)
         return psi
     else:
-        psi = np.reshape(psi, [2**len(ind_A), 2**(num - len(ind_A))])
+        psi = np.reshape(psi, [2 ** len(ind_A), 2 ** (num - len(ind_A))])
         rho = psi @ np.conj(np.transpose(psi))
         return rho
 
 
-def py_simulate(qc: QuantumCircuit,
-                state_ini: np.ndarray = np.array([]),
-                output: str = "amplitudes") -> SimuResult:
+def py_simulate(
+    qc: QuantumCircuit, state_ini: np.ndarray = np.array([]), output: str = "amplitudes"
+) -> SimuResult:
     """Simulate quantum circuit
     Args:
         qc: quantum circuit need to be simulated.
@@ -109,8 +113,11 @@ def py_simulate(qc: QuantumCircuit,
         psi = state_ini
 
     for gate in qc.gates:
-        if not ((isinstance(gate, Delay)) or
-                (isinstance(gate, Barrier)) or isinstance(gate, XYResonance)):
+        if not (
+            (isinstance(gate, Delay))
+            or (isinstance(gate, Barrier))
+            or isinstance(gate, XYResonance)
+        ):
             op = global_op(gate, used_qubits)
             psi = op @ psi
 

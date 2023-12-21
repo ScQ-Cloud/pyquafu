@@ -13,6 +13,7 @@ class QuantumGate(Instruction, ABC):
     Attributes:
 
     """
+
     gate_classes = {}
 
     def __init__(
@@ -24,8 +25,11 @@ class QuantumGate(Instruction, ABC):
 
         if paras is not None:
             if isinstance(paras, Iterable):
-                self.symbol = "%s(" % self.name + ",".join(
-                    ["%.3f" % para for para in self.paras]) + ")"
+                self.symbol = (
+                    "%s(" % self.name
+                    + ",".join(["%.3f" % para for para in self.paras])
+                    + ")"
+                )
             else:
                 self.symbol = "%s(%.3f)" % (self.name, paras)
         else:
@@ -37,18 +41,21 @@ class QuantumGate(Instruction, ABC):
             return
         self.paras = paras
         if isinstance(paras, Iterable):
-            self.symbol = ("%s(" % self.name +
-                           ",".join(["%.3f" % para
-                                     for para in self.paras]) + ")")
+            self.symbol = (
+                "%s(" % self.name
+                + ",".join(["%.3f" % para for para in self.paras])
+                + ")"
+            )
         else:
             self.symbol = "%s(%.3f)" % (self.name, paras)
 
     @property
     @abstractmethod
     def matrix(self):
-        raise NotImplementedError("Matrix is not implemented for %s" %
-                                  self.__class__.__name__ +
-                                  ", this should never happen.")
+        raise NotImplementedError(
+            "Matrix is not implemented for %s" % self.__class__.__name__
+            + ", this should never happen."
+        )
 
     @classmethod
     def register_gate(cls, subclass, name: str = None):
@@ -64,7 +71,6 @@ class QuantumGate(Instruction, ABC):
 
     @classmethod
     def register(cls, name: str = None):
-
         def wrapper(subclass):
             cls.register_gate(subclass, name)
             return subclass
@@ -72,12 +78,17 @@ class QuantumGate(Instruction, ABC):
         return wrapper
 
     def __str__(self):
-        properties_names = ['pos', 'paras', 'matrix']
+        properties_names = ["pos", "paras", "matrix"]
         properties_values = [getattr(self, x) for x in properties_names]
-        return "%s:\n%s" % (self.__class__.__name__, '\n'.join([
-            f"{x} = {repr(properties_values[i])}"
-            for i, x in enumerate(properties_names)
-        ]))
+        return "%s:\n%s" % (
+            self.__class__.__name__,
+            "\n".join(
+                [
+                    f"{x} = {repr(properties_values[i])}"
+                    for i, x in enumerate(properties_names)
+                ]
+            ),
+        )
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
@@ -87,8 +98,7 @@ class QuantumGate(Instruction, ABC):
 
         if self.paras is not None:
             if isinstance(self.paras, Iterable):
-                qstr += "(" + ",".join(["%s" % para
-                                        for para in self.paras]) + ")"
+                qstr += "(" + ",".join(["%s" % para for para in self.paras]) + ")"
             else:
                 qstr += "(%s)" % self.paras
         qstr += " "
@@ -107,7 +117,6 @@ class QuantumGate(Instruction, ABC):
 
 
 class SingleQubitGate(QuantumGate, ABC):
-
     def __init__(self, pos: int, paras: float = None):
         QuantumGate.__init__(self, pos=pos, paras=paras)
 
@@ -116,18 +125,15 @@ class SingleQubitGate(QuantumGate, ABC):
 
     @property
     def named_pos(self) -> Dict:
-        return {'pos': self.pos}
+        return {"pos": self.pos}
 
 
 class MultiQubitGate(QuantumGate, ABC):
-
     def __init__(self, pos: List, paras: float = None):
         QuantumGate.__init__(self, pos, paras)
 
     def get_targ_matrix(self, reverse_order=False):
-        """
-
-        """
+        """ """
         targ_matrix = self.matrix
 
         if reverse_order and (len(self.pos) > 1):
@@ -141,7 +147,6 @@ class MultiQubitGate(QuantumGate, ABC):
 
 
 class ParametricGate(QuantumGate, ABC):
-
     def __init__(self, pos: PosType, paras: Union[float, List[float]]):
         if paras is None:
             raise ValueError("`paras` can not be None for ParametricGate")
@@ -149,18 +154,19 @@ class ParametricGate(QuantumGate, ABC):
 
     @property
     def named_paras(self) -> Dict:
-        return {'paras': self.paras}
+        return {"paras": self.paras}
 
     @property
     def named_pos(self) -> Dict:
-        return {'pos': self.pos}
+        return {"pos": self.pos}
 
 
 class ControlledGate(MultiQubitGate, ABC):
-    """ Controlled gate class, where the matrix act non-trivially on target qubits"""
+    """Controlled gate class, where the matrix act non-trivially on target qubits"""
 
-    def __init__(self, targe_name, ctrls: List[int], targs: List[int], paras,
-                 tar_matrix):
+    def __init__(
+        self, targe_name, ctrls: List[int], targs: List[int], paras, tar_matrix
+    ):
         MultiQubitGate.__init__(self, ctrls + targs, paras)
         self.ctrls = ctrls
         self.targs = targs
@@ -179,8 +185,11 @@ class ControlledGate(MultiQubitGate, ABC):
 
         if paras is not None:
             if isinstance(paras, Iterable):
-                self.symbol = "%s(" % self.targ_name + ",".join(
-                    ["%.3f" % para for para in self.paras]) + ")"
+                self.symbol = (
+                    "%s(" % self.targ_name
+                    + ",".join(["%.3f" % para for para in self.paras])
+                    + ")"
+                )
             else:
                 self.symbol = "%s(%.3f)" % (self.targ_name, paras)
         else:
@@ -211,7 +220,7 @@ class ControlledGate(MultiQubitGate, ABC):
 
     @property
     def named_pos(self) -> Dict:
-        return {'ctrls': self.ctrls, 'targs': self.targs}
+        return {"ctrls": self.ctrls, "targs": self.targs}
 
 
 # class ParaSingleQubitGate(SingleQubitGate, ABC):
@@ -242,7 +251,6 @@ class ControlledGate(MultiQubitGate, ABC):
 
 
 class FixedGate(QuantumGate, ABC):
-
     def __init__(self, pos):
         super().__init__(pos=pos, paras=None)
 

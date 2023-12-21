@@ -5,12 +5,10 @@ from typing import Any, Dict, List, Union
 @dataclasses.dataclass
 class InstructionNode:
     name: Any  # gate.name
-    pos: Union[List[Any], Dict[Any,
-                               Any]]  # gate.pos |  Dict[Any,Any] for measure
+    pos: Union[List[Any], Dict[Any, Any]]  # gate.pos |  Dict[Any,Any] for measure
     paras: List[Any]  # gate.paras
     # matrix:List[Any]   # for gate in [QuantumGate]
-    duration: Union[
-        float, int]  # for gate in [Delay,XYResonance,QuantumPulse] in quafu
+    duration: Union[float, int]  # for gate in [Delay,XYResonance,QuantumPulse] in quafu
     unit: str  # for gate in [Delay,XYResonance] in quafu
     channel: str  # for gate in [QuantumPulse] in quafu
     time_func: Any  # for gate in [QuantumPulse] in quafu

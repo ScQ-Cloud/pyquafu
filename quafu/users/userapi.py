@@ -29,9 +29,9 @@ class User(object):
     exec_async_api = "qbackend/scq_kit_asyc/"
     exec_recall_api = "qbackend/scq_task_recall/"
 
-    def __init__(self,
-                 api_token: Optional[str] = None,
-                 token_dir: Optional[str] = None):
+    def __init__(
+        self, api_token: Optional[str] = None, token_dir: Optional[str] = None
+    ):
         """
         Initialize user account and load backend information.
 
@@ -71,7 +71,8 @@ class User(object):
             warnings.warn(
                 "The argument 'apitoken' in this function will be deprecated "
                 "in the future, please set api token by providing 'api_token' "
-                "or 'token_dir' when initialize User().")
+                "or 'token_dir' when initialize User()."
+            )
             self._api_token = apitoken
 
         file_dir = self.token_dir
@@ -89,8 +90,7 @@ class User(object):
         """
         file_dir = self.token_dir + "api"
         if not os.path.exists(file_dir):
-            raise UserError(
-                "Please first save api token using `User.save_apitoken()`")
+            raise UserError("Please first save api token using `User.save_apitoken()`")
         with open(file_dir, "r") as f:
             items = f.readlines()
             token = items[0].strip()
@@ -105,7 +105,7 @@ class User(object):
         url = self.url + self.backends_api
         response = requests.post(url=url, headers=headers)
         backends_info = response.json()
-        if backends_info['status'] == 201:
+        if backends_info["status"] == 201:
             raise UserError(backends_info["message"])
         else:
             return backends_info["data"]
@@ -118,17 +118,19 @@ class User(object):
 
         backends_info = self._get_backends_info()
         self._available_backends = {
-            info["system_name"]: Backend(info)
-            for info in backends_info
+            info["system_name"]: Backend(info) for info in backends_info
         }
 
         if print_info:
-            print("\t ".join(
-                ["system_name".ljust(10), "qubits".ljust(5), "status"]))
+            print("\t ".join(["system_name".ljust(10), "qubits".ljust(5), "status"]))
             for backend in self._available_backends.values():
-                print("\t ".join([
-                    backend.name.ljust(10),
-                    str(backend.qubit_num).ljust(5),
-                    backend.status,
-                ]))
+                print(
+                    "\t ".join(
+                        [
+                            backend.name.ljust(10),
+                            str(backend.qubit_num).ljust(5),
+                            backend.status,
+                        ]
+                    )
+                )
         return self._available_backends

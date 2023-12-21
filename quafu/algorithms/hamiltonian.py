@@ -52,8 +52,7 @@ class Hamiltonian:
         return self._coeffs
 
     @staticmethod
-    def from_pauli_list(
-            pauli_list: Iterable[tuple[str, complex]]) -> Hamiltonian:
+    def from_pauli_list(pauli_list: Iterable[tuple[str, complex]]) -> Hamiltonian:
         """
         Args:
             pauli: The supported format of pauli list is [(<pauli-str>, <coefficient>)],
@@ -90,8 +89,7 @@ class Hamiltonian:
         """Calculate the matrix of a pauli string"""
         mat = None
         for pauli in pauli_str[::-1]:
-            mat = PAULI_MAT[pauli] if mat is None else np.kron(
-                PAULI_MAT[pauli], mat)
+            mat = PAULI_MAT[pauli] if mat is None else np.kron(PAULI_MAT[pauli], mat)
         return mat
 
     def matrix_generator(self):

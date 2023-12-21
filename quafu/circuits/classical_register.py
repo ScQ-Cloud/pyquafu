@@ -29,7 +29,7 @@ class ClassicalRegister:
         if item < self.num:
             return self.pos_start + item
         else:
-            raise IndexError('Index out of range:', item)
+            raise IndexError("Index out of range:", item)
 
     def __iter__(self):
         self._i = 0
@@ -59,8 +59,7 @@ class ClassicalRegister:
         creg = ClassicalRegister(name=self.name)
         creg.cbits = {
             **{self.cbits},
-            **{i + len(self): cbit
-               for i, cbit in other.cbits.items()},
+            **{i + len(self): cbit for i, cbit in other.cbits.items()},
         }
         creg.num = self.num + other.num
         creg.pos_start = self.pos_start

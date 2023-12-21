@@ -4,13 +4,6 @@ repos:
     hooks:
     -   id: remove-crlf
         files: (?!.*third_party)^.*$ | (?!.*book)^.*$
--   repo: https://github.com/pre-commit/mirrors-yapf.git
-    rev: v0.32.0
-    hooks:
-    -   id: yapf
-        files: (.*\.(py|bzl)|BUILD|.*\.BUILD|WORKSPACE)$
-        additional_dependencies: [toml]
-
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
@@ -33,11 +26,6 @@ repos:
         -   --disable=all
         -   --load-plugins=docstring_checker
         -   --enable=doc-string-one-line,doc-string-end-with,doc-string-with-all-args,doc-string-triple-quotes,doc-string-missing,doc-string-indent-error,doc-string-with-returns,doc-string-with-raises
--   repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-    -   id: isort
-        name: isort (python)
 -   repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks.git
     rev: v2.10.0
     hooks:
@@ -52,3 +40,8 @@ repos:
     hooks:
     -   id: clang-format
         args: [-style=file]
+  # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
+-   repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.12.0
+    hooks:
+    -   id: black

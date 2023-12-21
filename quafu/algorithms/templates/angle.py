@@ -20,7 +20,6 @@ ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
 
 class AngleEmbedding:
-
     def __init__(self, features, num_qubits: int, rotation="X"):
         """
         Args:

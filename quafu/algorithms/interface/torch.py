@@ -22,7 +22,6 @@ from ..gradients import compute_vjp, jacobian, run_circ
 
 
 class TorchTransformer:
-
     @staticmethod
     def init_weights(shape):
         """Return torch gradient tensor with specified shape"""
@@ -48,7 +47,7 @@ class ExecuteCircuits(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_out):
-        (parameters, ) = ctx.saved_tensors
+        (parameters,) = ctx.saved_tensors
         jac = jacobian(ctx.circ, parameters.numpy())
         vjp = compute_vjp(jac, grad_out.numpy())
         vjp = torch.from_numpy(vjp)

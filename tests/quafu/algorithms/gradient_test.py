@@ -22,9 +22,9 @@ from quafu.circuits.quantum_circuit import QuantumCircuit
 
 
 class TestParamShift:
-
-    @pytest.mark.skipif(sys.platform == "darwin",
-                        reason="Avoid error on MacOS arm arch.")
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_call(self):
         ham = Hamiltonian.from_pauli_list([("ZZ", 1), ("XI", 1)])
         circ = QuantumCircuit(2)

@@ -14,13 +14,9 @@
 
 
 class BaseTest:
-
-    def assertDictAlmostEqual(self,
-                              dict1,
-                              dict2,
-                              delta=None,
-                              places=None,
-                              default_value=-1):
+    def assertDictAlmostEqual(
+        self, dict1, dict2, delta=None, places=None, default_value=-1
+    ):
         """
         Assert two dictionaries with numeric values are almost equal.
 

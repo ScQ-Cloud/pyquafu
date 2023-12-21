@@ -4,7 +4,7 @@ from quafu.elements.matrices import ISwapMatrix, SwapMatrix
 
 from ..quantum_gate import FixedGate, MultiQubitGate
 
-__all__ = ['ISwapGate', 'SwapGate']
+__all__ = ["ISwapGate", "SwapGate"]
 
 
 class ISwapGate(FixedGate, MultiQubitGate):
@@ -20,7 +20,7 @@ class ISwapGate(FixedGate, MultiQubitGate):
 
     @property
     def named_pos(self) -> Dict:
-        return {'pos': self.pos}
+        return {"pos": self.pos}
 
 
 class SwapGate(FixedGate, MultiQubitGate):
@@ -36,7 +36,7 @@ class SwapGate(FixedGate, MultiQubitGate):
 
     @property
     def named_pos(self) -> Dict:
-        return {'pos': self.pos}
+        return {"pos": self.pos}
 
 
 FixedGate.register_gate(ISwapGate)

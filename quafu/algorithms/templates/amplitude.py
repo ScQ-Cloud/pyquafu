@@ -18,7 +18,6 @@ from quafu.circuits import QuantumCircuit
 
 
 class AmplitudeEmbedding:
-
     def __init__(self, state, num_qubits, pad_with=None, normalize=False):
         """
         Args:
@@ -62,7 +61,8 @@ class AmplitudeEmbedding:
             if pad_with is None and n_state != dim:
                 raise ValueError(
                     f"The length of state should be {dim}; got length {n_state}.Please check num_qubits "
-                    f"or Use the 'pad_with' argument for automated padding.")
+                    f"or Use the 'pad_with' argument for automated padding."
+                )
 
             if pad_with is not None:
                 if n_state > dim:
@@ -77,7 +77,7 @@ class AmplitudeEmbedding:
                     feature_set = np.hstack([feature_set, padding])
 
             # normalize
-            norm = np.sum(np.abs(feature_set)**2)
+            norm = np.sum(np.abs(feature_set) ** 2)
             # tolerance for normalization
             TOLERANCE = 1e-10
             if not np.allclose(norm, 1.0, atol=TOLERANCE):
@@ -86,15 +86,17 @@ class AmplitudeEmbedding:
                 else:
                     raise ValueError(
                         f"state must be a vector of norm 1.0; got norm {norm}. "
-                        "Use 'normalize=True' to automatically normalize.")
+                        "Use 'normalize=True' to automatically normalize."
+                    )
             new_state_batch.append(feature_set)
 
-        return np.stack(new_state_batch).astype(
-            np.complex128) if batched else new_state_batch[0].astype(
-                np.complex128)
+        return (
+            np.stack(new_state_batch).astype(np.complex128)
+            if batched
+            else new_state_batch[0].astype(np.complex128)
+        )
 
     def _build(self):
-
         a = np.abs(self.state)
         omega = np.angle(self.state)
         # change order of qubits, since original code was written for IBM machines
@@ -107,8 +109,8 @@ class AmplitudeEmbedding:
             control = qubits_reverse[k:]
             target = qubits_reverse[k - 1]
             gate_list.extend(
-                _apply_uniform_rotation_dagger(qeg.RYGate, alpha_y_k, control,
-                                               target))
+                _apply_uniform_rotation_dagger(qeg.RYGate, alpha_y_k, control, target)
+            )
 
         # If necessary, apply inverse z rotation cascade to prepare correct phases of amplitudes
         if not np.allclose(omega, 0):
@@ -118,8 +120,10 @@ class AmplitudeEmbedding:
                 target = qubits_reverse[k - 1]
                 if len(alpha_z_k) > 0:
                     gate_list.extend(
-                        _apply_uniform_rotation_dagger(qeg.RZGate, alpha_z_k,
-                                                       control, target))
+                        _apply_uniform_rotation_dagger(
+                            qeg.RZGate, alpha_z_k, control, target
+                        )
+                    )
 
         return gate_list
 
@@ -152,7 +156,6 @@ def gray_code(rank):
 
 
 def _matrix_M_entry(row, col):
-
     # (col >> 1) ^ col is the Gray code of col
     b_and_g = row & ((col >> 1) ^ col)
     sum_of_ones = 0
@@ -162,7 +165,7 @@ def _matrix_M_entry(row, col):
 
         b_and_g = b_and_g >> 1
 
-    return (-1)**sum_of_ones
+    return (-1) ** sum_of_ones
 
 
 def compute_theta(alpha):
@@ -180,7 +183,6 @@ def compute_theta(alpha):
 
 
 def _apply_uniform_rotation_dagger(gate, alpha, control_wires, target_wire):
-
     gate_list = []
     theta = compute_theta(alpha)
 
@@ -207,33 +209,35 @@ def _apply_uniform_rotation_dagger(gate, alpha, control_wires, target_wire):
 
 
 def _get_alpha_z(omega, n, k):
-
-    indices1 = [[(2 * j - 1) * 2**(k - 1) + l - 1
-                 for l in range(1, 2**(k - 1) + 1)]
-                for j in range(1, 2**(n - k) + 1)]
-    indices2 = [[(2 * j - 2) * 2**(k - 1) + l - 1
-                 for l in range(1, 2**(k - 1) + 1)]
-                for j in range(1, 2**(n - k) + 1)]
+    indices1 = [
+        [(2 * j - 1) * 2 ** (k - 1) + l - 1 for l in range(1, 2 ** (k - 1) + 1)]
+        for j in range(1, 2 ** (n - k) + 1)
+    ]
+    indices2 = [
+        [(2 * j - 2) * 2 ** (k - 1) + l - 1 for l in range(1, 2 ** (k - 1) + 1)]
+        for j in range(1, 2 ** (n - k) + 1)
+    ]
 
     term1 = np.take(omega, indices=indices1, axis=-1)
     term2 = np.take(omega, indices=indices2, axis=-1)
-    diff = (term1 - term2) / 2**(k - 1)
+    diff = (term1 - term2) / 2 ** (k - 1)
 
     return np.sum(diff, axis=-1)
 
 
 def _get_alpha_y(a, n, k):
-
-    indices_numerator = [[(2 * (j + 1) - 1) * 2**(k - 1) + l
-                          for l in range(2**(k - 1))]
-                         for j in range(2**(n - k))]
+    indices_numerator = [
+        [(2 * (j + 1) - 1) * 2 ** (k - 1) + l for l in range(2 ** (k - 1))]
+        for j in range(2 ** (n - k))
+    ]
     numerator = np.take(a, indices=indices_numerator, axis=-1)
-    numerator = np.sum(np.abs(numerator)**2, axis=-1)
+    numerator = np.sum(np.abs(numerator) ** 2, axis=-1)
 
-    indices_denominator = [[j * 2**k + l for l in range(2**k)]
-                           for j in range(2**(n - k))]
+    indices_denominator = [
+        [j * 2**k + l for l in range(2**k)] for j in range(2 ** (n - k))
+    ]
     denominator = np.take(a, indices=indices_denominator, axis=-1)
-    denominator = np.sum(np.abs(denominator)**2, axis=-1)
+    denominator = np.sum(np.abs(denominator) ** 2, axis=-1)
 
     # Divide only where denominator is zero, else leave initial value of zero.
     # The equation guarantees that the numerator is also zero in the corresponding entries.

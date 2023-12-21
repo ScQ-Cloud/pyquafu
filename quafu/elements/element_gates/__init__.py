@@ -3,8 +3,7 @@ from .c12 import FredkinGate
 from .clifford import HGate, SdgGate, SGate, TdgGate, TGate
 from .cm1 import MCXGate, MCYGate, MCZGate, ToffoliGate
 from .pauli import *
-from .rotation import (PhaseGate, RXGate, RXXGate, RYGate, RYYGate, RZGate,
-                       RZZGate)
+from .rotation import PhaseGate, RXGate, RXXGate, RYGate, RYYGate, RZGate, RZZGate
 from .swap import ISwapGate, SwapGate
 from .unitary import UnitaryDecomposer
 

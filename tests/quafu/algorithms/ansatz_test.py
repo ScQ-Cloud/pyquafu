@@ -14,14 +14,12 @@
 """TODO: test of ansatz needs improvement once ansatz has more featuers"""
 
 import numpy as np
-from quafu.algorithms.ansatz import (AlterLayeredAnsatz, QAOAAnsatz,
-                                     QuantumNeuralNetwork)
+from quafu.algorithms.ansatz import AlterLayeredAnsatz, QAOAAnsatz, QuantumNeuralNetwork
 from quafu.algorithms.hamiltonian import Hamiltonian
 
 
 class TestQAOACircuit:
-    TEST_HAM = Hamiltonian(["IIZZ", "ZZII", "IZZI", "ZIIZ"],
-                           np.array([1, 1, 1, 1]))
+    TEST_HAM = Hamiltonian(["IIZZ", "ZZII", "IZZI", "ZIIZ"], np.array([1, 1, 1, 1]))
 
     def test_build(self):
         qaoa = QAOAAnsatz(self.TEST_HAM)
@@ -33,7 +31,6 @@ class TestQAOACircuit:
 
 
 class TestAlterLayeredAnsatz:
-
     def test_build(self):
         circ = AlterLayeredAnsatz(4, 4)
         # print("\n ::: testing ::: \n")
@@ -41,6 +38,5 @@ class TestAlterLayeredAnsatz:
 
 
 class TestQuantumNeuralNetwork:
-
     def test_build(self):
         circ = QuantumNeuralNetwork(2, [])

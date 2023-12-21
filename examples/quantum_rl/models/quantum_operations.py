@@ -4,13 +4,13 @@ import sympy
 
 # Organize components defined below to quantum operations
 OPS = {
-    'variationalPQC':
-    lambda qubits, position, params: generate_vpqc(qubits, position, params),
-    'dataencodingPQC':
-    lambda qubits, position, count, params, state: generate_dpqc(
-        qubits, position, count, params, state),
-    'entanglement':
-    lambda qubits: generate_entangle(qubits)
+    "variationalPQC": lambda qubits, position, params: generate_vpqc(
+        qubits, position, params
+    ),
+    "dataencodingPQC": lambda qubits, position, count, params, state: generate_dpqc(
+        qubits, position, count, params, state
+    ),
+    "entanglement": lambda qubits: generate_entangle(qubits),
 }
 
 
@@ -22,7 +22,7 @@ def one_qubit_rotation(qubit, symbols):
     return [
         cirq.rx(symbols[0])(qubit),
         cirq.ry(symbols[1])(qubit),
-        cirq.rz(symbols[2])(qubit)
+        cirq.rz(symbols[2])(qubit),
     ]
 
 
@@ -44,9 +44,10 @@ def generate_vpqc(qubits, position, params=None):
     # Sympy symbols or load parameters for variational angles
     if params == None:
         params = sympy.symbols(
-            f'theta({3*position*n_qubits}:{3*(position+1)*n_qubits})')
+            f"theta({3*position*n_qubits}:{3*(position+1)*n_qubits})"
+        )
     else:
-        params = params[3 * position * n_qubits:3 * (position + 1) * n_qubits]
+        params = params[3 * position * n_qubits : 3 * (position + 1) * n_qubits]
     params = np.asarray(params).reshape((n_qubits, 3))
 
     # Define circuit
@@ -54,7 +55,8 @@ def generate_vpqc(qubits, position, params=None):
 
     # Variational layer
     circuit += cirq.Circuit(
-        one_qubit_rotation(q, params[i]) for i, q in enumerate(qubits))
+        one_qubit_rotation(q, params[i]) for i, q in enumerate(qubits)
+    )
 
     return circuit, list(params.flat)
 
@@ -66,9 +68,9 @@ def generate_dpqc(qubits, position, count, params=None, state=None):
 
     # Sympy symbols or load parameters for encoding angles
     if params == None:
-        inputs = sympy.symbols(f'x{position}' + f'_(0:{n_qubits})')
+        inputs = sympy.symbols(f"x{position}" + f"_(0:{n_qubits})")
     else:
-        inputs = params[count * n_qubits:(count + 1) * n_qubits]
+        inputs = params[count * n_qubits : (count + 1) * n_qubits]
         for i in range(len(state)):
             inputs[i] *= state[i]
     inputs = np.asarray(inputs).reshape((n_qubits))
@@ -77,8 +79,7 @@ def generate_dpqc(qubits, position, count, params=None, state=None):
     circuit = cirq.Circuit()
 
     # Encoding layer
-    circuit += cirq.Circuit(
-        cirq.rx(inputs[i])(q) for i, q in enumerate(qubits))
+    circuit += cirq.Circuit(cirq.rx(inputs[i])(q) for i, q in enumerate(qubits))
 
     return circuit, list(inputs.flat)
 

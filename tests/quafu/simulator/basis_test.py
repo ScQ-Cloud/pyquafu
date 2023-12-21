@@ -127,6 +127,7 @@ class BasicCircuits:
 
 class TestSimulatorBasis(BaseTest):
     """Test C++ simulator"""
+
     circuit = None
     assertEqual = unittest.TestCase.assertEqual
     assertAlmostEqual = unittest.TestCase.assertAlmostEqual
@@ -134,8 +135,9 @@ class TestSimulatorBasis(BaseTest):
     assertListEqual = unittest.TestCase.assertListEqual
     assertTrue = unittest.TestCase.assertTrue
 
-    @pytest.mark.skipif(sys.platform == "darwin",
-                        reason="Avoid error on MacOS arm arch.")
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_simulate(self):
         self.circuit = BellCircuits.bell_no_measure()
         result = simulate(qc=self.circuit)
@@ -147,8 +149,9 @@ class TestSimulatorBasis(BaseTest):
         self.assertAlmostEqual(probs[3], 1 / 2)
         self.assertDictAlmostEqual(count, {})
 
-    @pytest.mark.skipif(sys.platform == "darwin",
-                        reason="Avoid error on MacOS arm arch.")
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_measure_atlast_collapse(self):
         """Test final measurement statement"""
         self.circuit = BellCircuits.bell_measure_atlast()
@@ -159,17 +162,19 @@ class TestSimulatorBasis(BaseTest):
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[3], 1 / 2)
 
-    @pytest.mark.skipif(sys.platform == "darwin",
-                        reason="Avoid error on MacOS arm arch.")
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_measure_normal_collapse(self):
         """Test normal measurement statement"""
         self.circuit = BellCircuits.bell_measure_normal()
         result = simulate(qc=self.circuit, shots=1)
         probs = result.probabilities
-        diff_00 = np.linalg.norm(np.array([1, 0, 0, 0]) - probs)**2
-        diff_11 = np.linalg.norm(np.array([0, 0, 0, 1]) - probs)**2
+        diff_00 = np.linalg.norm(np.array([1, 0, 0, 0]) - probs) ** 2
+        diff_11 = np.linalg.norm(np.array([0, 0, 0, 1]) - probs) ** 2
         success = np.allclose([diff_00, diff_11], [0, 2]) or np.allclose(
-            [diff_00, diff_11], [2, 0])
+            [diff_00, diff_11], [2, 0]
+        )
         # state is 1/sqrt(2)|00> + 1/sqrt(2)|11>, up to a global phase
         self.assertTrue(success)
 
@@ -182,7 +187,7 @@ class TestSimulatorBasis(BaseTest):
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[3], 1)
-        self.assertDictAlmostEqual(counts, {'11': 1})
+        self.assertDictAlmostEqual(counts, {"11": 1})
 
     def test_singleQgate_no_measure(self):
         self.circuit = BasicCircuits.singleQgate_no_measure()
@@ -204,7 +209,7 @@ class TestSimulatorBasis(BaseTest):
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[3], 1)
-        self.assertDictAlmostEqual(counts, {'11': 10})
+        self.assertDictAlmostEqual(counts, {"11": 10})
 
     def test_multiQgate_measure_atlast(self):
         self.circuit = BasicCircuits.multiQgate_measure_atlast()
@@ -215,7 +220,7 @@ class TestSimulatorBasis(BaseTest):
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[3], 1)
-        self.assertDictAlmostEqual(counts, {'11': 10})
+        self.assertDictAlmostEqual(counts, {"11": 10})
 
     def test_multiQgate_no_measure(self):
         self.circuit = BasicCircuits.multiQgate_no_measure()
@@ -237,7 +242,7 @@ class TestSimulatorBasis(BaseTest):
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[3], 1)
-        self.assertDictAlmostEqual(counts, {'11': 10})
+        self.assertDictAlmostEqual(counts, {"11": 10})
 
     def test_anycbit_measure(self):
         self.circuit = BasicCircuits.any_cbit_measure()
@@ -245,15 +250,16 @@ class TestSimulatorBasis(BaseTest):
         probs = result.probabilities
         counts = result.count
         print(probs)
-        self.assertAlmostEqual(probs[5], 1)  #0101
-        self.assertDictAlmostEqual(counts, {'0101': 10})
+        self.assertAlmostEqual(probs[5], 1)  # 0101
+        self.assertDictAlmostEqual(counts, {"0101": 10})
 
     def test_after_measure(self):
         self.circuit = BasicCircuits.after_measure()
         result = simulate(qc=self.circuit, shots=10)
         probs = result.probabilities
-        diff_00 = np.linalg.norm(np.array([1, 0, 0, 0]) - probs)**2
-        diff_11 = np.linalg.norm(np.array([0, 0, 0, 1]) - probs)**2
+        diff_00 = np.linalg.norm(np.array([1, 0, 0, 0]) - probs) ** 2
+        diff_11 = np.linalg.norm(np.array([0, 0, 0, 1]) - probs) ** 2
         success = np.allclose([diff_00, diff_11], [0, 2]) or np.allclose(
-            [diff_00, diff_11], [2, 0])
+            [diff_00, diff_11], [2, 0]
+        )
         self.assertTrue(success)

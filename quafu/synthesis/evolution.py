@@ -53,9 +53,7 @@ def two_qubit_evol(pauli: str, time: float, cx_structure: str = "chain"):
             next-neighbor connections or "fountain" to connect directly to the top qubit.
     """
     reversed_pauli = pauli[::-1]
-    qubits = [
-        i for i in range(len(reversed_pauli)) if reversed_pauli[i] != "I"
-    ]
+    qubits = [i for i in range(len(reversed_pauli)) if reversed_pauli[i] != "I"]
     labels = np.array([reversed_pauli[i] for i in qubits])
     gates = []
 
@@ -130,25 +128,25 @@ def diagonalizing_clifford(pauli: str):
 def cnot_chain(pauli: str):
     """CX chain.
 
-        For example, for the Pauli with the label 'XYZIX'.
+    For example, for the Pauli with the label 'XYZIX'.
 
-                           ┌───┐
-            q_0: ──────────┤ X ├
-                           └─┬─┘
-            q_1: ────────────┼──
-                      ┌───┐  │
-            q_2: ─────┤ X ├──■──
-                 ┌───┐└─┬─┘
-            q_3: ┤ X ├──■───────
-                 └─┬─┘
-            q_4: ──■────────────
+                       ┌───┐
+        q_0: ──────────┤ X ├
+                       └─┬─┘
+        q_1: ────────────┼──
+                  ┌───┐  │
+        q_2: ─────┤ X ├──■──
+             ┌───┐└─┬─┘
+        q_3: ┤ X ├──■───────
+             └─┬─┘
+        q_4: ──■────────────
 
-        Args:
-            pauli: The Pauli for which to construct the CX chain.
+    Args:
+        pauli: The Pauli for which to construct the CX chain.
 
-        Returns:
-            A gate list implementing the CX chain.
-        """
+    Returns:
+        A gate list implementing the CX chain.
+    """
 
     gates = []
     control, target = None, None
@@ -173,25 +171,25 @@ def cnot_chain(pauli: str):
 def cnot_fountain(pauli: str):
     """CX chain in the fountain shape.
 
-        For example, for the Pauli with the label 'XYZIX'.
+    For example, for the Pauli with the label 'XYZIX'.
 
-                 ┌───┐┌───┐┌───┐
-            q_0: ┤ X ├┤ X ├┤ X ├
-                 └─┬─┘└─┬─┘└─┬─┘
-            q_1: ──┼────┼────┼──
-                   │    │    │
-            q_2: ──■────┼────┼──
-                        │    │
-            q_3: ───────■────┼──
-                             │
-            q_4: ────────────■──
+             ┌───┐┌───┐┌───┐
+        q_0: ┤ X ├┤ X ├┤ X ├
+             └─┬─┘└─┬─┘└─┬─┘
+        q_1: ──┼────┼────┼──
+               │    │    │
+        q_2: ──■────┼────┼──
+                    │    │
+        q_3: ───────■────┼──
+                         │
+        q_4: ────────────■──
 
-        Args:
-            pauli: The Pauli for which to construct the CX chain.
+    Args:
+        pauli: The Pauli for which to construct the CX chain.
 
-        Returns:
-            A gate list implementing the CX chain.
-        """
+    Returns:
+        A gate list implementing the CX chain.
+    """
 
     gates = []
     control, target = None, None

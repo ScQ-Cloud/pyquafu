@@ -20,7 +20,6 @@ ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
 
 class BasicEntangleLayers:
-
     def __init__(self, weights, num_qubits, rotation="X"):
         """
         Args:
@@ -36,11 +35,13 @@ class BasicEntangleLayers:
         if weights.ndim > 2:
             raise ValueError(f"Weights tensor must be 2-dimensional ")
 
-        if not (len(shape) == 3
-                or len(shape) == 2):  # 3 is when batching, 2 is no batching
+        if not (
+            len(shape) == 3 or len(shape) == 2
+        ):  # 3 is when batching, 2 is no batching
             raise ValueError(
                 f"Weights tensor must be 2-dimensional "
-                f"or 3-dimensional if batching; got shape {shape}")
+                f"or 3-dimensional if batching; got shape {shape}"
+            )
 
         if shape[-1] != num_qubits:
             # index with -1 since we may or may not have batching in first dimension

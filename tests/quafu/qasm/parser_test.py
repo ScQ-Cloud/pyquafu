@@ -95,24 +95,24 @@ class TestParser:
             qasm_to_quafu(token)
 
     def test_include_miss_sigd(self):
-        with pytest.raises(LexerError,
-                           match=r'Expecting ";" for INCLUDE at line.*') as e:
+        with pytest.raises(
+            LexerError, match=r'Expecting ";" for INCLUDE at line.*'
+        ) as e:
             token = 'include "qelib1.inc" qreg q[1];'
             qasm_to_quafu(token)
 
-    @pytest.mark.parametrize("filename",
-                             ["qelib1.inc", '"qelib1.inc', 'qelib1.inc"'])
+    @pytest.mark.parametrize("filename", ["qelib1.inc", '"qelib1.inc', 'qelib1.inc"'])
     def test_filename_miss_quote(self, filename):
         with pytest.raises(
-                LexerError,
-                match=r"Invalid include: need a quoted string as filename."
+            LexerError, match=r"Invalid include: need a quoted string as filename."
         ) as e:
             token = f"include {filename};"
             qasm_to_quafu(token)
 
     def test_include_cannot_find_file(self):
-        with pytest.raises(LexerError,
-                           match=r"Include file .* cannot be found, .*") as e:
+        with pytest.raises(
+            LexerError, match=r"Include file .* cannot be found, .*"
+        ) as e:
             token = f'include "qe.inc";'
             qasm_to_quafu(token)
 
@@ -307,7 +307,7 @@ class TestParser:
         expr = f"{num1} + 1.5 * -{num3}  ^ 2 - {num2} / 0.5"
         # expr1 = f"{num1} * -{num2} ^ 2"
         # expected1 = num1* (-num2)**2
-        expected = num1 + 1.5 * (-num3)**2 - num2 / 0.5
+        expected = num1 + 1.5 * (-num3) ** 2 - num2 / 0.5
         qasm = f"qreg q[1]; U( 0, 0, {expr}) q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert math.isclose(cir.gates[0].paras, expected)
@@ -362,8 +362,7 @@ class TestParser:
     )
     def test_exp_nonunary_operators_lack(self, symbol, op):
         qasm = f"qreg q[1]; U( 0 , 0 , {symbol}1.0 ) q[0];"
-        with pytest.raises(ParserError,
-                           match=r"Expecting an ID, received.*") as e:
+        with pytest.raises(ParserError, match=r"Expecting an ID, received.*") as e:
             qasm_to_quafu(openqasm=qasm)
 
     @pytest.mark.parametrize(
@@ -378,20 +377,17 @@ class TestParser:
     )
     def test_exp_missing_binary_operand(self, symbol, op):
         qasm = f"qreg q[1]; U( 0 , 0 , 1.0{symbol} ) q[0];"
-        with pytest.raises(ParserError,
-                           match=r"Expecting an ID, received.*") as e:
+        with pytest.raises(ParserError, match=r"Expecting an ID, received.*") as e:
             qasm_to_quafu(openqasm=qasm)
 
     def test_exp_missing_op(self):
         qasm = f"qreg q[1]; U( 0 , 0 , 1.0 2.0 ) q[0];"
-        with pytest.raises(ParserError,
-                           match=r"Expecting '\)' after '\('.*") as e:
+        with pytest.raises(ParserError, match=r"Expecting '\)' after '\('.*") as e:
             qasm_to_quafu(openqasm=qasm)
 
     def test_exp_missing_premature_right_pare(self):
         qasm = f"qreg q[1]; U( 0 , 0 , sin() ) q[0];"
-        with pytest.raises(ParserError,
-                           match=r"Expecting an ID, received.*") as e:
+        with pytest.raises(ParserError, match=r"Expecting an ID, received.*") as e:
             qasm_to_quafu(openqasm=qasm)
 
     # ----------------------------------------
@@ -438,28 +434,28 @@ theta ,
         assert cir.gates[0].paras == float(num)
 
     def test_id_cannot_start_with_num(self):
-        with pytest.raises(ParserError,
-                           match=r"Expecting an ID, received .*") as e:
+        with pytest.raises(ParserError, match=r"Expecting an ID, received .*") as e:
             token = "qreg 0cav[1];"
             qasm_to_quafu(token)
 
     def test_openqasm_float(self):
         with pytest.raises(
-                ParserError,
-                match=r"Expecting FLOAT after OPENQASM, received .*") as e:
+            ParserError, match=r"Expecting FLOAT after OPENQASM, received .*"
+        ) as e:
             token = "OPENQASM 3;"
             qasm_to_quafu(token)
 
     def test_openqasm_version(self):
-        with pytest.raises(ParserError,
-                           match=r"Only support OPENQASM 2.0 version.*") as e:
+        with pytest.raises(
+            ParserError, match=r"Only support OPENQASM 2.0 version.*"
+        ) as e:
             token = "OPENQASM 3.0;"
             qasm_to_quafu(token)
 
     def test_openqasm_miss_sigd(self):
         with pytest.raises(
-                ParserError,
-                match=r"Expecting ';' at end of OPENQASM statement.*") as e:
+            ParserError, match=r"Expecting ';' at end of OPENQASM statement.*"
+        ) as e:
             token = "OPENQASM 2.0 qreg q[3];"
             qasm_to_quafu(token)
 
@@ -946,8 +942,7 @@ theta ,
     # parser error
     def test_registers_size_positive(self):
         qasm = "qreg a[0]; CX a[0], a[1]; qreg b[2]; CX b[0], b[1];"
-        with pytest.raises(ParserError,
-                           match=r"QREG size must be positive at line"):
+        with pytest.raises(ParserError, match=r"QREG size must be positive at line"):
             qasm_to_quafu(qasm)
 
     def test_unexpected_endof_file(self):
@@ -1003,8 +998,7 @@ def getbadstatement():
         ("creg reg[5", getbadtoken(T.RBRACKET)),
         ("creg reg[5]", getbadtoken(T.SEMICOLON)),
         ("CX", getbadtoken(T.LPAREN, T.ID, T.SEMICOLON)),
-        ("CX(", getbadtoken(T.PI, T.INTEGER, T.FLOAT, T.ID, T.LPAREN,
-                            T.RPAREN)),
+        ("CX(", getbadtoken(T.PI, T.INTEGER, T.FLOAT, T.ID, T.LPAREN, T.RPAREN)),
         ("CX()", getbadtoken(T.ID, T.SEMICOLON)),
         ("CX q", getbadtoken(T.LBRACKET, T.COMMA, T.SEMICOLON)),
         ("CX q[", getbadtoken(T.INTEGER)),
@@ -1048,7 +1042,6 @@ badstatement = getbadstatement()
 
 
 class TestParser2:
-
     @pytest.mark.parametrize("badstatement", badstatement)
     def test_bad_token(self, badstatement):
         qasm = f"qreg q[2]; creg c[2]; creg cond[1]; {badstatement}"
@@ -1057,8 +1050,9 @@ class TestParser2:
 
     def test_qubit_reg_use_before_declaration(self):
         qasm = f"U(1,1,1) q[1]; qreg q[2]; creg c[2]; creg cond[1]; "
-        with pytest.raises(ParserError,
-                           match=r".*is undefined in qubit register.*") as e:
+        with pytest.raises(
+            ParserError, match=r".*is undefined in qubit register.*"
+        ) as e:
             qasm_to_quafu(qasm)
 
     def test_cbit_reg_use_before_declaration(self):
@@ -1239,23 +1233,21 @@ class TestParser2:
 
     @pytest.mark.parametrize(
         ["gate", "badq"],
-        [("h", 3), ("h", 2), ("CX", 4), ("CX", 1), ("CX", 3), ("ccx", 2),
-         ("ccx", 4)],
+        [("h", 3), ("h", 2), ("CX", 4), ("CX", 1), ("CX", 3), ("ccx", 2), ("ccx", 4)],
     )
     def test_qubit_inconsistent_num(self, gate, badq):
         arguments = ", ".join(f"q[{i}]" for i in range(badq))
         qasm = f'include "qelib1.inc"; qreg q[5];\n{gate} {arguments};'
-        with pytest.raises(ParserError,
-                           match=r".*is inconsistent with.*") as e:
+        with pytest.raises(ParserError, match=r".*is inconsistent with.*") as e:
             qasm_to_quafu(qasm)
 
-    @pytest.mark.parametrize(["gate", "bada"], [("U", 2), ("U", 4), ("rx", 5),
-                                                ("rx", 2), ("u3", 1)])
+    @pytest.mark.parametrize(
+        ["gate", "bada"], [("U", 2), ("U", 4), ("rx", 5), ("rx", 2), ("u3", 1)]
+    )
     def test_arg_inconsistent_num(self, gate, bada):
         arguments = ", ".join(f"q[{i}]" for i in range(bada))
         qasm = f'include "qelib1.inc"; qreg q[5];\n{gate} {arguments};'
-        with pytest.raises(ParserError,
-                           match=r".*is inconsistent with.*") as e:
+        with pytest.raises(ParserError, match=r".*is inconsistent with.*") as e:
             qasm_to_quafu(qasm)
 
     @pytest.mark.parametrize("statement", ["gate test {}", "gate test(a) {}"])
@@ -1290,18 +1282,14 @@ class TestParser2:
 
     @pytest.mark.parametrize(
         "statement",
-        [
-            "measure q -> c;", "reset q;", "if (c == 0) U(0, 0, 0) q;",
-            "gate my_x q {}"
-        ],
+        ["measure q -> c;", "reset q;", "if (c == 0) U(0, 0, 0) q;", "gate my_x q {}"],
     )
     def test_definition_cannot_contain_nonunitary(self, statement):
         qasm = f"OPENQASM 2.0; creg c[5]; gate my_gate q {{ {statement} }}"
         with pytest.raises(ParserError, match=r"Expecting.*") as e:
             qasm_to_quafu(qasm)
 
-    @pytest.mark.parametrize("statement",
-                             ["gate U(a, b, c) q {}", "gate CX a, b {}"])
+    @pytest.mark.parametrize("statement", ["gate U(a, b, c) q {}", "gate CX a, b {}"])
     def test_cannot_redefine_u_cx(self, statement):
         qasm = statement
         with pytest.raises(ParserError, match=r"Duplicate.*") as e:
@@ -1357,8 +1345,7 @@ class TestParser2:
         ],
     )
     def test_inconsistent_num_of_qubit_broadcast(self, reg, statement):
-        qasm = 'include "qelib1.inc";\n' + "\n".join(f"qreg {reg};"
-                                                     for reg in reg)
+        qasm = 'include "qelib1.inc";\n' + "\n".join(f"qreg {reg};" for reg in reg)
         qasm += statement + ";"
         with pytest.raises(ParserError, match=r".*is inconsistent.*") as e:
             qasm_to_quafu(qasm)

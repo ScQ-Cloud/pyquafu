@@ -59,5 +59,5 @@ class ParamShift:
             res[i] = self._est.run(obs, shifted_params)
 
         num_shift_params = len(res)
-        grads = (res[:num_shift_params // 2] - res[num_shift_params // 2:]) / 2
+        grads = (res[: num_shift_params // 2] - res[num_shift_params // 2 :]) / 2
         return grads

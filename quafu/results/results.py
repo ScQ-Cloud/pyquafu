@@ -29,12 +29,13 @@ class ExecResult(Result):
             1: "Running",
             2: "Completed",
             "Canceled": 3,
-            4: "Failed"
+            4: "Failed",
         }
-        self.taskid = input_dict['task_id']
-        self.taskname = input_dict['task_name']
+        self.taskid = input_dict["task_id"]
+        self.taskname = input_dict["task_name"]
         self.transpiled_openqasm = input_dict["openqasm"]
         from ..circuits.quantum_circuit import QuantumCircuit
+
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
@@ -106,10 +107,9 @@ class SimuResult(Result):
                 bitstr = bin(key)[2:].zfill(self.num)
                 self.count[bitstr] = value
 
-    def plot_probabilities(self,
-                           full: bool = False,
-                           reverse_basis: bool = False,
-                           sort: bool = None):
+    def plot_probabilities(
+        self, full: bool = False, reverse_basis: bool = False, sort: bool = None
+    ):
         """
         Plot the probabilities from simulated results, ordered in big endian convention.
 
@@ -196,10 +196,10 @@ def merge_measure(obslist):
                 diffset, diffobsi = diff(obs[1], measure_base[1])
                 if not len(interset) == 0:
                     if all(
-                            np.array(list(obs[0]))[intobsi] == np.array(
-                                list(measure_base[0]))[intbasei]):
-                        measure_base[0] += "".join(
-                            np.array(list(obs[0]))[diffobsi])
+                        np.array(list(obs[0]))[intobsi]
+                        == np.array(list(measure_base[0]))[intbasei]
+                    ):
+                        measure_base[0] += "".join(np.array(list(obs[0]))[diffobsi])
                         measure_base[1].extend(diffset)
                         targ_basis.append(mi)
                         added = 1

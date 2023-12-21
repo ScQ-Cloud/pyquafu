@@ -22,8 +22,15 @@ from quafu.elements.classical_element import Cif
 from quafu.elements.instruction import Instruction
 from quafu.elements.pulses import QuantumPulse
 
-from ..elements import (Barrier, ControlledGate, Delay, MultiQubitGate,
-                        QuantumGate, SingleQubitGate, XYResonance)
+from ..elements import (
+    Barrier,
+    ControlledGate,
+    Delay,
+    MultiQubitGate,
+    QuantumGate,
+    SingleQubitGate,
+    XYResonance,
+)
 from ..exceptions import CircuitError
 from .classical_register import ClassicalRegister
 from .quantum_register import QuantumRegister
@@ -58,9 +65,7 @@ class QuantumCircuit(object):
     def parameterized_gates(self):
         """Return the list of gates which the parameters are tunable"""
         if not self._parameterized_gates:
-            self._parameterized_gates = [
-                g for g in self.gates if g.paras is not None
-            ]
+            self._parameterized_gates = [g for g in self.gates if g.paras is not None]
         return self._parameterized_gates
 
     @property
@@ -90,8 +95,9 @@ class QuantumCircuit(object):
     @property
     def gates(self):
         """Deprecated warning: due to historical reason, ``gates`` contains not only instances of
-                      QuantumGate, meanwhile not contains measurements. This attributes might be deprecated in
-                      the future. Better to use ``instructions`` which contains all the instructions."""
+        QuantumGate, meanwhile not contains measurements. This attributes might be deprecated in
+        the future. Better to use ``instructions`` which contains all the instructions.
+        """
         return self._gates
 
     @gates.setter
@@ -151,29 +157,32 @@ class QuantumCircuit(object):
         gateQlist = [[] for i in range(num)]
         used_qubits = []
         for gate in gatelist:
-            if (isinstance(gate, SingleQubitGate) or isinstance(gate, Delay)
-                    or isinstance(gate, QuantumPulse)):
+            if (
+                isinstance(gate, SingleQubitGate)
+                or isinstance(gate, Delay)
+                or isinstance(gate, QuantumPulse)
+            ):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
 
-            elif (isinstance(gate, Barrier)
-                  or isinstance(gate, MultiQubitGate)
-                  or isinstance(gate, XYResonance)):
+            elif (
+                isinstance(gate, Barrier)
+                or isinstance(gate, MultiQubitGate)
+                or isinstance(gate, XYResonance)
+            ):
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
                 gateQlist[pos1].append(gate)
                 for j in range(pos1 + 1, pos2 + 1):
                     gateQlist[j].append(None)
 
-                if isinstance(gate, MultiQubitGate) or isinstance(
-                        gate, XYResonance):
+                if isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
                     for pos in gate.pos:
                         if pos not in used_qubits:
                             used_qubits.append(pos)
 
-                maxlayer = max(
-                    [len(gateQlist[j]) for j in range(pos1, pos2 + 1)])
+                maxlayer = max([len(gateQlist[j]) for j in range(pos1, pos2 + 1)])
                 for j in range(pos1, pos2 + 1):
                     layerj = len(gateQlist[j])
                     pos = layerj - 1
@@ -185,17 +194,17 @@ class QuantumCircuit(object):
         def get_used_qubits(instructions):
             used_q = []
             for ins in instructions:
-                if (isinstance(ins, Cif)):
+                if isinstance(ins, Cif):
                     used_q_h = get_used_qubits(ins.instructions)
                     for pos in used_q_h:
                         if pos not in used_q:
                             used_q.append(pos)
-                elif (isinstance(ins, Barrier)):
+                elif isinstance(ins, Barrier):
                     continue
-                elif (isinstance(ins.pos, int)):
+                elif isinstance(ins.pos, int):
                     if ins.pos not in used_q:
                         used_q.append(ins.pos)
-                elif (isinstance(ins.pos, list)):
+                elif isinstance(ins.pos, list):
                     for pos in ins.pos:
                         if pos not in used_q:
                             used_q.append(pos)
@@ -243,8 +252,7 @@ class QuantumCircuit(object):
         gateQlist = self.circuit
         num = gateQlist.shape[0]
         depth = gateQlist.shape[1] - 1
-        printlist = np.array([[""] * depth for i in range(2 * num)],
-                             dtype="<U30")
+        printlist = np.array([[""] * depth for i in range(2 * num)], dtype="<U30")
 
         reduce_map = dict(zip(gateQlist[:, 0], range(num)))
         reduce_map_inv = dict(zip(range(num), gateQlist[:, 0]))
@@ -253,22 +261,21 @@ class QuantumCircuit(object):
             maxlen = 1 + width
             for i in range(num):
                 gate = layergates[i]
-                if (isinstance(gate, SingleQubitGate)
-                        or isinstance(gate, Delay)
-                        or (isinstance(gate, QuantumPulse))):
+                if (
+                    isinstance(gate, SingleQubitGate)
+                    or isinstance(gate, Delay)
+                    or (isinstance(gate, QuantumPulse))
+                ):
                     printlist[i * 2, l] = gate.symbol
                     maxlen = max(maxlen, len(gate.symbol) + width)
 
-                elif isinstance(gate, MultiQubitGate) or isinstance(
-                        gate, XYResonance):
+                elif isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
                     q1 = reduce_map[min(gate.pos)]
                     q2 = reduce_map[max(gate.pos)]
-                    printlist[2 * q1 + 1:2 * q2, l] = "|"
+                    printlist[2 * q1 + 1 : 2 * q2, l] = "|"
                     printlist[q1 * 2, l] = "#"
                     printlist[q2 * 2, l] = "#"
-                    if isinstance(
-                            gate,
-                            ControlledGate):  # Controlled-Multiqubit gate
+                    if isinstance(gate, ControlledGate):  # Controlled-Multiqubit gate
                         for ctrl in gate.ctrls:
                             printlist[reduce_map[ctrl] * 2, l] = "*"
 
@@ -281,7 +288,7 @@ class QuantumCircuit(object):
                             printlist[tq1 * 2, l] = "#"
                             printlist[tq2 * 2, l] = "#"
                             if tq1 + tq2 in [
-                                    reduce_map[ctrl] * 2 for ctrl in gate.ctrls
+                                reduce_map[ctrl] * 2 for ctrl in gate.ctrls
                             ]:
                                 printlist[tq1 + tq2, l] = "*" + gate.symbol
                             else:
@@ -301,7 +308,7 @@ class QuantumCircuit(object):
                     pos = [i for i in gate.pos if i in reduce_map.keys()]
                     q1 = reduce_map[min(pos)]
                     q2 = reduce_map[max(pos)]
-                    printlist[2 * q1:2 * q2 + 1, l] = "||"
+                    printlist[2 * q1 : 2 * q2 + 1, l] = "||"
                     maxlen = max(maxlen, len("||"))
 
             printlist[-1, l] = maxlen
@@ -309,21 +316,25 @@ class QuantumCircuit(object):
         circuitstr = []
         for j in range(2 * num - 1):
             if j % 2 == 0:
-                linestr = ("q[%d]" %
-                           (reduce_map_inv[j // 2])).ljust(6) + "".join([
-                               printlist[j, l].center(int(printlist[-1, l]),
-                                                      "-")
-                               for l in range(depth)
-                           ])
+                linestr = ("q[%d]" % (reduce_map_inv[j // 2])).ljust(6) + "".join(
+                    [
+                        printlist[j, l].center(int(printlist[-1, l]), "-")
+                        for l in range(depth)
+                    ]
+                )
                 if reduce_map_inv[j // 2] in self.measures.keys():
-                    linestr += " M->c[%d]" % self.measures[reduce_map_inv[j //
-                                                                          2]]
+                    linestr += " M->c[%d]" % self.measures[reduce_map_inv[j // 2]]
                 circuitstr.append(linestr)
             else:
-                circuitstr.append("".ljust(6) + "".join([
-                    printlist[j, l].center(int(printlist[-1, l]), " ")
-                    for l in range(depth)
-                ]))
+                circuitstr.append(
+                    "".ljust(6)
+                    + "".join(
+                        [
+                            printlist[j, l].center(int(printlist[-1, l]), " ")
+                            for l in range(depth)
+                        ]
+                    )
+                )
         circuitstr = "\n".join(circuitstr)
 
         if return_str:
@@ -344,6 +355,7 @@ class QuantumCircuit(object):
             openqasm: input openqasm str.
         """
         from quafu.qfasm.qfasm_convertor import qasm2_to_quafu_qc
+
         return qasm2_to_quafu_qc(self, openqasm)
 
     def to_openqasm(self) -> str:
@@ -710,11 +722,7 @@ class QuantumCircuit(object):
         self.add_ins(Barrier(qlist))
         return self
 
-    def xy(self,
-           qs: int,
-           qe: int,
-           duration: int,
-           unit: str = "ns") -> "QuantumCircuit":
+    def xy(self, qs: int, qe: int, duration: int, unit: str = "ns") -> "QuantumCircuit":
         """
         XY resonance time evolution for quantum simulator
 
@@ -912,18 +920,18 @@ class QuantumCircuit(object):
 
         instructions = []
         for i in range(len(self.instructions) - 1, -1, -1):
-            if isinstance(self.instructions[i],
-                          Cif) and self.instructions[i].instructions is None:
+            if (
+                isinstance(self.instructions[i], Cif)
+                and self.instructions[i].instructions is None
+            ):
                 instructions.reverse()
                 self.instructions[i].set_ins(instructions)
-                self.instructions = self.instructions[0:i + 1]
+                self.instructions = self.instructions[0 : i + 1]
                 return
             else:
                 instructions.append(self.instructions[i])
 
-    def add_pulse(self,
-                  pulse: QuantumPulse,
-                  pos: int = None) -> "QuantumCircuit":
+    def add_pulse(self, pulse: QuantumPulse, pos: int = None) -> "QuantumCircuit":
         """
         Add quantum gate from pulse.
         """

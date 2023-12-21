@@ -5,7 +5,6 @@ from quafu.elements.element_gates import RXGate
 
 
 class TestQuantumCircuit:
-
     def test_parameterized_gates(self):
         """Test get parameterized gates"""
         c = QuantumCircuit(2)

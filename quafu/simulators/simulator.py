@@ -53,8 +53,7 @@ def simulate(
     qasm = ""
     if simulator == "qfvm_qasm":
         if not isinstance(qc, str):
-            raise ValueError(
-                "Must input valid qasm str for qfvm_qasm simulator")
+            raise ValueError("Must input valid qasm str for qfvm_qasm simulator")
         qasm = qc
         qc = QuantumCircuit(0)
         qc.from_openqasm(qasm)
@@ -86,29 +85,25 @@ def simulate(
     if simulator == "qfvm_circ":
         if use_gpu:
             if qc.executable_on_backend == False:
-                raise QuafuError(
-                    "classical operation only support for `qfvm_qasm`")
+                raise QuafuError("classical operation only support for `qfvm_qasm`")
             if use_custatevec:
                 try:
                     from .qfvm import simulate_circuit_custate
                 except ImportError:
-                    raise QuafuError(
-                        "pyquafu isn't installed with cuquantum support")
+                    raise QuafuError("pyquafu isn't installed with cuquantum support")
                 psi = simulate_circuit_custate(qc, psi)
             else:
                 try:
                     from .qfvm import simulate_circuit_gpu
                 except ImportError:
-                    raise QuafuError(
-                        "you are not using the GPU version of pyquafu")
+                    raise QuafuError("you are not using the GPU version of pyquafu")
                 psi = simulate_circuit_gpu(qc, psi)
         else:
             count_dict, psi = simulate_circuit(qc, psi, shots)
 
     elif simulator == "py_simu":
         if qc.executable_on_backend == False:
-            raise QuafuError(
-                "classical operation only support for `qfvm_qasm`")
+            raise QuafuError("classical operation only support for `qfvm_qasm`")
         psi = py_simulate(qc, psi)
 
     elif simulator == "qfvm_qasm":

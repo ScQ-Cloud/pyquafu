@@ -27,8 +27,8 @@ def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
     sim_state = simulate(circ, output="state_vector").get_statevector()
 
     expectation = np.matmul(
-        np.matmul(sim_state.conj().T, observables.get_matrix()),
-        sim_state).real
+        np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
+    ).real
 
     return expectation
 
@@ -36,11 +36,13 @@ def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
 class Estimator:
     """Estimate expectation for quantum circuits and observables"""
 
-    def __init__(self,
-                 circ: QuantumCircuit,
-                 backend: str = "sim",
-                 task: Optional[Task] = None,
-                 **task_options) -> None:
+    def __init__(
+        self,
+        circ: QuantumCircuit,
+        backend: str = "sim",
+        task: Optional[Task] = None,
+        **task_options
+    ) -> None:
         """
         Args:
             circ: quantum circuit.

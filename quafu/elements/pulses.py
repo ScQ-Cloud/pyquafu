@@ -41,8 +41,7 @@ class QuantumPulse(Instruction, ABC):
 
     @property
     def symbol(self):
-        return "%s(%d%s, %s)" % (self.name, self.duration, self.unit,
-                                 self.channel)
+        return "%s(%d%s, %s)" % (self.name, self.duration, self.unit, self.channel)
 
     @abstractmethod
     def time_func(self, t: Union[np.ndarray, float, int], **kwargs):
@@ -194,8 +193,7 @@ class FlattopPulse(QuantumPulse):
 
         amp_, fwhm_ = kws["amp"], kws["fwhm"]
         sigma_ = fwhm_ / (2 * np.sqrt(np.log(2)))
-        return amp_ * (erf(
-            (self.duration - t) / sigma_) + erf(t / sigma_) - 1.0)
+        return amp_ * (erf((self.duration - t) / sigma_) + erf(t / sigma_) - 1.0)
 
     def __call__(
         self,
@@ -227,8 +225,9 @@ class GaussianPulse(QuantumPulse):
         amp_, fwhm_, phase_ = kws["amp"], kws["fwhm"], kws["phase"]
         # start: t = 0, center: t = 0.5 * duration, end: t = duration
         sigma_ = fwhm_ / np.sqrt(8 * np.log(2))  # fwhm to std. deviation
-        return amp_ * np.exp(-((t - 0.5 * self.duration)**2) /
-                             (2 * sigma_**2) + 1j * phase_)
+        return amp_ * np.exp(
+            -((t - 0.5 * self.duration) ** 2) / (2 * sigma_**2) + 1j * phase_
+        )
 
     def __call__(
         self,
@@ -275,8 +274,8 @@ class XYResonance(Instruction):
 
     def to_qasm(self):
         return "xy(%d%s) " % (self.duration, self.unit) + ",".join(
-            ["q[%d]" % p for p in range(min(self.pos),
-                                        max(self.pos) + 1)])
+            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
+        )
 
 
 QuantumPulse.register_pulse(RectPulse)

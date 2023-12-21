@@ -20,13 +20,9 @@ from quafu import simulate
 
 
 class BaseTest:
-
-    def assertDictAlmostEqual(self,
-                              dict1,
-                              dict2,
-                              delta=None,
-                              places=None,
-                              default_value=-1):
+    def assertDictAlmostEqual(
+        self, dict1, dict2, delta=None, places=None, default_value=-1
+    ):
         """
         Assert two dictionaries with numeric values are almost equal.
 
@@ -101,7 +97,7 @@ class TestClassicOp(BaseTest):
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[3], 1)
-        self.assertDictAlmostEqual(count, {'11': 10})
+        self.assertDictAlmostEqual(count, {"11": 10})
 
     def test_cif_multi(self):
         qasm = """
@@ -127,4 +123,4 @@ class TestClassicOp(BaseTest):
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[15], 1)
-        self.assertDictAlmostEqual(count, {'1111': 10})
+        self.assertDictAlmostEqual(count, {"1111": 10})

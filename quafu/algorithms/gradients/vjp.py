@@ -26,7 +26,7 @@ def _generate_expval_z(num_qubits: int):
     obs_list = []
     base_pauli = "I" * num_qubits
     for i in range(num_qubits):
-        pauli = base_pauli[:i] + "Z" + base_pauli[i + 1:]
+        pauli = base_pauli[:i] + "Z" + base_pauli[i + 1 :]
         obs_list.append(Hamiltonian.from_pauli_list([(pauli, 1)]))
     return obs_list
 
@@ -63,8 +63,7 @@ def jacobian(circ: QuantumCircuit, params_input: np.ndarray):
     output = np.zeros((batch_size, num_outputs, num_params))
     for i in range(batch_size):
         grad_list = [
-            np.array(calc_grad(obs, params_input[i, :].tolist()))
-            for obs in obs_list
+            np.array(calc_grad(obs, params_input[i, :].tolist())) for obs in obs_list
         ]
         output[i, :, :] = np.stack(grad_list)
     return output

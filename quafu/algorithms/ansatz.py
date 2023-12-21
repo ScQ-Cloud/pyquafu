@@ -98,7 +98,7 @@ class QAOAAnsatz(Ansatz):
         """Update parameters of QAOA circuit"""
         # First build parameter list
         assert len(params) == 2 * self._num_layers
-        beta, gamma = params[:self._num_layers], params[self._num_layers:]
+        beta, gamma = params[: self._num_layers], params[self._num_layers :]
         num_para_gates = len(self.parameterized_gates)
         assert num_para_gates % self._num_layers == 0
         self._beta, self._gamma = beta, gamma
@@ -160,8 +160,7 @@ class QuantumNeuralNetwork(Ansatz):
         for layer in self._layers:
             self.add_gates(layer)
 
-        self._weights = self._transformer.init_weights(
-            (1, self.num_parameters))
+        self._weights = self._transformer.init_weights((1, self.num_parameters))
 
     @property
     def weights(self):

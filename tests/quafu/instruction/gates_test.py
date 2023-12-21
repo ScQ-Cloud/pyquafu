@@ -7,7 +7,6 @@ from numpy import pi
 
 
 class TestGate(unittest.TestCase):
-
     def test_instances(self):
         gate_classes = qe.QuantumGate.gate_classes
 
@@ -58,9 +57,42 @@ class TestGate(unittest.TestCase):
         toffoli = qeg.ToffoliGate(ctrl1=0, ctrl2=1, targ=2)
 
         all_gates = [
-            x, y, z, i, w, sw, swdg, sx, sxdg, sy, sydg, h, s, sdg, t, tdg, ph,
-            rx, ry, rz, rxx, ryy, rzz, swap, iswap, fredkin, cx, cy, cz, cs,
-            ct, cp, mcx, mcy, mcz, toffoli
+            x,
+            y,
+            z,
+            i,
+            w,
+            sw,
+            swdg,
+            sx,
+            sxdg,
+            sy,
+            sydg,
+            h,
+            s,
+            sdg,
+            t,
+            tdg,
+            ph,
+            rx,
+            ry,
+            rz,
+            rxx,
+            ryy,
+            rzz,
+            swap,
+            iswap,
+            fredkin,
+            cx,
+            cy,
+            cz,
+            cs,
+            ct,
+            cp,
+            mcx,
+            mcy,
+            mcz,
+            toffoli,
         ]
         self.assertEqual(len(all_gates), len(gate_classes))
         for gate in all_gates:
@@ -77,5 +109,5 @@ class TestGate(unittest.TestCase):
 #     plt.savefig('./icons/%s.png' % gate.name, dpi=400, transparent=True)
 #     plt.close()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
