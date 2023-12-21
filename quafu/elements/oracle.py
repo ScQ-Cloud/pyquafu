@@ -129,11 +129,10 @@ def customize_gate(
     if cls_name in QuantumGate.gate_classes:
         raise ValueError(f"Gate class {cls_name} already exists.")
 
-    attrs = {
-        "cls_name": cls_name,
-        "gate_structure": gate_structure,
-        "qubit_num": qubit_num,
-    }
+    attrs = {'cls_name': cls_name,
+             'gate_structure': gate_structure,
+             'qubit_num': qubit_num,
+             }
 
     customized_cls = OracleGateMeta(cls_name, (OracleGate,), attrs)
     assert issubclass(customized_cls, OracleGate)

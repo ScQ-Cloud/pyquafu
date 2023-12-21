@@ -1,12 +1,13 @@
 import numpy as np
 from quafu.elements.matrices import HMatrix, SMatrix
+from ..quantum_gate import SingleQubitGate, FixedGate, QuantumGate
 
 from ..quantum_gate import FixedGate, QuantumGate, SingleQubitGate
 
 __all__ = ["HGate", "SGate", "SdgGate", "TGate", "TdgGate"]
 
 
-@QuantumGate.register("h")
+@QuantumGate.register('h')
 class HGate(SingleQubitGate, FixedGate):
     name = "H"
     matrix = HMatrix
@@ -15,7 +16,7 @@ class HGate(SingleQubitGate, FixedGate):
         FixedGate.__init__(self, pos)
 
 
-@QuantumGate.register("s")
+@QuantumGate.register('s')
 class SGate(SingleQubitGate, FixedGate):
     name = "S"
     matrix = SMatrix
@@ -24,7 +25,7 @@ class SGate(SingleQubitGate, FixedGate):
         FixedGate.__init__(self, pos)
 
 
-@QuantumGate.register("sdg")
+@QuantumGate.register('sdg')
 class SdgGate(SingleQubitGate, FixedGate):
     name = "Sdg"
     matrix = SMatrix.conj().T
@@ -33,7 +34,7 @@ class SdgGate(SingleQubitGate, FixedGate):
         FixedGate.__init__(self, pos)
 
 
-@QuantumGate.register("t")
+@QuantumGate.register('t')
 class TGate(SingleQubitGate, FixedGate):
     name = "T"
     matrix = np.array([[1.0, 0.0], [0.0, np.exp(1.0j * np.pi / 4)]], dtype=complex)
@@ -42,7 +43,7 @@ class TGate(SingleQubitGate, FixedGate):
         FixedGate.__init__(self, pos)
 
 
-@QuantumGate.register("tdg")
+@QuantumGate.register('tdg')
 class TdgGate(SingleQubitGate, FixedGate):
     name = "Tdg"
     matrix = TGate.matrix.conj().T

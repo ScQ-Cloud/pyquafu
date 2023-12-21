@@ -1,3 +1,4 @@
+from ..quantum_gate import ControlledGate, FixedGate, QuantumGate
 from abc import ABC
 from typing import Dict
 
@@ -12,7 +13,7 @@ class _C11Gate(ControlledGate, ABC):
     ct_dims = (1, 1, 2)
 
 
-@QuantumGate.register("cx")
+@QuantumGate.register('cx')
 class CXGate(_C11Gate, FixedGate):
     name = "CX"
 
@@ -21,7 +22,7 @@ class CXGate(_C11Gate, FixedGate):
         self.symbol = "+"
 
 
-@QuantumGate.register("cy")
+@QuantumGate.register('cy')
 class CYGate(_C11Gate, FixedGate):
     name = "CY"
 
@@ -29,7 +30,7 @@ class CYGate(_C11Gate, FixedGate):
         _C11Gate.__init__(self, "Y", [ctrl], [targ], None, tar_matrix=YMatrix)
 
 
-@QuantumGate.register("cz")
+@QuantumGate.register('cz')
 class CZGate(_C11Gate, FixedGate):
     name = "CZ"
 
@@ -37,7 +38,7 @@ class CZGate(_C11Gate, FixedGate):
         _C11Gate.__init__(self, "Z", [ctrl], [targ], None, tar_matrix=ZMatrix)
 
 
-@QuantumGate.register("cs")
+@QuantumGate.register('cs')
 class CSGate(_C11Gate, FixedGate):
     name = "CS"
 
@@ -48,7 +49,7 @@ class CSGate(_C11Gate, FixedGate):
         return "cp(pi/2) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 
-@QuantumGate.register("ct")
+@QuantumGate.register('ct')
 class CTGate(_C11Gate, FixedGate):
     name = "CT"
 
@@ -59,7 +60,7 @@ class CTGate(_C11Gate, FixedGate):
         return "cp(pi/4) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 
-@QuantumGate.register("cp")
+@QuantumGate.register('cp')
 class CPGate(_C11Gate):
     name = "CP"
 
@@ -68,4 +69,4 @@ class CPGate(_C11Gate):
 
     @property
     def named_paras(self) -> Dict:
-        return {"theta": self.paras}
+        return {'theta': self.paras}

@@ -28,7 +28,7 @@ def xyz_to_angles(xs, ys, zs):
 
 def hex_to_rgb(hex_color):
     """Transform a hex color code to RGB (normalized float)."""
-    hex_color = hex_color.lstrip("#")
+    hex_color = hex_color.lstrip('#')
     if len(hex_color) != 6:
         raise ValueError("Invalid hex color code")
 
@@ -52,7 +52,7 @@ def plot_bloch_vector(v_x, v_y, v_z, title=""):
         ax: matplotlib axes of the Bloch sphere plot.
     """
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+    ax = fig.add_subplot(111, projection='3d')
 
     # surface of Bloch sphere
     theta = np.linspace(0, np.pi, 21)
@@ -60,8 +60,8 @@ def plot_bloch_vector(v_x, v_y, v_z, title=""):
     theta, phi = np.meshgrid(theta, phi)
     x, y, z = angles_to_xyz(theta, phi)
 
-    surf = ax.plot_surface(x, y, z, color="white", alpha=0.2)
-    edge_color = hex_to_rgb("#000000")  # #ff7f0e
+    surf = ax.plot_surface(x, y, z, color='white', alpha=0.2)
+    edge_color = hex_to_rgb('#000000')  # #ff7f0e
     edge_alpha = 0.05
     surf.set_edgecolor((edge_color[0], edge_color[1], edge_color[2], edge_alpha))
 
@@ -72,23 +72,16 @@ def plot_bloch_vector(v_x, v_y, v_z, title=""):
     ax.plot(0 * span, span, zs=0, zdir="y", label="Z", lw=1, color="black", alpha=0.5)
 
     # coordinate values
-    ax.text(1.4, 0, 0, "x", color="black")
-    ax.text(0, 1.2, 0, "y", color="black")
-    ax.text(0, 0, 1.2, "z", color="black")
+    ax.text(1.4, 0, 0, 'x', color='black')
+    ax.text(0, 1.2, 0, 'y', color='black')
+    ax.text(0, 0, 1.2, 'z', color='black')
 
     # Bloch vector
-    ax.quiver(0, 0, 0, v_x, v_y, v_z, color="r")
+    ax.quiver(0, 0, 0, v_x, v_y, v_z, color='r')
     v_theta, v_phi = xyz_to_angles(v_x, v_y, v_z)
 
     # coordinates value text
-    ax.text(
-        0,
-        0,
-        1.6,
-        "Bloch vector: ($\\theta=${:.2f}, $\\varphi$={:.2f})".format(v_theta, v_phi),
-        fontsize=8,
-        color="red",
-    )
+    ax.text(0, 0, 1.6, 'Bloch vector: ($\\theta=${:.2f}, $\\varphi$={:.2f})'.format(v_theta, v_phi), fontsize=8, color='red')
     # ax.text(0, 0, 1.6, 'Bloch vector: ({:.2f}, {:.2f}, {:.2f})'.format(v_x, v_y, v_z), fontsize=8, color='red')
 
     # Set the range of the axes
