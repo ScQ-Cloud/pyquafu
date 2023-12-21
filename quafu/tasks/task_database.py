@@ -90,27 +90,28 @@ class QuafuTaskDatabase:
                     priority=2,
                     group_name=None,
                     task_name=None,
-                    finish_time: str = None
-                    ):
+                    finish_time: str = None):
         cursor = self.conn.cursor()
         cursor.execute(
             "INSERT INTO tasks "
             "(task_id, group_name, task_name, status, priority, send_time, finish_time) "
             "VALUES "
-            "(?, ?, ?, ?, ?, ?, ?)",
-            (task_id, group_name, task_name, status, priority, send_time, finish_time))
+            "(?, ?, ?, ?, ?, ?, ?)", (task_id, group_name, task_name, status,
+                                      priority, send_time, finish_time))
         cursor.close()
 
     def delete_task(self, task_id):
         cursor = self.conn.cursor()
-        cursor.execute("DELETE FROM tasks WHERE task_id=?", (task_id,))
+        cursor.execute("DELETE FROM tasks WHERE task_id=?", (task_id, ))
         cursor.close()
         print(f"Task {task_id} has been deleted from local database")
 
     def update_task_status(self, task_id, status):
         cursor = self.conn.cursor()
-        cursor.execute("UPDATE tasks SET status=? WHERE task_id=?", (status, task_id))
+        cursor.execute("UPDATE tasks SET status=? WHERE task_id=?",
+                       (status, task_id))
         cursor.close()
+
     # endregion
 
     # region fetch tasks
@@ -123,14 +124,14 @@ class QuafuTaskDatabase:
 
     def find_by_status(self, status):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM tasks WHERE status=?", (status,))
+        cursor.execute("SELECT * FROM tasks WHERE status=?", (status, ))
         tasks = cursor.fetchall()
         cursor.close()
         return tasks
 
     def find_by_priority(self, priority):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM tasks WHERE priority=?", (priority,))
+        cursor.execute("SELECT * FROM tasks WHERE priority=?", (priority, ))
         tasks = cursor.fetchall()
         cursor.close()
         return tasks
@@ -140,7 +141,8 @@ class QuafuTaskDatabase:
         if group_name is None:
             cursor.execute("SELECT * FROM tasks WHERE group_name IS NULL")
         else:
-            cursor.execute("SELECT * FROM tasks WHERE group_name=?", (group_name,))
+            cursor.execute("SELECT * FROM tasks WHERE group_name=?",
+                           (group_name, ))
         tasks = cursor.fetchall()
         cursor.close()
         return tasks
@@ -150,7 +152,8 @@ class QuafuTaskDatabase:
         if task_name is None:
             cursor.execute("SELECT * FROM tasks WHERE task_name IS NULL")
         else:
-            cursor.execute("SELECT * FROM tasks WHERE task_name=?", (task_name, ))
+            cursor.execute("SELECT * FROM tasks WHERE task_name=?",
+                           (task_name, ))
         tasks = cursor.fetchall()
         cursor.close()
         return tasks
@@ -160,8 +163,10 @@ class QuafuTaskDatabase:
         get tasks sent between start_time and end_time.
         """
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM tasks WHERE send_time BETWEEN ? AND ?", (start_time, end_time))
+        cursor.execute("SELECT * FROM tasks WHERE send_time BETWEEN ? AND ?",
+                       (start_time, end_time))
         tasks = cursor.fetchall()
         cursor.close()
         return tasks
+
     # endregion

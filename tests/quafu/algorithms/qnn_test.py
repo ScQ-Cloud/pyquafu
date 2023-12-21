@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
-
 import torch.nn
-from quafu.algorithms.gradients import jacobian, compute_vjp
+from quafu.algorithms import QuantumNeuralNetwork
+from quafu.algorithms.gradients import compute_vjp, jacobian
 from quafu.algorithms.interface.torch import execute
 from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers
 from quafu.circuits.quantum_circuit import QuantumCircuit
-from quafu.algorithms import QuantumNeuralNetwork
 
 
 class ModelStandardCircuit(torch.nn.Module):
+
     def __init__(self, circ: QuantumCircuit):
         super().__init__()
         self.circ = circ
@@ -34,6 +34,7 @@ class ModelStandardCircuit(torch.nn.Module):
 
 
 class ModelQuantumNeuralNetwork(torch.nn.Module):
+
     def __init__(self, circ: QuantumNeuralNetwork):
         super().__init__()
         self.circ = circ
@@ -64,8 +65,8 @@ class TestLayers:
         batch_size = 1
         model = ModelStandardCircuit(self.circ)
         features = torch.randn(
-            batch_size, 3, requires_grad=True, dtype=torch.double
-        )  # batch_size=4, num_params=3
+            batch_size, 3, requires_grad=True,
+            dtype=torch.double)  # batch_size=4, num_params=3
         outputs = model(features)
         targets = torch.randn(batch_size, 2, dtype=torch.double)
         criterion = torch.nn.MSELoss()
@@ -80,8 +81,8 @@ class TestLayers:
         batch_size = 1
         model = ModelQuantumNeuralNetwork(qnn)
         features = torch.randn(
-            batch_size, 3, requires_grad=True, dtype=torch.double
-        )  # batch_size=4, num_params=3
+            batch_size, 3, requires_grad=True,
+            dtype=torch.double)  # batch_size=4, num_params=3
         outputs = model(features)
         targets = torch.randn(batch_size, 2, dtype=torch.double)
         criterion = torch.nn.MSELoss()

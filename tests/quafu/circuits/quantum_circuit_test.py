@@ -1,9 +1,11 @@
+import math
+
 from quafu.circuits import QuantumCircuit
 from quafu.elements.element_gates import RXGate
-import math
 
 
 class TestQuantumCircuit:
+
     def test_parameterized_gates(self):
         """Test get parameterized gates"""
         c = QuantumCircuit(2)

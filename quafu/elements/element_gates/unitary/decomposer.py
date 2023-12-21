@@ -4,12 +4,13 @@ import math
 import numpy as np
 import scipy
 from numpy import ndarray
+from quafu.elements.matrices import CXMatrix, ry_mat, rz_mat
 
-from quafu.elements.matrices import rz_mat, ry_mat, CXMatrix
 from ...matrices import mat_utils as mu
 
 
 class UnitaryDecomposer(object):
+
     def __init__(self, array: ndarray, qubits, verbose: bool = False):
         self.array = array
         self.qubit_num = len(qubits)
@@ -19,8 +20,7 @@ class UnitaryDecomposer(object):
         self.verbose = verbose
 
         self.Mk_table = genMk_table(
-            self.qubit_num
-        )  # initialize the general M^k lookup table
+            self.qubit_num)  # initialize the general M^k lookup table
         self.gate_list = []
 
     def __call__(self, *args, **kwargs):
@@ -59,8 +59,7 @@ class UnitaryDecomposer(object):
                 if self.verbose:
                     print(
                         "Optimization: Unitaries are equal, "
-                        "skip one step in the recursion for unitaries of size"
-                    )
+                        "skip one step in the recursion for unitaries of size")
                 self._decompose_matrix(U00, qubits[1:])
             else:
                 if self.verbose:
@@ -112,8 +111,10 @@ class UnitaryDecomposer(object):
 
         for i in range(len(index)):
             control_qubit = qubits[index[i]]
-            self.gate_list.append((rz_mat(thetas[i]), [target_qubit], "RZ", thetas[i]))
-            self.gate_list.append((CXMatrix, [control_qubit, target_qubit], "CX"))
+            self.gate_list.append(
+                (rz_mat(thetas[i]), [target_qubit], "RZ", thetas[i]))
+            self.gate_list.append((CXMatrix, [control_qubit,
+                                              target_qubit], "CX"))
 
     def multi_controlled_y(self, ss, qubits, target_qubit):
         assert len(qubits) == int(math.log(ss.shape[0], 2))
@@ -130,8 +131,10 @@ class UnitaryDecomposer(object):
 
         for i in range(len(index)):
             control_qubit = qubits[index[i]]
-            self.gate_list.append((ry_mat(thetas[i]), [target_qubit], "RY", thetas[i]))
-            self.gate_list.append((CXMatrix, [control_qubit, target_qubit], "CX"))
+            self.gate_list.append(
+                (ry_mat(thetas[i]), [target_qubit], "RY", thetas[i]))
+            self.gate_list.append((CXMatrix, [control_qubit,
+                                              target_qubit], "CX"))
 
     def apply_to_qc(self, qc):
         if len(self.gate_list) == 0:
@@ -150,7 +153,8 @@ class UnitaryDecomposer(object):
                 qc.ry(g[1][0], beta)
                 qc.rz(g[1][0], alpha)
             else:
-                raise Exception("Unknown gate type or incorrect str: {}".format(g[2]))
+                raise Exception(
+                    "Unknown gate type or incorrect str: {}".format(g[2]))
 
         return qc
 
@@ -167,7 +171,8 @@ def zyz_decomposition(unitary):
     """
     if unitary.shape[0] == 2:
         global_phase, special_unitary = mu.get_global_phase(unitary)
-        beta = 2 * math.atan2(abs(special_unitary[1, 0]), abs(special_unitary[0, 0]))
+        beta = 2 * math.atan2(abs(special_unitary[1, 0]),
+                              abs(special_unitary[0, 0]))
         t1 = cmath.phase(special_unitary[1, 1])
         t2 = cmath.phase(special_unitary[1, 0])
         alpha = t1 + t2
@@ -351,7 +356,7 @@ def genMk_table(nqubits):
                 p = i & bin2gray(j)
                 strbin = "{0:b}".format(p)
                 tmp = [m.start() for m in re.finditer("1", strbin)]
-                Mk[i, j] = (-1) ** len(tmp)
+                Mk[i, j] = (-1)**len(tmp)
 
         return Mk
 

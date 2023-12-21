@@ -1,12 +1,12 @@
-from ..quantum_gate import ControlledGate, FixedGate
 from abc import ABC
-from quafu.elements.matrices import XMatrix, YMatrix, ZMatrix, SMatrix, TMatrix, pmatrix
 from typing import Dict
 
+from quafu.elements.matrices import (SMatrix, TMatrix, XMatrix, YMatrix,
+                                     ZMatrix, pmatrix)
 
-__all__ = ['CXGate', 'CYGate', 'CZGate',
-           'CSGate', 'CTGate',
-           'CPGate']
+from ..quantum_gate import ControlledGate, FixedGate
+
+__all__ = ['CXGate', 'CYGate', 'CZGate', 'CSGate', 'CTGate', 'CPGate']
 
 
 class _C11Gate(ControlledGate, ABC):
@@ -59,7 +59,10 @@ class CPGate(_C11Gate):
     name = "CP"
 
     def __init__(self, ctrl: int, targ: int, paras):
-        _C11Gate.__init__(self, "P", [ctrl], [targ], paras, tar_matrix=pmatrix(paras))
+        _C11Gate.__init__(self,
+                          "P", [ctrl], [targ],
+                          paras,
+                          tar_matrix=pmatrix(paras))
 
     @property
     def named_paras(self) -> Dict:

@@ -14,7 +14,8 @@
 
 # Classes of classical operation.
 
-from typing import List, Dict
+from typing import Dict, List
+
 from quafu.elements.instruction import Instruction
 
 

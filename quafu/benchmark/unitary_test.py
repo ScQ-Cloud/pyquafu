@@ -1,4 +1,5 @@
 from scipy.stats import unitary_group
+
 from quafu import QuantumCircuit
 
 nqubit = 5

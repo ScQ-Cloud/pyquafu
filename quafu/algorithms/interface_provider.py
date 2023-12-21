@@ -18,6 +18,7 @@ PROVIDERS = {"torch": TorchTransformer}
 
 
 class InterfaceProvider:
+
     @classmethod
     def get(cls, name: str):
         if name not in PROVIDERS:

@@ -12,21 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import copy
-import ply.yacc as yacc
 
-from .qfasm_utils import *
-from quafu.circuits.quantum_register import QuantumRegister
-from quafu.circuits.classical_register import ClassicalRegister
-from quafu.qfasm.exceptions import ParserError
-
-from .qfasm_lexer import QfasmLexer
 import numpy as np
-from quafu import QuantumCircuit
+import ply.yacc as yacc
+from quafu.circuits.classical_register import ClassicalRegister
+from quafu.circuits.quantum_register import QuantumRegister
 from quafu.elements import *
 from quafu.elements.classical_element import Cif
+from quafu.qfasm.exceptions import ParserError
 
+from quafu import QuantumCircuit
+
+from .qfasm_lexer import QfasmLexer
+from .qfasm_utils import *
 
 unaryop = ["sin", "cos", "tan", "exp", "ln", "sqrt", "acos", "atan", "asin"]
 unarynp = {
@@ -137,10 +136,11 @@ class QfasmParser(object):
             self.cnum += symtabnode.num
             # add ClassicalRegister
             if len(self.circuit.cregs) == 0:
-                self.circuit.cregs.append(ClassicalRegister(self.cnum, name="c"))
+                self.circuit.cregs.append(
+                    ClassicalRegister(self.cnum, name="c"))
             else:
                 self.circuit.cregs[0] = ClassicalRegister(self.cnum, name="c")
-            
+
         if symtabnode.is_global:
             self.global_symtab[symtabnode.name] = symtabnode
         else:
@@ -150,9 +150,9 @@ class QfasmParser(object):
         gate_list = []
         # end of recurse
         if gateins.name in self.stdgate and gateins.name not in [
-            "reset",
-            "barrier",
-            "measure",
+                "reset",
+                "barrier",
+                "measure",
         ]:
             args = []
             # add qubits to args, it's might be a qubit or a qreg
@@ -186,9 +186,12 @@ class QfasmParser(object):
                 if gateins.name == "CX":
                     gateins.name = "cx"
                 if gateins.name == "U":
-                    gate_list.append(gate_classes["rz"](*[*oneargs, gateins.cargs[2]]))
-                    gate_list.append(gate_classes["ry"](*[*oneargs, gateins.cargs[0]]))
-                    gate_list.append(gate_classes["rz"](*[*oneargs, gateins.cargs[1]]))
+                    gate_list.append(
+                        gate_classes["rz"](*[*oneargs, gateins.cargs[2]]))
+                    gate_list.append(
+                        gate_classes["ry"](*[*oneargs, gateins.cargs[0]]))
+                    gate_list.append(
+                        gate_classes["rz"](*[*oneargs, gateins.cargs[1]]))
                 else:
                     # add carg to args if there is
                     if gateins.cargs is not None and len(gateins.cargs) > 0:
@@ -205,9 +208,7 @@ class QfasmParser(object):
                         qlist.append(symnode.start + i)
                     gate_list.append(Reset(qlist))
                 elif isinstance(qarg, IndexedId):
-                    gate_list.append(
-                        Reset([symnode.start + qarg.num])
-                    )
+                    gate_list.append(Reset([symnode.start + qarg.num]))
 
         elif gateins.name == "barrier":
             qlist = []
@@ -257,12 +258,11 @@ class QfasmParser(object):
                     newins.qargs[i] = qargdict[newins.qargs[i].name]
                 # change newins's carg to real carg (consider exp)
                 for i in range(len(newins.cargs)):
-                    if not (
-                        isinstance(newins.cargs[i], int)
-                        or isinstance(newins.cargs[i], float)
-                    ):
+                    if not (isinstance(newins.cargs[i], int)
+                            or isinstance(newins.cargs[i], float)):
                         # for expression
-                        newins.cargs[i] = self.compute_exp(newins.cargs[i], cargdict)
+                        newins.cargs[i] = self.compute_exp(
+                            newins.cargs[i], cargdict)
                 # now, recurse
                 gate_list.extend(self.handle_gateins(newins))
 
@@ -279,28 +279,29 @@ class QfasmParser(object):
             if carg.type == "-":
                 return -self.compute_exp(carg.children[0], cargdict)
             elif carg.type in unaryop:
-                return unarynp[carg.type](self.compute_exp(carg.children[0], cargdict))
+                return unarynp[carg.type](self.compute_exp(
+                    carg.children[0], cargdict))
         elif isinstance(carg, BinaryExpr):
             if carg.type == "+":
-                return self.compute_exp(carg.children[0], cargdict) + self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return self.compute_exp(carg.children[0],
+                                        cargdict) + self.compute_exp(
+                                            carg.children[1], cargdict)
             elif carg.type == "-":
-                return self.compute_exp(carg.children[0], cargdict) - self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return self.compute_exp(carg.children[0],
+                                        cargdict) - self.compute_exp(
+                                            carg.children[1], cargdict)
             elif carg.type == "*":
-                return self.compute_exp(carg.children[0], cargdict) * self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return self.compute_exp(carg.children[0],
+                                        cargdict) * self.compute_exp(
+                                            carg.children[1], cargdict)
             elif carg.type == "/":
-                return self.compute_exp(carg.children[0], cargdict) / self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return self.compute_exp(carg.children[0],
+                                        cargdict) / self.compute_exp(
+                                            carg.children[1], cargdict)
             elif carg.type == "^":
-                return self.compute_exp(carg.children[0], cargdict) ** self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return self.compute_exp(carg.children[0],
+                                        cargdict)**self.compute_exp(
+                                            carg.children[1], cargdict)
 
     def addInstruction(self, qc: QuantumCircuit, ins):
         if ins is None:
@@ -322,7 +323,8 @@ class QfasmParser(object):
                 cbits = [symtabnode.start + ins.cbits.num]
             # get quantum gate
             gate_list = self.handle_gateins(ins.instruction)
-            qc.add_ins(Cif(cbits=cbits, condition=ins.value, instructions=gate_list))
+            qc.add_ins(
+                Cif(cbits=cbits, condition=ins.value, instructions=gate_list))
         else:
             raise ParserError(f"Unexpected exception when parse.")
 
@@ -566,7 +568,8 @@ class QfasmParser(object):
                     | OPENQASM error
         """
         if len(p) == 3:
-            raise ParserError(f"Expecting FLOAT after OPENQASM, received {p[2].value}")
+            raise ParserError(
+                f"Expecting FLOAT after OPENQASM, received {p[2].value}")
         if p[3] != ";":
             raise ParserError("Expecting ';' at end of OPENQASM statement")
         if p[2] != 2.0:
@@ -642,18 +645,20 @@ class QfasmParser(object):
             if p[5] > 2:
                 p[0] = None
             else:
-                p[0] = IfInstruction(
-                    node=p[1], cbits=p[3], value=p[5], instruction=p[7]
-                )
+                p[0] = IfInstruction(node=p[1],
+                                     cbits=p[3],
+                                     value=p[5],
+                                     instruction=p[7])
         elif isinstance(cbit, Id):
             # optimization: If the value that creg can represent is smaller than Rvalue, just throw it
             num = symnode.num
             if pow(2, num) - 1 < p[5]:
                 p[0] = None
             else:
-                p[0] = IfInstruction(
-                    node=p[1], cbits=p[3], value=p[5], instruction=p[7]
-                )
+                p[0] = IfInstruction(node=p[1],
+                                     cbits=p[3],
+                                     value=p[5],
+                                     instruction=p[7])
         self.executable_on_backend = False
 
     def p_unitaryop(self, p):
@@ -875,8 +880,8 @@ class QfasmParser(object):
         """
         if p[3] != "}":
             raise ParserError(
-                "Expecting '}' at the end of gate definition; received " + p[3].value
-            )
+                "Expecting '}' at the end of gate definition; received " +
+                p[3].value)
         p[0] = []
 
     def p_gate_body(self, p):
@@ -886,8 +891,8 @@ class QfasmParser(object):
         """
         if p[4] != "}":
             raise ParserError(
-                "Expecting '}' at the end of gate definition; received " + p[4].value
-            )
+                "Expecting '}' at the end of gate definition; received " +
+                p[4].value)
         p[0] = p[2]
 
     def p_gop_list_begin(self, p):
@@ -944,16 +949,14 @@ class QfasmParser(object):
         """
         if len(p) == 7 and p[6] != ";":
             raise ParserError(
-                f"Expecting ';' after gate {p[1].name} at line {p[1].lineno}"
-            )
+                f"Expecting ';' after gate {p[1].name} at line {p[1].lineno}")
         if len(p) == 6:
             raise ParserError(
                 f"Expecting qubit id after gate {p[1].name} at line {p[1].lineno}"
             )
         if len(p) == 5:
             raise ParserError(
-                f"Expecting ')' after gate {p[1].name} at line {p[1].lineno}"
-            )
+                f"Expecting ')' after gate {p[1].name} at line {p[1].lineno}")
         p[0] = GateInstruction(node=p[1], qargs=p[5], cargs=p[3])
         # check qubit
         self.check_gate_qargs(p[0])
@@ -1048,8 +1051,7 @@ class QfasmParser(object):
         """
         if len(p) == 4 or (len(p) == 5 and p[4] != "]"):
             raise ParserError(
-                f"Expecting INT after [, received{str(p[len(p)-1].value)}"
-            )
+                f"Expecting INT after [, received{str(p[len(p)-1].value)}")
         if len(p) == 5 and p[4] == "]":
             p[0] = IndexedId(p[1], p[3])
 
@@ -1138,7 +1140,7 @@ class QfasmParser(object):
             elif p[2] == "/":
                 p[0] = p[1] / p[3]
             elif p[2] == "^":
-                p[0] = p[1] ** p[3]
+                p[0] = p[1]**p[3]
             elif p[2] == "+":
                 p[0] = p[1] + p[3]
             elif p[2] == "-":

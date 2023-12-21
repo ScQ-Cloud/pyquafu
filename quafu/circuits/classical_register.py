@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class ClassicalRegister:
     """
     Collection of cbit(s)
@@ -58,7 +59,8 @@ class ClassicalRegister:
         creg = ClassicalRegister(name=self.name)
         creg.cbits = {
             **{self.cbits},
-            **{i + len(self): cbit for i, cbit in other.cbits.items()},
+            **{i + len(self): cbit
+               for i, cbit in other.cbits.items()},
         }
         creg.num = self.num + other.num
         creg.pos_start = self.pos_start

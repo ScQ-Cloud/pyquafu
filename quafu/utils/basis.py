@@ -9,14 +9,14 @@ def get_basis(ind, N):
 
 
 def get_ind(basis):
-    biconv = 2 ** np.arange(len(basis))
+    biconv = 2**np.arange(len(basis))
     ind = np.dot(basis, biconv[::-1].T)
     return int(ind)
 
 
 def reduce_probs(bitsA, res):
     """The reduced probabilities from frequency"""
-    dim = 2 ** (len(bitsA))
+    dim = 2**(len(bitsA))
     probs = np.zeros(dim)
     for basestr in res:
         basis = np.array([int(i) for i in basestr])
@@ -41,6 +41,6 @@ def get_baselocal(n):
     baseobs = np.zeros(basisN)
     for i in range(basisN):
         basisA = get_basis(i, NA)
-        baseobs[i] = (-1) ** (np.sum(basisA))
+        baseobs[i] = (-1)**(np.sum(basisA))
 
     return baseobs

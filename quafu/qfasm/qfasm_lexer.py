@@ -18,12 +18,15 @@
 # interaction with quantum hardware
 
 import os
+
 import ply.lex as lex
-from .qfasm_utils import Id
+
 from .exceptions import LexerError
+from .qfasm_utils import Id
 
 
 class QfasmLexer(object):
+
     def __init__(self, filename: str = None):
         self.build(filename)
         self.file_lexer_stack = []
@@ -93,9 +96,11 @@ class QfasmLexer(object):
         if isinstance(filename_token.value, str):
             filename = filename_token.value.strip('"')
             if filename == "":
-                raise LexerError("Invalid include: need a quoted string as filename.")
+                raise LexerError(
+                    "Invalid include: need a quoted string as filename.")
         else:
-            raise LexerError("Invalid include: need a quoted string as filename.")
+            raise LexerError(
+                "Invalid include: need a quoted string as filename.")
 
         # just ignore, because we include it at first
         if filename == "qelib1.inc":

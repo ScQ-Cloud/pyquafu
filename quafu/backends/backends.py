@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import requests
 import json
 import re
+
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import matplotlib.pyplot as plt
-
+import requests
 from quafu.users.userapi import User
 
 
 class Backend(object):
+
     def __init__(self, backend_info: dict):
         self.name = backend_info["system_name"]
         self._valid_gates = backend_info["valid_gates"]
@@ -47,7 +48,8 @@ class Backend(object):
             qubits_list.append(qubit[0])
             qubits_list.append(qubit[1])
         qubits_list = list(set(qubits_list))
-        qubits_list = sorted(qubits_list, key=lambda x: int(re.findall(r"\d+", x)[0]))
+        qubits_list = sorted(qubits_list,
+                             key=lambda x: int(re.findall(r"\d+", x)[0]))
         int_to_qubit = {k: v for k, v in enumerate(qubits_list)}
         qubit_to_int = {v: k for k, v in enumerate(qubits_list)}
 
@@ -73,7 +75,8 @@ class Backend(object):
 
         for gate, fidelity in edges_dict.items():
             gate_qubit = gate.split("_")
-            qubit1, qubit2 = qubit_to_int[gate_qubit[0]], qubit_to_int[gate_qubit[1]]
+            qubit1, qubit2 = qubit_to_int[gate_qubit[0]], qubit_to_int[
+                gate_qubit[1]]
             weighted_edges.append([qubit1, qubit2, np.round(fidelity, 3)])
 
         # draw topology
@@ -83,36 +86,48 @@ class Backend(object):
 
         G.add_weighted_edges_from(weighted_edges)
 
-        elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9]
-        esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9]
-        elarge_labels = {
-            (u, v): "%.3f" % d["weight"]
-            for (u, v, d) in G.edges(data=True)
-            if d["weight"] >= 0.9
-        }
-        esmall_labels = {
-            (u, v): "%.3f" % d["weight"]
-            for (u, v, d) in G.edges(data=True)
-            if d["weight"] < 0.9
-        }
+        elarge = [(u, v) for (u, v, d) in G.edges(data=True)
+                  if d["weight"] >= 0.9]
+        esmall = [(u, v) for (u, v, d) in G.edges(data=True)
+                  if d["weight"] < 0.9]
+        elarge_labels = {(u, v): "%.3f" % d["weight"]
+                         for (u, v, d) in G.edges(data=True)
+                         if d["weight"] >= 0.9}
+        esmall_labels = {(u, v): "%.3f" % d["weight"]
+                         for (u, v, d) in G.edges(data=True)
+                         if d["weight"] < 0.9}
 
         pos = nx.spring_layout(G, seed=1)
         fig, ax = plt.subplots()
         nx.draw_networkx_nodes(G, pos, node_size=400, ax=ax)
 
         nx.draw_networkx_edges(G, pos, edgelist=elarge, width=2, ax=ax)
-        nx.draw_networkx_edges(
-            G, pos, edgelist=esmall, width=2, alpha=0.5, style="dashed", ax=ax
-        )
+        nx.draw_networkx_edges(G,
+                               pos,
+                               edgelist=esmall,
+                               width=2,
+                               alpha=0.5,
+                               style="dashed",
+                               ax=ax)
 
-        nx.draw_networkx_labels(G, pos, font_size=14, font_family="sans-serif", ax=ax)
+        nx.draw_networkx_labels(G,
+                                pos,
+                                font_size=14,
+                                font_family="sans-serif",
+                                ax=ax)
         # edge_labels = nx.get_edge_attributes(G, "weight")
-        nx.draw_networkx_edge_labels(
-            G, pos, elarge_labels, font_size=12, font_color="green", ax=ax
-        )
-        nx.draw_networkx_edge_labels(
-            G, pos, esmall_labels, font_size=12, font_color="red", ax=ax
-        )
+        nx.draw_networkx_edge_labels(G,
+                                     pos,
+                                     elarge_labels,
+                                     font_size=12,
+                                     font_color="green",
+                                     ax=ax)
+        nx.draw_networkx_edge_labels(G,
+                                     pos,
+                                     esmall_labels,
+                                     font_size=12,
+                                     font_color="red",
+                                     ax=ax)
         fig.set_figwidth(14)
         fig.set_figheight(14)
         fig.tight_layout()

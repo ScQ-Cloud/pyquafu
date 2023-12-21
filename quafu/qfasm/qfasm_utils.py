@@ -31,18 +31,21 @@ class Node:
 
 
 class UnaryExpr(Node):
+
     def __init__(self, type, node: Node):
         self.type = type
         self.children = [node]
 
 
 class BinaryExpr(Node):
+
     def __init__(self, type, left, right):
         self.type = type
         self.children = [left, right]
 
 
 class Id(Node):
+
     def __init__(self, name, lineno, filename):
         self.name = name
         self.lineno = lineno
@@ -51,6 +54,7 @@ class Id(Node):
 
 
 class IndexedId(Node):
+
     def __init__(self, node: Node, index):
         self.num = index
         self.name = node.name
@@ -59,6 +63,7 @@ class IndexedId(Node):
 
 
 class GateInstruction:
+
     def __init__(self, node, qargs, cargs=None, cbits=None):
         self.name = node.name
         self.lineno = node.lineno
@@ -69,6 +74,7 @@ class GateInstruction:
 
 
 class IfInstruction:
+
     def __init__(self, node, cbits, value: int, instruction):
         self.name = node.name
         self.lineno = node.lineno
@@ -79,6 +85,7 @@ class IfInstruction:
 
 
 class SymtabNode(Node):
+
     def __init__(self, type, node, is_global=True, is_qubit=False):
         # qreg creg gate arg qarg
         self.type = type
@@ -106,12 +113,7 @@ class SymtabNode(Node):
             self.cargs = cargs
 
 
-from quafu.elements import (
-    Measure,
-    Barrier,
-    Delay,
-    XYResonance,
-)
+from quafu.elements import Barrier, Delay, Measure, XYResonance
 
 gate_classes = {
     "x": qeg.XGate,

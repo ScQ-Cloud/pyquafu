@@ -1,17 +1,16 @@
 import cmath
+from typing import List
 
 import numpy as np
 from numpy import ndarray
 
 from .mat_lib import IdMatrix
 
-from typing import List
-
 
 def reorder_matrix(matrix: np.ndarray, pos: List):
     """Reorder the input sorted matrix to the pos order """
     qnum = len(pos)
-    dim = 2 ** qnum
+    dim = 2**qnum
     inds = np.argsort(pos)
     inds = np.concatenate([inds, inds + qnum])
     tensorm = matrix.reshape([2] * 2 * qnum)
@@ -75,7 +74,8 @@ def is_approx(a, b, thres=1e-6):
 def is_unitary(matrix):
     mat_dg = np.conjugate(matrix).T
     id_mat = np.eye(matrix.shape[0])
-    return is_approx(mat_dg @ matrix, id_mat) and is_approx(matrix @ mat_dg, id_mat)
+    return is_approx(mat_dg @ matrix, id_mat) and is_approx(
+        matrix @ mat_dg, id_mat)
 
 
 def is_hermitian(matrix):
@@ -113,7 +113,7 @@ def get_global_phase(unitary):
         global_phase: the global phase of arbitrary unitary
         special_unitary (np.array)
     """
-    coefficient = np.linalg.det(unitary) ** (-0.5)
+    coefficient = np.linalg.det(unitary)**(-0.5)
     global_phase = -cmath.phase(coefficient)
     special_unitary = coefficient * unitary
     return global_phase, special_unitary
@@ -130,4 +130,6 @@ def matrix_distance_squared(unitary1, unitary2):
         Float : A single value between 0 and 1 indicating how closely unitary1 and unitary2 match.
         A value close to 0 indicates that unitary1 and unitary2 are the same unitary.
     """
-    return np.abs(1 - np.abs(np.sum(np.multiply(unitary1, np.conj(unitary2)))) / unitary1.shape[0])
+    return np.abs(1 -
+                  np.abs(np.sum(np.multiply(unitary1, np.conj(unitary2)))) /
+                  unitary1.shape[0])

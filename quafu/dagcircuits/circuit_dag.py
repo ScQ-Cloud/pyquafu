@@ -2,17 +2,15 @@ import copy
 from typing import Any, List
 
 import networkx as nx
+from quafu.dagcircuits.dag_circuit import \
+    DAGCircuit  # dag_circuit.py in the same folder as circuit_dag.py now
+from quafu.dagcircuits.instruction_node import \
+    InstructionNode  # instruction_node.py in the same folder as circuit_dag.py now
+from quafu.elements import Barrier, Delay, Measure, XYResonance
+from quafu.elements.element_gates import *
+from quafu.elements.pulses import FlattopPulse, GaussianPulse, RectPulse
 
 from quafu import QuantumCircuit
-from quafu.dagcircuits.dag_circuit import (
-    DAGCircuit,
-)  # dag_circuit.py in the same folder as circuit_dag.py now
-from quafu.dagcircuits.instruction_node import (
-    InstructionNode,
-)  # instruction_node.py in the same folder as circuit_dag.py now
-from quafu.elements.element_gates import *
-from quafu.elements import Barrier, Delay, Measure, XYResonance
-from quafu.elements.pulses import GaussianPulse, RectPulse, FlattopPulse
 
 
 # transform a gate in quantumcircuit of quafu(not include measure_gate),
@@ -34,7 +32,8 @@ def gate_to_node(input_gate, specific_label: str):
     import copy
 
     gate = copy.deepcopy(input_gate)  # avoid modifying the original gate
-    if not isinstance(gate.pos, list):  # if gate.pos is not a list, make it a list
+    if not isinstance(gate.pos,
+                      list):  # if gate.pos is not a list, make it a list
         gate.pos = [gate.pos]
 
     # use getattr check 'paras' and other attributes if exist. if the attr doesn't exist,return None
@@ -45,8 +44,8 @@ def gate_to_node(input_gate, specific_label: str):
     gate.time_func = getattr(gate, "time_func", None) or None
 
     if gate.paras and not isinstance(
-        gate.paras, list
-    ):  # if paras is True and not a list, make it a list
+            gate.paras,
+            list):  # if paras is True and not a list, make it a list
         gate.paras = [gate.paras]
 
     # hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.matrix,gate.duration,gate.unit, label=i)
@@ -118,7 +117,9 @@ def circuit_to_dag(circuit, measure_flag=True):
         # Add edges based on qubit_last_use; update last use
         for qubit in hashable_gate.pos:
             if qubit in qubit_last_use:
-                g.add_edge(qubit_last_use[qubit], hashable_gate, label=f"q{qubit}")
+                g.add_edge(qubit_last_use[qubit],
+                           hashable_gate,
+                           label=f"q{qubit}")
             else:
                 g.add_edge(-1, hashable_gate, label=f"q{qubit}", color="green")
 
@@ -145,7 +146,9 @@ def circuit_to_dag(circuit, measure_flag=True):
         # Add edges from qubit_last_use[qubit] to measure_gate
         for qubit in measure_gate.pos:
             if qubit in qubit_last_use:
-                g.add_edge(qubit_last_use[qubit], measure_gate, label=f"q{qubit}")
+                g.add_edge(qubit_last_use[qubit],
+                           measure_gate,
+                           label=f"q{qubit}")
             else:
                 g.add_edge(-1, measure_gate, label=f"q{qubit}", color="green")
 
@@ -156,7 +159,10 @@ def circuit_to_dag(circuit, measure_flag=True):
     g.add_nodes_from([(float("inf"), {"color": "red"})])
 
     for qubit in qubit_last_use:
-        g.add_edge(qubit_last_use[qubit], float("inf"), label=f"q{qubit}", color="red")
+        g.add_edge(qubit_last_use[qubit],
+                   float("inf"),
+                   label=f"q{qubit}",
+                   color="red")
 
     # update  qubits_used, cbits_used, num_instruction_nodes
     g.update_qubits_used()
@@ -361,7 +367,9 @@ def nodelist_to_dag(op_nodes: List[Any]) -> DAGCircuit:
         # Add edges based on qubit_last_use; update last use
         for qubit in hashable_gate.pos:
             if qubit in qubit_last_use:
-                g.add_edge(qubit_last_use[qubit], hashable_gate, label=f"q{qubit}")
+                g.add_edge(qubit_last_use[qubit],
+                           hashable_gate,
+                           label=f"q{qubit}")
             else:
                 g.add_edge(-1, hashable_gate, label=f"q{qubit}", color="green")
 
@@ -372,7 +380,10 @@ def nodelist_to_dag(op_nodes: List[Any]) -> DAGCircuit:
     g.add_nodes_from([(float("inf"), {"color": "red"})])
 
     for qubit in qubit_last_use:
-        g.add_edge(qubit_last_use[qubit], float("inf"), label=f"q{qubit}", color="red")
+        g.add_edge(qubit_last_use[qubit],
+                   float("inf"),
+                   label=f"q{qubit}",
+                   color="red")
 
     # update the  qubits_used, cbits_used, num_instruction_nodes
     g.qubits_used = g.update_qubits_used()
@@ -398,8 +409,7 @@ def nodelist_qubit_mapping_dict(nodes_list):
     mapping_pos = list(range(len(nodes_list_qubits_used)))
     # mapping, get a dict
     nodes_qubit_mapping_dict = dict(
-        zip(sorted(list(nodes_list_qubits_used)), mapping_pos)
-    )
+        zip(sorted(list(nodes_list_qubits_used)), mapping_pos))
     nodes_qubit_mapping_dict
 
     return nodes_qubit_mapping_dict
@@ -415,7 +425,8 @@ def nodelist_qubit_mapping_dict_reverse(nodes_list):
     nodes_qubit_mapping_dict = nodelist_qubit_mapping_dict(nodes_list)
     # reverse mapping, get a dict
     nodes_qubit_mapping_dict_reverse = {
-        value: key for key, value in nodes_qubit_mapping_dict.items()
+        value: key
+        for key, value in nodes_qubit_mapping_dict.items()
     }
 
     return nodes_qubit_mapping_dict_reverse
@@ -437,13 +448,15 @@ def nodes_list_mapping(nodes_list, nodes_qubit_mapping_dict):
         node_new = copy.deepcopy(node)
         if hasattr(node, "pos") and node.pos is not None:
             if isinstance(node.pos, list):
-                node_new.pos = [nodes_qubit_mapping_dict[qubit] for qubit in node.pos]
+                node_new.pos = [
+                    nodes_qubit_mapping_dict[qubit] for qubit in node.pos
+                ]
             elif isinstance(node.pos, dict):
                 node_new.pos = {}
                 # the values of the dict are void, so we need to copy the values from the original dict
                 for qubit in node.pos:
-                    node_new.pos[nodes_qubit_mapping_dict[qubit]] = copy.deepcopy(
-                        node.pos[qubit]
-                    )
+                    node_new.pos[
+                        nodes_qubit_mapping_dict[qubit]] = copy.deepcopy(
+                            node.pos[qubit])
         nodes_list_mapping.append(node_new)
     return nodes_list_mapping

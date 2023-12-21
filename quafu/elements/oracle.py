@@ -12,10 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from abc import ABCMeta
-from quafu.elements import QuantumGate, Instruction
-from typing import Dict, Iterable, List
 import copy
+from abc import ABCMeta
+from typing import Dict, Iterable, List
+
+from quafu.elements import Instruction, QuantumGate
 
 
 class OracleGateMeta(ABCMeta):
@@ -35,7 +36,8 @@ class OracleGateMeta(ABCMeta):
         cls.qubit_num = attrs.__getitem__('qubit_num')
 
 
-class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta explicitly?
+class OracleGate(QuantumGate
+                 ):  # TODO: Can it be related to OracleGateMeta explicitly?
     """
     OracleGate is a gate that can be customized by users.
     """
@@ -54,7 +56,9 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
             label: label when draw or plot
         """
         if not self.qubit_num == len(pos):
-            raise ValueError(f"OracleGate: qubit number {self.qubit_num} does not match pos length {len(pos)}.")
+            raise ValueError(
+                f"OracleGate: qubit number {self.qubit_num} does not match pos length {len(pos)}."
+            )
         super().__init__(pos=pos, paras=paras)
 
         self.__instantiate_gates__()
@@ -101,10 +105,11 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
             self.insides.append(gate_)
 
 
-def customize_gate(cls_name: str,
-                   gate_structure: List[Instruction],
-                   qubit_num: int,
-                   ):
+def customize_gate(
+    cls_name: str,
+    gate_structure: List[Instruction],
+    qubit_num: int,
+):
     """
     Helper function to create customized gate class
 
@@ -122,12 +127,13 @@ def customize_gate(cls_name: str,
     if cls_name in QuantumGate.gate_classes:
         raise ValueError(f"Gate class {cls_name} already exists.")
 
-    attrs = {'cls_name': cls_name,
-             'gate_structure': gate_structure,  # TODO: translate
-             'qubit_num': qubit_num,
-             }
+    attrs = {
+        'cls_name': cls_name,
+        'gate_structure': gate_structure,  # TODO: translate
+        'qubit_num': qubit_num,
+    }
 
-    customized_cls = OracleGateMeta(cls_name, (OracleGate,), attrs)
+    customized_cls = OracleGateMeta(cls_name, (OracleGate, ), attrs)
     assert issubclass(customized_cls, OracleGate)
     QuantumGate.register_gate(customized_cls, cls_name)
     return customized_cls

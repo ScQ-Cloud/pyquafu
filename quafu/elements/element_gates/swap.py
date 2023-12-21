@@ -1,7 +1,8 @@
-from ..quantum_gate import FixedGate, MultiQubitGate
+from typing import Dict
+
 from quafu.elements.matrices import ISwapMatrix, SwapMatrix
 
-from typing import Dict
+from ..quantum_gate import FixedGate, MultiQubitGate
 
 __all__ = ['ISwapGate', 'SwapGate']
 

@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Evolution that generate gate sequence based on operator"""
 
 from abc import ABC, abstractmethod
+
 import numpy as np
 import quafu.elements.element_gates as qeg
 
@@ -53,7 +53,9 @@ def two_qubit_evol(pauli: str, time: float, cx_structure: str = "chain"):
             next-neighbor connections or "fountain" to connect directly to the top qubit.
     """
     reversed_pauli = pauli[::-1]
-    qubits = [i for i in range(len(reversed_pauli)) if reversed_pauli[i] != "I"]
+    qubits = [
+        i for i in range(len(reversed_pauli)) if reversed_pauli[i] != "I"
+    ]
     labels = np.array([reversed_pauli[i] for i in qubits])
     gates = []
 

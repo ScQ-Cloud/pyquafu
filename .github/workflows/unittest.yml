@@ -1,28 +1,28 @@
 name: Unit test
 on:
-  push:
-  pull_request:
-    branches: ['master']
+    push:
+    pull_request:
+        branches: [master]
 jobs:
-  unnittest:
-    name: Unit test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        name: Install Python
-        with:
-          python-version: '3.10'
+    unnittest:
+        name: Unit test
+        runs-on: ubuntu-latest
+        steps:
+        -   uses: actions/checkout@v3
+        -   uses: actions/setup-python@v4
+            name: Install Python
+            with:
+                python-version: '3.10'
 
-      - name: Install dependency
-        run: python -m pip install -r requirements.txt && python -m pip install pytest
+        -   name: Install dependency
+            run: python -m pip install -r requirements.txt && python -m pip install pytest
 
       # TODO(zhaoyilun): Build seperate package for pyquafu-torch
-      - name: Install torch
-        run: python -m pip install torch torchvision torchaudio
+        -   name: Install torch
+            run: python -m pip install torch torchvision torchaudio
 
-      - name: Install pyquafu
-        run: python -m pip install .
+        -   name: Install pyquafu
+            run: python -m pip install .
 
-      - name: Run unit tests
-        run: pytest tests/
+        -   name: Run unit tests
+            run: pytest tests/

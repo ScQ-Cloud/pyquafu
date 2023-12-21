@@ -1,10 +1,10 @@
-import graphviz
+from typing import Any, Union
 
-from quafu import QuantumCircuit
+import graphviz
 from quafu.dagcircuits.circuit_dag import circuit_to_dag
 from quafu.dagcircuits.instruction_node import InstructionNode
 
-from typing import Union, Any
+from quafu import QuantumCircuit
 
 
 def _extract_node_info(node):

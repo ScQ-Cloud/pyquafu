@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from typing import List, Optional
+
 import numpy as np
-from quafu import QuantumCircuit
 from quafu.algorithms import Hamiltonian
 from quafu.algorithms.estimator import Estimator
 from quafu.algorithms.gradients import ParamShift
+
+from quafu import QuantumCircuit
 
 
 def _generate_expval_z(num_qubits: int):
     obs_list = []
     base_pauli = "I" * num_qubits
     for i in range(num_qubits):
-        pauli = base_pauli[:i] + "Z" + base_pauli[i + 1 :]
+        pauli = base_pauli[:i] + "Z" + base_pauli[i + 1:]
         obs_list.append(Hamiltonian.from_pauli_list([(pauli, 1)]))
     return obs_list
 
@@ -62,7 +63,8 @@ def jacobian(circ: QuantumCircuit, params_input: np.ndarray):
     output = np.zeros((batch_size, num_outputs, num_params))
     for i in range(batch_size):
         grad_list = [
-            np.array(calc_grad(obs, params_input[i, :].tolist())) for obs in obs_list
+            np.array(calc_grad(obs, params_input[i, :].tolist()))
+            for obs in obs_list
         ]
         output[i, :, :] = np.stack(grad_list)
     return output

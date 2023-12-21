@@ -16,26 +16,17 @@ from contextlib import contextmanager
 from typing import Any, List
 
 import numpy as np
-
 import quafu.elements.element_gates as qeg
+from quafu.elements import Measure, Reset
 from quafu.elements.classical_element import Cif
 from quafu.elements.instruction import Instruction
-from quafu.elements import Measure, Reset
 from quafu.elements.pulses import QuantumPulse
-from ..elements import (
-    Barrier,
-    Delay,
-    MultiQubitGate,
-    QuantumGate,
-    ControlledGate,
-    SingleQubitGate,
-    XYResonance,
-)
-from .quantum_register import QuantumRegister
-from .classical_register import ClassicalRegister
-from ..exceptions import CircuitError
 
-import copy
+from ..elements import (Barrier, ControlledGate, Delay, MultiQubitGate,
+                        QuantumGate, SingleQubitGate, XYResonance)
+from ..exceptions import CircuitError
+from .classical_register import ClassicalRegister
+from .quantum_register import QuantumRegister
 
 
 class QuantumCircuit(object):
@@ -67,7 +58,9 @@ class QuantumCircuit(object):
     def parameterized_gates(self):
         """Return the list of gates which the parameters are tunable"""
         if not self._parameterized_gates:
-            self._parameterized_gates = [g for g in self.gates if g.paras is not None]
+            self._parameterized_gates = [
+                g for g in self.gates if g.paras is not None
+            ]
         return self._parameterized_gates
 
     @property
@@ -158,32 +151,29 @@ class QuantumCircuit(object):
         gateQlist = [[] for i in range(num)]
         used_qubits = []
         for gate in gatelist:
-            if (
-                    isinstance(gate, SingleQubitGate)
-                    or isinstance(gate, Delay)
-                    or isinstance(gate, QuantumPulse)
-            ):
+            if (isinstance(gate, SingleQubitGate) or isinstance(gate, Delay)
+                    or isinstance(gate, QuantumPulse)):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
 
-            elif (
-                    isinstance(gate, Barrier)
-                    or isinstance(gate, MultiQubitGate)
-                    or isinstance(gate, XYResonance)
-            ):
+            elif (isinstance(gate, Barrier)
+                  or isinstance(gate, MultiQubitGate)
+                  or isinstance(gate, XYResonance)):
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
                 gateQlist[pos1].append(gate)
                 for j in range(pos1 + 1, pos2 + 1):
                     gateQlist[j].append(None)
 
-                if isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
+                if isinstance(gate, MultiQubitGate) or isinstance(
+                        gate, XYResonance):
                     for pos in gate.pos:
                         if pos not in used_qubits:
                             used_qubits.append(pos)
 
-                maxlayer = max([len(gateQlist[j]) for j in range(pos1, pos2 + 1)])
+                maxlayer = max(
+                    [len(gateQlist[j]) for j in range(pos1, pos2 + 1)])
                 for j in range(pos1, pos2 + 1):
                     layerj = len(gateQlist[j])
                     pos = layerj - 1
@@ -253,7 +243,8 @@ class QuantumCircuit(object):
         gateQlist = self.circuit
         num = gateQlist.shape[0]
         depth = gateQlist.shape[1] - 1
-        printlist = np.array([[""] * depth for i in range(2 * num)], dtype="<U30")
+        printlist = np.array([[""] * depth for i in range(2 * num)],
+                             dtype="<U30")
 
         reduce_map = dict(zip(gateQlist[:, 0], range(num)))
         reduce_map_inv = dict(zip(range(num), gateQlist[:, 0]))
@@ -262,21 +253,22 @@ class QuantumCircuit(object):
             maxlen = 1 + width
             for i in range(num):
                 gate = layergates[i]
-                if (
-                        isinstance(gate, SingleQubitGate)
+                if (isinstance(gate, SingleQubitGate)
                         or isinstance(gate, Delay)
-                        or (isinstance(gate, QuantumPulse))
-                ):
+                        or (isinstance(gate, QuantumPulse))):
                     printlist[i * 2, l] = gate.symbol
                     maxlen = max(maxlen, len(gate.symbol) + width)
 
-                elif isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
+                elif isinstance(gate, MultiQubitGate) or isinstance(
+                        gate, XYResonance):
                     q1 = reduce_map[min(gate.pos)]
                     q2 = reduce_map[max(gate.pos)]
-                    printlist[2 * q1 + 1: 2 * q2, l] = "|"
+                    printlist[2 * q1 + 1:2 * q2, l] = "|"
                     printlist[q1 * 2, l] = "#"
                     printlist[q2 * 2, l] = "#"
-                    if isinstance(gate, ControlledGate):  # Controlled-Multiqubit gate
+                    if isinstance(
+                            gate,
+                            ControlledGate):  # Controlled-Multiqubit gate
                         for ctrl in gate.ctrls:
                             printlist[reduce_map[ctrl] * 2, l] = "*"
 
@@ -289,7 +281,7 @@ class QuantumCircuit(object):
                             printlist[tq1 * 2, l] = "#"
                             printlist[tq2 * 2, l] = "#"
                             if tq1 + tq2 in [
-                                reduce_map[ctrl] * 2 for ctrl in gate.ctrls
+                                    reduce_map[ctrl] * 2 for ctrl in gate.ctrls
                             ]:
                                 printlist[tq1 + tq2, l] = "*" + gate.symbol
                             else:
@@ -309,7 +301,7 @@ class QuantumCircuit(object):
                     pos = [i for i in gate.pos if i in reduce_map.keys()]
                     q1 = reduce_map[min(pos)]
                     q2 = reduce_map[max(pos)]
-                    printlist[2 * q1: 2 * q2 + 1, l] = "||"
+                    printlist[2 * q1:2 * q2 + 1, l] = "||"
                     maxlen = max(maxlen, len("||"))
 
             printlist[-1, l] = maxlen
@@ -317,25 +309,21 @@ class QuantumCircuit(object):
         circuitstr = []
         for j in range(2 * num - 1):
             if j % 2 == 0:
-                linestr = ("q[%d]" % (reduce_map_inv[j // 2])).ljust(6) + "".join(
-                    [
-                        printlist[j, l].center(int(printlist[-1, l]), "-")
-                        for l in range(depth)
-                    ]
-                )
+                linestr = ("q[%d]" %
+                           (reduce_map_inv[j // 2])).ljust(6) + "".join([
+                               printlist[j, l].center(int(printlist[-1, l]),
+                                                      "-")
+                               for l in range(depth)
+                           ])
                 if reduce_map_inv[j // 2] in self.measures.keys():
-                    linestr += " M->c[%d]" % self.measures[reduce_map_inv[j // 2]]
+                    linestr += " M->c[%d]" % self.measures[reduce_map_inv[j //
+                                                                          2]]
                 circuitstr.append(linestr)
             else:
-                circuitstr.append(
-                    "".ljust(6)
-                    + "".join(
-                        [
-                            printlist[j, l].center(int(printlist[-1, l]), " ")
-                            for l in range(depth)
-                        ]
-                    )
-                )
+                circuitstr.append("".ljust(6) + "".join([
+                    printlist[j, l].center(int(printlist[-1, l]), " ")
+                    for l in range(depth)
+                ]))
         circuitstr = "\n".join(circuitstr)
 
         if return_str:
@@ -381,8 +369,9 @@ class QuantumCircuit(object):
         """
         Wrap the circuit to a subclass of QuantumGate, create by metaclass.
         """
-        from quafu.elements.oracle import customize_gate
         from copy import deepcopy
+
+        from quafu.elements.oracle import customize_gate
 
         # TODO: check validity of instructions
         gate_structure = [deepcopy(ins) for ins in self.instructions]
@@ -721,7 +710,11 @@ class QuantumCircuit(object):
         self.add_ins(Barrier(qlist))
         return self
 
-    def xy(self, qs: int, qe: int, duration: int, unit: str = "ns") -> "QuantumCircuit":
+    def xy(self,
+           qs: int,
+           qe: int,
+           duration: int,
+           unit: str = "ns") -> "QuantumCircuit":
         """
         XY resonance time evolution for quantum simulator
 
@@ -827,10 +820,10 @@ class QuantumCircuit(object):
     def reset(self, qlist: List[int] = None) -> "QuantumCircuit":
         """
         Add reset for qubits in qlist.
-     
+
         Args:
             qlist (list[int]): A list contain the qubit need add reset. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
-        
+
         Note: reset only support for simulator `qfvm_circ`.
         """
         if qlist is None:
@@ -862,7 +855,9 @@ class QuantumCircuit(object):
             if not len(set(cbits)) == len(cbits):
                 raise ValueError("Classical bits not uniquely assigned.")
             if not len(cbits) == n_num:
-                raise ValueError("Number of measured bits should equal to the number of classical bits")
+                raise ValueError(
+                    "Number of measured bits should equal to the number of classical bits"
+                )
         else:
             cbits = list(range(e_num, e_num + n_num))
 
@@ -879,26 +874,26 @@ class QuantumCircuit(object):
     @contextmanager
     def cif(self, cbits: List[int], condition: int):
         """
-        Create an `if` statement on this circuit. 
-        If cbits equals to condition, the subsequent operaterations will be performed. 
+        Create an `if` statement on this circuit.
+        If cbits equals to condition, the subsequent operaterations will be performed.
         Use  the `measure` statement to explicitly assign value to the cbit before using it as `cbits` argument
 
         Args:
             cbits: List of cbit that are used for comparison.
-            condition(int): A condition to be evaluated with cbits that filled by `measure` operation. 
+            condition(int): A condition to be evaluated with cbits that filled by `measure` operation.
 
-        
+
         For example::
             from quafu import QuantumCircuit
             qc = QuantumCircuit(2,2)
-            
+
             qc.h(0)
             qc.cx(0,1)
             qc.measure([0],[0])
             with qc.cif(cbits=[0], condition=1):
                 qc.x(2)
             qc.measure([2],[2])
-            
+
         Note: cif only support for simulator `qfvm_circ`.
         """
         # check cbits
@@ -917,7 +912,8 @@ class QuantumCircuit(object):
 
         instructions = []
         for i in range(len(self.instructions) - 1, -1, -1):
-            if isinstance(self.instructions[i], Cif) and self.instructions[i].instructions is None:
+            if isinstance(self.instructions[i],
+                          Cif) and self.instructions[i].instructions is None:
                 instructions.reverse()
                 self.instructions[i].set_ins(instructions)
                 self.instructions = self.instructions[0:i + 1]
@@ -925,7 +921,9 @@ class QuantumCircuit(object):
             else:
                 instructions.append(self.instructions[i])
 
-    def add_pulse(self, pulse: QuantumPulse, pos: int = None) -> "QuantumCircuit":
+    def add_pulse(self,
+                  pulse: QuantumPulse,
+                  pos: int = None) -> "QuantumCircuit":
         """
         Add quantum gate from pulse.
         """

@@ -2,14 +2,16 @@ from typing import Dict
 
 import networkx as nx
 from networkx.classes.multidigraph import MultiDiGraph
-
 from quafu.dagcircuits.instruction_node import InstructionNode
 
 
 class DAGCircuit(MultiDiGraph):
-    def __init__(
-        self, qubits_used=None, cbits_used=None, incoming_graph_data=None, **attr
-    ):
+
+    def __init__(self,
+                 qubits_used=None,
+                 cbits_used=None,
+                 incoming_graph_data=None,
+                 **attr):
         super().__init__(incoming_graph_data, **attr)
 
         if qubits_used is None:
@@ -41,9 +43,9 @@ class DAGCircuit(MultiDiGraph):
         """
         if -1 not in self.nodes:
             raise ValueError("-1 should be in DAGCircuit, please add it first")
-        self.qubits_used = set(
-            [int(edge[2]["label"][1:]) for edge in self.out_edges(-1, data=True)]
-        )
+        self.qubits_used = set([
+            int(edge[2]["label"][1:]) for edge in self.out_edges(-1, data=True)
+        ])
         return self.qubits_used
 
     def update_cbits_used(self):
@@ -67,8 +69,7 @@ class DAGCircuit(MultiDiGraph):
             raise ValueError("-1 should be in DAGCircuit, please add it first")
         if float("inf") not in self.nodes:
             raise ValueError(
-                'float("inf") should be in DAGCircuit, please add it first'
-            )
+                'float("inf") should be in DAGCircuit, please add it first')
         self.num_instruction_nodes = len(self.nodes) - 2
 
         for node in self.nodes:
@@ -113,9 +114,12 @@ class DAGCircuit(MultiDiGraph):
         if node in [-1]:
             raise ValueError("-1 has no predecessors")
 
-        predecessor_nodes = [edge[0] for edge in self.in_edges(node, data=True)]
+        predecessor_nodes = [
+            edge[0] for edge in self.in_edges(node, data=True)
+        ]
         qubits_labels = [
-            int(edge[2]["label"][1:]) for edge in self.in_edges(node, data=True)
+            int(edge[2]["label"][1:])
+            for edge in self.in_edges(node, data=True)
         ]
         node_qubits_predecessors = dict(zip(qubits_labels, predecessor_nodes))
         return node_qubits_predecessors
@@ -136,7 +140,8 @@ class DAGCircuit(MultiDiGraph):
             raise ValueError('float("inf") has no successors')
         successor_nodes = [edge[1] for edge in self.out_edges(node, data=True)]
         qubits_labels = [
-            int(edge[2]["label"][1:]) for edge in self.out_edges(node, data=True)
+            int(edge[2]["label"][1:])
+            for edge in self.out_edges(node, data=True)
         ]
         node_qubits_successors = dict(zip(qubits_labels, successor_nodes))
         return node_qubits_successors
@@ -156,7 +161,8 @@ class DAGCircuit(MultiDiGraph):
 
         inedges = [edge for edge in self.in_edges(node)]
         qubits_labels = [
-            int(edge[2]["label"][1:]) for edge in self.in_edges(node, data=True)
+            int(edge[2]["label"][1:])
+            for edge in self.in_edges(node, data=True)
         ]
         node_qubits_inedges = dict(zip(qubits_labels, inedges))
         return node_qubits_inedges
@@ -175,7 +181,8 @@ class DAGCircuit(MultiDiGraph):
             raise ValueError('float("inf") has no successors')
         outedges = [edge for edge in self.out_edges(node)]
         qubits_labels = [
-            int(edge[2]["label"][1:]) for edge in self.out_edges(node, data=True)
+            int(edge[2]["label"][1:])
+            for edge in self.out_edges(node, data=True)
         ]
         node_qubits_outedges = dict(zip(qubits_labels, outedges))
         return node_qubits_outedges
@@ -196,17 +203,15 @@ class DAGCircuit(MultiDiGraph):
         qubits_predecessors = self.node_qubits_predecessors(gate)
         qubits_successors = self.node_qubits_successors(gate)
         for qubit in gate.pos:
-            if qubits_predecessors[qubit] != -1 and qubits_successors[qubit] != float(
-                "inf"
-            ):
+            if qubits_predecessors[qubit] != -1 and qubits_successors[
+                    qubit] != float("inf"):
                 self.add_edge(
                     qubits_predecessors[qubit],
                     qubits_successors[qubit],
                     label=f"q{qubit}",
                 )
-            elif qubits_predecessors[qubit] == -1 and qubits_successors[qubit] != float(
-                "inf"
-            ):
+            elif qubits_predecessors[
+                    qubit] == -1 and qubits_successors[qubit] != float("inf"):
                 self.add_edge(
                     qubits_predecessors[qubit],
                     qubits_successors[qubit],
@@ -254,7 +259,8 @@ class DAGCircuit(MultiDiGraph):
         if len(insect_qubits) != 0:
             for insect_qubit in insect_qubits:
                 self.remove_edges_from([end_edges_labels_1[insect_qubit]])
-                other_dag.remove_edges_from([start_edges_labels_2[insect_qubit]])
+                other_dag.remove_edges_from(
+                    [start_edges_labels_2[insect_qubit]])
                 self.add_edge(
                     end_edges_labels_1[insect_qubit][0],
                     start_edges_labels_2[insect_qubit][1],
@@ -266,13 +272,10 @@ class DAGCircuit(MultiDiGraph):
         self.add_edges_from(other_dag.edges(data=True))
 
         # remove the edges between -1 and float('inf')
-        self.remove_edges_from(
-            [
-                edge
-                for edge in self.edges(data=True)
-                if edge[0] == -1 and edge[1] == float("inf")
-            ]
-        )
+        self.remove_edges_from([
+            edge for edge in self.edges(data=True)
+            if edge[0] == -1 and edge[1] == float("inf")
+        ])
 
         # update qubits
         self.qubits_used = self.update_qubits_used()
@@ -310,15 +313,19 @@ class DAGCircuit(MultiDiGraph):
         # add the new node and edges
         for qubit in gate.pos:
             if predecessors_dict[qubit] == -1:
-                self.add_edge(
-                    predecessors_dict[qubit], gate, label=f"q{qubit}", color="green"
-                )
+                self.add_edge(predecessors_dict[qubit],
+                              gate,
+                              label=f"q{qubit}",
+                              color="green")
             else:
-                self.add_edge(predecessors_dict[qubit], gate, label=f"q{qubit}")
+                self.add_edge(predecessors_dict[qubit],
+                              gate,
+                              label=f"q{qubit}")
             if successors_dict[qubit] == float("inf"):
-                self.add_edge(
-                    gate, successors_dict[qubit], label=f"q{qubit}", color="red"
-                )
+                self.add_edge(gate,
+                              successors_dict[qubit],
+                              label=f"q{qubit}",
+                              color="red")
             else:
                 self.add_edge(gate, successors_dict[qubit], label=f"q{qubit}")
 

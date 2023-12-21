@@ -1,5 +1,4 @@
 from collections import namedtuple
-from hashlib import new
 
 import numpy as np
 
@@ -7,10 +6,7 @@ Genotype = namedtuple('Genotype', 'measure vpqc dpqc entangle')
 
 # what you want to search should be defined here and in quantum_operations
 PRIMITIVES = [
-    'measurement',
-    'variationalPQC',
-    'dataencodingPQC',
-    'entanglement'
+    'measurement', 'variationalPQC', 'dataencodingPQC', 'entanglement'
 ]
 
 
@@ -31,7 +27,7 @@ def convert2arch(bit_string):
         elif PRIMITIVES[bit_string[i]] == 'measurement':
             measure.append((PRIMITIVES[bit_string[i]], i))
             if vpqc != [] and dpqc != [] and entangle != []:
-                new_bit = bit_string[0:(i+1)]
+                new_bit = bit_string[0:(i + 1)]
                 break
         else:
             raise NameError('Unknown quantum architecture.')
@@ -61,6 +57,5 @@ def convert2arch(bit_string):
             else:
                 raise NameError('Unknown quantum architecture.')
         g = Genotype(measure=measure, vpqc=vpqc, dpqc=dpqc, entangle=entangle)
-    
-    return new_bit, g
 
+    return new_bit, g

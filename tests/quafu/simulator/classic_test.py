@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from quafu import QuantumCircuit
-from quafu import simulate
-from base import BaseTest
 import unittest
+
+from base import BaseTest
+
+from quafu import QuantumCircuit, simulate
 
 
 class ClassicalCircuits:

@@ -47,7 +47,12 @@ def binary_tournament(pop, P, algorithm, **kwargs):
 
         # if at least one solution is infeasible
         if pop[a].CV > 0.0 or pop[b].CV > 0.0:
-            S[i] = compare(a, pop[a].CV, b, pop[b].CV, method='smaller_is_better', return_random_if_equal=True)
+            S[i] = compare(a,
+                           pop[a].CV,
+                           b,
+                           pop[b].CV,
+                           method='smaller_is_better',
+                           return_random_if_equal=True)
 
         # both solutions are feasible
         else:
@@ -60,7 +65,10 @@ def binary_tournament(pop, P, algorithm, **kwargs):
                     S[i] = b
 
             elif tournament_type == 'comp_by_rank_and_crowding':
-                S[i] = compare(a, pop[a].rank, b, pop[b].rank,
+                S[i] = compare(a,
+                               pop[a].rank,
+                               b,
+                               pop[b].rank,
                                method='smaller_is_better')
 
             else:
@@ -68,8 +76,12 @@ def binary_tournament(pop, P, algorithm, **kwargs):
 
             # if rank or domination relation didn't make a decision compare by crowding
             if np.isnan(S[i]):
-                S[i] = compare(a, pop[a].get("crowding"), b, pop[b].get("crowding"),
-                               method='larger_is_better', return_random_if_equal=True)
+                S[i] = compare(a,
+                               pop[a].get("crowding"),
+                               b,
+                               pop[b].get("crowding"),
+                               method='larger_is_better',
+                               return_random_if_equal=True)
 
     return S[:, None].astype(np.int)
 
@@ -107,7 +119,9 @@ class RankAndCrowdingSurvival(Survival):
 
             # current front sorted by crowding distance if splitting
             if len(survivors) + len(front) > n_survive:
-                I = randomized_argsort(crowding_of_front, order='descending', method='numpy')
+                I = randomized_argsort(crowding_of_front,
+                                       order='descending',
+                                       method='numpy')
                 I = I[:(n_survive - len(survivors))]
 
             # otherwise take the whole front unsorted
@@ -153,7 +167,8 @@ def calc_crowding_distance(F):
         # normalize all the distances
         norm = np.max(F, axis=0) - np.min(F, axis=0)
         norm[norm == 0] = np.nan
-        dist_to_last, dist_to_next = dist_to_last[:-1] / norm, dist_to_next[1:] / norm
+        dist_to_last, dist_to_next = dist_to_last[:-1] / norm, dist_to_next[
+            1:] / norm
 
         # if we divided by zero because all values in one columns are equal replace by none
         dist_to_last[np.isnan(dist_to_last)] = 0.0
@@ -161,7 +176,9 @@ def calc_crowding_distance(F):
 
         # sum up the distance to next and last and norm by objectives - also reorder from sorted list
         J = np.argsort(I, axis=0)
-        crowding = np.sum(dist_to_last[J, np.arange(n_obj)] + dist_to_next[J, np.arange(n_obj)], axis=1) / n_obj
+        crowding = np.sum(dist_to_last[J, np.arange(n_obj)] +
+                          dist_to_next[J, np.arange(n_obj)],
+                          axis=1) / n_obj
 
     # replace infinity with a large number
     crowding[np.isinf(crowding)] = infinity
@@ -174,15 +191,14 @@ def calc_crowding_distance(F):
 # =========================================================================================================
 
 
-def nsganet(
-        pop_size=100,
-        sampling=RandomSampling(var_type=np.int),
-        selection=TournamentSelection(func_comp=binary_tournament),
-        crossover=PointCrossover(n_points=2),
-        mutation=PolynomialMutation(eta=3, var_type=np.int),
-        eliminate_duplicates=True,
-        n_offsprings=None,
-        **kwargs):
+def nsganet(pop_size=100,
+            sampling=RandomSampling(var_type=np.int),
+            selection=TournamentSelection(func_comp=binary_tournament),
+            crossover=PointCrossover(n_points=2),
+            mutation=PolynomialMutation(eta=3, var_type=np.int),
+            eliminate_duplicates=True,
+            n_offsprings=None,
+            **kwargs):
     """
 
     Parameters

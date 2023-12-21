@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Pre-build wrapper to calculate expectation value"""
-import numpy as np
-
 from typing import List, Optional
-from quafu import QuantumCircuit
+
+import numpy as np
+from quafu.algorithms.hamiltonian import Hamiltonian
 from quafu.simulators.simulator import simulate
 from quafu.tasks.tasks import Task
-from quafu.algorithms.hamiltonian import Hamiltonian
+
+from quafu import QuantumCircuit
 
 
 def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
@@ -26,8 +27,8 @@ def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
     sim_state = simulate(circ, output="state_vector").get_statevector()
 
     expectation = np.matmul(
-        np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
-    ).real
+        np.matmul(sim_state.conj().T, observables.get_matrix()),
+        sim_state).real
 
     return expectation
 
@@ -35,13 +36,11 @@ def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
 class Estimator:
     """Estimate expectation for quantum circuits and observables"""
 
-    def __init__(
-        self,
-        circ: QuantumCircuit,
-        backend: str = "sim",
-        task: Optional[Task] = None,
-        **task_options
-    ) -> None:
+    def __init__(self,
+                 circ: QuantumCircuit,
+                 backend: str = "sim",
+                 task: Optional[Task] = None,
+                 **task_options) -> None:
         """
         Args:
             circ: quantum circuit.

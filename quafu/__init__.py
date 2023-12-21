@@ -1,9 +1,9 @@
 from .circuits.quantum_circuit import QuantumCircuit
 from .circuits.quantum_register import QuantumRegister, Qubit
 from .results.results import ExecResult, SimuResult
+from .simulators.simulator import simulate
 from .tasks.tasks import Task
 from .users.userapi import User
-from .simulators.simulator import simulate
 
 __all__ = [
     "QuantumCircuit",

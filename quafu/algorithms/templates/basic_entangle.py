@@ -11,16 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Layers consisting of one-parameter single-qubit rotations on each qubit, followed by a closed chain or ring of CNOT gates"""
-from quafu.circuits import QuantumCircuit
-import quafu.elements.element_gates as qeg
 import numpy as np
+import quafu.elements.element_gates as qeg
+from quafu.circuits import QuantumCircuit
 
 ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
 
 class BasicEntangleLayers:
+
     def __init__(self, weights, num_qubits, rotation="X"):
         """
         Args:
@@ -36,13 +36,11 @@ class BasicEntangleLayers:
         if weights.ndim > 2:
             raise ValueError(f"Weights tensor must be 2-dimensional ")
 
-        if not (
-            len(shape) == 3 or len(shape) == 2
-        ):  # 3 is when batching, 2 is no batching
+        if not (len(shape) == 3
+                or len(shape) == 2):  # 3 is when batching, 2 is no batching
             raise ValueError(
                 f"Weights tensor must be 2-dimensional "
-                f"or 3-dimensional if batching; got shape {shape}"
-            )
+                f"or 3-dimensional if batching; got shape {shape}")
 
         if shape[-1] != num_qubits:
             # index with -1 since we may or may not have batching in first dimension
@@ -52,7 +50,6 @@ class BasicEntangleLayers:
         self.weights = weights
         self.num_qubits = num_qubits
         self.op = ROT[rotation]
-
         """Build the quantum basic_entangle layer and get the gate_list"""
         self.gate_list = self._build()
 

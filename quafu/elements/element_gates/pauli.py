@@ -1,11 +1,12 @@
 import numpy as np
-
-from quafu.elements.matrices import XMatrix, YMatrix, ZMatrix, WMatrix, SWMatrix
+from quafu.elements.matrices import (SWMatrix, WMatrix, XMatrix, YMatrix,
+                                     ZMatrix)
 from quafu.elements.quantum_gate import FixedGate, SingleQubitGate
 
-__all__ = ['IdGate', 'XGate', 'YGate', 'ZGate',
-           'WGate', 'SWGate', 'SWdgGate',
-           'SXGate', 'SYGate', 'SXdgGate', 'SYdgGate']  # hint: "SZ" gate is S contained in Clifford gates
+__all__ = [
+    'IdGate', 'XGate', 'YGate', 'ZGate', 'WGate', 'SWGate', 'SWdgGate',
+    'SXGate', 'SYGate', 'SXdgGate', 'SYdgGate'
+]  # hint: "SZ" gate is S contained in Clifford gates
 
 
 class IdGate(FixedGate, SingleQubitGate):
@@ -91,9 +92,8 @@ class SWdgGate(FixedGate, SingleQubitGate):
 
 class SXGate(FixedGate, SingleQubitGate):
     name = "SX"
-    matrix = np.array(
-        [[0.5 + 0.5j, 0.5 - 0.5j], [0.5 - 0.5j, 0.5 + 0.5j]], dtype=complex
-    )
+    matrix = np.array([[0.5 + 0.5j, 0.5 - 0.5j], [0.5 - 0.5j, 0.5 + 0.5j]],
+                      dtype=complex)
 
     def __init__(self, pos: int):
         FixedGate.__init__(self, pos)
@@ -110,9 +110,8 @@ class SXdgGate(FixedGate, SingleQubitGate):
 
 class SYGate(FixedGate, SingleQubitGate):
     name = "SY"
-    matrix = np.array(
-        [[0.5 + 0.5j, -0.5 - 0.5j], [0.5 + 0.5j, 0.5 + 0.5j]], dtype=complex
-    )
+    matrix = np.array([[0.5 + 0.5j, -0.5 - 0.5j], [0.5 + 0.5j, 0.5 + 0.5j]],
+                      dtype=complex)
 
     def __init__(self, pos: int):
         FixedGate.__init__(self, pos)

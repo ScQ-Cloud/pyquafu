@@ -2,6 +2,7 @@ import copy
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
+
 from ..utils.basis import *
 
 
@@ -23,7 +24,13 @@ class ExecResult(Result):
     """
 
     def __init__(self, input_dict):
-        status_map = {0: "In Queue", 1: "Running", 2: "Completed", "Canceled": 3, 4: "Failed"}
+        status_map = {
+            0: "In Queue",
+            1: "Running",
+            2: "Completed",
+            "Canceled": 3,
+            4: "Failed"
+        }
         self.taskid = input_dict['task_id']
         self.taskname = input_dict['task_name']
         self.transpiled_openqasm = input_dict["openqasm"]
@@ -31,7 +38,7 @@ class ExecResult(Result):
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
-        
+
         self.measures = self.transpiled_circuit.measures
         self.task_status = status_map[input_dict["status"]]
         self.res = eval(input_dict["res"])
@@ -82,7 +89,7 @@ class SimuResult(Result):
         count_dict: The num of cbits measured. Only support for `qfvm_circuit`.
     """
 
-    def __init__(self, input, input_form, count_dict:dict=None):
+    def __init__(self, input, input_form, count_dict: dict = None):
         self.num = int(np.log2(input.shape[0]))
         if input_form == "density_matrix":
             self.rho = np.array(input)
@@ -95,13 +102,14 @@ class SimuResult(Result):
         # TODO: add count for py_simu
         if count_dict is not None:
             self.count = {}
-            for key,value in count_dict.items():
+            for key, value in count_dict.items():
                 bitstr = bin(key)[2:].zfill(self.num)
-                self.count[bitstr] = value               
+                self.count[bitstr] = value
 
-    def plot_probabilities(
-        self, full: bool = False, reverse_basis: bool = False, sort: bool = None
-    ):
+    def plot_probabilities(self,
+                           full: bool = False,
+                           reverse_basis: bool = False,
+                           sort: bool = None):
         """
         Plot the probabilities from simulated results, ordered in big endian convention.
 
@@ -188,10 +196,10 @@ def merge_measure(obslist):
                 diffset, diffobsi = diff(obs[1], measure_base[1])
                 if not len(interset) == 0:
                     if all(
-                        np.array(list(obs[0]))[intobsi]
-                        == np.array(list(measure_base[0]))[intbasei]
-                    ):
-                        measure_base[0] += "".join(np.array(list(obs[0]))[diffobsi])
+                            np.array(list(obs[0]))[intobsi] == np.array(
+                                list(measure_base[0]))[intbasei]):
+                        measure_base[0] += "".join(
+                            np.array(list(obs[0]))[diffobsi])
                         measure_base[1].extend(diffset)
                         targ_basis.append(mi)
                         added = 1

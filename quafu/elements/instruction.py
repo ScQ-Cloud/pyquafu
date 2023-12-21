@@ -13,8 +13,7 @@
 #  limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Union, List, Dict
-
+from typing import Dict, List, Union
 
 __all__ = ['Instruction', 'Barrier', 'Measure', 'PosType', 'ParaType', 'Reset']
 
@@ -39,10 +38,9 @@ class Instruction(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        raise NotImplementedError(
-            "name is not implemented for %s" % self.__class__.__name__
-            + ", this should never happen."
-        )
+        raise NotImplementedError("name is not implemented for %s" %
+                                  self.__class__.__name__ +
+                                  ", this should never happen.")
 
     @property
     @abstractmethod
@@ -76,6 +74,7 @@ class Instruction(ABC):
 
     @classmethod
     def register(cls, name: str = None):
+
         def wrapper(subclass):
             cls.register_ins(subclass, name)
             return subclass
@@ -123,7 +122,9 @@ class Barrier(Instruction):
         return f"{self.__class__.__name__}"
 
     def to_qasm(self):
-        return "barrier " + ",".join(["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+        return "barrier " + ",".join(
+            ["q[%d]" % p for p in range(min(self.pos),
+                                        max(self.pos) + 1)])
 
 
 class Reset(Instruction):
@@ -153,8 +154,8 @@ class Reset(Instruction):
 
     def to_qasm(self):
         return "reset " + ",".join(
-            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
-        )
+            ["q[%d]" % p for p in range(min(self.pos),
+                                        max(self.pos) + 1)])
 
 
 class Measure(Instruction):
@@ -177,11 +178,13 @@ class Measure(Instruction):
         return self.named_paras
 
     def to_qasm(self):
-        lines = ["measure q[%d] -> meas[%d];\n" % (q, c) for q, c in zip(self.qbits, self.cbits)]
+        lines = [
+            "measure q[%d] -> meas[%d];\n" % (q, c)
+            for q, c in zip(self.qbits, self.cbits)
+        ]
         qasm = ''.join(lines)
         return qasm
 
 
 Instruction.register_ins(Barrier)
 Instruction.register_ins(Measure)
-

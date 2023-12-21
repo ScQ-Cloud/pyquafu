@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from quafu.circuits import QuantumCircuit
+import numpy as np
 import quafu.elements.element_gates as qeg
 from quafu.algorithms import BasicEntangleLayers
-import numpy as np
+from quafu.circuits import QuantumCircuit
 
 
 class TestBasicEntangleLayers:
@@ -28,8 +28,9 @@ class TestBasicEntangleLayers:
         # weights = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
         # weights = np.array([[0.1, 0.2], [0.3, 0.4]])
         qc.add_gates(
-            BasicEntangleLayers(weights=weights, num_qubits=num_qubits, rotation="Y")
-        )
+            BasicEntangleLayers(weights=weights,
+                                num_qubits=num_qubits,
+                                rotation="Y"))
         qc.draw_circuit(width=num_qubits)
 
         ##TODO(): if weights are as follows, it need additional processing.

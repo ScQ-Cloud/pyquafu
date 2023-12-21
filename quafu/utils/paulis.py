@@ -1,5 +1,6 @@
-import numpy as np
 from functools import reduce
+
+import numpy as np
 import sparse
 
 si = sparse.COO(np.array([[1.0, 0.0], [0.0, 1.0]], dtype=complex))
@@ -14,18 +15,15 @@ spin = [np.array([1.0, 0.0]), np.array([0.0, 1.0])]
 
 
 def rx(phi):
-    return np.array(
-        [
-            [np.cos(phi / 2), -1j * np.sin(phi / 2)],
-            [-1j * np.sin(phi / 2), np.cos(phi / 2)],
-        ]
-    )
+    return np.array([
+        [np.cos(phi / 2), -1j * np.sin(phi / 2)],
+        [-1j * np.sin(phi / 2), np.cos(phi / 2)],
+    ])
 
 
 def ry(phi):
-    return np.array(
-        [[np.cos(phi / 2), -np.sin(phi / 2)], [np.sin(phi / 2), np.cos(phi / 2)]]
-    )
+    return np.array([[np.cos(phi / 2), -np.sin(phi / 2)],
+                     [np.sin(phi / 2), np.cos(phi / 2)]])
 
 
 def tensorl(ml):

@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Ansatz circuits for VQA"""
 from abc import ABC, abstractmethod
 from typing import Any, List
-import numpy as np
 
+import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.synthesis.evolution import ProductFormula
+
 from .hamiltonian import Hamiltonian
 from .interface_provider import InterfaceProvider
 
@@ -98,7 +98,7 @@ class QAOAAnsatz(Ansatz):
         """Update parameters of QAOA circuit"""
         # First build parameter list
         assert len(params) == 2 * self._num_layers
-        beta, gamma = params[: self._num_layers], params[self._num_layers :]
+        beta, gamma = params[:self._num_layers], params[self._num_layers:]
         num_para_gates = len(self.parameterized_gates)
         assert num_para_gates % self._num_layers == 0
         self._beta, self._gamma = beta, gamma
@@ -160,7 +160,8 @@ class QuantumNeuralNetwork(Ansatz):
         for layer in self._layers:
             self.add_gates(layer)
 
-        self._weights = self._transformer.init_weights((1, self.num_parameters))
+        self._weights = self._transformer.init_weights(
+            (1, self.num_parameters))
 
     @property
     def weights(self):

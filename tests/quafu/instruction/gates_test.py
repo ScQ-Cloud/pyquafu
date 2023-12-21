@@ -1,13 +1,13 @@
 import unittest
 
-from numpy import pi
-
 import quafu.elements as qe
 import quafu.elements.element_gates as qeg
 import quafu.elements.element_gates.rotation
+from numpy import pi
 
 
 class TestGate(unittest.TestCase):
+
     def test_instances(self):
         gate_classes = qe.QuantumGate.gate_classes
 
@@ -57,13 +57,15 @@ class TestGate(unittest.TestCase):
         mcz = qeg.MCZGate(ctrls=[0, 1, 2], targ=3)
         toffoli = qeg.ToffoliGate(ctrl1=0, ctrl2=1, targ=2)
 
-        all_gates = [x, y, z, i, w, sw, swdg, sx, sxdg, sy, sydg,
-                     h, s, sdg, t, tdg,
-                     ph, rx, ry, rz, rxx, ryy, rzz, swap, iswap, fredkin, cx, cy, cz, cs, ct, cp, mcx, mcy, mcz,
-                     toffoli]
+        all_gates = [
+            x, y, z, i, w, sw, swdg, sx, sxdg, sy, sydg, h, s, sdg, t, tdg, ph,
+            rx, ry, rz, rxx, ryy, rzz, swap, iswap, fredkin, cx, cy, cz, cs,
+            ct, cp, mcx, mcy, mcz, toffoli
+        ]
         self.assertEqual(len(all_gates), len(gate_classes))
         for gate in all_gates:
             self.assertIn(gate.name.lower(), gate_classes)
+
 
 # TODO: test plots
 # for gate in all_gates:
@@ -74,7 +76,6 @@ class TestGate(unittest.TestCase):
 #     qc.plot_circuit(title=gate.__class__.__name__)
 #     plt.savefig('./icons/%s.png' % gate.name, dpi=400, transparent=True)
 #     plt.close()
-
 
 if __name__ == '__main__':
     unittest.main()

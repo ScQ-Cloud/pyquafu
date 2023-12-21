@@ -58,7 +58,9 @@ class QuantumRegister:
 
     def __init__(self, num: int = 0, name: str = None):
         self.name = name
-        self.qubits = OrderedDict({i: Qubit(logic_pos=i, reg_name=name) for i in range(num)})
+        self.qubits = OrderedDict(
+            {i: Qubit(logic_pos=i, reg_name=name)
+             for i in range(num)})
 
     def __getitem__(self, item):
         if item < len(self.qubits):
@@ -85,7 +87,8 @@ class QuantumRegister:
         qreg = QuantumRegister(name=self.name)
         qreg.qubits = {
             **{self.qubits},
-            **{i + len(self): qubit for i, qubit in other.qubits.items()},
+            **{i + len(self): qubit
+               for i, qubit in other.qubits.items()},
         }
         return QuantumRegister(len(self) + len(other), name=self.name)
 
