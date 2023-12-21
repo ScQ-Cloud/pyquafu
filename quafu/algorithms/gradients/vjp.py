@@ -15,9 +15,9 @@
 from typing import List, Optional
 
 import numpy as np
-from quafu.algorithms import Hamiltonian
 from quafu.algorithms.estimator import Estimator
 from quafu.algorithms.gradients import ParamShift
+from quafu.algorithms.hamiltonian import Hamiltonian
 
 from quafu import QuantumCircuit
 
