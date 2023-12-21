@@ -14,12 +14,13 @@
 
 # Classes of classical operation.
 
-from typing import List, Dict
+from typing import Dict, List
+
 from quafu.elements.instruction import Instruction
 
 
 class Cif(Instruction):
-    name = 'cif'
+    name = "cif"
     named_paras = None
 
     def __init__(self, cbits: List[int], condition: int, instructions=None):
@@ -31,7 +32,7 @@ class Cif(Instruction):
 
     @property
     def named_pos(self) -> Dict:
-        return {'cbits': self.cbits}
+        return {"cbits": self.cbits}
 
     def to_qasm(self):
         raise NotImplementedError

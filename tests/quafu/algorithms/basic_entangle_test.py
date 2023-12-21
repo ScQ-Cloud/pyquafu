@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from quafu.circuits import QuantumCircuit
+import numpy as np
 import quafu.elements.element_gates as qeg
 from quafu.algorithms import BasicEntangleLayers
-import numpy as np
+from quafu.circuits import QuantumCircuit
 
 
 class TestBasicEntangleLayers:

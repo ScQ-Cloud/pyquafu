@@ -14,6 +14,7 @@
 """Quafu parameter shift"""
 
 from typing import List
+
 import numpy as np
 
 from ..estimator import Estimator

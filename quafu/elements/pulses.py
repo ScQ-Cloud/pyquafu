@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Union, Optional
+from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from quafu.elements.instruction import Instruction, PosType
 
 TimeType = Union[np.ndarray, float, int]
@@ -275,7 +274,8 @@ class XYResonance(Instruction):
 
     def to_qasm(self):
         return "xy(%d%s) " % (self.duration, self.unit) + ",".join(
-            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)])
+            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
+        )
 
 
 QuantumPulse.register_pulse(RectPulse)

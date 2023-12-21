@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import sys
+from unittest.mock import patch
+
 import numpy as np
 import pytest
-import math
-from unittest.mock import patch
-from quafu import ExecResult
 from quafu.algorithms.estimator import Estimator
 from quafu.algorithms.hamiltonian import Hamiltonian
-
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.tasks.tasks import Task
+
+from quafu import ExecResult
 
 MOCK_RES_DICT = {
     "measure": "None",

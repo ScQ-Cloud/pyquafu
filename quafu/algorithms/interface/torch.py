@@ -11,12 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """quafu PyTorch quantum layer"""
 
-import torch
 import numpy as np
+import torch
+
 from quafu import QuantumCircuit
+
 from ..gradients import compute_vjp, jacobian, run_circ
 
 

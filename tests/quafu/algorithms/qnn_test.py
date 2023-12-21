@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
-
 import torch.nn
-from quafu.algorithms.gradients import jacobian, compute_vjp
+from quafu.algorithms import QuantumNeuralNetwork
+from quafu.algorithms.gradients import compute_vjp, jacobian
 from quafu.algorithms.interface.torch import execute
 from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers
 from quafu.circuits.quantum_circuit import QuantumCircuit
-from quafu.algorithms import QuantumNeuralNetwork
 
 
 class ModelStandardCircuit(torch.nn.Module):

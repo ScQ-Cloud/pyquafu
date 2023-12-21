@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class BaseTest:
-    def assertDictAlmostEqual(self, dict1, dict2, delta=None, places=None, default_value=-1):
+    def assertDictAlmostEqual(
+        self, dict1, dict2, delta=None, places=None, default_value=-1
+    ):
         """
         Assert two dictionaries with numeric values are almost equal.
-        
+
         Args:
             dict1 (dict): a dictionary.
             dict2 (dict): a dictionary.
@@ -25,6 +28,7 @@ class BaseTest:
             places (int): number of decimal places for comparison.
             default_value (number): default value for missing keys.
         """
+
         def valid_comparison(value):
             """compare value to delta, within places accuracy"""
             if places is not None:

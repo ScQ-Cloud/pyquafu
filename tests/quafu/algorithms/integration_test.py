@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import heapq
 import sys
 from typing import List
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-from quafu.algorithms import Hamiltonian, QAOAAnsatz, Estimator
-from quafu import simulate
-from scipy.optimize import minimize
-import heapq
-import matplotlib.pyplot as plt
+from quafu.algorithms import Estimator, Hamiltonian, QAOAAnsatz
 from quafu.algorithms.ansatz import AlterLayeredAnsatz
+from scipy.optimize import minimize
+
+from quafu import simulate
 
 
 class TestQAOA:
@@ -61,7 +63,7 @@ class TestQAOA:
         """
         num_layers = 2
         print("The test for ansatz.")
-        
+
         # test the zero qubit evolution
         hamiltonian__ = Hamiltonian.from_pauli_list(
             [("IIIII", 1), ("IIIII", 1), ("IIIII", 1), ("IIIII", 1)]

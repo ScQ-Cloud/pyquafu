@@ -11,11 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Angel Embedding in Quantum Data embedding"""
-from quafu.circuits import QuantumCircuit
-import quafu.elements.element_gates as qeg
 import numpy as np
+import quafu.elements.element_gates as qeg
+from quafu.circuits import QuantumCircuit
 
 ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
@@ -38,7 +37,6 @@ class AngleEmbedding:
         self.features = features
         self.num_qubits = num_qubits
         self.op = ROT[rotation]
-
         """Build the embedding circuit and get the gate_list"""
         self.gate_list = self._build()
 

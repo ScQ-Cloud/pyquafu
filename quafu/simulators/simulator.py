@@ -11,15 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """simulator for quantum circuit and qasm"""
 
 from typing import Union
-from .default_simulator import py_simulate, ptrace, permutebits
-from quafu import QuantumCircuit
-from ..results.results import SimuResult
+
 import numpy as np
+
+from quafu import QuantumCircuit
+
 from ..exceptions import QuafuError
+from ..results.results import SimuResult
+from .default_simulator import permutebits, ptrace, py_simulate
 
 
 def simulate(
@@ -78,6 +80,7 @@ def simulate(
 
     count_dict = None
     from .qfvm import simulate_circuit
+
     # simulate
     if simulator == "qfvm_circ":
         if use_gpu:
@@ -97,18 +100,18 @@ def simulate(
                 psi = simulate_circuit_gpu(qc, psi)
         else:
             count_dict, psi = simulate_circuit(qc, psi, shots)
-            
+
     elif simulator == "py_simu":
         if qc.executable_on_backend == False:
             raise QuafuError("classical operation only support for `qfvm_qasm`")
         psi = py_simulate(qc, psi)
-        
+
     elif simulator == "qfvm_qasm":
         psi = simulate_circuit(qc, psi, shots)
-        
+
     else:
         raise ValueError("invalid circuit")
-    
+
     if output == "density_matrix":
         if simulator in ["qfvm_circ", "qfvm_qasm"]:
             psi = permutebits(psi, range(num)[::-1])

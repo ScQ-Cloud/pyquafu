@@ -1,10 +1,10 @@
-from .pauli import *
-from .clifford import HGate, SGate, SdgGate, TGate, TdgGate
-from .rotation import RXGate, RYGate, RZGate, RXXGate, RYYGate, RZZGate, PhaseGate
-from .swap import SwapGate, ISwapGate
-from .c11 import CXGate, CYGate, CZGate, CSGate, CTGate, CPGate
+from .c11 import CPGate, CSGate, CTGate, CXGate, CYGate, CZGate
 from .c12 import FredkinGate
+from .clifford import HGate, SdgGate, SGate, TdgGate, TGate
 from .cm1 import MCXGate, MCYGate, MCZGate, ToffoliGate
+from .pauli import *
+from .rotation import PhaseGate, RXGate, RXXGate, RYGate, RYYGate, RZGate, RZZGate
+from .swap import ISwapGate, SwapGate
 from .unitary import UnitaryDecomposer
 
 __all__ = [

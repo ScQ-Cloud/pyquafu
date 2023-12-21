@@ -1,10 +1,10 @@
-import graphviz
+from typing import Any, Union
 
-from quafu import QuantumCircuit
+import graphviz
 from quafu.dagcircuits.circuit_dag import circuit_to_dag
 from quafu.dagcircuits.instruction_node import InstructionNode
 
-from typing import Union, Any
+from quafu import QuantumCircuit
 
 
 def _extract_node_info(node):
@@ -16,10 +16,12 @@ def _extract_node_info(node):
     return name, label
 
 
-def draw_dag(qc: Union[QuantumCircuit, None],
-             dag: Any = None,
-             output_format: str = 'pdf',
-             output_filename: str = 'DAG'):
+def draw_dag(
+    qc: Union[QuantumCircuit, None],
+    dag: Any = None,
+    output_format: str = "pdf",
+    output_filename: str = "DAG",
+):
     """
     TODO: complete docstring, test supports for notebook
 
@@ -48,7 +50,7 @@ def draw_dag(qc: Union[QuantumCircuit, None],
         node1, node2, link = edge
         name1, label1 = _extract_node_info(node1)
         name2, label2 = _extract_node_info(node2)
-        dot.edge(name1, name2, label=link['label'])
+        dot.edge(name1, name2, label=link["label"])
 
     dot.render(format=output_format, cleanup=True)
     return dot

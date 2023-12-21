@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Ansatz circuits for VQA"""
 from abc import ABC, abstractmethod
 from typing import Any, List
-import numpy as np
 
+import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.synthesis.evolution import ProductFormula
+
 from .hamiltonian import Hamiltonian
 from .interface_provider import InterfaceProvider
 

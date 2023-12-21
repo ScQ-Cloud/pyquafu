@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import sys
+
+import pytest
 from quafu.algorithms.estimator import Estimator
-from quafu.algorithms.hamiltonian import Hamiltonian
 from quafu.algorithms.gradients import ParamShift
+from quafu.algorithms.hamiltonian import Hamiltonian
 from quafu.circuits.quantum_circuit import QuantumCircuit
 
 

@@ -12,21 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import copy
-import ply.yacc as yacc
 
-from .qfasm_utils import *
-from quafu.circuits.quantum_register import QuantumRegister
-from quafu.circuits.classical_register import ClassicalRegister
-from quafu.qfasm.exceptions import ParserError
-
-from .qfasm_lexer import QfasmLexer
 import numpy as np
-from quafu import QuantumCircuit
+import ply.yacc as yacc
+from quafu.circuits.classical_register import ClassicalRegister
+from quafu.circuits.quantum_register import QuantumRegister
 from quafu.elements import *
 from quafu.elements.classical_element import Cif
+from quafu.qfasm.exceptions import ParserError
 
+from quafu import QuantumCircuit
+
+from .qfasm_lexer import QfasmLexer
+from .qfasm_utils import *
 
 unaryop = ["sin", "cos", "tan", "exp", "ln", "sqrt", "acos", "atan", "asin"]
 unarynp = {
@@ -140,7 +139,7 @@ class QfasmParser(object):
                 self.circuit.cregs.append(ClassicalRegister(self.cnum, name="c"))
             else:
                 self.circuit.cregs[0] = ClassicalRegister(self.cnum, name="c")
-            
+
         if symtabnode.is_global:
             self.global_symtab[symtabnode.name] = symtabnode
         else:
@@ -205,9 +204,7 @@ class QfasmParser(object):
                         qlist.append(symnode.start + i)
                     gate_list.append(Reset(qlist))
                 elif isinstance(qarg, IndexedId):
-                    gate_list.append(
-                        Reset([symnode.start + qarg.num])
-                    )
+                    gate_list.append(Reset([symnode.start + qarg.num]))
 
         elif gateins.name == "barrier":
             qlist = []
