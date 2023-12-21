@@ -2,12 +2,12 @@ import copy
 from typing import Any, List
 
 import networkx as nx
-from quafu.dagcircuits.dag_circuit import (
+from quafu.dagcircuits.dag_circuit import (  # dag_circuit.py in the same folder as circuit_dag.py now
     DAGCircuit,
-)  # dag_circuit.py in the same folder as circuit_dag.py now
-from quafu.dagcircuits.instruction_node import (
+)
+from quafu.dagcircuits.instruction_node import (  # instruction_node.py in the same folder as circuit_dag.py now
     InstructionNode,
-)  # instruction_node.py in the same folder as circuit_dag.py now
+)
 from quafu.elements import Barrier, Delay, Measure, XYResonance
 from quafu.elements.element_gates import *
 from quafu.elements.pulses import FlattopPulse, GaussianPulse, RectPulse
