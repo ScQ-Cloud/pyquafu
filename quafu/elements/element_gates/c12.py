@@ -1,8 +1,9 @@
 from quafu.elements.matrices import SwapMatrix
 
-from ..quantum_gate import ControlledGate, FixedGate
+from ..quantum_gate import ControlledGate, FixedGate, QuantumGate
 
 
+@QuantumGate.register("cswap")
 class FredkinGate(ControlledGate, FixedGate):
     name = "CSWAP"
 
@@ -10,6 +11,3 @@ class FredkinGate(ControlledGate, FixedGate):
         ControlledGate.__init__(
             self, "SWAP", [ctrl], [targ1, targ2], None, tar_matrix=SwapMatrix
         )
-
-
-ControlledGate.register_gate(FredkinGate)

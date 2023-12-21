@@ -131,7 +131,7 @@ def customize_gate(
 
     attrs = {
         "cls_name": cls_name,
-        "gate_structure": gate_structure,  # TODO: translate
+        "gate_structure": gate_structure,
         "qubit_num": qubit_num,
     }
 
