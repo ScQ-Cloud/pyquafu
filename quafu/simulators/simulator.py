@@ -32,7 +32,6 @@ def simulate(
     shots: int = 100,
     use_gpu: bool = False,
     use_custatevec: bool = False,
-    use_clifford: bool = False,
 ) -> SimuResult:
     """Simulate quantum circuit
     Args:
