@@ -91,7 +91,11 @@ class SimuResult(Result):
     """
 
     def __init__(self, input, input_form, count_dict: dict = None):
-        self.num = int(np.log2(input.shape[0]))
+        if input_form != "count_dict":
+            self.num = int(np.log2(input.shape[0]))
+        else:
+            # input is num qubits
+            self.num = input
         if input_form == "density_matrix":
             self.rho = np.array(input)
             self.probabilities = np.diag(input)
@@ -99,6 +103,9 @@ class SimuResult(Result):
             self.probabilities = input
         elif input_form == "state_vector":
             self.state_vector = input
+        elif input_form == "count_dict":
+            # do nothing, only count dict
+            pass
         # come form c++ simulator
         # TODO: add count for py_simu
         if count_dict is not None:
