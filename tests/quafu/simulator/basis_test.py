@@ -263,3 +263,82 @@ class TestSimulatorBasis(BaseTest):
             [diff_00, diff_11], [2, 0]
         )
         self.assertTrue(success)
+
+
+class TestCliffordSimulatorBasis(BaseTest):
+    """Test C++ Clifford simulator"""
+
+    circuit = None
+    assertEqual = unittest.TestCase.assertEqual
+    assertAlmostEqual = unittest.TestCase.assertAlmostEqual
+    assertDictEqual = unittest.TestCase.assertDictEqual
+    assertListEqual = unittest.TestCase.assertListEqual
+    assertTrue = unittest.TestCase.assertTrue
+
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
+    def test_simulate(self):
+        print("test_simulate")
+        self.circuit = BellCircuits.bell_no_measure()
+        result = simulate(
+            qc=self.circuit, simulator="qfvm_clifford", output="count_dict"
+        )
+        count = result.count
+        self.assertDictAlmostEqual(count, {})
+
+    def test_singleQgate_measure_atlast(self):
+        self.circuit = BasicCircuits.singleQgate_measure_atlast()
+        result = simulate(
+            qc=self.circuit, shots=1, simulator="qfvm_clifford", output="count_dict"
+        )
+        counts = result.count
+        self.assertDictAlmostEqual(counts, {"11": 1})
+
+    def test_singleQgate_no_measure(self):
+        self.circuit = BasicCircuits.singleQgate_no_measure()
+        result = simulate(
+            qc=self.circuit, shots=1, simulator="qfvm_clifford", output="count_dict"
+        )
+        counts = result.count
+        self.assertDictAlmostEqual(counts, {})
+
+    def test_singleQgate_measure_normal(self):
+        self.circuit = BasicCircuits.singleQgate_measure_normal()
+        result = simulate(
+            qc=self.circuit, shots=10, simulator="qfvm_clifford", output="count_dict"
+        )
+        counts = result.count
+        self.assertDictAlmostEqual(counts, {"11": 10})
+
+    def test_multiQgate_measure_atlast(self):
+        self.circuit = BasicCircuits.multiQgate_measure_atlast()
+        result = simulate(
+            qc=self.circuit, shots=10, simulator="qfvm_clifford", output="count_dict"
+        )
+        counts = result.count
+        self.assertDictAlmostEqual(counts, {"11": 10})
+
+    def test_multiQgate_no_measure(self):
+        self.circuit = BasicCircuits.multiQgate_no_measure()
+        result = simulate(
+            qc=self.circuit, shots=1, simulator="qfvm_clifford", output="count_dict"
+        )
+        counts = result.count
+        self.assertDictAlmostEqual(counts, {})
+
+    def test_multiQgate_measure_normal(self):
+        self.circuit = BasicCircuits.multiQgate_measure_normal()
+        result = simulate(
+            qc=self.circuit, shots=10, simulator="qfvm_clifford", output="count_dict"
+        )
+        counts = result.count
+        self.assertDictAlmostEqual(counts, {"11": 10})
+
+    def test_anycbit_measure(self):
+        self.circuit = BasicCircuits.any_cbit_measure()
+        result = simulate(
+            qc=self.circuit, shots=10, simulator="qfvm_clifford", output="count_dict"
+        )
+        counts = result.count
+        self.assertDictAlmostEqual(counts, {"0101": 10})
