@@ -18,9 +18,11 @@
 # interaction with quantum hardware
 
 import os
+
 import ply.lex as lex
-from .qfasm_utils import Id
+
 from .exceptions import LexerError
+from .qfasm_utils import Id
 
 
 class QfasmLexer(object):

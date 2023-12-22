@@ -2,6 +2,7 @@ import copy
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
+
 from ..utils.basis import *
 
 
@@ -23,15 +24,22 @@ class ExecResult(Result):
     """
 
     def __init__(self, input_dict):
-        status_map = {0: "In Queue", 1: "Running", 2: "Completed", "Canceled": 3, 4: "Failed"}
-        self.taskid = input_dict['task_id']
-        self.taskname = input_dict['task_name']
+        status_map = {
+            0: "In Queue",
+            1: "Running",
+            2: "Completed",
+            "Canceled": 3,
+            4: "Failed",
+        }
+        self.taskid = input_dict["task_id"]
+        self.taskname = input_dict["task_name"]
         self.transpiled_openqasm = input_dict["openqasm"]
         from ..circuits.quantum_circuit import QuantumCircuit
+
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
-        
+
         self.measures = self.transpiled_circuit.measures
         self.task_status = status_map[input_dict["status"]]
         self.res = eval(input_dict["res"])
@@ -82,7 +90,7 @@ class SimuResult(Result):
         count_dict: The num of cbits measured. Only support for `qfvm_circuit`.
     """
 
-    def __init__(self, input, input_form, count_dict:dict=None):
+    def __init__(self, input, input_form, count_dict: dict = None):
         self.num = int(np.log2(input.shape[0]))
         if input_form == "density_matrix":
             self.rho = np.array(input)
@@ -95,9 +103,9 @@ class SimuResult(Result):
         # TODO: add count for py_simu
         if count_dict is not None:
             self.count = {}
-            for key,value in count_dict.items():
+            for key, value in count_dict.items():
                 bitstr = bin(key)[2:].zfill(self.num)
-                self.count[bitstr] = value               
+                self.count[bitstr] = value
 
     def plot_probabilities(
         self, full: bool = False, reverse_basis: bool = False, sort: bool = None

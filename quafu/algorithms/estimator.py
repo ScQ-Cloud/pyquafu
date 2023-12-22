@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Pre-build wrapper to calculate expectation value"""
-import numpy as np
-
 from typing import List, Optional
-from quafu import QuantumCircuit
+
+import numpy as np
+from quafu.algorithms.hamiltonian import Hamiltonian
 from quafu.simulators.simulator import simulate
 from quafu.tasks.tasks import Task
-from quafu.algorithms.hamiltonian import Hamiltonian
+
+from quafu import QuantumCircuit
 
 
 def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):

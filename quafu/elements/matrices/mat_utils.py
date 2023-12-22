@@ -1,17 +1,16 @@
 import cmath
+from typing import List
 
 import numpy as np
 from numpy import ndarray
 
 from .mat_lib import IdMatrix
 
-from typing import List
-
 
 def reorder_matrix(matrix: np.ndarray, pos: List):
-    """Reorder the input sorted matrix to the pos order """
+    """Reorder the input sorted matrix to the pos order"""
     qnum = len(pos)
-    dim = 2 ** qnum
+    dim = 2**qnum
     inds = np.argsort(pos)
     inds = np.concatenate([inds, inds + qnum])
     tensorm = matrix.reshape([2] * 2 * qnum)
@@ -105,7 +104,7 @@ def is_kron_with_id2(matrix):
 
 #######################################################
 def get_global_phase(unitary):
-    """ Get the global phase of arbitrary unitary, and get the special unitary.
+    """Get the global phase of arbitrary unitary, and get the special unitary.
 
     Args:
         unitary (np.array): arbitrary unitary
@@ -120,7 +119,7 @@ def get_global_phase(unitary):
 
 
 def matrix_distance_squared(unitary1, unitary2):
-    """ Used to compare the distance of two matrices. The global phase is ignored.
+    """Used to compare the distance of two matrices. The global phase is ignored.
 
     Args:
         unitary1 (np.array): A unitary matrix in the form of a numpy ndarray.
@@ -130,4 +129,6 @@ def matrix_distance_squared(unitary1, unitary2):
         Float : A single value between 0 and 1 indicating how closely unitary1 and unitary2 match.
         A value close to 0 indicates that unitary1 and unitary2 are the same unitary.
     """
-    return np.abs(1 - np.abs(np.sum(np.multiply(unitary1, np.conj(unitary2)))) / unitary1.shape[0])
+    return np.abs(
+        1 - np.abs(np.sum(np.multiply(unitary1, np.conj(unitary2)))) / unitary1.shape[0]
+    )

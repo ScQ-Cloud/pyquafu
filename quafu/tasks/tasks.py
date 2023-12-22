@@ -19,10 +19,10 @@ from urllib import parse
 
 import numpy as np
 import requests
-
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.users.userapi import User
-from ..exceptions import CircuitError, ServerError, CompileError
+
+from ..exceptions import CircuitError, CompileError, ServerError
 from ..results.results import ExecResult, merge_measure
 from ..users.exceptions import UserError
 
@@ -158,9 +158,7 @@ class Task(object):
 
         return exec_res, measure_results
 
-    def run(self,
-            qc: QuantumCircuit,
-            measure_base: List = None) -> ExecResult:
+    def run(self, qc: QuantumCircuit, measure_base: List = None) -> ExecResult:
         """Single run for measurement task.
 
         Args:
@@ -183,12 +181,9 @@ class Task(object):
 
         return res
 
-    def send(self,
-             qc: QuantumCircuit,
-             name: str = "",
-             group: str = "",
-             wait: bool = True
-             ) -> ExecResult:
+    def send(
+        self, qc: QuantumCircuit, name: str = "", group: str = "", wait: bool = True
+    ) -> ExecResult:
         """
         Run the circuit on experimental device.
 
@@ -245,12 +240,14 @@ class Task(object):
         if not response.ok:
             logging.warning("Received a non-200 response from the server.\n")
         if response.status_code == 502:
-            logging.critical("Received a 502 Bad Gateway response. Please try again later.\n"
-                             "If there is persistent failure, please report it on our github page.")
-            raise UserError('502 Bad Gateway response')
+            logging.critical(
+                "Received a 502 Bad Gateway response. Please try again later.\n"
+                "If there is persistent failure, please report it on our github page."
+            )
+            raise UserError("502 Bad Gateway response")
         else:
             res_dict = response.json()  # type: dict
-            quafu_status = res_dict['status']
+            quafu_status = res_dict["status"]
             if quafu_status in [201, 205]:
                 raise UserError(res_dict["message"])
             elif quafu_status == 5001:
@@ -279,16 +276,18 @@ class Task(object):
         data = {"task_id": taskid}
         url = User.url + User.exec_recall_api
 
-        headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'api_token': self.user.api_token}
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "api_token": self.user.api_token,
+        }
         response = requests.post(url, headers=headers, data=data)
 
         res_dict = response.json()
         return ExecResult(res_dict)
 
-    def retrieve_group(self,
-                       group: str,
-                       history: Dict = None,
-                       verbose: bool = True) -> List[ExecResult]:
+    def retrieve_group(
+        self, group: str, history: Dict = None, verbose: bool = True
+    ) -> List[ExecResult]:
         """
         Retrieve the results of submited task by group name.
 

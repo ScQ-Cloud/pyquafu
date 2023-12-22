@@ -4,9 +4,13 @@ import sympy
 
 # Organize components defined below to quantum operations
 OPS = {
-    'variationalPQC': lambda qubits, position, params: generate_vpqc(qubits, position, params),
-    'dataencodingPQC': lambda qubits, position, count, params, state: generate_dpqc(qubits, position, count, params, state),
-    'entanglement': lambda qubits: generate_entangle(qubits)
+    "variationalPQC": lambda qubits, position, params: generate_vpqc(
+        qubits, position, params
+    ),
+    "dataencodingPQC": lambda qubits, position, count, params, state: generate_dpqc(
+        qubits, position, count, params, state
+    ),
+    "entanglement": lambda qubits: generate_entangle(qubits),
 }
 
 
@@ -15,9 +19,11 @@ def one_qubit_rotation(qubit, symbols):
     Return Cirq gates that apply a rotation of the bloch sphere about the X,
     Y and Z axis, specified by the values in `symbols`.
     """
-    return [cirq.rx(symbols[0])(qubit),
-            cirq.ry(symbols[1])(qubit),
-            cirq.rz(symbols[2])(qubit)]
+    return [
+        cirq.rx(symbols[0])(qubit),
+        cirq.ry(symbols[1])(qubit),
+        cirq.rz(symbols[2])(qubit),
+    ]
 
 
 def entangling_layer(qubits):
@@ -35,18 +41,22 @@ def generate_vpqc(qubits, position, params=None):
     # Number of qubits
     n_qubits = len(qubits)
 
-    # Sympy symbols or load parameters for variational angles 
+    # Sympy symbols or load parameters for variational angles
     if params == None:
-        params = sympy.symbols(f'theta({3*position*n_qubits}:{3*(position+1)*n_qubits})')
+        params = sympy.symbols(
+            f"theta({3*position*n_qubits}:{3*(position+1)*n_qubits})"
+        )
     else:
-        params = params[3*position*n_qubits:3*(position+1)*n_qubits]
+        params = params[3 * position * n_qubits : 3 * (position + 1) * n_qubits]
     params = np.asarray(params).reshape((n_qubits, 3))
 
     # Define circuit
     circuit = cirq.Circuit()
 
     # Variational layer
-    circuit += cirq.Circuit(one_qubit_rotation(q, params[i]) for i, q in enumerate(qubits))
+    circuit += cirq.Circuit(
+        one_qubit_rotation(q, params[i]) for i, q in enumerate(qubits)
+    )
 
     return circuit, list(params.flat)
 
@@ -58,9 +68,9 @@ def generate_dpqc(qubits, position, count, params=None, state=None):
 
     # Sympy symbols or load parameters for encoding angles
     if params == None:
-        inputs = sympy.symbols(f'x{position}'+f'_(0:{n_qubits})')
+        inputs = sympy.symbols(f"x{position}" + f"_(0:{n_qubits})")
     else:
-        inputs = params[count*n_qubits:(count+1)*n_qubits]
+        inputs = params[count * n_qubits : (count + 1) * n_qubits]
         for i in range(len(state)):
             inputs[i] *= state[i]
     inputs = np.asarray(inputs).reshape((n_qubits))
@@ -78,19 +88,7 @@ def generate_entangle(qubits):
     """Prepare a entangle circuit on `qubits`."""
     # Define circuit
     circuit = cirq.Circuit()
-    
+
     circuit += entangling_layer(qubits)
 
     return circuit
-
-
-
-
-
-
-
-
-
-
-
-

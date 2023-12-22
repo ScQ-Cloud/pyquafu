@@ -1,5 +1,6 @@
-import numpy as np
 from functools import reduce
+
+import numpy as np
 import sparse
 
 si = sparse.COO(np.array([[1.0, 0.0], [0.0, 1.0]], dtype=complex))

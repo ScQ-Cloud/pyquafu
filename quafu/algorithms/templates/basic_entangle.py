@@ -11,11 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Layers consisting of one-parameter single-qubit rotations on each qubit, followed by a closed chain or ring of CNOT gates"""
-from quafu.circuits import QuantumCircuit
-import quafu.elements.element_gates as qeg
 import numpy as np
+import quafu.elements.element_gates as qeg
+from quafu.circuits import QuantumCircuit
 
 ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
@@ -52,7 +51,6 @@ class BasicEntangleLayers:
         self.weights = weights
         self.num_qubits = num_qubits
         self.op = ROT[rotation]
-
         """Build the quantum basic_entangle layer and get the gate_list"""
         self.gate_list = self._build()
 

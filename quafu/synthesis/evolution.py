@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Evolution that generate gate sequence based on operator"""
 
 from abc import ABC, abstractmethod
+
 import numpy as np
 import quafu.elements.element_gates as qeg
 
@@ -128,25 +128,25 @@ def diagonalizing_clifford(pauli: str):
 def cnot_chain(pauli: str):
     """CX chain.
 
-        For example, for the Pauli with the label 'XYZIX'.
+    For example, for the Pauli with the label 'XYZIX'.
 
-                           ┌───┐
-            q_0: ──────────┤ X ├
-                           └─┬─┘
-            q_1: ────────────┼──
-                      ┌───┐  │
-            q_2: ─────┤ X ├──■──
-                 ┌───┐└─┬─┘
-            q_3: ┤ X ├──■───────
-                 └─┬─┘
-            q_4: ──■────────────
+                       ┌───┐
+        q_0: ──────────┤ X ├
+                       └─┬─┘
+        q_1: ────────────┼──
+                  ┌───┐  │
+        q_2: ─────┤ X ├──■──
+             ┌───┐└─┬─┘
+        q_3: ┤ X ├──■───────
+             └─┬─┘
+        q_4: ──■────────────
 
-        Args:
-            pauli: The Pauli for which to construct the CX chain.
+    Args:
+        pauli: The Pauli for which to construct the CX chain.
 
-        Returns:
-            A gate list implementing the CX chain.
-        """
+    Returns:
+        A gate list implementing the CX chain.
+    """
 
     gates = []
     control, target = None, None
@@ -171,25 +171,25 @@ def cnot_chain(pauli: str):
 def cnot_fountain(pauli: str):
     """CX chain in the fountain shape.
 
-        For example, for the Pauli with the label 'XYZIX'.
+    For example, for the Pauli with the label 'XYZIX'.
 
-                 ┌───┐┌───┐┌───┐
-            q_0: ┤ X ├┤ X ├┤ X ├
-                 └─┬─┘└─┬─┘└─┬─┘
-            q_1: ──┼────┼────┼──
-                   │    │    │
-            q_2: ──■────┼────┼──
-                        │    │
-            q_3: ───────■────┼──
-                             │
-            q_4: ────────────■──
+             ┌───┐┌───┐┌───┐
+        q_0: ┤ X ├┤ X ├┤ X ├
+             └─┬─┘└─┬─┘└─┬─┘
+        q_1: ──┼────┼────┼──
+               │    │    │
+        q_2: ──■────┼────┼──
+                    │    │
+        q_3: ───────■────┼──
+                         │
+        q_4: ────────────■──
 
-        Args:
-            pauli: The Pauli for which to construct the CX chain.
+    Args:
+        pauli: The Pauli for which to construct the CX chain.
 
-        Returns:
-            A gate list implementing the CX chain.
-        """
+    Returns:
+        A gate list implementing the CX chain.
+    """
 
     gates = []
     control, target = None, None

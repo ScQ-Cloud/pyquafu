@@ -4,8 +4,8 @@ import math
 import numpy as np
 import scipy
 from numpy import ndarray
+from quafu.elements.matrices import CXMatrix, ry_mat, rz_mat
 
-from quafu.elements.matrices import rz_mat, ry_mat, CXMatrix
 from ...matrices import mat_utils as mu
 
 

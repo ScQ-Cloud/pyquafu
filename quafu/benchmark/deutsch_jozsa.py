@@ -1,7 +1,7 @@
 import random
+
 import matplotlib.pyplot as plt
 import numpy as np
-
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.visualisation.circuitPlot import CircuitPlotManager
 

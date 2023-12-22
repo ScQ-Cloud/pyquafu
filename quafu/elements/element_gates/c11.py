@@ -1,18 +1,18 @@
-from ..quantum_gate import ControlledGate, FixedGate
 from abc import ABC
-from quafu.elements.matrices import XMatrix, YMatrix, ZMatrix, SMatrix, TMatrix, pmatrix
 from typing import Dict
 
+from quafu.elements.matrices import SMatrix, TMatrix, XMatrix, YMatrix, ZMatrix, pmatrix
 
-__all__ = ['CXGate', 'CYGate', 'CZGate',
-           'CSGate', 'CTGate',
-           'CPGate']
+from ..quantum_gate import ControlledGate, FixedGate, QuantumGate
+
+__all__ = ["CXGate", "CYGate", "CZGate", "CSGate", "CTGate", "CPGate"]
 
 
 class _C11Gate(ControlledGate, ABC):
     ct_dims = (1, 1, 2)
 
 
+@QuantumGate.register("cx")
 class CXGate(_C11Gate, FixedGate):
     name = "CX"
 
@@ -21,6 +21,7 @@ class CXGate(_C11Gate, FixedGate):
         self.symbol = "+"
 
 
+@QuantumGate.register("cy")
 class CYGate(_C11Gate, FixedGate):
     name = "CY"
 
@@ -28,6 +29,7 @@ class CYGate(_C11Gate, FixedGate):
         _C11Gate.__init__(self, "Y", [ctrl], [targ], None, tar_matrix=YMatrix)
 
 
+@QuantumGate.register("cz")
 class CZGate(_C11Gate, FixedGate):
     name = "CZ"
 
@@ -35,6 +37,7 @@ class CZGate(_C11Gate, FixedGate):
         _C11Gate.__init__(self, "Z", [ctrl], [targ], None, tar_matrix=ZMatrix)
 
 
+@QuantumGate.register("cs")
 class CSGate(_C11Gate, FixedGate):
     name = "CS"
 
@@ -45,6 +48,7 @@ class CSGate(_C11Gate, FixedGate):
         return "cp(pi/2) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 
+@QuantumGate.register("ct")
 class CTGate(_C11Gate, FixedGate):
     name = "CT"
 
@@ -55,6 +59,7 @@ class CTGate(_C11Gate, FixedGate):
         return "cp(pi/4) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 
+@QuantumGate.register("cp")
 class CPGate(_C11Gate):
     name = "CP"
 
@@ -63,12 +68,4 @@ class CPGate(_C11Gate):
 
     @property
     def named_paras(self) -> Dict:
-        return {'theta': self.paras}
-
-
-ControlledGate.register_gate(CXGate)
-ControlledGate.register_gate(CYGate)
-ControlledGate.register_gate(CZGate)
-ControlledGate.register_gate(CSGate)
-ControlledGate.register_gate(CTGate)
-ControlledGate.register_gate(CPGate)
+        return {"theta": self.paras}

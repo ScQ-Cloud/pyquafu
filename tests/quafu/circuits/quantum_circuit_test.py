@@ -1,6 +1,7 @@
+import math
+
 from quafu.circuits import QuantumCircuit
 from quafu.elements.element_gates import RXGate
-import math
 
 
 class TestQuantumCircuit:

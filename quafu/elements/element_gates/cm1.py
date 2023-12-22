@@ -1,9 +1,11 @@
-from ..quantum_gate import ControlledGate, FixedGate
 from quafu.elements.matrices import XMatrix, YMatrix, ZMatrix
 
-__all__ = ['MCXGate', 'MCYGate', 'MCZGate', 'ToffoliGate']
+from ..quantum_gate import ControlledGate, FixedGate, QuantumGate
+
+__all__ = ["MCXGate", "MCYGate", "MCZGate", "ToffoliGate"]
 
 
+@QuantumGate.register("mcx")
 class MCXGate(ControlledGate, FixedGate):
     name = "MCX"
 
@@ -11,6 +13,7 @@ class MCXGate(ControlledGate, FixedGate):
         ControlledGate.__init__(self, "X", ctrls, [targ], None, tar_matrix=XMatrix)
 
 
+@QuantumGate.register("mcy")
 class MCYGate(ControlledGate, FixedGate):
     name = "MCY"
 
@@ -18,6 +21,7 @@ class MCYGate(ControlledGate, FixedGate):
         ControlledGate.__init__(self, "Y", ctrls, [targ], None, tar_matrix=YMatrix)
 
 
+@QuantumGate.register("mcz")
 class MCZGate(ControlledGate, FixedGate):
     name = "MCZ"
 
@@ -25,33 +29,11 @@ class MCZGate(ControlledGate, FixedGate):
         ControlledGate.__init__(self, "Z", ctrls, [targ], None, tar_matrix=ZMatrix)
 
 
-
+@QuantumGate.register("ccx")
 class ToffoliGate(ControlledGate, FixedGate):
     name = "CCX"
 
     def __init__(self, ctrl1: int, ctrl2: int, targ: int):
-        ControlledGate.__init__(self, "X", [ctrl1, ctrl2], [targ], None, tar_matrix=XMatrix)
-
-
-ControlledGate.register_gate(MCXGate)
-ControlledGate.register_gate(MCYGate)
-ControlledGate.register_gate(MCZGate)
-ControlledGate.register_gate(ToffoliGate)
-
-# deprecated
-
-# class ControlledU(ControlledGate):
-#     """ Controlled gate class, where the matrix act non-trivially on target qubits"""
-#     name = 'CU'
-#
-#     def __init__(self, ctrls: List[int], u: Union[SingleQubitGate, MultiQubitGate]):
-#         self.targ_gate = u
-#         targs = u.pos
-#         if isinstance(targs, int):
-#             targs = [targs]
-#
-#         ControlledGate.__init__(self, u.name, ctrls, targs, u.paras, tar_matrix=self.targ_gate.get_targ_matrix())
-#
-#     def get_targ_matrix(self, reverse_order=False):
-#         return self.targ_gate.get_targ_matrix(reverse_order)
-# ControlledGate.register_gate(ControlledU)
+        ControlledGate.__init__(
+            self, "X", [ctrl1, ctrl2], [targ], None, tar_matrix=XMatrix
+        )
