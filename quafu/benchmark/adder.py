@@ -1,11 +1,9 @@
-from quafu.circuits.quantum_circuit import QuantumCircuit
 import matplotlib.pyplot as plt
+from quafu.circuits.quantum_circuit import QuantumCircuit
 
-"""
-// quantum ripple-carry adder from Cuccaro et al, quant-ph/0410184
-OPENQASM 2.0;
-include "qelib1.inc";
-"""
+# // quantum ripple-carry adder from Cuccaro et al, quant-ph/0410184
+# OPENQASM 2.0;
+# include "qelib1.inc";
 
 n = 10
 qc = QuantumCircuit(n)
@@ -76,7 +74,6 @@ x b;    // b = 1111
 qc.x(qreg(0, "a"))
 for i in range(4):
     qc.x(qreg(i, "b"))
-
 """
 // add a to b, storing result in b
 majority cin[0],b[0],a[0];
@@ -97,7 +94,6 @@ qc.cnot(qreg(3, "a"), qreg(0, "cout"))
 unmaj(qreg(2, "a"), qreg(3, "b"), qreg(3, "a"))
 unmaj(qreg(1, "a"), qreg(2, "b"), qreg(2, "a"))
 unmaj(qreg(0, "a"), qreg(1, "b"), qreg(1, "a"))
-
 """
 measure b[0] -> ans[0];
 measure b[1] -> ans[1];

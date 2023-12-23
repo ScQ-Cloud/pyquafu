@@ -11,16 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Quafu Hamiltonian class"""
 
 from __future__ import annotations
 
 from collections.abc import Iterable
-import numpy as np
-from quafu.exceptions import QuafuError
-from quafu.elements.matrices import XMatrix, YMatrix, ZMatrix, IdMatrix
 
+import numpy as np
+from quafu.elements.matrices import IdMatrix, XMatrix, YMatrix, ZMatrix
+from quafu.exceptions import QuafuError
 
 PAULI_MAT = {"I": IdMatrix, "X": XMatrix, "Y": YMatrix, "Z": ZMatrix}
 

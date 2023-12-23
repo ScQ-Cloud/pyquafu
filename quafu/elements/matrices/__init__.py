@@ -1,2 +1,2 @@
 from .mat_lib import *
-from .mat_utils import stack_matrices, is_zero, is_hermitian
+from .mat_utils import is_hermitian, is_zero, stack_matrices

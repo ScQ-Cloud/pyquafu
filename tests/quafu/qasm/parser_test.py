@@ -20,7 +20,6 @@ import random
 import tempfile
 
 import pytest
-
 from quafu.circuits import QuantumCircuit
 from quafu.qfasm.exceptions import LexerError, ParserError
 from quafu.qfasm.qfasm_convertor import qasm_to_quafu
@@ -80,7 +79,7 @@ class TestParser:
                 assert gate2.paras is None
             if hasattr(gate1, "paras") and gate1.paras != None:
                 assert gate2.paras is not None
-                assert math.isclose(gate1.paras ,gate2.paras)
+                assert math.isclose(gate1.paras, gate2.paras)
 
     # ----------------------------------------
     #   test for lexer
@@ -223,7 +222,7 @@ class TestParser:
         gate test(a,b,c) q {{
             U(0,0,a{symbol}(b{symbol}c)) q;
         }}
-        qreg q[1]; 
+        qreg q[1];
         test({num2}, {num1}, {num2})q[0];
         """
         cir = qasm_to_quafu(openqasm=qasm)
@@ -293,7 +292,7 @@ class TestParser:
         gate test(a,b,c) q{{
             U({func}(a),{func}(b),{func}(c)) q;
         }}
-        qreg q[1]; 
+        qreg q[1];
         test({num1},{num2},{num3}) q[0];
         """
         cir = qasm_to_quafu(openqasm=qasm)
@@ -311,7 +310,7 @@ class TestParser:
         expected = num1 + 1.5 * (-num3) ** 2 - num2 / 0.5
         qasm = f"qreg q[1]; U( 0, 0, {expr}) q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
-        assert math.isclose(cir.gates[0].paras , expected)
+        assert math.isclose(cir.gates[0].paras, expected)
 
     def test_exp_sub_left(self):
         qasm = f"qreg q[1]; U( 0 , 0 , 2.0-1.0-1.0 ) q[0];"
@@ -403,7 +402,7 @@ class TestParser:
         test(   // to split a gate declaration
         theta
         )       // But it's
-        q       // still a 
+        q       // still a
         { h     // void
 q;              // gate!
 u2(
@@ -690,12 +689,12 @@ theta ,
         """
         cir = qasm_to_quafu(qasm)
         qc = QuantumCircuit(4)
-        qc.barrier([0,1])
-        qc.barrier([1,2])
-        qc.barrier([0,2,3])
-        qc.barrier([0,1,2])
+        qc.barrier([0, 1])
+        qc.barrier([1, 2])
+        qc.barrier([0, 2, 3])
+        qc.barrier([0, 1, 2])
         self.compare_cir(cir, qc)
-            
+
     def test_double_call_gate(self):
         qasm = """
             gate test(x, y) a {
@@ -1077,7 +1076,7 @@ class TestParser2:
             qasm_to_quafu(qasm)
 
     def test_gate_cannot_use_before_define(self):
-        qasm = f"""qreg q[2]; 
+        qasm = f"""qreg q[2];
         test q[0],q[1];
         gate test () q,r{{
             cx q,r;

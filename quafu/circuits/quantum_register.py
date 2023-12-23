@@ -58,13 +58,15 @@ class QuantumRegister:
 
     def __init__(self, num: int = 0, name: str = None):
         self.name = name
-        self.qubits = OrderedDict({i: Qubit(logic_pos=i, reg_name=name) for i in range(num)})
+        self.qubits = OrderedDict(
+            {i: Qubit(logic_pos=i, reg_name=name) for i in range(num)}
+        )
 
     def __getitem__(self, item):
         if item < len(self.qubits):
             return self.qubits[item]
         else:
-            raise IndexError('Index out of range:', item)
+            raise IndexError("Index out of range:", item)
 
     def __iter__(self):
         self._i = 0

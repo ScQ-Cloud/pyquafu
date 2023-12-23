@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class ClassicalRegister:
     """
     Collection of cbit(s)
@@ -28,7 +29,7 @@ class ClassicalRegister:
         if item < self.num:
             return self.pos_start + item
         else:
-            raise IndexError('Index out of range:', item)
+            raise IndexError("Index out of range:", item)
 
     def __iter__(self):
         self._i = 0

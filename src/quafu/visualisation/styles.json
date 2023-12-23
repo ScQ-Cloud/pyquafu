@@ -1,292 +1,292 @@
 {
-    "globalStyles": {
-        "h_wire": {
-            "zorder": 0,
-            "color": "#FF0000",
-            "alpha": 0.8,
-            "lw": 2
-        },
-        "v_wire": {
-            "zorder": 0,
-            "color": "#3B82F6",
-            "alpha": 0.8,
-            "lw": 4
-        },
-        "text": {
-            "zorder": 1,
-            "color": "#0C161F",
-            "alpha": 1.0,
-            "size": 18,
-            "weight": "normal",
-            "family": "monospace"
-        },
-        "stroke": {
-            "lw": 2
-        },
-        "box": {
-            "ec": "#0C161F"
-        },
-        "axes": {
-            "phys_scale": 0.7874015748031495,
-            "unit": 0.5,
-            "title_height": 0.5,
-            "x_margin_width": 0.6
-        }
+  "globalStyles": {
+    "h_wire": {
+      "zorder": 0,
+      "color": "#FF0000",
+      "alpha": 0.8,
+      "lw": 2
     },
-    "elementStyles": {
-        "barrier": {
-            "fc": "lightgray",
-            "hatch": "///",
-            "zorder": 4,
-            "proc_func": "barrier"
-        },
-        "ccx": {
-            "_name": "x",
-            "proc_func": "csu2"
-        },
-        "cp": {
-            "_name": "p",
-            "proc_func": "csu2"
-        },
-        "cs": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": "csu2"
-        },
-        "cswap": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": "cu"
-        },
-        "ct": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": "csu2"
-        },
-        "cu": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": "cu"
-        },
-        "cx": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "_name": "x",
-            "proc_func": "csu2"
-        },
-        "cy": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": "csu2"
-        },
-        "cz": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": "csu2"
-        },
-        "delay": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "Delay",
-            "proc_func": "pulse"
-        },
-        "flattop": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "Flattop",
-            "proc_func": "pulse"
-        },
-        "gaussian": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "Gaussian",
-            "proc_func": "pulse"
-        },
-        "h": {
-            "fc": "#EE7057",
-            "ec": "",
-            "label": "H",
-            "proc_func": "su2"
-        },
-        "id": {
-            "fc": "#EE7057",
-            "ec": "",
-            "label": "I",
-            "proc_func": "su2"
-        },
-        "iswap": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": ""
-        },
-        "mcx": {
-            "_name": "x",
-            "proc_func": ""
-        },
-        "mcy": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": ""
-        },
-        "mcz": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "",
-            "proc_func": ""
-        },
-        "measure": {
-            "fc": "#FFB240",
-            "ec": "",
-            "label": "Measure",
-            "proc_func": ""
-        },
-        "p": {
-            "fc": "#EE7057",
-            "ec": "",
-            "label": "P",
-            "proc_func": ""
-        },
-        "rect": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "Rect",
-            "proc_func": ""
-        },
-        "rx": {
-            "fc": "#6366F1",
-            "ec": "",
-            "label": "RX",
-            "proc_func": ""
-        },
-        "rxx": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "RXX",
-            "_name": "rx",
-            "proc_func": "msu2"
-        },
-        "ry": {
-            "fc": "#6366F1",
-            "ec": "",
-            "label": "RY",
-            "proc_func": ""
-        },
-        "ryy": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "RYY",
-            "proc_func": ""
-        },
-        "rz": {
-            "fc": "#6366F1",
-            "ec": "",
-            "label": "RZ",
-            "proc_func": ""
-        },
-        "rzz": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "RZZ",
-            "proc_func": ""
-        },
-        "s": {
-            "fc": "#EE7057",
-            "ec": "",
-            "label": "S",
-            "proc_func": ""
-        },
-        "sdg": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "$S^\\dagger$",
-            "proc_func": ""
-        },
-        "sw": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "$\\sqrt{W}$",
-            "proc_func": ""
-        },
-        "swap": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "Swap",
-            "proc_func": ""
-        },
-        "sx": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "$\\sqrt{X}$",
-            "proc_func": ""
-        },
-        "sxdg": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "$\\sqrt{X}^\\dagger$",
-            "proc_func": ""
-        },
-        "sy": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "$\\sqrt{Y}$",
-            "proc_func": ""
-        },
-        "sydg": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "$\\sqrt{Y}^\\dagger$",
-            "proc_func": "su2"
-        },
-        "t": {
-            "fc": "#EE7057",
-            "ec": "",
-            "label": "T",
-            "proc_func": "su2"
-        },
-        "tdg": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "$T^\\dagger$",
-            "proc_func": ""
-        },
-        "w": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "W",
-            "proc_func": ""
-        },
-        "x": {
-            "fc": "#EE7057",
-            "ec": "",
-            "label": "X",
-            "proc_func": ""
-        },
-        "xy": {
-            "fc": "#8C9197",
-            "ec": "",
-            "label": "XY",
-            "proc_func": ""
-        },
-        "y": {
-            "fc": "#EE7057",
-            "ec": "",
-            "label": "Y",
-            "proc_func": ""
-        },
-        "z": {
-            "fc": "#EE7057",
-            "ec": "",
-            "label": "Z",
-            "proc_func": ""
-        }
+    "v_wire": {
+      "zorder": 0,
+      "color": "#3B82F6",
+      "alpha": 0.8,
+      "lw": 4
+    },
+    "text": {
+      "zorder": 1,
+      "color": "#0C161F",
+      "alpha": 1.0,
+      "size": 18,
+      "weight": "normal",
+      "family": "monospace"
+    },
+    "stroke": {
+      "lw": 2
+    },
+    "box": {
+      "ec": "#0C161F"
+    },
+    "axes": {
+      "phys_scale": 0.7874015748031495,
+      "unit": 0.5,
+      "title_height": 0.5,
+      "x_margin_width": 0.6
     }
+  },
+  "elementStyles": {
+    "barrier": {
+      "fc": "lightgray",
+      "hatch": "///",
+      "zorder": 4,
+      "proc_func": "barrier"
+    },
+    "ccx": {
+      "_name": "x",
+      "proc_func": "csu2"
+    },
+    "cp": {
+      "_name": "p",
+      "proc_func": "csu2"
+    },
+    "cs": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": "csu2"
+    },
+    "cswap": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": "cu"
+    },
+    "ct": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": "csu2"
+    },
+    "cu": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": "cu"
+    },
+    "cx": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "_name": "x",
+      "proc_func": "csu2"
+    },
+    "cy": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": "csu2"
+    },
+    "cz": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": "csu2"
+    },
+    "delay": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "Delay",
+      "proc_func": "pulse"
+    },
+    "flattop": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "Flattop",
+      "proc_func": "pulse"
+    },
+    "gaussian": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "Gaussian",
+      "proc_func": "pulse"
+    },
+    "h": {
+      "fc": "#EE7057",
+      "ec": "",
+      "label": "H",
+      "proc_func": "su2"
+    },
+    "id": {
+      "fc": "#EE7057",
+      "ec": "",
+      "label": "I",
+      "proc_func": "su2"
+    },
+    "iswap": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": ""
+    },
+    "mcx": {
+      "_name": "x",
+      "proc_func": ""
+    },
+    "mcy": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": ""
+    },
+    "mcz": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "",
+      "proc_func": ""
+    },
+    "measure": {
+      "fc": "#FFB240",
+      "ec": "",
+      "label": "Measure",
+      "proc_func": ""
+    },
+    "p": {
+      "fc": "#EE7057",
+      "ec": "",
+      "label": "P",
+      "proc_func": ""
+    },
+    "rect": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "Rect",
+      "proc_func": ""
+    },
+    "rx": {
+      "fc": "#6366F1",
+      "ec": "",
+      "label": "RX",
+      "proc_func": ""
+    },
+    "rxx": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "RXX",
+      "_name": "rx",
+      "proc_func": "msu2"
+    },
+    "ry": {
+      "fc": "#6366F1",
+      "ec": "",
+      "label": "RY",
+      "proc_func": ""
+    },
+    "ryy": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "RYY",
+      "proc_func": ""
+    },
+    "rz": {
+      "fc": "#6366F1",
+      "ec": "",
+      "label": "RZ",
+      "proc_func": ""
+    },
+    "rzz": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "RZZ",
+      "proc_func": ""
+    },
+    "s": {
+      "fc": "#EE7057",
+      "ec": "",
+      "label": "S",
+      "proc_func": ""
+    },
+    "sdg": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "$S^\\dagger$",
+      "proc_func": ""
+    },
+    "sw": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "$\\sqrt{W}$",
+      "proc_func": ""
+    },
+    "swap": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "Swap",
+      "proc_func": ""
+    },
+    "sx": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "$\\sqrt{X}$",
+      "proc_func": ""
+    },
+    "sxdg": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "$\\sqrt{X}^\\dagger$",
+      "proc_func": ""
+    },
+    "sy": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "$\\sqrt{Y}$",
+      "proc_func": ""
+    },
+    "sydg": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "$\\sqrt{Y}^\\dagger$",
+      "proc_func": "su2"
+    },
+    "t": {
+      "fc": "#EE7057",
+      "ec": "",
+      "label": "T",
+      "proc_func": "su2"
+    },
+    "tdg": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "$T^\\dagger$",
+      "proc_func": ""
+    },
+    "w": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "W",
+      "proc_func": ""
+    },
+    "x": {
+      "fc": "#EE7057",
+      "ec": "",
+      "label": "X",
+      "proc_func": ""
+    },
+    "xy": {
+      "fc": "#8C9197",
+      "ec": "",
+      "label": "XY",
+      "proc_func": ""
+    },
+    "y": {
+      "fc": "#EE7057",
+      "ec": "",
+      "label": "Y",
+      "proc_func": ""
+    },
+    "z": {
+      "fc": "#EE7057",
+      "ec": "",
+      "label": "Z",
+      "proc_func": ""
+    }
+  }
 }

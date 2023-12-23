@@ -13,7 +13,9 @@
 # limitations under the License.
 
 from quafu.circuits.quantum_circuit import QuantumCircuit
+
 from .qfasm_parser import QfasmParser
+
 
 def qasm_to_quafu(openqasm: str):
     """
@@ -46,7 +48,7 @@ def qasm2_to_quafu_qc(qc: QuantumCircuit, openqasm: str):
     qc.openqasm = openqasm
     qc.gates = newqc.gates
     qc.instructions = newqc.instructions
-    qc._measures = newqc._measures 
+    qc._measures = newqc._measures
     qc.qregs = newqc.qregs
     qc.cregs = newqc.cregs
     qc.executable_on_backend = newqc.executable_on_backend

@@ -11,26 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """default circuit simulator for state vector"""
 
+import copy
 from typing import Iterable, List, Union
+
+import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
-from ..results.results import SimuResult
+from scipy.sparse import coo_matrix, eye, kron
+from sparse import COO, SparseArray
+
 from ..elements import (
     Barrier,
     Delay,
+    MultiQubitGate,
     QuantumGate,
     SingleQubitGate,
-    MultiQubitGate,
     XYResonance,
 )
-import numpy as np
-from functools import reduce
-from sparse import COO, SparseArray
-from scipy.sparse import kron, eye, coo_matrix
-
-import copy
+from ..results.results import SimuResult
 
 
 def global_op(gate: QuantumGate, global_qubits: List) -> coo_matrix:

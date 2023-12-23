@@ -15,7 +15,6 @@
 import numpy as np
 from quafu.algorithms.hamiltonian import Hamiltonian
 
-
 M_0 = np.array(
     [
         [

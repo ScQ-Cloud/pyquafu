@@ -17,8 +17,8 @@ from typing import Optional
 
 import requests
 
-from .exceptions import UserError, APITokenNotFound
 from ..utils.platform import get_homedir
+from .exceptions import APITokenNotFound, UserError
 
 
 class User(object):
@@ -29,7 +29,9 @@ class User(object):
     exec_async_api = "qbackend/scq_kit_asyc/"
     exec_recall_api = "qbackend/scq_task_recall/"
 
-    def __init__(self, api_token: Optional[str] = None, token_dir: Optional[str] = None):
+    def __init__(
+        self, api_token: Optional[str] = None, token_dir: Optional[str] = None
+    ):
         """
         Initialize user account and load backend information.
 
@@ -103,7 +105,7 @@ class User(object):
         url = self.url + self.backends_api
         response = requests.post(url=url, headers=headers)
         backends_info = response.json()
-        if backends_info['status'] == 201:
+        if backends_info["status"] == 201:
             raise UserError(backends_info["message"])
         else:
             return backends_info["data"]

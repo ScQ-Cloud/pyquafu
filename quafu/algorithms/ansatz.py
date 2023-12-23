@@ -11,16 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Ansatz circuits for VQA"""
 from abc import ABC, abstractmethod
 from typing import Any, List
-import numpy as np
 
+import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.synthesis.evolution import ProductFormula
+
 from .hamiltonian import Hamiltonian
 from .interface_provider import InterfaceProvider
+from .templates import AngleEmbedding
 
 
 class Ansatz(QuantumCircuit, ABC):
@@ -154,6 +155,10 @@ class QuantumNeuralNetwork(Ansatz):
         # FIXME(zhaoyilun): don't use this default value
         self._weights = np.empty((1, 1))
         super().__init__(num_qubits)
+
+    def __call__(self, features):
+        """Compute outputs of QNN given input features"""
+        return self._transformer.execute(self, features)
 
     def _build(self):
         """Essentially initialize weights using transformer"""
