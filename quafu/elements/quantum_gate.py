@@ -30,9 +30,12 @@ class QuantumGate(Instruction, ABC):
                  ):
         super().__init__(pos, paras)
         self._matrix = matrix
+        self._symbol = None
 
     @property
     def symbol(self):
+        if self._symbol is not None:
+            return self._symbol
         if self.paras is not None:
             if isinstance(self.paras, Iterable):
                 symbol = "%s(" % self.name + ",".join(["%.3f" % para for para in self.paras]) + ")"
@@ -41,6 +44,10 @@ class QuantumGate(Instruction, ABC):
         else:
             symbol = "%s" % self.name
         return symbol
+
+    @symbol.setter
+    def symbol(self, symbol):
+        self._symbol = symbol
 
     def update_params(self, paras: Union[float, List[float]]):
         """Update parameters of this gate"""
