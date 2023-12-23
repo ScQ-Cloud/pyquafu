@@ -8,46 +8,51 @@ from .instruction import Instruction, PosType
 
 
 class QuantumGate(Instruction, ABC):
-    """Base class for standard and combined quantum gates.
+    """Base class for standard and combined quantum gates, namely unitary operation
+    upon quantum states.
 
     Attributes:
+        pos: Position of this gate in the circuit.
+        paras: Parameters of this gate.
 
+    Properties:
+        matrix: Matrix representation of this gate.
     """
     gate_classes = {}
 
     def __init__(self,
                  pos: PosType,
                  paras: Union[float, List[float]] = None,
+                 matrix: Union[np.ndarray, Callable] = None,
                  ):
         super().__init__(pos, paras)
+        self._matrix = matrix
 
-        if paras is not None:
-            if isinstance(paras, Iterable):
-                self.symbol = "%s(" % self.name + ",".join(["%.3f" % para for para in self.paras]) + ")"
+    @property
+    def symbol(self):
+        if self.paras is not None:
+            if isinstance(self.paras, Iterable):
+                symbol = "%s(" % self.name + ",".join(["%.3f" % para for para in self.paras]) + ")"
             else:
-                self.symbol = "%s(%.3f)" % (self.name, paras)
+                symbol = "%s(%.3f)" % (self.name, self.paras)
         else:
-            self.symbol = "%s" % self.name
+            symbol = "%s" % self.name
+        return symbol
 
     def update_params(self, paras: Union[float, List[float]]):
         """Update parameters of this gate"""
         if paras is None:
             return
         self.paras = paras
-        if isinstance(paras, Iterable):
-            self.symbol = (
-                "%s(" % self.name
-                + ",".join(["%.3f" % para for para in self.paras])
-                + ")"
-            )
-        else:
-            self.symbol = "%s(%.3f)" % (self.name, paras)
 
     @property
     @abstractmethod
     def matrix(self):
-        raise NotImplementedError("Matrix is not implemented for %s" % self.__class__.__name__ +
-                                  ", this should never happen.")
+        if self._matrix is not None:
+            return self._matrix
+        else:
+            raise NotImplementedError("Matrix is not implemented for %s" % self.__class__.__name__ +
+                                      ", this should never happen.")
 
     @classmethod
     def register_gate(cls, subclass, name: str = None):
@@ -167,13 +172,17 @@ class ControlledGate(MultiQubitGate, ABC):
         self._matrix[ctrl_dim:, ctrl_dim:] = self.targ_matrix
         self._matrix = reorder_matrix(self._matrix, self.pos)
 
-        if paras is not None:
-            if isinstance(paras, Iterable):
-                self.symbol = "%s(" % self.targ_name + ",".join(["%.3f" % para for para in self.paras]) + ")"
+    @property
+    def symbol(self):
+        name = self.targ_name
+        if self.paras is not None:
+            if isinstance(self.paras, Iterable):
+                symbol = "%s(" % name + ",".join(["%.3f" % para for para in self.paras]) + ")"
             else:
-                self.symbol = "%s(%.3f)" % (self.targ_name, paras)
+                symbol = "%s(%.3f)" % (name, self.paras)
         else:
-            self.symbol = "%s" % self.targ_name
+            symbol = "%s" % name
+        return symbol
 
     @property
     def matrix(self):
