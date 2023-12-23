@@ -56,6 +56,10 @@ class QuantumGate(Instruction, ABC):
 
     @classmethod
     def register_gate(cls, subclass, name: str = None):
+        """Register a new gate class into gate_classes.
+
+        This method is used as a decorator.
+        """
         assert issubclass(subclass, cls)
 
         name = str(subclass.name).lower() if name is None else name
@@ -68,6 +72,7 @@ class QuantumGate(Instruction, ABC):
 
     @classmethod
     def register(cls, name: str = None):
+        """Decorator for register_gate."""
         def wrapper(subclass):
             cls.register_gate(subclass, name)
             return subclass
@@ -75,7 +80,11 @@ class QuantumGate(Instruction, ABC):
         return wrapper
 
     def __str__(self):
-        properties_names = ['pos', 'paras', 'matrix']
+        # only when the gate is a known(named) gate, the matrix is not shown
+        if self.name.lower() in self.gate_classes:
+            properties_names = ['pos', 'paras']
+        else:
+            properties_names = ['pos', 'paras', 'matrix']
         properties_values = [getattr(self, x) for x in properties_names]
         return "%s:\n%s" % (self.__class__.__name__, '\n'.join(
             [f"{x} = {repr(properties_values[i])}" for i, x in enumerate(properties_names)]))
@@ -84,6 +93,7 @@ class QuantumGate(Instruction, ABC):
         return f"{self.__class__.__name__}"
 
     def to_qasm(self):
+        # TODO: support register naming
         qstr = "%s" % self.name.lower()
 
         if self.paras is not None:
@@ -152,6 +162,15 @@ class ParametricGate(QuantumGate, ABC):
         return {'pos': self.pos}
 
 
+class FixedGate(QuantumGate, ABC):
+    def __init__(self, pos):
+        super().__init__(pos=pos, paras=None)
+
+    @property
+    def named_paras(self) -> Dict:
+        return {}
+
+
 class ControlledGate(MultiQubitGate, ABC):
     """ Controlled gate class, where the matrix act non-trivially on target qubits"""
 
@@ -217,40 +236,3 @@ class ControlledGate(MultiQubitGate, ABC):
     @property
     def named_pos(self) -> Dict:
         return {'ctrls': self.ctrls, 'targs': self.targs}
-
-
-# class ParaSingleQubitGate(SingleQubitGate, ABC):
-#     def __init__(self, pos, paras: float):
-#         if paras is None:
-#             raise ValueError("`paras` can not be None for ParaSingleQubitGate")
-#         elif isinstance(paras, int):
-#             paras = float(paras)
-#
-#         if not isinstance(paras, float):
-#             raise TypeError(f"`paras` must be float or int for ParaSingleQubitGate, "
-#                             f"instead of {type(paras)}")
-#         super().__init__(pos, paras=paras)
-#
-#     @property
-#     def named_paras(self) -> Dict:
-#         return {'paras': self.paras}
-
-# class FixedMultiQubitGate(MultiQubitGate, ABC):
-#     def __init__(self, pos: List[int]):
-#         super().__init__(pos=pos, paras=None)
-
-
-# class ParaMultiQubitGate(MultiQubitGate, ABC):
-#     def __init__(self, pos, paras):
-#         if paras is None:
-#             raise ValueError("`paras` can not be None for ParaMultiQubitGate")
-#         super().__init__(pos, paras)
-
-
-class FixedGate(QuantumGate, ABC):
-    def __init__(self, pos):
-        super().__init__(pos=pos, paras=None)
-
-    @property
-    def named_paras(self) -> Dict:
-        return {}
