@@ -213,6 +213,10 @@ class ControlledGate(MultiQubitGate, ABC):
             symbol = "%s" % name
         return symbol
 
+    @symbol.setter
+    def symbol(self, symbol):
+        self._symbol = symbol
+
     @property
     def matrix(self):
         # TODO: update matrix when paras of controlled-gate changed
