@@ -7,6 +7,9 @@ from quafu.elements.matrices.mat_utils import reorder_matrix
 from .instruction import Instruction, PosType
 
 
+__all__ = ['QuantumGate', 'FixedGate', 'ParametricGate', 'SingleQubitGate', 'MultiQubitGate', 'ControlledGate']
+
+
 class QuantumGate(Instruction, ABC):
     """Base class for standard and combined quantum gates, namely unitary operation
     upon quantum states.
@@ -110,7 +113,7 @@ class QuantumGate(Instruction, ABC):
         return qstr
 
 
-# Gate types are statically implemented to support type identification
+# Gate types below are statically implemented to support type identification
 # and provide shared attributes. However, single/multi qubit may be
 # inferred from ``pos``, while para/fixed type may be inferred by ``paras``.
 # Therefore, these types may be (partly) deprecated in the future.
