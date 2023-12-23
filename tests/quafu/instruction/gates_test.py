@@ -1,9 +1,11 @@
 import unittest
 
 from numpy import pi
+import matplotlib.pyplot as plt
 
 import quafu.elements as qe
 import quafu.elements.element_gates as qeg
+from quafu import QuantumCircuit
 
 
 class TestGate(unittest.TestCase):
@@ -65,16 +67,11 @@ class TestGate(unittest.TestCase):
             self.assertIn(gate.name.lower(), gate_classes)
         return all_gates
 
-# TODO: test plots
-# for gate in all_gates:
-#     print(gate.name)
-#     qc = QuantumCircuit(4)
-#     qc.add_gate(gate)
-#     qc.measure()
-#     qc.plot_circuit(title=gate.__class__.__name__)
-#     plt.savefig('./icons/%s.png' % gate.name, dpi=400, transparent=True)
-#     plt.close()
-
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_plots(self):
+        all_gates = self.test_instances()
+        for gate in all_gates:
+            qc = QuantumCircuit(4)
+            qc.add_gate(gate)
+            qc.measure()
+            qc.plot_circuit(title=gate.__class__.__name__)
+            plt.close()
