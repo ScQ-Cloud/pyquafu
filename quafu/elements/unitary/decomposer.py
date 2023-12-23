@@ -6,7 +6,7 @@ import scipy
 from numpy import ndarray
 
 from quafu.elements.matrices import rz_mat, ry_mat, CXMatrix
-from ...matrices import mat_utils as mu
+from quafu.elements.matrices import mat_utils as mu
 
 
 class UnitaryDecomposer(object):
