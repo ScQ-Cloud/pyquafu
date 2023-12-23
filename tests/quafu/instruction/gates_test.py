@@ -63,6 +63,7 @@ class TestGate(unittest.TestCase):
         self.assertTrue(len(all_gates) <= len(gate_classes))
         for gate in all_gates:
             self.assertIn(gate.name.lower(), gate_classes)
+        return all_gates
 
 # TODO: test plots
 # for gate in all_gates:
