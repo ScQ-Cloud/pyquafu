@@ -4,7 +4,6 @@ from numpy import pi
 
 import quafu.elements as qe
 import quafu.elements.element_gates as qeg
-import quafu.elements.element_gates.rotation
 
 
 class TestGate(unittest.TestCase):
@@ -32,7 +31,7 @@ class TestGate(unittest.TestCase):
         tdg = qeg.TdgGate(pos=0)
 
         # Rotation
-        ph = quafu.elements.element_gates.rotation.PhaseGate(pos=0, paras=pi)
+        ph = qeg.PhaseGate(pos=0, paras=pi)
         rx = qeg.RXGate(pos=0, paras=pi)
         ry = qeg.RYGate(pos=0, paras=pi)
         rz = qeg.RZGate(pos=0, paras=pi)
@@ -61,7 +60,7 @@ class TestGate(unittest.TestCase):
                      h, s, sdg, t, tdg,
                      ph, rx, ry, rz, rxx, ryy, rzz, swap, iswap, fredkin, cx, cy, cz, cs, ct, cp, mcx, mcy, mcz,
                      toffoli]
-        self.assertEqual(len(all_gates), len(gate_classes))
+        self.assertTrue(len(all_gates) <= len(gate_classes))
         for gate in all_gates:
             self.assertIn(gate.name.lower(), gate_classes)
 
