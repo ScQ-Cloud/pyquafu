@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Union, Iterable, Dict
+from typing import List, Union, Iterable, Dict, Callable
 
 import numpy as np
 
@@ -164,7 +164,7 @@ class ControlledGate(MultiQubitGate, ABC):
         dim = 2 ** n
         ctrl_dim = dim - targ_dim
         self._matrix = np.eye(dim, dtype=complex)
-        self._matrix[ctrl_dim:, ctrl_dim:] = tar_matrix
+        self._matrix[ctrl_dim:, ctrl_dim:] = self.targ_matrix
         self._matrix = reorder_matrix(self._matrix, self.pos)
 
         if paras is not None:
@@ -186,6 +186,13 @@ class ControlledGate(MultiQubitGate, ABC):
         ctrl_num = len(self.ctrls)
         num = targ_num + ctrl_num
         return ctrl_num, targ_num, num
+
+    @property
+    def targ_matrix(self):
+        if isinstance(self._targ_matrix, Callable):
+            return self._targ_matrix(self.paras)
+        else:
+            return self._targ_matrix
 
     def get_targ_matrix(self, reverse_order=False):
         targ_matrix = self._targ_matrix
