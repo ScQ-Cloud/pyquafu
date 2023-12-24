@@ -1,11 +1,4 @@
-from .c11 import CPGate, CSGate, CTGate, CXGate, CYGate, CZGate
-from .c12 import FredkinGate
-from .clifford import HGate, SdgGate, SGate, TdgGate, TGate
-from .cm1 import MCXGate, MCYGate, MCZGate, ToffoliGate
-from .pauli import *
-from .rotation import PhaseGate, RXGate, RXXGate, RYGate, RYYGate, RZGate, RZZGate
-from .swap import ISwapGate, SwapGate
-from .unitary import UnitaryDecomposer
+from .element_gates import *
 
 __all__ = [
     "XGate",
@@ -42,6 +35,5 @@ __all__ = [
     "FredkinGate",
     "MCXGate",
     "MCYGate",
-    "MCZGate",
-    "UnitaryDecomposer",
+    "MCZGate"
 ]

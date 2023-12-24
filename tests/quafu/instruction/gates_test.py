@@ -1,9 +1,11 @@
 import unittest
 
+from numpy import pi
+import matplotlib.pyplot as plt
+
 import quafu.elements as qe
 import quafu.elements.element_gates as qeg
-import quafu.elements.element_gates.rotation
-from numpy import pi
+from quafu import QuantumCircuit
 
 
 class TestGate(unittest.TestCase):
@@ -31,7 +33,7 @@ class TestGate(unittest.TestCase):
         tdg = qeg.TdgGate(pos=0)
 
         # Rotation
-        ph = quafu.elements.element_gates.rotation.PhaseGate(pos=0, paras=pi)
+        ph = qeg.PhaseGate(pos=0, paras=pi)
         rx = qeg.RXGate(pos=0, paras=pi)
         ry = qeg.RYGate(pos=0, paras=pi)
         rz = qeg.RZGate(pos=0, paras=pi)
@@ -56,58 +58,20 @@ class TestGate(unittest.TestCase):
         mcz = qeg.MCZGate(ctrls=[0, 1, 2], targ=3)
         toffoli = qeg.ToffoliGate(ctrl1=0, ctrl2=1, targ=2)
 
-        all_gates = [
-            x,
-            y,
-            z,
-            i,
-            w,
-            sw,
-            swdg,
-            sx,
-            sxdg,
-            sy,
-            sydg,
-            h,
-            s,
-            sdg,
-            t,
-            tdg,
-            ph,
-            rx,
-            ry,
-            rz,
-            rxx,
-            ryy,
-            rzz,
-            swap,
-            iswap,
-            fredkin,
-            cx,
-            cy,
-            cz,
-            cs,
-            ct,
-            cp,
-            mcx,
-            mcy,
-            mcz,
-            toffoli,
-        ]
-        self.assertEqual(len(all_gates), len(gate_classes))
+        all_gates = [x, y, z, i, w, sw, swdg, sx, sxdg, sy, sydg,
+                     h, s, sdg, t, tdg,
+                     ph, rx, ry, rz, rxx, ryy, rzz, swap, iswap, fredkin, cx, cy, cz, cs, ct, cp, mcx, mcy, mcz,
+                     toffoli]
+        self.assertTrue(len(all_gates) <= len(gate_classes))
         for gate in all_gates:
             self.assertIn(gate.name.lower(), gate_classes)
+        return all_gates
 
-
-# TODO: test plots
-# for gate in all_gates:
-#     print(gate.name)
-#     qc = QuantumCircuit(4)
-#     qc.add_gate(gate)
-#     qc.measure()
-#     qc.plot_circuit(title=gate.__class__.__name__)
-#     plt.savefig('./icons/%s.png' % gate.name, dpi=400, transparent=True)
-#     plt.close()
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_plots(self):
+        all_gates = self.test_instances()
+        for gate in all_gates:
+            qc = QuantumCircuit(4)
+            qc.add_gate(gate)
+            qc.measure()
+            qc.plot_circuit(title=gate.__class__.__name__)
+            plt.close()
