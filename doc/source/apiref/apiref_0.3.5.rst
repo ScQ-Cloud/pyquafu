@@ -5,6 +5,8 @@ API Reference
 
     This page is still under refinement, the contents you see may be incomplete at present.
 
+.. _quantum_circuit:
+
 Quantum Circuit
 ------------------
 
@@ -17,7 +19,7 @@ Quantum Elements
 .. hint::
     hello
 
-.. autoclass:: quafu.elements.quantum_element.Instruction
+.. autoclass:: quafu.elements.Instruction
     :members:
 
 
