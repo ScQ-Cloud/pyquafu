@@ -10,3 +10,4 @@ scikit-build>=0.16.1
 scipy>=1.8.1
 setuptools>=58.0.4
 sparse>=0.13.0
+autograd>+1.6.2
