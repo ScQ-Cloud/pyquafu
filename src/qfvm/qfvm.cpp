@@ -242,6 +242,24 @@ simulate_circuit_custate(py::object const& pycircuit,
 }
 #endif
 
+py::object expect_statevec(py::array_t<complex<double>> const&np_inputstate, py::list const paulis)
+{
+    py::buffer_info buf = np_inputstate.request();
+    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+    size_t data_size = buf.size;
+    StateVector<double> state(data_ptr, buf.size);
+    py::list pyres;
+    for (auto pauli_h : paulis){
+         py::object pypauli = py::reinterpret_borrow<py::object>(pauli_h);
+         std::vector<pos_t> posv = pypauli.attr("pos").cast<std::vector<pos_t>>();
+         string paulistr = pypauli.attr("paulistr").cast<string>();
+        double expec = state.expect_pauli(paulistr, posv);
+        pyres.attr("append")(expec);
+    }
+    state.move_data_to_python();
+    return pyres;
+}
+
 PYBIND11_MODULE(qfvm, m) {
   m.doc() = "Qfvm simulator";
   m.def("simulate_circuit", &simulate_circuit, "Simulate with circuit",
@@ -251,6 +269,8 @@ PYBIND11_MODULE(qfvm, m) {
   m.def("simulate_circuit_clifford", &simulate_circuit_clifford,
         "Simulate with circuit using clifford", py::arg("circuit"),
         py::arg("shots"));
+
+  m.def("expect_statevec", &expect_statevec, "Calculate paulis expectation", py::arg("inputstate"), py::arg("paulis"));
 
 #ifdef _USE_GPU
   m.def("simulate_circuit_gpu", &simulate_circuit_gpu, "Simulate with circuit",
