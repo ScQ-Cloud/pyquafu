@@ -2,7 +2,7 @@ import copy
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
-
+from ..algorithms.hamiltonian import Hamiltonian
 from ..utils.basis import *
 
 
@@ -160,6 +160,12 @@ class SimuResult(Result):
         basis = np.array([bin(i)[2:].zfill(self.num) for i in inds])
         res_reduced = dict(zip(basis, probs))
         return measure_obs(pos, res_reduced)
+
+    def expect_paulis(self, hamiltonian: Hamiltonian):
+        """Calculate expectation value given a Hamiltonian"""
+        from quafu.simulators.qfvm import expect_statevec
+
+        return expect_statevec(self.state_vector, hamiltonian.paulis)
 
 
 def intersec(a, b):

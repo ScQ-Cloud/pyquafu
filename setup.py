@@ -31,6 +31,7 @@ requirements = [
     "pybind11>=2.10.3",
     "graphviz>=0.14.2",
     "ply~=3.11",
+    "autograd>=1.6.2",
 ]
 
 setup(

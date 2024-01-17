@@ -85,6 +85,9 @@ public:
                                       uint control_num,
                                       RowMatrixXcd const& mat);
 
+  // Expectation and measurement
+  double expect_pauli(string paulistr, vector<pos_t> const& posv);
+
   // Measure and Reset
   std::pair<uint, double> sample_measure_probs(vector<pos_t> const& qbits);
   vector<double> probabilities() const;
@@ -1262,6 +1265,64 @@ template <typename T> void printVector(const std::vector<T>& vec) {
     std::cout << element << " ";
   }
   std::cout << std::endl;
+}
+
+template <class real_t>
+double StateVector<real_t>::expect_pauli(string paulistr,
+                                         vector<pos_t> const& posv) {
+  size_t flip_mask = 0;
+  size_t z_mask = 0;
+  size_t y_phase_num = 0;
+  uint flip_q = 0;
+
+  for (uint i = 0; i < posv.size(); i++) {
+    uint q = posv[i];
+    switch (paulistr[i]) {
+    case 'I':
+      break;
+    case 'X': {
+      flip_mask += 1ll << q;
+      flip_q = std::max(flip_q, q);
+      break;
+    }
+    case 'Y': {
+      flip_mask += 1ll << q;
+      flip_q = std::max(flip_q, q);
+      y_phase_num++;
+      z_mask += 1ll << q;
+      break;
+    }
+    case 'Z': {
+      z_mask += 1ll << q;
+      break;
+    }
+    }
+  }
+
+  if (!flip_mask) {
+    size_t rsize = size_;
+    double val = 0.;
+#pragma omp paraleel for reduction(+ : val)
+    for (size_t j = 0; j < rsize; ++j) {
+      uint z_phase_num = Qfutil::popcount(j & z_mask) % 2;
+      int sign = 1 - 2 * z_phase_num;
+      val += (data_[j] * std::conj(data_[j])).real() * sign;
+    }
+    return val;
+  } else {
+    double val = 0.;
+    size_t rsize = size_ >> 1;
+#pragma omp parallel for reduction(+ : val)
+    for (size_t j = 0; j < rsize; ++j) {
+      size_t i0 = (j & ((1ll << flip_q) - 1)) | (j >> flip_q << flip_q << 1);
+      size_t i1 = i0 ^ flip_mask;
+      uint z_phase_num = Qfutil::popcount(i0 & z_mask) % 2;
+      uint total_phase_num = z_phase_num * 2 + y_phase_num;
+      std::complex<double> phase = Qfutil::PHASE_YZ[total_phase_num % 4];
+      val += 2. * (data_[i0] * std::conj(data_[i1]) * phase).real();
+    }
+    return val;
+  }
 }
 
 template <class real_t>

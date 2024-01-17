@@ -13,12 +13,13 @@
 #  limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
-__all__ = ["Instruction", "Barrier", "Measure", "PosType", "ParaType", "Reset"]
+from .parameters import ParameterType
+
+__all__ = ["Instruction", "Barrier", "Measure", "PosType", "Reset"]
 
 PosType = Union[int, List[int]]
-ParaType = Union[float, int, List]
 
 
 class Instruction(ABC):
@@ -32,9 +33,16 @@ class Instruction(ABC):
 
     ins_classes = {}
 
-    def __init__(self, pos: PosType, paras: ParaType = None, *args, **kwargs):
+    def __init__(
+        self,
+        pos: PosType,
+        paras: Optional[Union[ParameterType, List[ParameterType]]] = None,
+        *args,
+        **kwargs,
+    ):
         self.pos = pos
         self.paras = paras
+        self._symbol = None
 
     @property
     @abstractmethod

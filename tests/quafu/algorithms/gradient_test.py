@@ -26,7 +26,7 @@ class TestParamShift:
         sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
     )
     def test_call(self):
-        ham = Hamiltonian.from_pauli_list([("ZZ", 1), ("XI", 1)])
+        ham = Hamiltonian.from_pauli_list([("Z0 Z1", 1), ("X1", 1)])
         circ = QuantumCircuit(2)
         # circ.h(0)
         # circ.h(1)

@@ -16,7 +16,7 @@ import copy
 from abc import ABCMeta
 from typing import Dict, Iterable, List
 
-from quafu.elements import Instruction, QuantumGate
+from quafu.elements import Instruction, QuantumGate, ControlledGate
 
 
 class OracleGateMeta(ABCMeta):
@@ -41,6 +41,12 @@ class OracleGateMeta(ABCMeta):
 class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta explicitly?
     """
     OracleGate is a gate that can be customized by users.
+
+    Attributes:
+        name: name of the gate
+        gate_structure: structure of the gate
+        qubit_num: number of qubits the gate acts on
+        insides: instances of instructions inside the gate from gate_structure
     """
 
     name = None
@@ -107,10 +113,29 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
             self.insides.append(gate_)
 
 
+class ControlledOracle(OracleGate):
+    def __init__(self, ctrls: List, targs: List, paras=None, label: str = None):
+        super().__init__(pos=ctrls + targs, paras=paras, label=label)
+        self.ctrls = ctrls
+        self.targs = targs
+        self.__check_insides__()
+
+    def __check_insides__(self):
+        """Make sure that every gate inside is a controlled gate, and the control qubits correct."""
+        for gate in self.insides:
+            if not isinstance(gate, ControlledGate):
+                raise ValueError(f"ControlledOracle: {gate} is not a controlled gate.")
+            if not set(self.ctrls) in gate.ctrls:
+                raise ValueError(
+                    f"ControlledOracle: {gate} control qubits {gate.ctrls} does not match {self.ctrls}."
+                )
+
+
 def customize_gate(
     cls_name: str,
     gate_structure: List[Instruction],
     qubit_num: int,
+    controlled: bool = False,
 ):
     """
     Helper function to create customized gate class
@@ -119,6 +144,7 @@ def customize_gate(
         cls_name: name of the gate class
         gate_structure: a list of instruction INSTANCES
         qubit_num: number of qubits of the gate (TODO: extract from gate_structure?)
+        controlled: whether the gate is a ctrl-U
 
     Returns:
         customized gate class
@@ -131,11 +157,13 @@ def customize_gate(
 
     attrs = {
         "cls_name": cls_name,
-        "gate_structure": gate_structure,
+        "gate_structure": gate_structure,  # TODO: translate
         "qubit_num": qubit_num,
     }
-
-    customized_cls = OracleGateMeta(cls_name, (OracleGate,), attrs)
+    if controlled:
+        customized_cls = type(cls_name, (ControlledOracle,), attrs)
+    else:
+        customized_cls = OracleGateMeta(cls_name, (OracleGate,), attrs)
     assert issubclass(customized_cls, OracleGate)
     QuantumGate.register_gate(customized_cls, cls_name)
     return customized_cls

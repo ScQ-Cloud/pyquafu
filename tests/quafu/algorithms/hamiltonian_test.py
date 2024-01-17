@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import numpy as np
-from quafu.algorithms.hamiltonian import Hamiltonian
+from quafu.algorithms.hamiltonian import Hamiltonian, PauliOp
 
 M_0 = np.array(
     [
@@ -273,20 +273,20 @@ M_2 = np.array(
 
 class TestHamiltonian:
     def test_init(self):
-        h = Hamiltonian(["IIIZZ", "IIZIZ"], np.array([1, 1]))
+        h = Hamiltonian([PauliOp("Z0 Z1", 1), PauliOp("Z1 Z2", 1)])
         h = Hamiltonian.from_pauli_list(
-            [("IIIZZ", 1), ("IIZIZ", 1), ("IZIIZ", 1), ("ZIIIZ", 1)]
+            [("Z0 Z1", 1), ("Z0 Z2", 1), ("Z0 Z3", 1), ("Z0 Z4", 1)]
         )
 
     def test_to_matrix(self):
-        h = Hamiltonian.from_pauli_list([("IZZ", 1), ("ZIZ", 1), ("ZZI", 1)])
-        m = h.get_matrix()
+        h = Hamiltonian.from_pauli_list([("Z0 Z1", 1), ("Z0 Z2", 1), ("Z1 Z2", 1)])
+        m = h.get_matrix(3).toarray()
         assert np.array_equal(m, M_0)
 
-        h = Hamiltonian.from_pauli_list([("IZX", 1), ("ZIX", 1), ("ZXI", 1)])
-        m = h.get_matrix()
+        h = Hamiltonian.from_pauli_list([("X0 Z1", 1), ("X0 Z2", 1), ("X1 Z2", 1)])
+        m = h.get_matrix(3).toarray()
         assert np.array_equal(m, M_1)
 
-        h = Hamiltonian.from_pauli_list([("YZI", 1), ("ZIY", 1), ("ZXI", 1)])
-        m = h.get_matrix()
+        h = Hamiltonian.from_pauli_list([("Z1 Y2", 1), ("Y0 Z2", 1), ("X1 Z2", 1)])
+        m = h.get_matrix(3).toarray()
         assert np.array_equal(m, M_2)

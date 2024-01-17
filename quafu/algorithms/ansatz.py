@@ -21,7 +21,6 @@ from quafu.synthesis.evolution import ProductFormula
 
 from .hamiltonian import Hamiltonian
 from .interface_provider import InterfaceProvider
-from .templates import AngleEmbedding
 
 
 class Ansatz(QuantumCircuit, ABC):
@@ -44,10 +43,11 @@ class Ansatz(QuantumCircuit, ABC):
 class QAOAAnsatz(Ansatz):
     """QAOA Ansatz"""
 
-    def __init__(self, hamiltonian: Hamiltonian, num_layers: int = 1):
+    def __init__(self, hamiltonian: Hamiltonian, num_qubits: int, num_layers: int = 1):
         """Instantiate a QAOAAnsatz"""
-        self._pauli_list = hamiltonian.pauli_list
-        self._coeffs = hamiltonian.coeffs
+        # self._pauli_list = hamiltonian.pauli_list
+        # self._coeffs = hamiltonian.coeffs
+        self._h = hamiltonian
         self._num_layers = num_layers
         self._evol = ProductFormula()
 
@@ -56,7 +56,6 @@ class QAOAAnsatz(Ansatz):
         self._gamma = np.zeros(num_layers)
 
         # Build circuit structure
-        num_qubits = len(self._pauli_list[0])
         super().__init__(num_qubits)
 
     @property
@@ -68,7 +67,7 @@ class QAOAAnsatz(Ansatz):
         """Return complete parameters of the circuit"""
         paras_list = []
         for layer in range(self._num_layers):
-            for _ in range(len(self._pauli_list)):
+            for _ in range(len(self._h.paulis)):
                 paras_list.append(self._gamma[layer])
             for _ in range(self.num):
                 paras_list.append(self._beta[layer])
@@ -86,8 +85,8 @@ class QAOAAnsatz(Ansatz):
 
         for layer in range(self._num_layers):
             # Add H_D layer
-            for pauli_str in self._pauli_list:
-                gate_list = self._evol.evol(pauli_str, self._gamma[layer])
+            for pauli in self._h.paulis:
+                gate_list = self._evol.evol(pauli, self._gamma[layer])
                 for g in gate_list:
                     self.add_ins(g)
 
@@ -155,10 +154,6 @@ class QuantumNeuralNetwork(Ansatz):
         # FIXME(zhaoyilun): don't use this default value
         self._weights = np.empty((1, 1))
         super().__init__(num_qubits)
-
-    def __call__(self, features):
-        """Compute outputs of QNN given input features"""
-        return self._transformer.execute(self, features)
 
     def _build(self):
         """Essentially initialize weights using transformer"""

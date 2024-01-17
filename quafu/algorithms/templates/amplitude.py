@@ -11,10 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """Amplitude Embedding by a decomposition into gates"""
-import numpy as np
-import quafu.elements.element_gates as qeg
 from quafu.circuits import QuantumCircuit
+import quafu.elements.element_gates as qeg
+import numpy as np
 
 
 class AmplitudeEmbedding:

@@ -16,35 +16,31 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from quafu.algorithms.hamiltonian import PauliOp
 import quafu.elements.element_gates as qeg
 
 
-def single_qubit_evol(pauli: str, time: float):
+def single_qubit_evol(pauli: PauliOp, time: float):
     """
     Args:
         pauli: Pauli string (little endian convention)
         time: Evolution time
     """
-    reversed_pauli = pauli[::-1]
     gates = []
 
-    for i, pauli_i in enumerate(reversed_pauli):
-        if pauli_i == "I":
-            continue
-        elif pauli_i == "X":
-            gates.append(qeg.RXGate(i, 2 * time))
-            return gates
-        elif pauli_i == "Y":
-            gates.append(qeg.RYGate(i, 2 * time))
-            return gates
-        elif pauli_i == "Z":
-            gates.append(qeg.RZGate(i, 2 * time))
-            return gates
-        else:
-            raise NotImplementedError("Pauli string not yet supported")
+    if pauli.paulistr == "X":
+        gates.append(qeg.RXGate(pauli.pos[0], 2 * time))
+        return gates
+    if pauli.paulistr == "Y":
+        gates.append(qeg.RYGate(pauli.pos[0], 2 * time))
+        return gates
+    if pauli.paulistr == "Z":
+        gates.append(qeg.RZGate(pauli.pos[0], 2 * time))
+        return gates
+    raise NotImplementedError("Unsupported Pauli string, should be in [X, Y, Z]")
 
 
-def two_qubit_evol(pauli: str, time: float, cx_structure: str = "chain"):
+def two_qubit_evol(pauli: PauliOp, time: float, cx_structure: str = "chain"):
     """
     Args:
         pauli: Pauli string (little endian convention)
@@ -52,25 +48,22 @@ def two_qubit_evol(pauli: str, time: float, cx_structure: str = "chain"):
         cx_structure: Determine the structure of CX gates, can be either "chain" for
             next-neighbor connections or "fountain" to connect directly to the top qubit.
     """
-    reversed_pauli = pauli[::-1]
-    qubits = [i for i in range(len(reversed_pauli)) if reversed_pauli[i] != "I"]
-    labels = np.array([reversed_pauli[i] for i in qubits])
     gates = []
 
-    if all(labels == "X"):
-        gates.append(qeg.RXXGate(qubits[0], qubits[1], 2 * time))
-    elif all(labels == "Y"):
-        gates.append(qeg.RYYGate(qubits[0], qubits[1], 2 * time))
-    elif all(labels == "Z"):
-        gates.append(qeg.RZZGate(qubits[0], qubits[1], 2 * time))
+    if pauli.paulistr == "XX":
+        gates.append(qeg.RXXGate(pauli.pos[0], pauli.pos[1], 2 * time))
+    elif pauli.paulistr == "YY":
+        gates.append(qeg.RYYGate(pauli.pos[0], pauli.pos[1], 2 * time))
+    elif pauli.paulistr == "ZZ":
+        gates.append(qeg.RZZGate(pauli.pos[0], pauli.pos[1], 2 * time))
     else:
         return multi_qubit_evol(pauli, time, cx_structure)
     return gates
 
 
-def multi_qubit_evol(pauli: str, time: float, cx_structure: str = "chain"):
+def multi_qubit_evol(pauli: PauliOp, time: float, cx_structure: str = "chain"):
     # determine whether the Pauli string consists of Pauli operators
-    if not all(pauli_char in "XYZI" for pauli_char in pauli):
+    if not all(pauli_char in "XYZI" for pauli_char in pauli.paulistr):
         raise NotImplementedError("Pauli string not yet supported")
     gates = []
     # get diagonalizing clifford gate list
@@ -86,10 +79,8 @@ def multi_qubit_evol(pauli: str, time: float, cx_structure: str = "chain"):
     target = None
     # Note that all phases are removed from the pauli label and are only in the coefficients.
     # That's because the operators we evolved have all been translated to a SparsePauliOp.
-    for i, pauli_i in enumerate(pauli[::-1]):
-        if pauli_i != "I":
-            target = i
-            break
+    sorted_pos = sorted(pauli.pos)
+    target = sorted_pos[0]
 
     # build the evolution as: diagonalization, reduction, 1q evolution, followed by inverses
     gates.extend(cliff)
@@ -101,7 +92,7 @@ def multi_qubit_evol(pauli: str, time: float, cx_structure: str = "chain"):
     return gates
 
 
-def diagonalizing_clifford(pauli: str):
+def diagonalizing_clifford(pauli: PauliOp):
     """Get the clifford gate list to diagonalize the Pauli operator.
 
     Args:
@@ -110,22 +101,21 @@ def diagonalizing_clifford(pauli: str):
     Returns:
         A gate list for clifford.
     """
-    reversed_pauli = pauli[::-1]
     gates = []
     gates_inverse = []
 
-    for i, pauli_i in enumerate(reversed_pauli):
-        if pauli_i == "Y":
-            gates.append(qeg.SdgGate(i))
-            gates_inverse.append(qeg.SGate(i))
-        if pauli_i in ["X", "Y"]:
-            gates.append(qeg.HGate(i))
-            gates_inverse.append(qeg.HGate(i))
+    for i, pos in enumerate(pauli.pos):
+        if pauli.paulistr[i] == "Y":
+            gates.append(qeg.SdgGate(pos))
+            gates_inverse.append(qeg.SGate(pos))
+        if pauli.paulistr[i] in ["X", "Y"]:
+            gates.append(qeg.HGate(pos))
+            gates_inverse.append(qeg.HGate(pos))
     gates_inverse = gates_inverse[::-1]
     return gates, gates_inverse
 
 
-def cnot_chain(pauli: str):
+def cnot_chain(pauli: PauliOp):
     """CX chain.
 
     For example, for the Pauli with the label 'XYZIX'.
@@ -152,23 +142,21 @@ def cnot_chain(pauli: str):
     control, target = None, None
 
     # iterate over the Pauli's and add CNOTs
-    for i, pauli_i in enumerate(pauli):
-        i = len(pauli) - i - 1
-        if pauli_i != "I":
-            if control is None:
-                control = i
-            else:
-                target = i
+    for pos in sorted(pauli.pos):
+        if control is None:
+            control = pos
+        else:
+            target = pos
 
         if control is not None and target is not None:
             gates.append(qeg.CXGate(control, target))
-            control = i
+            control = pos
             target = None
 
     return gates, gates[::-1]
 
 
-def cnot_fountain(pauli: str):
+def cnot_fountain(pauli: PauliOp):
     """CX chain in the fountain shape.
 
     For example, for the Pauli with the label 'XYZIX'.
@@ -193,12 +181,12 @@ def cnot_fountain(pauli: str):
 
     gates = []
     control, target = None, None
-    for i, pauli_i in enumerate(pauli[::-1]):
-        if pauli_i != "I":
-            if target is None:
-                target = i
-            else:
-                control = i
+
+    for pos in sorted(pauli.pos):
+        if target is None:
+            target = pos
+        else:
+            control = pos
 
         if control is not None and target is not None:
             gates.append(qeg.CXGate(control, target))
@@ -227,8 +215,8 @@ class BaseEvolution(ABC):
 class ProductFormula(BaseEvolution):
     """Product formula for decomposition of operator exponentials"""
 
-    def evol(self, pauli: str, time: float):
-        num_non_id = len([label for label in pauli if label != "I"])
+    def evol(self, pauli: PauliOp, time: float):
+        num_non_id = len(pauli.paulistr)
 
         if num_non_id == 0:
             pass
