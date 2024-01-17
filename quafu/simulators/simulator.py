@@ -128,14 +128,14 @@ def simulate(
         rho = permutebits(rho, values)
         return SimuResult(rho, output, count_dict)
 
-    elif output == "probabilities":
+    if output == "probabilities":
         if simulator in ["qfvm_circ", "qfvm_qasm"]:
             psi = permutebits(psi, range(num)[::-1])
         probabilities = ptrace(psi, measures)
         probabilities = permutebits(probabilities, values)
         return SimuResult(probabilities, output, count_dict)
 
-    elif output == "state_vector":
+    if output == "state_vector":
         return SimuResult(psi, output, count_dict)
 
     elif output == "count_dict":

@@ -13,24 +13,17 @@
 # limitations under the License.
 """Pre-build wrapper to calculate expectation value"""
 from typing import List, Optional
-
-import numpy as np
-from quafu.algorithms.hamiltonian import Hamiltonian
-from quafu.simulators.simulator import simulate
-from quafu.tasks.tasks import Task
-
-from quafu import QuantumCircuit
+from ..circuits.quantum_circuit import QuantumCircuit
+from ..tasks.tasks import Task
+from .hamiltonian import Hamiltonian
+from ..simulators.simulator import simulate
 
 
 def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
     """Execute circuit on quafu simulator"""
-    sim_state = simulate(circ, output="state_vector").get_statevector()
-
-    expectation = np.matmul(
-        np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
-    ).real
-
-    return expectation
+    sim_res = simulate(circ, output="state_vector")
+    expectations = sim_res.expect_paulis(observables)
+    return sum(expectations)
 
 
 class Estimator:
@@ -91,11 +84,6 @@ class Estimator:
         Returns:
             Expectation value
         """
-        if observables.num_qubits != self._circ.num:
-            raise ValueError(
-                "The number of qubits in the observables does not match the circuit"
-            )
-
         if params is not None:
             self._circ.update_params(params)
 

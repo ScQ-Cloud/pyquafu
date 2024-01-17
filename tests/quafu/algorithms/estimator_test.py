@@ -19,7 +19,8 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 from quafu.algorithms.estimator import Estimator
-from quafu.algorithms.hamiltonian import Hamiltonian
+from quafu.algorithms.hamiltonian import Hamiltonian, PauliOp
+
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.tasks.tasks import Task
 
@@ -53,7 +54,7 @@ class TestEstimator:
         measures = list(range(5))
         circ.measure(measures)
         test_ising = Hamiltonian(
-            ["IIIZZ", "ZZIII", "IZZII", "ZIIIZ"], np.array([1, 1, 1, 1])
+            [PauliOp("Z0 Z1"), PauliOp("Z3 Z4"), PauliOp("Z2 Z3"), PauliOp("Z0 Z4")]
         )
         return circ, test_ising
 
