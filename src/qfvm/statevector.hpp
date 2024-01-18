@@ -1302,8 +1302,8 @@ double StateVector<real_t>::expect_pauli(string paulistr,
   if (!flip_mask) {
     size_t rsize = size_;
     double val = 0.;
-#pragma omp paraleel for reduction(+ : val)
-    for (size_t j = 0; j < rsize; ++j) {
+#pragma omp parallel for reduction(+ : val)
+    for (omp_i j = 0; j < rsize; ++j) {
       uint z_phase_num = Qfutil::popcount(j & z_mask) % 2;
       int sign = 1 - 2 * z_phase_num;
       val += (data_[j] * std::conj(data_[j])).real() * sign;
@@ -1313,7 +1313,7 @@ double StateVector<real_t>::expect_pauli(string paulistr,
     double val = 0.;
     size_t rsize = size_ >> 1;
 #pragma omp parallel for reduction(+ : val)
-    for (size_t j = 0; j < rsize; ++j) {
+    for (omp_i j = 0; j < rsize; ++j) {
       size_t i0 = (j & ((1ll << flip_q) - 1)) | (j >> flip_q << flip_q << 1);
       size_t i1 = i0 ^ flip_mask;
       uint z_phase_num = Qfutil::popcount(i0 & z_mask) % 2;
