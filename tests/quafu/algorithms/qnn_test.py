@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
+import pytest
 import torch.nn
 from quafu.algorithms.ansatz import QuantumNeuralNetwork
 from quafu.algorithms.gradients import compute_vjp, jacobian
@@ -42,12 +43,37 @@ class ModelQuantumNeuralNetwork(torch.nn.Module):
         return out
 
 
+class ModelQuantumNeuralNetworkNative(torch.nn.Module):
+    """Test execution of qnn()"""
+
+    def __init__(self, qnn: QuantumNeuralNetwork):
+        super().__init__()
+        self.qnn = qnn
+
+    def forward(self, features):
+        out = self.qnn(features)
+        return out
+
+
 class TestLayers:
     circ = QuantumCircuit(2)
     circ.x(0)
     circ.rx(0, 0.1)
     circ.ry(1, 0.5)
     circ.ry(0, 0.1)
+
+    def _model_grad(self, model, batch_size):
+        """Test one forward pass and gradient calculation of a model"""
+
+        # TODO(zhaoyilun): Make out dimension configurable
+        features = torch.randn(
+            batch_size, 3, requires_grad=True, dtype=torch.double
+        )  # batch_size=4, num_params=3
+        outputs = model(features)
+        targets = torch.randn(batch_size, 2, dtype=torch.double)
+        criterion = torch.nn.MSELoss()
+        loss = criterion(outputs, targets)
+        loss.backward()
 
     def test_compute_vjp(self):
         params_input = np.random.randn(4, 3)
@@ -77,12 +103,24 @@ class TestLayers:
         entangle_layer = BasicEntangleLayers(weights, 2)
         qnn = QuantumNeuralNetwork(2, [entangle_layer])
         batch_size = 1
+
+        # Legacy invokation style
         model = ModelQuantumNeuralNetwork(qnn)
-        features = torch.randn(
-            batch_size, 3, requires_grad=True, dtype=torch.double
-        )  # batch_size=4, num_params=3
-        outputs = model(features)
-        targets = torch.randn(batch_size, 2, dtype=torch.double)
-        criterion = torch.nn.MSELoss()
-        loss = criterion(outputs, targets)
-        loss.backward()
+        self._model_grad(model, batch_size)
+
+        # New invokation style
+        model = ModelQuantumNeuralNetworkNative(qnn)
+        self._model_grad(model, batch_size)
+
+    @pytest.mark.skip(reason="github env doesn't have token")
+    def test_torch_layer_qnn_real_machine(self):
+        """Use QuantumNeuralNetwork ansatz"""
+        weights = np.random.randn(2, 2)
+        entangle_layer = BasicEntangleLayers(weights, 2)
+        qnn = QuantumNeuralNetwork(2, [entangle_layer], backend="ScQ-P10")
+        qnn.measure([0, 1], [0, 1])
+        batch_size = 1
+
+        # New invokation style
+        model = ModelQuantumNeuralNetworkNative(qnn)
+        self._model_grad(model, batch_size)

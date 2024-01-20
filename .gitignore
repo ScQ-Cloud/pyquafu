@@ -5,6 +5,7 @@
 *.so
 *.svg
 *temp.*
+temp/
 .DS_Store
 .idea
 .vscode

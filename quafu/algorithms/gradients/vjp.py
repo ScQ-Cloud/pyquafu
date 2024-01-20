@@ -31,15 +31,24 @@ def _generate_expval_z(num_qubits: int):
 
 
 # TODO(zhaoyilun): support more measurement types
-def run_circ(circ: QuantumCircuit, params: Optional[List[float]] = None):
+# FIXME(zhaoyilun): remove backend
+def run_circ(
+    circ: QuantumCircuit,
+    params: Optional[List[float]] = None,
+    backend: str = "sim",
+    estimator: Optional[Estimator] = None,
+):
     """Execute a circuit
 
     Args:
         circ (QuantumCircuit): circ
         params (Optional[List[float]]): params
+        backend (str): backend
+        estimator (Optional[Estimator]): estimator
     """
     obs_list = _generate_expval_z(circ.num)
-    estimator = Estimator(circ)
+    if estimator is None:
+        estimator = Estimator(circ, backend=backend)
     if params is None:
         params = [g.paras for g in circ.parameterized_gates]
     output = [estimator.run(obs, params) for obs in obs_list]
@@ -47,7 +56,11 @@ def run_circ(circ: QuantumCircuit, params: Optional[List[float]] = None):
 
 
 # TODO(zhaoyilun): support more gradient methods
-def jacobian(circ: QuantumCircuit, params_input: np.ndarray):
+def jacobian(
+    circ: QuantumCircuit,
+    params_input: np.ndarray,
+    estimator: Optional[Estimator] = None,
+):
     """Calculate Jacobian matrix
 
     Args:
@@ -57,7 +70,8 @@ def jacobian(circ: QuantumCircuit, params_input: np.ndarray):
     batch_size, num_params = params_input.shape
     obs_list = _generate_expval_z(circ.num)
     num_outputs = len(obs_list)
-    estimator = Estimator(circ)
+    if estimator is None:
+        estimator = Estimator(circ)
     calc_grad = ParamShift(estimator)
     output = np.zeros((batch_size, num_outputs, num_params))
     for i in range(batch_size):
