@@ -14,10 +14,11 @@
 """Quafu parameter shift"""
 
 from typing import List
+
 import numpy as np
 
-from quafu.algorithms import Estimator
-from quafu.algorithms.hamiltonian import Hamiltonian
+from ..estimator import Estimator
+from ..hamiltonian import Hamiltonian
 
 
 class ParamShift:

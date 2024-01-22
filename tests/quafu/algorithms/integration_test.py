@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import heapq
 import sys
 from typing import List
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-from quafu.algorithms import Hamiltonian, QAOAAnsatz, Estimator
-from quafu import simulate
-from scipy.optimize import minimize
-import heapq
-
+from quafu.algorithms import Estimator, Hamiltonian, QAOAAnsatz
 from quafu.algorithms.ansatz import AlterLayeredAnsatz
+from scipy.optimize import minimize
+
+from quafu import simulate
 
 
 class TestQAOA:
@@ -46,6 +48,62 @@ class TestQAOA:
 
         assert eval_answers == sorted(correct_answers)
 
+    def test_ansatz_construction(self):
+        num_layers = 2
+        print("The test for ansatz.")
+
+        # test the zero qubit evolution
+        # hamiltonian__ = Hamiltonian.from_pauli_list(
+        #     [("IIIII", 1), ("IIIII", 1), ("IIIII", 1), ("IIIII", 1)]
+        # )
+        # ansatz__ = QAOAAnsatz(hamiltonian__, num_layers=num_layers)
+        # ansatz__.draw_circuit()
+
+        def one_qubits_evolution(pauli):
+            h = Hamiltonian.from_pauli_list(
+                [
+                    (f"{pauli}0", 1),
+                    (f"{pauli}1", 1),
+                    (f"{pauli}3", 1),
+                    (f"{pauli}4", 1),
+                ]
+            )
+            ansatz = QAOAAnsatz(h, 5, num_layers=num_layers)
+
+        for p in "XYZ":
+            one_qubits_evolution(p)
+
+        # test the two qubits evolution
+        def two_qubits_evolution(pauli0, pauli1):
+            h = Hamiltonian.from_pauli_list(
+                [
+                    (f"{pauli0}0 {pauli1}1", 1),
+                    (f"{pauli0}0 {pauli1}2", 1),
+                    (f"{pauli0}0 {pauli1}3", 1),
+                    (f"{pauli0}0 {pauli1}4", 1),
+                ]
+            )
+            ansatz = QAOAAnsatz(h, 5, num_layers=num_layers)
+
+        two_q_paulis = ["XX", "XY", "XZ", "YX", "YY", "YZ", "ZX", "ZY", "ZZ"]
+
+        for two_q_pauli in two_q_paulis:
+            two_qubits_evolution(two_q_pauli[0], two_q_pauli[1])
+
+        # test the multiple qubits evolution
+        hamiltonian_multi = Hamiltonian.from_pauli_list(
+            [
+                ("X0 Z2 Y3 X4", 1),
+                ("X0 Z1 Y3 X4", 1),
+                ("X0 Z1 Y2 X4", 1),
+                ("X0 Z1 Y2 X3", 1),
+            ]
+        )
+        ansatz_multi = QAOAAnsatz(hamiltonian_multi, 5, num_layers=num_layers)
+        ansatz_multi.draw_circuit()
+        # ansatz_multi.plot_circuit(title='MULTI QUBITS')
+        # plt.show()
+
     @pytest.mark.skipif(
         sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
     )
@@ -60,12 +118,23 @@ class TestQAOA:
         should have the highest probability
         """
         num_layers = 2
-        hamlitonian = Hamiltonian.from_pauli_list(
-            [("IIIZZ", 1), ("IIZIZ", 1), ("IZIIZ", 1), ("ZIIIZ", 1)]
+        print("The test for ansatz.")
+
+        # test the zero qubit evolution
+        # hamiltonian__ = Hamiltonian.from_pauli_list(
+        #     [("IIIII", 1), ("IIIII", 1), ("IIIII", 1), ("IIIII", 1)]
+        # )
+        # ansatz__ = QAOAAnsatz(hamiltonian__, num_layers=num_layers)
+        # ansatz__.draw_circuit()
+
+        hamiltonian = Hamiltonian.from_pauli_list(
+            [("Z0 Z1", 1), ("Z0 Z2", 1), ("Z0 Z3", 1), ("Z0 Z4", 1)]
         )
+
         ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
-        assert np.array_equal(ref_mat, hamlitonian.get_matrix())
-        ansatz = QAOAAnsatz(hamlitonian, num_layers=num_layers)
+        # ref_mat = np.load("data/qaoa_hamiltonian.npy")
+        assert np.array_equal(ref_mat, hamiltonian.get_matrix(5).toarray())
+        ansatz = QAOAAnsatz(hamiltonian, 5, num_layers=num_layers)
         ansatz.draw_circuit()
 
         def cost_func(params, ham, estimator: Estimator):
@@ -75,7 +144,7 @@ class TestQAOA:
         est = Estimator(ansatz)
         # params = 2 * np.pi * np.random.rand(num_layers * 2)
         params = 2 * np.pi * np.random.rand(ansatz.num_parameters)
-        res = minimize(cost_func, params, args=(hamlitonian, est), method="COBYLA")
+        res = minimize(cost_func, params, args=(hamiltonian, est), method="COBYLA")
         print(res)
         ansatz.measure(list(range(5)))
         ansatz.draw_circuit()
@@ -95,10 +164,10 @@ class TestVQE:
         num_layers = 4
         num_qubits = 2
         hamlitonian = Hamiltonian.from_pauli_list(
-            [("YZ", 0.3980), ("ZI", -0.3980), ("ZZ", -0.0113), ("XX", 0.1810)]
+            [("Z0 Y1", 0.3980), ("Z1", -0.3980), ("Z0 Z1", -0.0113), ("X0 X1", 0.1810)]
         )
         ref_mat = np.load("tests/quafu/algorithms/data/vqe_hamiltonian.npy")
-        assert np.array_equal(ref_mat, hamlitonian.get_matrix())
+        assert np.array_equal(ref_mat, hamlitonian.get_matrix(2).toarray())
         ansatz = AlterLayeredAnsatz(num_qubits, num_layers)
 
         def cost_func(params, ham, estimator: Estimator):

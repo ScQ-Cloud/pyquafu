@@ -1,24 +1,6 @@
-from .pauli import (
-    XGate,
-    YGate,
-    ZGate,
-    IdGate,
-    WGate,
-    SWGate,
-    SXGate,
-    SXdgGate,
-    SYGate,
-    SYdgGate,
-)
-from .clifford import HGate, SGate, SdgGate, TGate, TdgGate
-from .phase import PhaseGate
-from .rotation import RXGate, RYGate, RZGate, RXXGate, RYYGate, RZZGate
-from .swap import SwapGate, ISwapGate
-from .c11 import CXGate, CYGate, CZGate, CSGate, CTGate, CPGate
-from .c21 import ToffoliGate
-from .c12 import FredkinGate
-from .cm1 import MCXGate, MCYGate, MCZGate, ControlledU
-from .unitary import UnitaryDecomposer
+from .element_gates import XGate, YGate, ZGate, IdGate, WGate, HGate, SGate, SdgGate, TGate, TdgGate, SXGate, SXdgGate, SYGate, SYdgGate, SWGate, SWdgGate, RXGate, RYGate, RZGate, RXXGate, RYYGate, RZZGate, SwapGate, ISwapGate, CXGate, CYGate, CZGate, CSGate, CTGate, CPGate, ToffoliGate, FredkinGate, MCXGate, MCYGate, MCZGate
+from .element_gates import PhaseGate
+
 
 __all__ = [
     "XGate",
@@ -36,10 +18,11 @@ __all__ = [
     "SYGate",
     "SYdgGate",
     "SWGate",
-    "PhaseGate",
+    "SWdgGate",
     "RXGate",
     "RYGate",
     "RZGate",
+    "PhaseGate"
     "RXXGate",
     "RYYGate",
     "RZZGate",
@@ -56,6 +39,4 @@ __all__ = [
     "MCXGate",
     "MCYGate",
     "MCZGate",
-    "ControlledU",
-    "UnitaryDecomposer",
 ]

@@ -106,12 +106,7 @@ class SymtabNode(Node):
             self.cargs = cargs
 
 
-from quafu.elements.quantum_element.quantum_element import (
-    Measure,
-    Barrier,
-    Delay,
-    XYResonance,
-)
+from quafu.elements import Barrier, Delay, Measure, XYResonance
 
 gate_classes = {
     "x": qeg.XGate,

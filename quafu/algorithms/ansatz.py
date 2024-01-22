@@ -11,15 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Ansatz circuits for VQA"""
 from abc import ABC, abstractmethod
-from typing import List
-import numpy as np
+from typing import Any, List
 
-from quafu.algorithms.hamiltonian import Hamiltonian
+import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.synthesis.evolution import ProductFormula
+
+from .hamiltonian import Hamiltonian
+from .interface_provider import InterfaceProvider
 
 
 class Ansatz(QuantumCircuit, ABC):
@@ -42,10 +43,11 @@ class Ansatz(QuantumCircuit, ABC):
 class QAOAAnsatz(Ansatz):
     """QAOA Ansatz"""
 
-    def __init__(self, hamiltonian: Hamiltonian, num_layers: int = 1):
+    def __init__(self, hamiltonian: Hamiltonian, num_qubits: int, num_layers: int = 1):
         """Instantiate a QAOAAnsatz"""
-        self._pauli_list = hamiltonian.pauli_list
-        self._coeffs = hamiltonian.coeffs
+        # self._pauli_list = hamiltonian.pauli_list
+        # self._coeffs = hamiltonian.coeffs
+        self._h = hamiltonian
         self._num_layers = num_layers
         self._evol = ProductFormula()
 
@@ -54,7 +56,6 @@ class QAOAAnsatz(Ansatz):
         self._gamma = np.zeros(num_layers)
 
         # Build circuit structure
-        num_qubits = len(self._pauli_list[0])
         super().__init__(num_qubits)
 
     @property
@@ -66,7 +67,7 @@ class QAOAAnsatz(Ansatz):
         """Return complete parameters of the circuit"""
         paras_list = []
         for layer in range(self._num_layers):
-            for _ in range(len(self._pauli_list)):
+            for _ in range(len(self._h.paulis)):
                 paras_list.append(self._gamma[layer])
             for _ in range(self.num):
                 paras_list.append(self._beta[layer])
@@ -84,8 +85,8 @@ class QAOAAnsatz(Ansatz):
 
         for layer in range(self._num_layers):
             # Add H_D layer
-            for pauli_str in self._pauli_list:
-                gate_list = self._evol.evol(pauli_str, self._gamma[layer])
+            for pauli in self._h.paulis:
+                gate_list = self._evol.evol(pauli, self._gamma[layer])
                 for g in gate_list:
                     self.add_ins(g)
 
@@ -138,3 +139,29 @@ class AlterLayeredAnsatz(Ansatz):
                 self.cnot(ctrl, targ)
         for qubit in range(self.num):
             self.ry(qubit, self._theta[self._layer, qubit])
+
+
+class QuantumNeuralNetwork(Ansatz):
+    """A Wrapper of quantum circuit as QNN"""
+
+    # TODO(zhaoyilun): docs
+    def __init__(self, num_qubits: int, layers: List[Any], interface="torch"):
+        """"""
+        # Get transformer according to specified interface
+        self._transformer = InterfaceProvider.get(interface)
+        self._layers = layers
+
+        # FIXME(zhaoyilun): don't use this default value
+        self._weights = np.empty((1, 1))
+        super().__init__(num_qubits)
+
+    def _build(self):
+        """Essentially initialize weights using transformer"""
+        for layer in self._layers:
+            self.add_gates(layer)
+
+        self._weights = self._transformer.init_weights((1, self.num_parameters))
+
+    @property
+    def weights(self):
+        return self._weights

@@ -1,3 +1,4 @@
+*.dot
 *.egg-info
 *.pyc
 *.pyd
@@ -21,3 +22,5 @@ src/site
 test
 thirdparty
 wheelhouse
+*.zhaoyilun
+*.png

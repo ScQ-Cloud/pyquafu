@@ -1,6 +1,5 @@
-from quafu.circuits.quantum_circuit import QuantumCircuit
 from numpy import random
-
+from quafu.circuits.quantum_circuit import QuantumCircuit
 
 # number of qubits, number of layers
 bit_num, n_layers = 4, 2

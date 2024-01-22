@@ -2,6 +2,7 @@ import copy
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
+from ..algorithms.hamiltonian import Hamiltonian
 from ..utils.basis import *
 
 
@@ -23,15 +24,22 @@ class ExecResult(Result):
     """
 
     def __init__(self, input_dict):
-        status_map = {0: "In Queue", 1: "Running", 2: "Completed", "Canceled": 3, 4: "Failed"}
-        self.taskid = input_dict['task_id']
-        self.taskname = input_dict['task_name']
+        status_map = {
+            0: "In Queue",
+            1: "Running",
+            2: "Completed",
+            "Canceled": 3,
+            4: "Failed",
+        }
+        self.taskid = input_dict["task_id"]
+        self.taskname = input_dict["task_name"]
         self.transpiled_openqasm = input_dict["openqasm"]
         from ..circuits.quantum_circuit import QuantumCircuit
+
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
-        
+
         self.measures = self.transpiled_circuit.measures
         self.task_status = status_map[input_dict["status"]]
         self.res = eval(input_dict["res"])
@@ -82,8 +90,12 @@ class SimuResult(Result):
         count_dict: The num of cbits measured. Only support for `qfvm_circuit`.
     """
 
-    def __init__(self, input, input_form, count_dict:dict=None):
-        self.num = int(np.log2(input.shape[0]))
+    def __init__(self, input, input_form, count_dict: dict = None):
+        if input_form != "count_dict":
+            self.num = int(np.log2(input.shape[0]))
+        else:
+            # input is num qubits
+            self.num = input
         if input_form == "density_matrix":
             self.rho = np.array(input)
             self.probabilities = np.diag(input)
@@ -91,13 +103,16 @@ class SimuResult(Result):
             self.probabilities = input
         elif input_form == "state_vector":
             self.state_vector = input
+        elif input_form == "count_dict":
+            # do nothing, only count dict
+            pass
         # come form c++ simulator
         # TODO: add count for py_simu
         if count_dict is not None:
             self.count = {}
-            for key,value in count_dict.items():
+            for key, value in count_dict.items():
                 bitstr = bin(key)[2:].zfill(self.num)
-                self.count[bitstr] = value               
+                self.count[bitstr] = value
 
     def plot_probabilities(
         self, full: bool = False, reverse_basis: bool = False, sort: bool = None
@@ -145,6 +160,12 @@ class SimuResult(Result):
         basis = np.array([bin(i)[2:].zfill(self.num) for i in inds])
         res_reduced = dict(zip(basis, probs))
         return measure_obs(pos, res_reduced)
+
+    def expect_paulis(self, hamiltonian: Hamiltonian):
+        """Calculate expectation value given a Hamiltonian"""
+        from quafu.simulators.qfvm import expect_statevec
+
+        return expect_statevec(self.state_vector, hamiltonian.paulis)
 
 
 def intersec(a, b):

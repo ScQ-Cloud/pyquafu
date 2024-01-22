@@ -12,17 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import sys
+from unittest.mock import patch
+
 import numpy as np
 import pytest
-import math
-from unittest.mock import patch
-from quafu import ExecResult
 from quafu.algorithms.estimator import Estimator
-from quafu.algorithms.hamiltonian import Hamiltonian
+from quafu.algorithms.hamiltonian import Hamiltonian, PauliOp
 
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.tasks.tasks import Task
+
+from quafu import ExecResult
 
 MOCK_RES_DICT = {
     "measure": "None",
@@ -52,7 +54,7 @@ class TestEstimator:
         measures = list(range(5))
         circ.measure(measures)
         test_ising = Hamiltonian(
-            ["IIIZZ", "ZZIII", "IZZII", "ZIIIZ"], np.array([1, 1, 1, 1])
+            [PauliOp("Z0 Z1"), PauliOp("Z3 Z4"), PauliOp("Z2 Z3"), PauliOp("Z0 Z4")]
         )
         return circ, test_ising
 

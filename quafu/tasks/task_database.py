@@ -50,7 +50,7 @@ class QuafuTaskDatabase:
     This way ensures the database connection is closed and submission committed automatically.
     """
 
-    def __init__(self, db_dir='./'):
+    def __init__(self, db_dir="./"):
         self.database_name = "tasks.db"
         self.database_dir = Path(db_dir)
         self.conn = None
@@ -69,7 +69,8 @@ class QuafuTaskDatabase:
 
     def _create_table(self):
         cursor = self.conn.cursor()
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS tasks (
                 task_id TEXT PRIMARY KEY,
                 group_name TEXT DEFAULT NULL,
@@ -79,26 +80,29 @@ class QuafuTaskDatabase:
                 send_time TIMESTAMP,
                 finish_time TIMESTAMP DEFAULT NULL
             )
-        ''')
+        """
+        )
         cursor.close()
 
     # region data manipulation
-    def insert_task(self,
-                    task_id,
-                    status,
-                    send_time: str = None,
-                    priority=2,
-                    group_name=None,
-                    task_name=None,
-                    finish_time: str = None
-                    ):
+    def insert_task(
+        self,
+        task_id,
+        status,
+        send_time: str = None,
+        priority=2,
+        group_name=None,
+        task_name=None,
+        finish_time: str = None,
+    ):
         cursor = self.conn.cursor()
         cursor.execute(
             "INSERT INTO tasks "
             "(task_id, group_name, task_name, status, priority, send_time, finish_time) "
             "VALUES "
             "(?, ?, ?, ?, ?, ?, ?)",
-            (task_id, group_name, task_name, status, priority, send_time, finish_time))
+            (task_id, group_name, task_name, status, priority, send_time, finish_time),
+        )
         cursor.close()
 
     def delete_task(self, task_id):
@@ -111,6 +115,7 @@ class QuafuTaskDatabase:
         cursor = self.conn.cursor()
         cursor.execute("UPDATE tasks SET status=? WHERE task_id=?", (status, task_id))
         cursor.close()
+
     # endregion
 
     # region fetch tasks
@@ -150,7 +155,7 @@ class QuafuTaskDatabase:
         if task_name is None:
             cursor.execute("SELECT * FROM tasks WHERE task_name IS NULL")
         else:
-            cursor.execute("SELECT * FROM tasks WHERE task_name=?", (task_name, ))
+            cursor.execute("SELECT * FROM tasks WHERE task_name=?", (task_name,))
         tasks = cursor.fetchall()
         cursor.close()
         return tasks
@@ -160,8 +165,12 @@ class QuafuTaskDatabase:
         get tasks sent between start_time and end_time.
         """
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM tasks WHERE send_time BETWEEN ? AND ?", (start_time, end_time))
+        cursor.execute(
+            "SELECT * FROM tasks WHERE send_time BETWEEN ? AND ?",
+            (start_time, end_time),
+        )
         tasks = cursor.fetchall()
         cursor.close()
         return tasks
+
     # endregion

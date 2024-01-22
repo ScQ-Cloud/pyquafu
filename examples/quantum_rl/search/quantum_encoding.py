@@ -1,17 +1,11 @@
 from collections import namedtuple
-from hashlib import new
 
 import numpy as np
 
-Genotype = namedtuple('Genotype', 'measure vpqc dpqc entangle')
+Genotype = namedtuple("Genotype", "measure vpqc dpqc entangle")
 
 # what you want to search should be defined here and in quantum_operations
-PRIMITIVES = [
-    'measurement',
-    'variationalPQC',
-    'dataencodingPQC',
-    'entanglement'
-]
+PRIMITIVES = ["measurement", "variationalPQC", "dataencodingPQC", "entanglement"]
 
 
 def convert2arch(bit_string):
@@ -22,19 +16,19 @@ def convert2arch(bit_string):
     entangle = []
     new_bit = 0
     for i in range(len(bit_string)):
-        if PRIMITIVES[bit_string[i]] == 'variationalPQC':
+        if PRIMITIVES[bit_string[i]] == "variationalPQC":
             vpqc.append((PRIMITIVES[bit_string[i]], i))
-        elif PRIMITIVES[bit_string[i]] == 'dataencodingPQC':
+        elif PRIMITIVES[bit_string[i]] == "dataencodingPQC":
             dpqc.append((PRIMITIVES[bit_string[i]], i))
-        elif PRIMITIVES[bit_string[i]] == 'entanglement':
+        elif PRIMITIVES[bit_string[i]] == "entanglement":
             entangle.append((PRIMITIVES[bit_string[i]], i))
-        elif PRIMITIVES[bit_string[i]] == 'measurement':
+        elif PRIMITIVES[bit_string[i]] == "measurement":
             measure.append((PRIMITIVES[bit_string[i]], i))
             if vpqc != [] and dpqc != [] and entangle != []:
-                new_bit = bit_string[0:(i+1)]
+                new_bit = bit_string[0 : (i + 1)]
                 break
         else:
-            raise NameError('Unknown quantum architecture.')
+            raise NameError("Unknown quantum architecture.")
     if type(new_bit) == int:
         new_bit = bit_string
     new_bit = list(new_bit)
@@ -50,17 +44,16 @@ def convert2arch(bit_string):
         dpqc = []
         entangle = []
         for i in range(len(new_bit)):
-            if PRIMITIVES[new_bit[i]] == 'variationalPQC':
+            if PRIMITIVES[new_bit[i]] == "variationalPQC":
                 vpqc.append((PRIMITIVES[new_bit[i]], i))
-            elif PRIMITIVES[new_bit[i]] == 'dataencodingPQC':
+            elif PRIMITIVES[new_bit[i]] == "dataencodingPQC":
                 dpqc.append((PRIMITIVES[new_bit[i]], i))
-            elif PRIMITIVES[new_bit[i]] == 'entanglement':
+            elif PRIMITIVES[new_bit[i]] == "entanglement":
                 entangle.append((PRIMITIVES[new_bit[i]], i))
-            elif PRIMITIVES[new_bit[i]] == 'measurement':
+            elif PRIMITIVES[new_bit[i]] == "measurement":
                 measure.append((PRIMITIVES[new_bit[i]], i))
             else:
-                raise NameError('Unknown quantum architecture.')
+                raise NameError("Unknown quantum architecture.")
         g = Genotype(measure=measure, vpqc=vpqc, dpqc=dpqc, entangle=entangle)
-    
-    return new_bit, g
 
+    return new_bit, g
