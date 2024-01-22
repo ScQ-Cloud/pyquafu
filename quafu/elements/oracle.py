@@ -91,6 +91,14 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
         # TODO: this is similar to QuantumCircuit.to_qasm
         raise NotImplemented
 
+    @property
+    def circuit(self):
+        from quafu import QuantumCircuit
+        qc = QuantumCircuit(self.qubit_num)
+        for gate in self.insides:
+            qc.add_gate(gate)
+        return qc
+
     def __instantiate_gates__(self) -> None:
         """
         Instantiate the gate structure through coping ins and bit mapping.
