@@ -280,7 +280,7 @@ class QuantumGate(Instruction):
                 raw_matrix = raw_matrix.conj().T
             return QuantumGate(name, self.pos, self.paras, raw_matrix)
 
-    def ctrl_by(self, ctrls: Union[int, List[int]]) -> "QuantumGate":
+    def ctrl_by(self, ctrls: Union[int, List[int]]) -> "ControlledGate":
         """Return a controlled gate with present gate as the controlled target."""
         ctrls = [ctrls] if not isinstance(ctrls, list) else ctrls
         pos = [self.pos] if not isinstance(self.pos, list) else self.pos
@@ -424,20 +424,57 @@ class ControlledGate(QuantumGate):
 
         return raw_matrix
     
+    def power(self, n) -> "ControlledGate":
+        """TODO:Use implementation in QuantumGate"""
+        name = self.name
+        if self._targ_name in ["RX", "RY", "RZ", "P", "RZZ", "RXX", "RYY"]:
+            return ControlledGate(name, self._targ_name, self.ctrls, self.targs, [self.paras[0] * n], self._targ_matrix)
+        else:
+            name = self.name + "^%d" %n
+            targ_matrix = self._targ_matrix 
+            if isinstance(self._targ_matrix, Callable):
+                targ_matrix = lambda paras: np.linalg.matrix_power(self._targ_matrix(paras), n)
+            else:
+                targ_matrix = np.linalg.matrix_power(self._targ_matrix, n)
+            return ControlledGate(name, self._targ_name+"^%d" %n, self.ctrls, self.targs, self.paras, targ_matrix)
+    
+        
+    def dagger(self) -> "ControlledGate":
+        """TODO:Use implementation in QuantumGate"""
+        name = self.name
+        if self._targ_name in ["RX", "RY", "RZ", "P", "RZZ", "RXX", "RYY"]:
+            return ControlledGate(name, self._targ_name, self.ctrls, self.targs, [-self.paras[0]], self._targ_matrix)
+        else:
+            name = self.name + "^†"
+            targ_matrix = self._targ_matrix 
+            if isinstance(self._targ_matrix, Callable):
+                targ_matrix = lambda paras: self._targ_matrix(paras).conj().T
+            else:
+                targ_matrix = targ_matrix.conj().T
+
+            return ControlledGate(name, self._targ_name+"^†", self.ctrls, self.targs, self.paras, targ_matrix)
+    
+    def add_controls(self, ctrls) -> "ControlledGate":
+        if self.name in ["CX", "CY", "CZ", "CRX", "CRY", "CRZ"]:
+            args = self.targs + self.paras
+            cname = "mc" + self._targ_name.lower()
+            cop = QuantumGate.gate_classes[cname](ctrls+self.ctrls, *args)
+            return cop
+        else:
+            cop = ControlledGate("MC"+self._targ_name, self._targ_name, ctrls+self.ctrls, self.targs, self.paras, self._targ_matrix)
+            return cop
+        
     @property
     def name(self) -> str:
         return "c" + self.targ_name
 
     @property
     def symbol(self):
-        if self._symbol is not None:
-            return self._symbol
+        if len(self.paras) > 0:
+            symbol = "%s(" %self._targ_name + ",".join(["%.3f" %para for para in self._paras]) + ")"
+            return symbol
         else:
-            return self.targ_name
-
-    @symbol.setter
-    def symbol(self, symbol):
-        self._symbol = symbol
+            return "%s" %self._targ_name
 
     @property
     def matrix(self):

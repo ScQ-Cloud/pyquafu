@@ -964,7 +964,7 @@ class QuantumCircuit:
 
 
         For example::
-            from quafu import QuantumCircuit
+            from quafu import QuantumCircuit 
             qc = QuantumCircuit(2,2)
 
             qc.h(0)

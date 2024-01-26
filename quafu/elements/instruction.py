@@ -19,7 +19,6 @@ from .parameters import ParameterType
 
 __all__ = ["Instruction", "Barrier", "Measure", "PosType", "Reset"]
 
-PosType = Union[int, List[int]]
 
 
 class Instruction(ABC):
@@ -35,8 +34,8 @@ class Instruction(ABC):
 
     def __init__(
         self,
-        pos: PosType,
-        paras: Optional[Union[ParameterType, List[ParameterType]]] = None,
+        pos: List[int],
+        paras: List[ParameterType] = [],
         *args,
         **kwargs,
     ):
