@@ -61,12 +61,7 @@ class QuantumGate(Instruction, ABC):
     """Base class for standard and combined quantum gates, namely unitary operation
     upon quantum states.
 
-    Attributes:
-        pos: Position of this gate in the circuit.
-        paras: Parameters of this gate.
-
     Properties:
-        symbol: Text symbolic representation of this gate.
         matrix: Matrix representation of this gate.
 
     Functions:
@@ -74,13 +69,14 @@ class QuantumGate(Instruction, ABC):
         to_qasm: Convert this gate to QASM format.
         update_paras: Update the parameters of this gate.
 
+    see docstring of Instruction for other members.
     """
 
     gate_classes = {}
 
     def __init__(
             self,
-            pos: PosType,
+            pos: Union[PosType, List[PosType]],
             paras: Optional[Union[ParameterType, List[ParameterType]]] = None,
             matrix: Optional[Union[ndarray, Callable]] = None,
     ):
