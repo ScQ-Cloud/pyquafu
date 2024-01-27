@@ -13,13 +13,13 @@
 #  limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any
 
 from .parameters import ParameterType
 
 __all__ = ["Instruction", "Barrier", "Measure", "PosType", "Reset"]
 
-PosType = Union[int, List[int]]
+PosType = Union[int]  # TODO: include qubits
 
 
 class Instruction(ABC):
@@ -27,7 +27,7 @@ class Instruction(ABC):
 
     Attributes:
         pos: Qubit position(s) of the instruction on the circuit.
-        paras: Parameters of the instruction.
+        paras: Parameter list of the instruction.
 
     """
 
@@ -35,14 +35,32 @@ class Instruction(ABC):
 
     def __init__(
         self,
-        pos: PosType,
+        pos: Union[PosType, List[PosType]],
         paras: Optional[Union[ParameterType, List[ParameterType]]] = None,
         *args,
         **kwargs,
     ):
-        self.pos = pos
-        self.paras = paras
+        self.__init_pos__(pos)
+        self.__init_paras__(paras)
         self._symbol = None
+
+    def __init_pos__(self, pos: Any):
+        """If pos is not a list of PoseType objects, make it so."""
+        if isinstance(pos, PosType):
+            pos = [pos]
+        elif not isinstance(pos, List):
+            raise ValueError('pos must be in PoseType or a list of PoseType objects')
+        self.pos = pos
+
+    def __init_paras__(self, paras: Any):
+        """If paras is not a list of ParameterType objects, make it so."""
+        if paras is None:
+            paras = []
+        elif not isinstance(paras, List):
+            if not isinstance(paras, ParameterType):
+                raise ValueError('paras must be in ParameterType or a list of ParameterType objects')
+            paras = [paras]
+        self.paras = paras
 
     @property
     @abstractmethod
