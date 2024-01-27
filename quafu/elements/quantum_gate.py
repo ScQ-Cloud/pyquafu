@@ -14,7 +14,7 @@
 
 
 import copy
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Callable, Dict, Iterable, List, Optional, Union
 
 import numpy as np
@@ -156,14 +156,17 @@ class QuantumGate(Instruction, ABC):
         self._symbol = symbol
 
     @property
-    @abstractmethod
-    def matrix(self):
-        if self._matrix is not None:
+    def matrix(self) -> ndarray:
+        """Return numpy.ndarray matrix representation, real-time updated with parameters, if any."""
+        if isinstance(self._matrix, ndarray):
             return self._matrix
+        elif isinstance(self._matrix, Callable):
+            paras = [float(p) for p in self.paras]  # TODO: check that if float() is well supported
+            return self._matrix(paras)
         else:
             raise NotImplementedError(
                 "Matrix is not implemented for %s" % self.__class__.__name__
-                + ", this should never happen."
+                + ". This should never happen, please report it on our github page."
             )
 
     def to_qasm(self) -> str:
@@ -403,11 +406,6 @@ class ControlledGate(MultiQubitGate):
     @symbol.setter
     def symbol(self, symbol):
         self._symbol = symbol
-
-    @property
-    def matrix(self):
-        # TODO: update matrix when paras of controlled-gate changed
-        return self._matrix
 
     @property
     def ct_nums(self):
