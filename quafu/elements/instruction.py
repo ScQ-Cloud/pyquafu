@@ -26,8 +26,16 @@ class Instruction(ABC):
     """Base class for ALL the possible instructions on Quafu superconducting quantum circuits.
 
     Attributes:
-        pos: Qubit position(s) of the instruction on the circuit.
+        pos: Qubit position(s) list of the instruction on the circuit.
         paras: Parameter list of the instruction.
+
+    Properties:
+        symbol: Text symbolic representation of this gate.
+
+    Functions:
+        register_gate: Register a new gate class.
+        to_qasm: Convert this gate to QASM format.
+        update_paras: Update the parameters of this gate.
 
     """
 
