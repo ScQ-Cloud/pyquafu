@@ -417,7 +417,7 @@ class ControlledGate(MultiQubitGate):
     @property
     def targ_matrix(self):
         if isinstance(self._targ_matrix, Callable):
-            return self._targ_matrix(self.paras)
+            return self._targ_matrix(*self.paras)
         else:
             return self._targ_matrix
 
