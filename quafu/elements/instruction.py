@@ -113,6 +113,7 @@ class Instruction(ABC):
         pass
 
 
+@Instruction.register('barrier')
 class Barrier(Instruction):
     """
     Barrier instruction.
@@ -155,6 +156,7 @@ class Barrier(Instruction):
         )
 
 
+@Instruction.register('reset')
 class Reset(Instruction):
     name = "reset"
 
@@ -186,6 +188,7 @@ class Reset(Instruction):
         )
 
 
+@Instruction.register('measure')
 class Measure(Instruction):
     """
     Measure instruction.
@@ -213,7 +216,3 @@ class Measure(Instruction):
         ]
         qasm = "".join(lines)
         return qasm
-
-
-Instruction.register_ins(Barrier)
-Instruction.register_ins(Measure)
