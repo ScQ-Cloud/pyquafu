@@ -88,8 +88,11 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
         return self._named_pos
 
     def to_qasm(self):
-        # TODO: this is similar to QuantumCircuit.to_qasm
-        raise NotImplemented
+        if len(self.gate_structure) > 0:
+            return super().to_qasm()
+        else:
+            # TODO: decompose matrix in a Just-In-Time style
+            raise NotImplemented
 
     @property
     def circuit(self):
