@@ -182,15 +182,11 @@ class QuantumCircuit:
         gateQlist = [[] for i in range(num)]
         used_qubits = []
         for gate in gatelist:
-            if (
-                isinstance(gate, SingleQubitGate)
-                or isinstance(gate, Delay)
-                or isinstance(gate, QuantumPulse)
-            ):
-                gateQlist[gate.pos].append(gate)
+            if len(gate.pos) == 1:
+                p = gate.pos[0]
+                gateQlist[p].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
-
             elif (
                 isinstance(gate, Barrier)
                 or isinstance(gate, MultiQubitGate)
@@ -202,7 +198,7 @@ class QuantumCircuit:
                 for j in range(pos1 + 1, pos2 + 1):
                     gateQlist[j].append(None)
 
-                if isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
+                if isinstance(gate, (MultiQubitGate, XYResonance)):
                     for pos in gate.pos:
                         if pos not in used_qubits:
                             used_qubits.append(pos)
