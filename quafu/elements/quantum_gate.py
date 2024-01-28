@@ -369,8 +369,8 @@ class ControlledGate(MultiQubitGate):
     def __init__(
             self,
             targ_name: str,
-            ctrls: PosType,
-            targs: PosType,
+            ctrls: Union[PosType, List[PosType]],
+            targs: Union[PosType, List[PosType]],
             paras: Optional[Union[ParameterType, List[ParameterType]]] = None,
             tar_matrix: MatrixType = None,
     ):
