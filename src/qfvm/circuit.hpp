@@ -5,10 +5,7 @@
 #include <Eigen/Core>
 #include <algorithm>
 #include <iostream>
-#include <pybind11/eigen.h>
-#include <pybind11/numpy.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -95,7 +92,7 @@ Circuit::Circuit(py::object const& pycircuit, bool get_full_mat, bool reverse) :
   for (auto pyop_h : pyops) {
     py::object pyop = py::reinterpret_borrow<py::object>(pyop_h);
     if (py::hasattr(pyop, "circuit")){ //handle oracle
-        auto wrap_circuit = Circuit(pygate.attr("circuit"), get_full_mat, reverse);
+        auto wrap_circuit = Circuit(pyop.attr("circuit"), get_full_mat, reverse);
         for (auto op : wrap_circuit.instructions()){
            instructions_.push_back(op);
         }
@@ -106,13 +103,13 @@ Circuit::Circuit(py::object const& pycircuit, bool get_full_mat, bool reverse) :
         if (ins->name() == "measure"){
             measured = true;
             // record qbit-cbit measure map
-            for (uint i = 0; i < qbits.size(); i++) {
-                measure_vec_.push_back(std::make_pair(ins->qbits[i], ins->cbits[i]));
+            for (uint i = 0; i < ins->qbits().size(); i++) {
+                measure_vec_.push_back(std::make_pair(ins->qbits()[i], ins->cbits()[i]));
             }
         }
         else{
-            if (ins->targ_num() > max_targ_num_)
-                max_targ_num = ins->targe_num();
+            if (ins->targe_num() > max_targe_num_)
+                max_targe_num_ = ins->targe_num();
             if (measured == true)
                 final_measure_ = false;
         }

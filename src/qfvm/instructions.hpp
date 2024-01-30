@@ -3,32 +3,68 @@
 #include "statevector.hpp"
 #include "qasm.hpp"
 #include <iostream>
+#include <pybind11/eigen.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <Eigen/Core>
+#include "types.hpp"
+#include "util.h"
+
+namespace py = pybind11;
+using namespace pybind11::literals;
+
+class QuantumOperator;
 
 class Instruction {
-    protected:
+protected:
     string name_ = "empty";
     vector<pos_t> positions_;
   
-  public:
-  string name() const { return name_; }
-  vector<pos_t> positions() { return positions_; }
-  explicit operator bool() const {
-        return !(name_ == "empty");
-    }
+public:
+    Instruction(){ };
+    Instruction(string name, vector<pos_t> positions):
+    name_(name),
+    positions_(positions) { }
+    string name() const { return name_; }
+    vector<pos_t> positions() const { return positions_; }
+    explicit operator bool() const {
+            return !(name_ == "empty");
+        }
+    
+    //interface
+    virtual vector<double> paras() const {return {};}
+    virtual bool has_control() const{ return false; }
+    virtual bool is_real() const{ return false; }
+    virtual bool is_diag() const{ return false; }
+    virtual RowMatrixXcd targ_mat() const { return RowMatrixXcd(0,0);}
+    virtual RowMatrixXcd full_mat() const { return RowMatrixXcd(0,0); }
+    virtual uint control_num() const { return 0; } 
+    virtual uint targe_num() const { return 0; }
+ 
+    virtual vector<pos_t> qbits() const { return {}; }
+    virtual vector<pos_t> cbits() const { return {}; }
+ 
+    virtual uint condition() const { return 0; }
+    virtual vector<Instruction> instructions() { return {}; }
+
 };
 
 
 class QuantumOperator :  public Instruction {
-    protected:
-        vector<double> paras_;
-        uint control_num_;
-        uint targe_num_;
-        bool diag_;
-        bool real_;
-        RowMatrixXcd mat_;
+protected:
+    vector<double> paras_;
+    uint control_num_;
+    uint targe_num_;
+    bool diag_;
+    bool real_;
+    RowMatrixXcd targ_mat_;
+    RowMatrixXcd full_mat_;
 
+   
+public:
     //Constructor
-    QuantumOperator();
+    QuantumOperator() { };
     QuantumOperator(string const name, vector<double> paras, vector<pos_t> const &control_qubits, vector<pos_t> const &targe_qubits, RowMatrixXcd const &mat = RowMatrixXcd(0, 0), RowMatrixXcd const &full_mat = RowMatrixXcd(0, 0), bool diag=false, bool real=false);
 
     QuantumOperator(string const name,vector<double> paras, vector<pos_t> const &positions, uint control_num, RowMatrixXcd const &mat=RowMatrixXcd(0, 0), RowMatrixXcd const &full_mat = RowMatrixXcd(0, 0), bool diag=false, bool real=false);
@@ -37,23 +73,20 @@ class QuantumOperator :  public Instruction {
     // virtual ~QuantumOperator();
 
     //data accessor
-    vector<double> paras() const {return paras_;}
-    bool has_control() const{return control_num_ == 0 ? false : true;}
-    bool is_real() const{ return real_; }
-    bool is_diag() const{ return diag_; }
-    RowMatrixXcd targ_mat() const { return targ_mat_;}
-    RowMatrixXcd full_mat() const {return full_mat_;}
-    uint control_num() const { return control_num_; } 
-    uint targe_num() const { return targe_num_; }
-}
-
-QuantumOperator::QuantumOperator() : name_("empty"){ };
+    virtual vector<double> paras() const override {return paras_;}
+    virtual bool has_control() const override {return control_num_ == 0 ? false : true;}
+    virtual bool is_real() const override { return real_; }
+    virtual bool is_diag() const override { return diag_; }
+    virtual RowMatrixXcd targ_mat() const override { return targ_mat_;}
+    virtual RowMatrixXcd full_mat() const override {return full_mat_;}
+    virtual uint control_num() const override { return control_num_; } 
+    virtual uint targe_num() const override { return targe_num_; }
+};
 
 QuantumOperator::QuantumOperator(string const name, vector<pos_t> const &positions, RowMatrixXcd const &mat, RowMatrixXcd const &full_mat)
 :
-name_(name),
+Instruction(name, positions),
 paras_(vector<double>(0)),
-positions_(positions),
 control_num_(-1),
 targe_num_(0),
 diag_(false),
@@ -63,9 +96,8 @@ full_mat_(full_mat){ }
 
 QuantumOperator::QuantumOperator(string const name, vector<double> paras, vector<pos_t> const &positions, uint control_num, RowMatrixXcd const &mat, RowMatrixXcd const &full_mat, bool diag, bool real)
 :
-name_(name),
+Instruction(name, positions),
 paras_(paras),
-positions_(positions),
 control_num_(control_num),
 targe_num_(positions.size()-control_num),
 diag_(diag),
@@ -75,49 +107,61 @@ full_mat_(full_mat){ }
 
 QuantumOperator::QuantumOperator(string const name, vector<double> paras, vector<pos_t> const &control_qubits, vector<pos_t> const &targe_qubits, RowMatrixXcd const &mat, RowMatrixXcd const &full_mat, bool diag, bool real)
 :
-name_(name),
 paras_(paras),
 diag_(diag),
 real_(real),
 targ_mat_(mat),
 full_mat_(full_mat){
-    positions_ = control_qubits;
-    positions_.insert(positions_.end(), targe_qubits.begin(), targe_qubits.end());
+    Instruction::name_ = name;
+    Instruction::positions_ = control_qubits;
+    Instruction::positions_.insert(Instruction::positions_.end(), targe_qubits.begin(), targe_qubits.end());
     control_num_ = control_qubits.size();
     targe_num_ = targe_qubits.size();
 }
 
 class Measures : public Instruction {
-    private:
-      static const string name_ = "measure";
-    protected:
+protected:
       vector<pos_t> qbits_;
       vector<pos_t> cbits_;
       
-    pubic:
-      MeasuresOp(){ };
-      vector<pos_t> qbits() { return qbits_; }
-      vector<pos_t> cbits() { return cbits_; }
+public:
+      Measures(vector<pos_t> &qbits, vector<pos_t> &cbits) :
+      qbits_(qbits),
+      cbits_(cbits)
+      { 
+        Instruction:name_ = "measure";
+      }
+      virtual vector<pos_t> qbits() const override { return qbits_; }
+      virtual vector<pos_t> cbits() const override { return cbits_; }
 };
 
 
 class Reset : public Instruction{
-  private:
-      static const string name_ = "reset";
-}
+public:
+    Reset(vector<pos_t> const& positions) { 
+        Instruction::name_ = "Reset";
+        Instruction:: positions_ = positions; 
+    }
+};
 
 class Cif : public Instruction{
-  private:
-      static const string name_ = "cif";
-  protected:
+protected:
     vector<pos_t> cbits_;
     uint condition_;
-    vector<QuantumOperator> instructions;
-
-    uint condition() const { return condition_; }
-    vector<QuantumOperator> instructions() { return instructions_; }
-    vector<pos_t> cbits() { return cbits_; }
-}
+    vector<Instruction> instructions_;
+public:
+    Cif(vector<pos_t> &cbits, uint condition, vector<Instruction> &instructions)
+    :
+    cbits_(cbits), 
+    condition_(condition), 
+    instructions_(instructions)
+    {  
+        Instruction:name_ = "cif";
+    }
+    virtual uint condition() const override{ return condition_; }
+    virtual vector<Instruction> instructions() override { return instructions_; }
+    virtual vector<pos_t> cbits() const override { return cbits_; }
+};
 
 // class QuantumOperator {
 // protected:
@@ -206,7 +250,7 @@ class Cif : public Instruction{
 
 
 // Construct C++ operators from pygates
-std::unique_ptr<Instruction> from_pyops(py::object const& obj) {
+std::unique_ptr<Instruction> from_pyops(py::object const& obj, bool get_full_mat=false, bool reverse=true) {
     string name;
     vector<pos_t> positions;
     vector<pos_t> qbits;
@@ -271,37 +315,39 @@ std::unique_ptr<Instruction> from_pyops(py::object const& obj) {
                     instructions.push_back(std::move(*ins));
                 }
         }
-        return  std::make_unique<Cif>(name, cbits, condition, instructions);
+        return  std::make_unique<Cif>(cbits, condition, instructions);
 
     } else {
         return  std::make_unique<QuantumOperator>();
     }
 }
 
-void check_operator(QuantumOperator& op) {
-  std::cout << "-------------" << std::endl;
+void check_operator(QuantumOperator &op){
+    std::cout << "-------------" << std::endl;
 
-  std::cout << "name: " << op.name() << std::endl;
-  std::cout << "pos: ";
-  Qfutil::printVector(op.positions());
+    std::cout << "name: " << op.name() << std::endl;
+    std::cout << "pos: ";
+    Qfutil::printVector(op.positions());
 
-  std::cout << "paras: ";
-  Qfutil::printVector(op.paras());
+    std::cout << "paras: ";
+    Qfutil::printVector(op.paras());
 
-  std::cout << "control number: ";
-  std::cout << op.control_num() << std::endl;
+    std::cout << "control number: ";
+    std::cout << op.control_num() << std::endl;
 
-  std::cout << "matrix: " << std::endl;
-  std::cout << op.mat() << std::endl;
+    std::cout << "matrix: " << std::endl;
+    std::cout << op.targ_mat() << std::endl;
+    std::cout << "flatten matrix: " << std::endl;
+    auto mat = op.targ_mat();
+    // Eigen::Map<Eigen::RowVectorXcd> v1(mat.data(), mat.size());
+    // std::cout << "v1: " << v1 << std::endl;
+    auto matv = mat.data();
+    for (auto i = 0;i < mat.size();i++){
+        std::cout << matv[i] << " ";
+    }
+    std::cout << std::endl;
 
-  std::cout << "flatten matrix: " << std::endl;
-  auto mat = op.mat();
-  // Eigen::Map<Eigen::RowVectorXcd> v1(mat.data(), mat.size());
-  // std::cout << "v1: " << v1 << std::endl;
-  auto matv = mat.data();
-  for (auto i = 0; i < mat.size(); i++) {
-    std::cout << matv[i] << " ";
-  }
-  std::cout << std::endl;
-  std::cout << "-------------" << std::endl;
+    std::cout << "full matrix: " << std::endl;
+    std::cout << op.full_mat() << std::endl;
+    std::cout << "-------------" << std::endl;
 }

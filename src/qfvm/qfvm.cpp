@@ -1,4 +1,5 @@
 #include "simulator.hpp"
+#include "instructions.hpp"
 #include <iostream>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -31,96 +32,179 @@ py::array_t<T> to_numpy(const std::tuple<T*, size_t>& src) {
   return py::array_t<T>(src_size, src_ptr, capsule);
 }
 
+py::object applyop_statevec(py::object const& pyop, py::array_t<complex<double>> &np_inputstate){
+    py::buffer_info buf = np_inputstate.request();
+    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+    size_t data_size = buf.size;
+
+    auto op =  from_pyops(pyop);
+    if (data_size == 0){
+        return np_inputstate;
+    }
+    else{
+        StateVector<double> state(data_ptr, buf.size);
+        apply_op(*op, state);
+        state.move_data_to_python();
+        return np_inputstate;
+    }
+}
+
+py::dict sampling_statevec(py::dict const& pymeas, py::array_t<complex<double>> &np_inputstate, int shots){
+    std::vector<std::pair<uint, uint> > measures;
+    int ind = 0;
+    for (auto item : pymeas){
+        int qbit = item.first.cast<uint>();
+        int cbit = item.second.cast<uint>();
+        measures[ind] = std::pair<uint, uint>(qbit, cbit);
+        ind++;
+    }
+    py::buffer_info buf = np_inputstate.request();
+    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+    size_t data_size = buf.size;
+    StateVector<double> state(data_ptr, buf.size);
+    auto counts = state.measure_samples(measures, shots);
+    state.move_data_to_python();
+    return py::cast(counts);
+}
+
 std::pair<std::map<uint, uint>, py::array_t<complex<double>>>
 simulate_circuit(py::object const& pycircuit,
                  py::array_t<complex<double>>& np_inputstate,
                  const int& shots) {
-  auto circuit = Circuit(pycircuit);
-  py::buffer_info buf = np_inputstate.request();
-  auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
-  size_t data_size = buf.size;
-  // If measure all at the end, simulate once
-  uint actual_shots = shots;
-  if (circuit.final_measure())
-    actual_shots = 1;
-  StateVector<double> global_state;
-  vector<std::pair<uint, uint>> measures = circuit.measure_vec();
-  std::map<uint, bool> cbit_measured;
-  for (auto& pair : measures) {
-    cbit_measured[pair.second] = true;
-  }
-  // Store outcome's count
-  std::map<uint, uint> outcount;
-  for (uint i = 0; i < actual_shots; i++) {
+    auto circuit = Circuit(pycircuit);
+    py::buffer_info buf = np_inputstate.request();
+    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+    size_t data_size = buf.size;
+    // If measure all at the end, simulate once
+    uint actual_shots = shots;
+    if (circuit.final_measure())
+        actual_shots = 1;
+    StateVector<double> global_state;
+    vector<std::pair<uint, uint>> measures = circuit.measure_vec();
+    std::map<uint, bool> cbit_measured;
+    for (auto& pair : measures) {
+        cbit_measured[pair.second] = true;
+    }
+
+    // Store outcome's count
+    std::map<uint, uint> outcount;
     StateVector<double> state;
-    if (data_size == 0) {
-      simulate(circuit, state);
-    } else {
-      // deepcopy state
-      vector<std::complex<double>> data_copy(data_ptr, data_ptr + data_size);
-      state =
-          std::move(StateVector<double>(data_copy.data(), data_copy.size()));
-      simulate(circuit, state);
+    if (data_size != 0){
+        state.load_data(data_ptr, data_size);
     }
-    if (!circuit.final_measure()) {
-      // store reg
-      vector<uint> tmpcreg = state.creg();
-      uint outcome = 0;
-      for (uint j = 0; j < tmpcreg.size(); j++) {
-        if (cbit_measured.find(j) == cbit_measured.end())
-          continue;
-        outcome *= 2;
-        outcome += tmpcreg[j];
-      }
-      if (outcount.find(outcome) != outcount.end())
-        outcount[outcome]++;
-      else
-        outcount[outcome] = 1;
+    if (circuit.final_measure()){
+        simulate(circuit, state);
+        if (!measures.empty()){
+            auto countstr = state.measure_samples(circuit.measure_vec(), shots);
+            for (auto it : countstr){
+                uint si = std::stoi(it.first);
+                outcount[si] = it.second;
+            }
+        }
+        if (data_size == 0)
+            return std::make_pair(outcount,
+                            to_numpy(state.move_data_to_python()));
+        else
+            return std::make_pair(outcount, np_inputstate);
     }
-    if (circuit.final_measure() || i == actual_shots - 1)
-      global_state = std::move(state);
+    else{
+        for (uint i = 0; i < shots; i++) { 
+            vector<std::complex<double>> data_copy(data_ptr, data_ptr + data_size);
+            state = 
+                std::move(StateVector<double>(data_copy.data(), data_copy.size()));
+            simulate(circuit, state);
+            // store reg
+            vector<uint> tmpcreg = state.creg();
+            uint outcome = 0;
+            for (uint j = 0; j < tmpcreg.size(); j++) {
+                if (cbit_measured.find(j) == cbit_measured.end())
+                continue;
+                outcome *= 2;
+                outcome += tmpcreg[j];
+            }
+            if (outcount.find(outcome) != outcount.end())
+                outcount[outcome]++;
+            else
+                outcount[outcome] = 1;
+        }
+        return std::make_pair(outcount,
+                            to_numpy(state.move_data_to_python()));
   }
-  // sample outcome if final_measure is true
-  if (circuit.final_measure() && !measures.empty()) {
-    vector<uint> tmpcount(global_state.size(), 0);
-    vector<double> probs = global_state.probabilities();
-    std::random_device rd;
-    std::mt19937 global_rng(rd());
-    for (uint i = 0; i < shots; i++) {
-      uint outcome = std::discrete_distribution<uint>(probs.begin(),
-                                                      probs.end())(global_rng);
-      tmpcount[outcome]++;
-    }
-    // map to reg
-    for (uint i = 0; i < global_state.size(); i++) {
-      if (tmpcount[i] == 0)
-        continue;
-      vector<uint> tmpcreg(global_state.cbit_num(), 0);
-      vector<uint> tmpout = int2vec(i, 2);
-      if (tmpout.size() < global_state.num())
-        tmpout.resize(global_state.num());
-      for (auto& pair : measures) {
-        tmpcreg[pair.second] = tmpout[pair.first];
-      }
-      uint outcome = 0;
-      for (uint j = 0; j < tmpcreg.size(); j++) {
-        if (cbit_measured.find(j) == cbit_measured.end())
-          continue;
-        outcome *= 2;
-        outcome += tmpcreg[j];
-      }
-      if (outcount.find(outcome) != outcount.end())
-        outcount[outcome] += tmpcount[i];
-      else
-        outcount[outcome] = tmpcount[i];
-    }
-  }
-  // return
-  if (data_size == 0)
-    return std::make_pair(outcount,
-                          to_numpy(global_state.move_data_to_python()));
-  else
-    return std::make_pair(outcount, np_inputstate);
+
+
+
+//   //original version
+//   for (uint i = 0; i < actual_shots; i++) {
+//     StateVector<double> state;
+//     if (data_size == 0) {
+//       simulate(circuit, state);
+//     } else {
+//       // deepcopy state
+//       vector<std::complex<double>> data_copy(data_ptr, data_ptr + data_size);
+//       state =
+//           std::move(StateVector<double>(data_copy.data(), data_copy.size()));
+//       simulate(circuit, state);
+//     }
+//     if (!circuit.final_measure()) {
+//       // store reg
+//       vector<uint> tmpcreg = state.creg();
+//       uint outcome = 0;
+//       for (uint j = 0; j < tmpcreg.size(); j++) {
+//         if (cbit_measured.find(j) == cbit_measured.end())
+//           continue;
+//         outcome *= 2;
+//         outcome += tmpcreg[j];
+//       }
+//       if (outcount.find(outcome) != outcount.end())
+//         outcount[outcome]++;
+//       else
+//         outcount[outcome] = 1;
+//     }
+//     if (circuit.final_measure() || i == actual_shots - 1)
+//       global_state = std::move(state);
+//   }
+//   // sample outcome if final_measure is true
+//   if (circuit.final_measure() && !measures.empty()) {
+//     vector<uint> tmpcount(global_state.size(), 0);
+//     vector<double> probs = global_state.probabilities(); 
+//     std::random_device rd;
+//     std::mt19937 global_rng(rd());
+//     for (uint i = 0; i < shots; i++) {
+//       uint outcome = std::discrete_distribution<uint>(probs.begin(),
+//                                                       probs.end())(global_rng);
+//       tmpcount[outcome]++;
+//     }
+//     // map to reg
+//     for (uint i = 0; i < global_state.size(); i++) {
+//       if (tmpcount[i] == 0)
+//         continue;
+//       vector<uint> tmpcreg(global_state.cbit_num(), 0);
+//       vector<uint> tmpout = int2vec(i, 2);
+//       if (tmpout.size() < global_state.num())
+//         tmpout.resize(global_state.num());
+//       for (auto& pair : measures) {
+//         tmpcreg[pair.second] = tmpout[pair.first];
+//       }
+//       uint outcome = 0;
+//       for (uint j = 0; j < tmpcreg.size(); j++) {
+//         if (cbit_measured.find(j) == cbit_measured.end())
+//           continue;
+//         outcome *= 2;
+//         outcome += tmpcreg[j];
+//       }
+//       if (outcount.find(outcome) != outcount.end())
+//         outcount[outcome] += tmpcount[i];
+//       else
+//         outcount[outcome] = tmpcount[i];
+//     }
+//   }
+//   // return
+//   if (data_size == 0)
+//     return std::make_pair(outcount,
+//                           to_numpy(global_state.move_data_to_python()));
+//   else
+//     return std::make_pair(outcount, np_inputstate);
+
 }
 
 std::map<uint, uint> simulate_circuit_clifford(py::object const& pycircuit,
@@ -271,6 +355,11 @@ PYBIND11_MODULE(qfvm, m) {
         py::arg("shots"));
 
   m.def("expect_statevec", &expect_statevec, "Calculate paulis expectation", py::arg("inputstate"), py::arg("paulis"));
+
+  m.def("applyop_statevec", &applyop_statevec, "Apply single operator to state", py::arg("operation"), py::arg("inputstate"));
+
+  m.def("sampling_statevec", &sampling_statevec, "sampling state", py::arg("measures"), py::arg("inputstate"), py::arg("shots"));
+
 
 #ifdef _USE_GPU
   m.def("simulate_circuit_gpu", &simulate_circuit_gpu, "Simulate with circuit",

@@ -183,29 +183,23 @@ class QuantumCircuit:
         used_qubits = []
         for gate in gatelist:
             if (
-                isinstance(gate, SingleQubitGate)
-                or isinstance(gate, Delay)
+                isinstance(gate, Delay)
                 or isinstance(gate, QuantumPulse)
             ):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
 
-            elif (
-                isinstance(gate, Barrier)
-                or isinstance(gate, MultiQubitGate)
-                or isinstance(gate, XYResonance)
-            ):
+            else:
                 pos1 = min(gate.pos)
                 pos2 = max(gate.pos)
                 gateQlist[pos1].append(gate)
                 for j in range(pos1 + 1, pos2 + 1):
                     gateQlist[j].append(None)
-
-                if isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
-                    for pos in gate.pos:
-                        if pos not in used_qubits:
-                            used_qubits.append(pos)
+                
+                for pos in gate.pos:
+                    if pos not in used_qubits:
+                        used_qubits.append(pos)
 
                 maxlayer = max([len(gateQlist[j]) for j in range(pos1, pos2 + 1)])
                 for j in range(pos1, pos2 + 1):
@@ -416,15 +410,15 @@ class QuantumCircuit:
         return customized
 
     def _reallocate(self, num, qbits: List[int]):
-        """Remap the qubits and operations to new positions. """
+        """Remap the qubits and gates to new positions. """
         assert self.num == len(qbits)
         if max(qbits) > num:
             raise CircuitError("Bad allocation")
 
         self.num = num
         qbits_map = dict(zip(range(len(qbits)), qbits))
-        operations = self.instructions
-        for op in operations:
+        gates = self.instructions
+        for op in gates:
             for i in range(len(op.pos)):
                 op.pos[i] = qbits_map[op.pos[i]]
 
@@ -435,32 +429,105 @@ class QuantumCircuit:
                 for i in range(len(op.targs)):
                     op.targs[i] = qbits_map[op.targs[i]]
 
-    def add_controls(self, ctrlnum, ctrls: List[int] = None, targs: List[int] = None) -> "QuantumCircuit":
-        """Append control- qubits to the circuit.
-
-        Several last qubits appended as ctrl-qubits by default. If ctrls and targs are provided,
-        reallocated in order of ctrls + targs.
-        """
-        num = self.num + ctrlnum
-        qc = QuantumCircuit(num)
-        if ctrls is None and targs is None:
-            ctrls = list(range(self.num, self.num + ctrlnum))
-            targs = list(range(self.num))
-            do_reallocate = False
+    def add_controls(self, ctrlnum, ctrls:List[int]=[], targs:List[int]=[], inplace=False)->"QuantumCircuit":
+        num = 0
+        gates = []
+        if len(ctrls+targs) == 0:
+            ctrls = list(np.arange(ctrlnum) + self.num)
+            num = self.num + ctrlnum
+            gates = self.gates
         else:
-            if not (ctrls is not None and targs is not None):
-                raise ValueError("Args ctrls and targs must provide simultaneously.")
-            assert len(targs) == self.num
-            assert len(ctrls) == ctrlnum
-            do_reallocate = True
-
-        for op in self.gates:
-            qc << op.ctrl_by(ctrls)
-
-        if do_reallocate:
-            qc._reallocate(num, ctrls + targs)
+            if len(ctrls) == 0 or len(targs) == 0:
+                raise ValueError("Must provide both ctrls and targs")
+            else:
+                assert len(targs) == self.num
+                assert len(ctrls) == ctrlnum  
+                num = max(ctrls+targs)+1 
+                if inplace:       
+                    self._reallocate(num, targs)
+                else:
+                    temp = copy.deepcopy(self)
+                    temp._reallocate(num, targs)
+                    gates = temp.gates
+        
+        if inplace:
+            for op in self.gates:
+               op = op.ctrl_by(ctrls)
+            return self
+        else:
+            qc = QuantumCircuit(num)
+            for op in gates:
+                qc << op.ctrl_by(ctrls)
         return qc
 
+    def join(self, 
+             qc : ["QuantumCircuit"], 
+             qbits:List[int]=[], 
+             inplace=True)->"QuantumCircuit":
+        
+        num = self.num
+        rnum = 0
+        if isinstance(qc, QuantumCircuit):
+            rnum = qc.num
+        else:
+            rnum = qc.circuit.num
+
+        if len(qbits) == 0:
+            num = max(self.num, rnum)
+        else:
+            num = max(self.num-1, max(qbits))+1
+
+        nqc = QuantumCircuit(num)
+        if inplace:
+            self.num = num
+            nqc = self
+        else:
+            for op in self.gates:
+                nqc << op
+        
+        if isinstance(qc, QuantumCircuit):
+            if qbits:
+                newqc = copy.deepcopy(qc)
+                newqc._reallocate(num, qbits)
+                for op in newqc.gates:
+                    nqc << op
+            else:
+                for op in qc.gates:
+                    nqc << op
+        else:
+            if qbits:
+                qc._reallocate(qbits)
+            nqc << qc
+   
+        return nqc
+    
+    def power(self, n, inplace=False):
+        if inplace:
+            for _ in range(n-1):
+                self.gates += self.operation
+            return self
+        else:
+            nq = QuantumCircuit(self.num)
+            for _ in range(n):
+                for op in self.gates:
+                    nq << op
+            nq.measures = self.measures
+            return nq
+        
+    def dagger(self, inplace=False):
+        if inplace:
+            self.gates = self.gates[::-1]
+            for op in self.gates:
+                op = op.dagger()
+            return self
+        else:
+            nq = QuantumCircuit(self.num)
+            for op in self.gates[::-1]:
+                nq << op.dagger()
+            nq.measures = self.measures
+            return nq
+    
+    
     # # # # # # # # # # # # # # helper functions # # # # # # # # # # # # # #
     def id(self, pos: int) -> "QuantumCircuit":
         """
