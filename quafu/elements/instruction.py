@@ -13,11 +13,11 @@
 #  limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union 
 
 from .parameters import ParameterType
 
-__all__ = ["Instruction", "Barrier", "Measure", "PosType", "Reset"]
+__all__ = ["Instruction", "Barrier", "Measure", "Reset"]
 
 
 

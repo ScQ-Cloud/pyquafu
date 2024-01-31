@@ -19,349 +19,302 @@ The ideal about structuring is roughly "Gate + Ctrl-Gate".
 
 """
 
-from typing import Dict
+from typing import Dict, List
 from abc import ABC
 
 import quafu.elements.matrices as mat
 from quafu.elements.quantum_gate import QuantumGate, ControlledGate
-from quafu.elements.quantum_gate import MultiQubitGate, FixedGate, SingleQubitGate, ParametricGate
-
+from ..parameters import ParameterType
 
 # # # # # # # # # # # # # # # Internal helper classes # # # # # # # # # # # # # # #
 
 class _C11Gate(ControlledGate, ABC):
     ct_dims = (1, 1, 2)
 
+def wrap_para(matfunc):
+    def wrap_func(paras:List[ParameterType]):
+        return matfunc(*paras) 
+    return wrap_func
 
 # # # # # # # # # # # # # # # Paulis # # # # # # # # # # # # # # #
-@QuantumGate.register('id')
-class IdGate(FixedGate, SingleQubitGate):
-    name = "Id"
-    matrix = mat.XMatrix
-
+@QuantumGate.register
+class IdGate(QuantumGate):
+    name = "ID"
+    _raw_matrix = mat.IdMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
 
-@QuantumGate.register('x')
-class XGate(FixedGate, SingleQubitGate):
+@QuantumGate.register
+class XGate(QuantumGate):
     name = "X"
-    matrix = mat.XMatrix
-
+    _raw_matrix = mat.XMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
-
-@QuantumGate.register('y')
-class YGate(FixedGate, SingleQubitGate):
+@QuantumGate.register
+class YGate(QuantumGate):
     name = "Y"
-    matrix = mat.YMatrix
-
+    _raw_matrix = mat.YMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
-
-@QuantumGate.register('z')
-class ZGate(FixedGate, SingleQubitGate):
+@QuantumGate.register
+class ZGate(QuantumGate):
     name = "Z"
-    matrix = mat.ZMatrix
-
+    _raw_matrix = mat.ZMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
 
 # # # # # # # # # # # # # # # Sqrt Paulis # # # # # # # # # # # # # # #
-@QuantumGate.register('sx')
-class SXGate(FixedGate, SingleQubitGate):
-    name = "SX"
-    matrix = mat.SXMatrix
-
-    def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
-
-
-@QuantumGate.register('sxdg')
-class SXdgGate(FixedGate, SingleQubitGate):
-    name = "SXdg"
-    matrix = mat.SXMatrix.conj().T
-
-    def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
-        self.symbol = "√X†"
-
-
-@QuantumGate.register('sy')
-class SYGate(FixedGate, SingleQubitGate):
-    name = "SY"
-    matrix = mat.SYMatrix
-
-    def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
-        self.symbol = "√Y"
-
-    def to_qasm(self):
-        return "ry(pi/2) q[%d];" % self.pos
-
-
-@QuantumGate.register('sydg')
-class SYdgGate(FixedGate, SingleQubitGate):
-    name = "SYdg"
-    matrix = mat.SYMatrix.conj().T
-
-    def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
-        self.symbol = "√Y†"
-
-    def to_qasm(self):
-        return "ry(-pi/2) q[%d]" % self.pos
-
-
-@QuantumGate.register('s')
-class SGate(SingleQubitGate, FixedGate):
-    """SZ"""
+@QuantumGate.register
+class SGate(QuantumGate):
     name = "S"
-    matrix = mat.SMatrix
-
+    _raw_matrix = mat.SMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
-
-@QuantumGate.register('sdg')
-class SdgGate(SingleQubitGate, FixedGate):
+@QuantumGate.register
+class SdgGate(QuantumGate):
     name = "Sdg"
-    matrix = mat.SMatrix.conj().T
-
+    _raw_matrix = mat.SMatrix.conj().T
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
-
-@QuantumGate.register('t')
-class TGate(SingleQubitGate, FixedGate):
+@QuantumGate.register
+class TGate(QuantumGate):
     name = "T"
-    matrix = mat.TMatrix
-
+    _raw_matrix = mat.TMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
-
-@QuantumGate.register('tdg')
-class TdgGate(SingleQubitGate, FixedGate):
+@QuantumGate.register
+class TdgGate(QuantumGate):
     name = "Tdg"
-    matrix = mat.TMatrix.conj().T
-
+    _raw_matrix = mat.TMatrix.conj().T
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
+@QuantumGate.register
+class SXGate(QuantumGate):
+    name = "SX"
+    _raw_matrix = mat.SXMatrix
+    paras = [] 
+    def __init__(self, pos: int):
+       self.pos =  [pos]
+
+@QuantumGate.register
+class SXdgGate(QuantumGate):
+    name = "SXdg"
+    _raw_matrix = mat.SXMatrix.conj().T
+
+    paras = [] 
+    def __init__(self, pos: int):
+       self.pos =  [pos]
+
+@QuantumGate.register
+class SYGate(QuantumGate):
+    name = "SY"
+    _raw_matrix = mat.SYMatrix
+    paras = [] 
+    def __init__(self, pos: int):
+       self.pos =  [pos]
+
+    def to_qasm(self):
+        return "ry(pi/2) q[%d]" %(self.pos[0])
+
+@QuantumGate.register
+class SYdgGate(QuantumGate):
+    name = "SYdg"
+    _raw_matrix = mat.SYMatrix.conj().T
+
+    paras = [] 
+    def __init__(self, pos: int):
+       self.pos =  [pos]
+
+
+    
 
 # # # # # # # # # # # # # Pauli Linear Combinations # # # # # # # # # # # # #
-@QuantumGate.register('h')
-class HGate(SingleQubitGate, FixedGate):
-    """ (X+Z)/sqrt(2) """
+@QuantumGate.register
+class HGate(QuantumGate):
     name = "H"
-    matrix = mat.HMatrix
-
+    _raw_matrix = mat.HMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
+       self.pos =  [pos]
 
-
-@QuantumGate.register('w')
-class WGate(FixedGate, SingleQubitGate):
-    """ (X+Y)/sqrt(2) """
+@QuantumGate.register
+class WGate(QuantumGate):
     name = "W"
-    matrix = mat.WMatrix
-
+    _raw_matrix = mat.WMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
-        self.symbol = "W"
-
+       self.pos =  [pos]
+    
     def to_qasm(self):
-        return "rz(-pi/4) q[%d];\nrx(pi) q[%d];\nrz(pi/4) q[%d]" % (
-            self.pos,
-            self.pos,
-            self.pos,
-        )
+        q = self.pos[0]
+        return "rz(-pi/4) q[%d];\nrx(pi) q[%d];\nrz(pi/4) q[%d]"  %(q, q, q)
 
-
-@QuantumGate.register('sw')
-class SWGate(FixedGate, SingleQubitGate):
+@QuantumGate.register
+class SWGate(QuantumGate):
     name = "SW"
-    matrix = mat.SWMatrix
-
+    _raw_matrix = mat.SWMatrix
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
-        self.symbol = "√W"
+       self.pos =  [pos]
 
     def to_qasm(self):
-        return "rz(-pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(pi/4) q[%d]" % (
-            self.pos,
-            self.pos,
-            self.pos,
-        )
+        q = self.pos[0]
+        return "rz(-pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(pi/4) q[%d]"  %(q, q, q)
 
-
-@QuantumGate.register('swdg')
-class SWdgGate(FixedGate, SingleQubitGate):
+@QuantumGate.register
+class SWdgGate(QuantumGate):
     name = "SWdg"
-    matrix = mat.SWMatrix
-
+    _raw_matrix = mat.SWMatrix.conj().T
+    paras = [] 
     def __init__(self, pos: int):
-        FixedGate.__init__(self, pos)
-        self.symbol = "√W†"
+       self.pos =  [pos]
 
     def to_qasm(self):
-        return "rz(-pi/4) q[%d];\nrx(-pi/2) q[%d];\nrz(pi/4) q[%d]" % (
-            self.pos,
-            self.pos,
-            self.pos,
-        )
+        q = self.pos[0]
+        return "rz(-pi/4) q[%d];\nrx(-pi/2) q[%d];\nrz(pi/4) q[%d]"  %(q, q, q)
+
 
 
 # # # # # # # # # # # # # Rotations # # # # # # # # # # # # #
-@QuantumGate.register('rx')
-class RXGate(ParametricGate, SingleQubitGate):
-    name = "RX"
+@QuantumGate.register
+class RXGate(QuantumGate):
+    def __init__(self, pos: int, theta:ParameterType):
+        super().__init__("RX", [pos], [theta], wrap_para(mat.rx_mat))
 
-    def __init__(self, pos: int, paras: float = 0.):
-        ParametricGate.__init__(self, pos, paras=paras)
+@QuantumGate.register
+class RYGate(QuantumGate):
+    def __init__(self, pos: int, theta:ParameterType):
+        super().__init__("RY", [pos], [theta],  wrap_para(mat.ry_mat))
 
-    @property
-    def matrix(self):
-        return mat.rx_mat(self.paras)
+@QuantumGate.register
+class RZGate(QuantumGate):
+    def __init__(self, pos: int, theta:ParameterType):
+        super().__init__("RZ", [pos], [theta], wrap_para(mat.rz_mat))
 
+# @QuantumGate.register
+# class U2(QuantumGate):
+#     def __init__(self, pos: int, phi: float, _lambda: float):
+#         super().__init__("U2", [pos], [phi, _lambda], u2matrix(phi, _lambda))
 
-@QuantumGate.register('ry')
-class RYGate(ParametricGate, SingleQubitGate):
-    name = "RY"
+@QuantumGate.register
+class U3Gate(QuantumGate):
+    def __init__(self, pos: int, theta : ParameterType, phi: ParameterType, _lambda: ParameterType):
+        super().__init__("U3", [pos], [theta, phi, _lambda], matrix = wrap_para(mat.u3matrix))
 
-    def __init__(self, pos: int, paras: float = 0.):
-        ParametricGate.__init__(self, pos, paras=paras)
+@QuantumGate.register
+class PhaseGate(QuantumGate):
+    def __init__(self, pos: int, _lambda:ParameterType):
+        super().__init__("P", [pos], [_lambda], wrap_para(mat.pmatrix))
 
-    @property
-    def matrix(self):
-        return mat.ry_mat(self.paras)
+@QuantumGate.register
+class RXXGate(QuantumGate):
+    def __init__(self, q1:int, q2:int, theta:ParameterType):
+        super().__init__("RXX", [q1, q2], [theta], wrap_para(mat.rxx_mat))
+    
+    
+@QuantumGate.register
+class RYYGate(QuantumGate):
+    def __init__(self, q1:int, q2:int, theta:ParameterType):
+        super().__init__("RYY", [q1, q2], [theta], wrap_para(mat.ryy_mat))
 
-
-@QuantumGate.register('rz')
-class RZGate(ParametricGate, SingleQubitGate):
-    name = "RZ"
-
-    def __init__(self, pos: int, paras: float = 0.):
-        ParametricGate.__init__(self, pos, paras=paras)
-
-    @property
-    def matrix(self):
-        return mat.rz_mat(self.paras)
-
-
-@SingleQubitGate.register(name='p')
-class PhaseGate(SingleQubitGate):
-    """Ally of rz gate, with a different name and global phase."""
-    name = "P"
-
-    def __init__(self, pos: int, paras: float = 0.0):
-        super().__init__(pos, paras=paras)
-
-    @property
-    def matrix(self):
-        return mat.pmatrix(self.paras)
-
-    @property
-    def named_paras(self) -> Dict:
-        return {'phase': self.paras}
+    
+@QuantumGate.register
+class RZZGate(QuantumGate):
+    def __init__(self, q1:int, q2:int, theta:ParameterType):
+        super().__init__("RZZ", [q1, q2], [theta], wrap_para(mat.rzz_mat))
 
 
-@QuantumGate.register('rxx')
-class RXXGate(ParametricGate):
-    name = "RXX"
 
-    def __init__(self, q1: int, q2: int, paras: float = 0.):
-        ParametricGate.__init__(self, [q1, q2], paras=paras)
-
-    @property
-    def matrix(self):
-        return mat.rxx_mat(self.paras)
-
-    @property
-    def named_pos(self) -> Dict:
-        return {'pos': self.pos}
-
-
-@QuantumGate.register('ryy')
-class RYYGate(ParametricGate):
-    name = "RYY"
-
-    def __init__(self, q1: int, q2: int, paras: float = 0.):
-        ParametricGate.__init__(self, [q1, q2], paras=paras)
-
-    @property
-    def matrix(self):
-        return mat.ryy_mat(self.paras)
-
-    @property
-    def named_pos(self) -> Dict:
-        return {'pos': self.pos}
-
-
-@QuantumGate.register('rzz')
-class RZZGate(ParametricGate):
-    name = "RZZ"
-
-    def __init__(self, q1: int, q2: int, paras: float = 0.):
-        ParametricGate.__init__(self, [q1, q2], paras=paras)
-
-    @property
-    def matrix(self):
-        return mat.rzz_mat(self.paras)
-
-    @property
-    def named_pos(self) -> Dict:
-        return {'pos': self.pos}
-
-
+#--------------------ControalledGate----------
+# TODO: implement using ControllU class
 # # # # # # # # # # # # # Ctrl-Paulis # # # # # # # # # # # # #
-# TODO: implement these by using the META of CtrlGate
-@QuantumGate.register('cx')
-class CXGate(_C11Gate, FixedGate):
-    name = "CX"
+@QuantumGate.register
+class CXGate(ControlledGate):
+    name  = "CX"
+    _targ_name = "X"
+    _targ_matrix = mat.XMatrix
+    _raw_matrix = mat.CXMatrix
+    paras = []
+    def __init__(self, ctrl:int, targ:int):
+        assert ctrl != targ
+        self.ctrls  = [ctrl]
+        self.targs = [targ]
+        self.pos = self.ctrls + self.targs
 
-    def __init__(self, ctrl: int, targ: int):
-        _C11Gate.__init__(self, "X", [ctrl], [targ], None, tar_matrix=mat.XMatrix)
-        self.symbol = "+"
+    @property
+    def symbol(self):
+        return "+"
 
+@QuantumGate.register
+class CYGate(ControlledGate):
+    name  = "CY"
+    _targ_name = "Y"
+    _targ_matrix = mat.YMatrix
+    _raw_matrix = mat.CYMatrix
+    paras = []
+    def __init__(self, ctrl:int, targ:int):
+        assert ctrl != targ
+        self.ctrls  = [ctrl]
+        self.targs = [targ]
+        self.pos = self.ctrls + self.targs
 
-@QuantumGate.register('cy')
-class CYGate(_C11Gate, FixedGate):
-    name = "CY"
+@QuantumGate.register
+class CZGate(ControlledGate):
+    name  = "CZ"
+    _targ_name = "Z"
+    _targ_matrix = mat.ZMatrix
+    _raw_matrix = mat.CZMatrix
+    paras = []
+    def __init__(self, ctrl:int, targ:int):
+        assert ctrl != targ
+        self.ctrls  = [ctrl]
+        self.targs = [targ]
+        self.pos = self.ctrls + self.targs
 
-    def __init__(self, ctrl: int, targ: int):
-        _C11Gate.__init__(self, "Y", [ctrl], [targ], None, tar_matrix=mat.YMatrix)
-
-
-@QuantumGate.register('cz')
-class CZGate(_C11Gate, FixedGate):
-    name = "CZ"
-
-    def __init__(self, ctrl: int, targ: int):
-        _C11Gate.__init__(self, "Z", [ctrl], [targ], None, tar_matrix=mat.ZMatrix)
-
-
-@QuantumGate.register('cs')
-class CSGate(_C11Gate, FixedGate):
-    name = "CS"
-
-    def __init__(self, ctrl: int, targ: int):
-        _C11Gate.__init__(self, "S", [ctrl], [targ], None, tar_matrix=mat.SMatrix)
+@QuantumGate.register
+class CSGate(ControlledGate):
+    name  = "CS"
+    _targ_name = "S"
+    _targ_matrix = mat.XMatrix
+    _raw_matrix = mat.CXMatrix
+    paras = []
+    def __init__(self, ctrl:int, targ:int):
+        assert ctrl != targ
+        self.ctrls  = [ctrl]
+        self.targs = [targ]
+        self.pos = self.ctrls + self.targs
 
     def to_qasm(self):
         return "cp(pi/2) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
-
-
-@QuantumGate.register('ct')
-class CTGate(_C11Gate, FixedGate):
-    name = "CT"
-
-    def __init__(self, ctrl: int, targ: int):
-        _C11Gate.__init__(self, "T", [ctrl], [targ], None, tar_matrix=mat.TMatrix)
+    
+@QuantumGate.register
+class CTGate(ControlledGate):
+    name  = "CT"
+    _targ_name = "T"
+    _targ_matrix = mat.TMatrix
+    _raw_matrix = mat.CTMatrix
+    paras = []
+    def __init__(self, ctrl:int, targ:int):
+        assert ctrl != targ
+        self.ctrls  = [ctrl]
+        self.targs = [targ]
+        self.pos = self.ctrls + self.targs
 
     def to_qasm(self):
         return "cp(pi/4) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
@@ -369,93 +322,102 @@ class CTGate(_C11Gate, FixedGate):
 
 # # # # # # # # # # # # # Ctrl-Rotation # # # # # # # # # # # # #
 # note: this is the only ctrl-gate that is not a FixedGate
-@QuantumGate.register('cp')
-class CPGate(_C11Gate):
-    name = "CP"
+@QuantumGate.register
+class CPGate(ControlledGate):
+    def __init__(self, ctrl:int, targ:int, _lambda:ParameterType):
+        super().__init__("CP", "P", [ctrl], [targ], [_lambda], mat.pmatrix)
 
-    def __init__(self, ctrl: int, targ: int, paras):
-        _C11Gate.__init__(self, "P", [ctrl], [targ], paras, tar_matrix=mat.pmatrix)
 
-    @property
-    def named_paras(self) -> Dict:
-        return {'theta': self.paras}
 
+@QuantumGate.register
+class CRXGate(ControlledGate):
+    def __init__(self, ctrl:int, targ:int, theta:ParameterType):
+        super().__init__("CRX", "RX", [ctrl], [targ], [theta], mat.rx_mat)
+
+@QuantumGate.register
+class CRYGate(ControlledGate):
+    def __init__(self, ctrl:int, targ:int, theta:ParameterType):
+        super().__init__("CRY", "RY", [ctrl], [targ], [theta], mat.ry_mat)
+
+@QuantumGate.register
+class CRZGate(ControlledGate):
+    def __init__(self, ctrl:int, targ:int, theta:ParameterType):
+        super().__init__("CRZ", "RZ", [ctrl], [targ], [theta], mat.rz_mat)
 
 # # # # # # # # # # # # # MultiCtrl-Paulis # # # # # # # # # # # # #
-@QuantumGate.register('mcx')
-class MCXGate(ControlledGate, FixedGate):
-    name = "MCX"
+@QuantumGate.register
+class MCXGate(ControlledGate):
+    def __init__(self, ctrls:List[int], targ:int):
+        super().__init__("MCX", "X", ctrls, [targ], [], mat.XMatrix)
+    
+    @property
+    def symbol(self):
+        return "+"
 
-    def __init__(self, ctrls, targ: int):
-        ControlledGate.__init__(self, "X", ctrls, [targ], None, tar_matrix=mat.XMatrix)
+@QuantumGate.register
+class MCYGate(ControlledGate):
+    def __init__(self, ctrls:List[int], targ:int):
+        super().__init__("MCY", "Y", ctrls, [targ], [], mat.YMatrix)
+
+@QuantumGate.register
+class MCZGate(ControlledGate):
+    def __init__(self, ctrls:List[int], targ:int):
+        super().__init__("MCZ", "Z", ctrls, [targ], [], mat.ZMatrix)
+
+@QuantumGate.register
+class MCRXGate(ControlledGate):
+    def __init__(self, ctrls:List[int], targ:int, theta:ParameterType):
+        super().__init__("MCRX", "RX", ctrls, [targ], [theta], mat.rx_mat)
+
+@QuantumGate.register
+class MCRYGate(ControlledGate):
+    def __init__(self, ctrls:List[int], targ:int, theta:ParameterType):
+        super().__init__("MCRY", "RY", ctrls, [targ], [theta], mat.ry_mat)
+
+@QuantumGate.register
+class MCRZGate(ControlledGate):
+    def __init__(self, ctrls:List[int], targ:int, theta:ParameterType):
+        super().__init__("MCRZ", "RZ", ctrls, [targ], [theta], mat.rz_mat)
 
 
-@QuantumGate.register('mcy')
-class MCYGate(ControlledGate, FixedGate):
-    name = "MCY"
 
-    def __init__(self, ctrls, targ: int):
-        ControlledGate.__init__(self, "Y", ctrls, [targ], None, tar_matrix=mat.YMatrix)
+@QuantumGate.register
+class CCXGate(ControlledGate):
+    def __init__(self, ctrl1:int, ctrl2:int, targ:int):
+        super().__init__("CCX", "X", [ctrl1, ctrl2], [targ], [], mat.XMatrix)
 
-
-@QuantumGate.register('mcz')
-class MCZGate(ControlledGate, FixedGate):
-    name = "MCZ"
-
-    def __init__(self, ctrls, targ: int):
-        ControlledGate.__init__(self, "Z", ctrls, [targ], None, tar_matrix=mat.ZMatrix)
-
-
-@QuantumGate.register('ccx')
-class ToffoliGate(ControlledGate, FixedGate):
-    name = "CCX"
-
-    def __init__(self, ctrl1: int, ctrl2: int, targ: int):
-        ControlledGate.__init__(self, "X", [ctrl1, ctrl2], [targ], None, tar_matrix=mat.XMatrix)
-
+@QuantumGate.register
+class CSwapGate(ControlledGate):
+    def __init__(self, ctrl:int, targ1:int, targ2:int):
+        super().__init__("CSWAP", "SWAP", [ctrl], [targ1, targ2], [], mat.SwapMatrix)
 
 # # # # # # # # # # # # # SWAPs # # # # # # # # # # # # #
-@QuantumGate.register('swap')
-class SwapGate(FixedGate, MultiQubitGate):
+@QuantumGate.register
+class SwapGate(QuantumGate):
     name = "SWAP"
     matrix = mat.SwapMatrix
-
-    def __init__(self, q1: int, q2: int):
-        super().__init__([q1, q2])
-        self.symbol = "x"
-
-    def get_targ_matrix(self, reverse_order=False):
-        return self.matrix
-
+    _raw_matrix = mat.SwapMatrix
+    paras = [] 
+    def __init__(self, q1:int, q2:int):
+       self.pos =  [q1,  q2]
+    
     @property
-    def named_pos(self) -> Dict:
-        return {'pos': self.pos}
+    def symbol(self):
+        return "x"
 
 
-@QuantumGate.register('iswap')
-class ISwapGate(FixedGate, MultiQubitGate):
-    name = "iSWAP"
+@QuantumGate.register
+class ISwapGate(QuantumGate):
+    name = "ISWAP"
     matrix = mat.ISwapMatrix
-
-    def __init__(self, q1: int, q2: int):
-        super().__init__([q1, q2])
-        self.symbol = "(x)"
-
-    def get_targ_matrix(self, reverse_order=False):
-        return self.matrix
-
-    @property
-    def named_pos(self) -> Dict:
-        return {'pos': self.pos}
+    _raw_matrix = mat.ISwapMatrix
+    paras = [] 
+    def __init__(self, q1:int, q2:int):
+       self.pos =  [q1,  q2]
 
 
-@QuantumGate.register('cswap')
-class FredkinGate(ControlledGate, FixedGate):
-    name = "CSWAP"
-
-    def __init__(self, ctrl: int, targ1: int, targ2: int):
-        ControlledGate.__init__(self, "SWAP", [ctrl], [targ1, targ2], None, tar_matrix=mat.SwapMatrix)
-
-
-QuantumGate.register_gate(ToffoliGate, 'toffoli')
-QuantumGate.register_gate(FredkinGate, 'fredkin')
+QuantumGate.gate_classes['cnot'] = CXGate
+QuantumGate.gate_classes['toffoli'] = CCXGate
+QuantumGate.gate_classes['fredon'] = CSwapGate
+FredkinGate = CSwapGate
+ToffoliGate = CCXGate

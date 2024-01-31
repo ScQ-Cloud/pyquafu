@@ -28,9 +28,7 @@ from ..elements import (
     Barrier,
     ControlledGate,
     Delay,
-    MultiQubitGate,
     QuantumGate,
-    SingleQubitGate,
     XYResonance,
 )
 from ..exceptions import CircuitError
@@ -262,11 +260,11 @@ class QuantumCircuit:
     def draw_circuit(self, width: int = 4, return_str: bool = False):
         """
         Draw layered circuit using ASCII, print in terminal.
-
         Args:
             width (int): The width of each gate.
             return_str: Whether return the circuit string.
         """
+        #TODO: support draw other instructions
         self.layered_circuit()
         gateQlist = self.circuit
         num = gateQlist.shape[0]
@@ -280,15 +278,17 @@ class QuantumCircuit:
             maxlen = 1 + width
             for i in range(num):
                 gate = layergates[i]
-                if (
-                    isinstance(gate, SingleQubitGate)
-                    or isinstance(gate, Delay)
-                    or (isinstance(gate, QuantumPulse))
-                ):
+                if isinstance(gate, Barrier):
+                    pos = [i for i in gate.pos if i in reduce_map.keys()]
+                    q1 = reduce_map[min(pos)]
+                    q2 = reduce_map[max(pos)]
+                    printlist[2 * q1:2 * q2 + 1, l] = "||"
+                    maxlen = max(maxlen, len("||"))
+                elif len(gate.pos) == 1:
                     printlist[i * 2, l] = gate.symbol
                     maxlen = max(maxlen, len(gate.symbol) + width)
 
-                elif isinstance(gate, MultiQubitGate) or isinstance(gate, XYResonance):
+                elif len(gate.pos) > 1:
                     q1 = reduce_map[min(gate.pos)]
                     q2 = reduce_map[max(gate.pos)]
                     printlist[2 * q1 + 1 : 2 * q2, l] = "|"
@@ -322,13 +322,6 @@ class QuantumCircuit:
                         else:
                             printlist[q1 + q2, l] = gate.symbol
                             maxlen = max(maxlen, len(gate.symbol) + width)
-
-                elif isinstance(gate, Barrier):
-                    pos = [i for i in gate.pos if i in reduce_map.keys()]
-                    q1 = reduce_map[min(pos)]
-                    q2 = reduce_map[max(pos)]
-                    printlist[2 * q1 : 2 * q2 + 1, l] = "||"
-                    maxlen = max(maxlen, len("||"))
 
             printlist[-1, l] = maxlen
 

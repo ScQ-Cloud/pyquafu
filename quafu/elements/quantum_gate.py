@@ -21,7 +21,7 @@ import numpy as np
 from numpy import ndarray
 from quafu.elements.matrices.mat_utils import reorder_matrix
 
-from .instruction import Instruction, PosType
+from .instruction import Instruction
 from .parameters import ParameterType
 from .utils import extract_float
 
@@ -126,6 +126,14 @@ class QuantumGate(Instruction):
     def pos(self, __pos):
         self._pos = copy.deepcopy(__pos)
 
+    @property
+    def named_pos(self) -> Dict:
+        return {"pos": self.pos}
+    
+    @property
+    def named_paras(self) -> Dict:
+        return {"paras": self.paras}
+    
     @classmethod
     def register_gate(cls, subclass, name: str = None):
         """Register a new gate class into gate_classes.
@@ -134,23 +142,24 @@ class QuantumGate(Instruction):
         """
         assert issubclass(subclass, cls)
 
-        name = str(subclass.name).lower() if name is None else name
+        name = str(subclass.__name__).lower() if name is None else name
         assert isinstance(name, str)
-
+        if name.endswith("gate"):
+            name = name[:-4]
         if name in cls.gate_classes:
             raise ValueError(f"Name {name} already exists.")
         cls.gate_classes[name] = subclass
         Instruction.register_ins(subclass, name)
 
     @classmethod
-    def register(cls, name: str = None):
+    def register(cls, subclass, name: str = None):
         """Decorator for register_gate."""
 
         def wrapper(subclass):
             cls.register_gate(subclass, name)
             return subclass
 
-        return wrapper
+        return wrapper(subclass)
 
     @property
     def _paras(self):
@@ -200,7 +209,7 @@ class QuantumGate(Instruction):
     #             "Matrix is not implemented for %s" % self.__class__.__name__
     #             + ", this should never happen."
     #         )
-
+  
     def to_qasm(self) -> str:
         """OPENQASM 2.0"""
         # TODO: support register naming
@@ -316,65 +325,65 @@ class QuantumGate(Instruction):
                 return ControlledU("c"+self.name, ctrls, self)
                         
 
-
+ 
 # Gate types below are statically implemented to support type identification
 # and provide shared attributes. However, single/multi qubit may be
 # inferred from ``pos``, while para/fixed type may be inferred by ``paras``.
 # Therefore, these types may be (partly) deprecated in the future.
 
 
-class SingleQubitGate(QuantumGate, ABC):
-    def __init__(self, pos: int, paras: Optional[ParameterType] = None):
-        QuantumGate.__init__(self, pos=pos, paras=paras)
+# class SingleQubitGate(QuantumGate, ABC):
+#     def __init__(self, pos: int, paras: Optional[ParameterType] = None):
+#         QuantumGate.__init__(self, pos=pos, paras=paras)
 
-    def get_targ_matrix(self):
-        return self.matrix
+#     def get_targ_matrix(self):
+#         return self.matrix
 
-    @property
-    def named_pos(self) -> Dict:
-        return {"pos": self.pos}
-
-
-class MultiQubitGate(QuantumGate, ABC):
-    def __init__(self, pos: List, paras: Optional[ParameterType] = None):
-        QuantumGate.__init__(self, pos, paras)
-
-    def get_targ_matrix(self, reverse_order=False):
-        """ """
-        targ_matrix = self.matrix
-
-        if reverse_order and (len(self.pos) > 1):
-            qnum = len(self.pos)
-            dim = 2 ** qnum
-            order = np.array(range(len(self.pos))[::-1])
-            order = np.concatenate([order, order + qnum])
-            tensorm = targ_matrix.reshape([2] * 2 * qnum)
-            targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
-        return targ_matrix
+#     @property
+#     def named_pos(self) -> Dict:
+#         return {"pos": self.pos}
 
 
-class ParametricGate(QuantumGate, ABC):
-    def __init__(self, pos: PosType, paras: Union[ParameterType, List[ParameterType]]):
-        if paras is None:
-            raise ValueError("`paras` can not be None for ParametricGate")
-        super().__init__(pos, paras)
+# class MultiQubitGate(QuantumGate, ABC):
+#     def __init__(self, pos: List, paras: Optional[ParameterType] = None):
+#         QuantumGate.__init__(self, pos, paras)
 
-    @property
-    def named_paras(self) -> Dict:
-        return {"paras": self.paras}
+#     def get_targ_matrix(self, reverse_order=False):
+#         """ """
+#         targ_matrix = self.matrix
 
-    @property
-    def named_pos(self) -> Dict:
-        return {"pos": self.pos}
+#         if reverse_order and (len(self.pos) > 1):
+#             qnum = len(self.pos)
+#             dim = 2 ** qnum
+#             order = np.array(range(len(self.pos))[::-1])
+#             order = np.concatenate([order, order + qnum])
+#             tensorm = targ_matrix.reshape([2] * 2 * qnum)
+#             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
+#         return targ_matrix
 
 
-class FixedGate(QuantumGate, ABC):
-    def __init__(self, pos):
-        super().__init__(pos=pos, paras=None)
+# class ParametricGate(QuantumGate, ABC):
+#     def __init__(self, pos: List[int], paras: Union[ParameterType, List[ParameterType]]):
+#         if paras is None:
+#             raise ValueError("`paras` can not be None for ParametricGate")
+#         super().__init__(pos, paras)
 
-    @property
-    def named_paras(self) -> Dict:
-        return {}
+#     @property
+#     def named_paras(self) -> Dict:
+#         return {"paras": self.paras}
+
+#     @property
+#     def named_pos(self) -> Dict:
+#         return {"pos": self.pos}
+
+
+# class FixedGate(QuantumGate, ABC):
+#     def __init__(self, pos):
+#         super().__init__(pos=pos, paras=None)
+
+#     @property
+#     def named_paras(self) -> Dict:
+#         return {}
 
 
 class ControlledGate(QuantumGate):
@@ -425,7 +434,7 @@ class ControlledGate(QuantumGate):
         return raw_matrix
     
     def power(self, n) -> "ControlledGate":
-        """TODO:Use implementation in QuantumGate"""
+        """TODO:Use implementation in QuantumGate via ControlledU"""
         name = self.name
         if self._targ_name in ["RX", "RY", "RZ", "P", "RZZ", "RXX", "RYY"]:
             return ControlledGate(name, self._targ_name, self.ctrls, self.targs, [self.paras[0] * n], self._targ_matrix)
@@ -440,7 +449,7 @@ class ControlledGate(QuantumGate):
     
         
     def dagger(self) -> "ControlledGate":
-        """TODO:Use implementation in QuantumGate"""
+        """TODO:Use implementation in QuantumGate via ControlledU"""
         name = self.name
         if self._targ_name in ["RX", "RY", "RZ", "P", "RZZ", "RXX", "RYY"]:
             return ControlledGate(name, self._targ_name, self.ctrls, self.targs, [-self.paras[0]], self._targ_matrix)
@@ -454,16 +463,7 @@ class ControlledGate(QuantumGate):
 
             return ControlledGate(name, self._targ_name+"^†", self.ctrls, self.targs, self.paras, targ_matrix)
     
-    def add_controls(self, ctrls) -> "ControlledGate":
-        if self.name in ["CX", "CY", "CZ", "CRX", "CRY", "CRZ"]:
-            args = self.targs + self.paras
-            cname = "mc" + self._targ_name.lower()
-            cop = QuantumGate.gate_classes[cname](ctrls+self.ctrls, *args)
-            return cop
-        else:
-            cop = ControlledGate("MC"+self._targ_name, self._targ_name, ctrls+self.ctrls, self.targs, self.paras, self._targ_matrix)
-            return cop
-        
+    
     @property
     def name(self) -> str:
         return "c" + self.targ_name
@@ -507,7 +507,7 @@ class ControlledGate(QuantumGate):
         return {"paras": self.paras}
 
     @classmethod
-    def from_target(cls, targ: QuantumGate, ctrls: PosType):
+    def from_target(cls, targ: QuantumGate, ctrls: List[int]):
         """Shoud use controlledU"""
         return cls(targ.name, ctrls, targ.pos, targ.paras, targ._raw_matrix)
 

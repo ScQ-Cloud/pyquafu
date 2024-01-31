@@ -72,6 +72,17 @@ CZMatrix = np.array(
     ],
     dtype=complex,
 )
+
+CTMatrix = np.asarray(
+    [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, np.exp(1.0j * np.pi / 4)],
+    ],
+    dtype=complex,
+)
+
 ToffoliMatrix = np.array(
     [
         [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
