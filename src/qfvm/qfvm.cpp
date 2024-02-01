@@ -94,6 +94,7 @@ simulate_circuit(py::object const& pycircuit,
     }
     if (circuit.final_measure()){
         simulate(circuit, state);
+        std::cout << "simualte done" << std::endl;
         if (!measures.empty()){
             auto countstr = state.measure_samples(circuit.measure_vec(), shots);
             for (auto it : countstr){

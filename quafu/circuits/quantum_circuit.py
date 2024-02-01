@@ -65,7 +65,7 @@ class QuantumCircuit:
     def parameterized_gates(self):
         """Return the list of gates which the parameters are tunable"""
         if not self._parameterized_gates:
-            self._parameterized_gates = [g for g in self.gates if g.paras is not None]
+            self._parameterized_gates = [g for g in self.gates if len(g.paras) != 0]
         return self._parameterized_gates
 
     @property
@@ -284,11 +284,11 @@ class QuantumCircuit:
                     q2 = reduce_map[max(pos)]
                     printlist[2 * q1:2 * q2 + 1, l] = "||"
                     maxlen = max(maxlen, len("||"))
-                elif len(gate.pos) == 1:
+                elif isinstance(gate, Instruction) and len(gate.pos) == 1:
                     printlist[i * 2, l] = gate.symbol
                     maxlen = max(maxlen, len(gate.symbol) + width)
 
-                elif len(gate.pos) > 1:
+                elif  isinstance(gate, Instruction) and len(gate.pos) > 1:
                     q1 = reduce_map[min(gate.pos)]
                     q2 = reduce_map[max(gate.pos)]
                     printlist[2 * q1 + 1 : 2 * q2, l] = "|"

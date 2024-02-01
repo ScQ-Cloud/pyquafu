@@ -34,7 +34,7 @@ void apply_op(Instruction& op, StateVector<data_t>& state) {
     if (OPMAP.count(op.name()) == 0){
         apply_op_general(state,op);
     }else{
-    switch (OPMAP[op.name()]) {
+    switch (OPMAP.at(op.name())) {
     // Named gate
         case Opname::x:
             state.apply_x(op.positions()[0]);
@@ -114,15 +114,16 @@ void apply_op(Instruction& op, StateVector<data_t>& state) {
     }
 }
 
-void simulate(Circuit const& circuit, StateVector<data_t>& state) {
+void simulate(Circuit & circuit, StateVector<data_t>& state) {
   state.set_num(circuit.qubit_num());
   state.set_creg(circuit.cbit_num());
   // skip measure and handle it in qfvm.cpp
   bool skip_measure = circuit.final_measure();
-  for (auto op : circuit.instructions()) {
-    if (skip_measure == true && op.name() == "measure")
+  for (const auto& op_ptr : circuit.instructions()) {
+     check_operator(*op_ptr);
+    if (skip_measure == true && op_ptr->name() == "measure")
       continue;
-    apply_op(op, state);
+    apply_op(*op_ptr, state);
   }
 }
 
@@ -141,7 +142,7 @@ void apply_measure(circuit_simulator<word_size>& cs, const vector<pos_t>& qbits,
 template <size_t word_size>
 void apply_op(Instruction& op, circuit_simulator<word_size>& cs) {
   // TODO: support args
-  switch (OPMAP[op.name()]) {
+  switch (OPMAP.at(op.name())) {
   case Opname::measure:
     apply_measure(cs, op.qbits(), op.cbits());
     break;
@@ -159,12 +160,12 @@ void apply_op(Instruction& op, circuit_simulator<word_size>& cs) {
 }
 
 template <size_t word_size>
-void simulate(Circuit const& circuit, circuit_simulator<word_size>& cs) {
+void simulate(Circuit & circuit, circuit_simulator<word_size>& cs) {
   // skip measure and handle it in qfvm.cpp
   bool skip_measure = circuit.final_measure();
-  for (auto op : circuit.instructions()) {
-    if (skip_measure == true && op.name() == "measure")
+  for (auto &op : circuit.instructions()) {
+    if (skip_measure == true && op->name() == "measure")
       continue;
-    apply_op(op, cs);
+    apply_op(*op, cs);
   }
 }

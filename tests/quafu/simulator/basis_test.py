@@ -340,5 +340,5 @@ class TestCliffordSimulatorBasis(BaseTest):
         result = simulate(
             qc=self.circuit, shots=10, simulator="qfvm_clifford", output="count_dict"
         )
-        counts = result.count
+        counts = result.count 
         self.assertDictAlmostEqual(counts, {"0101": 10})

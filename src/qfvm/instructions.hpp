@@ -23,7 +23,7 @@ protected:
   
 public:
     Instruction(){ };
-    Instruction(string name, vector<pos_t> positions):
+    Instruction(string const&name, vector<pos_t> const& positions):
     name_(name),
     positions_(positions) { }
     string name() const { return name_; }
@@ -322,7 +322,7 @@ std::unique_ptr<Instruction> from_pyops(py::object const& obj, bool get_full_mat
     }
 }
 
-void check_operator(QuantumOperator &op){
+void check_operator(Instruction &op){
     std::cout << "-------------" << std::endl;
 
     std::cout << "name: " << op.name() << std::endl;
