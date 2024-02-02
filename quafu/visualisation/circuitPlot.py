@@ -232,7 +232,7 @@ class CircuitPlotManager:
         elif name == "measure":
             self._proc_measure(depth, ins.pos)
         elif name in su2_gate_names:
-            self._proc_su2(name, depth, ins.pos, paras)
+            self._proc_su2(name, depth, ins.pos[0], paras)
         elif name in swap_gate_names:
             self._proc_swap(depth, ins.pos, name == "iswap")
         elif name in r2_gate_names:
@@ -416,7 +416,7 @@ class CircuitPlotManager:
 
         if id_name in ["rx", "ry", "rz", "p"]:
             # too long to display: r'$\theta=$' + f'{paras:.3f}' (TODO)
-            para_txt = f"({paras:.3f})" if paras else None
+            para_txt = f"({paras[0]:.3f})" if paras else None
         else:
             para_txt = None
 
@@ -453,7 +453,7 @@ class CircuitPlotManager:
         # target part
         name = ins.name.lower()
         if ins.ct_nums == (1, 1, 2) or name in mc_gate_names:
-            tar_name = ins.targ_name.lower()[-1]
+            tar_name = ins._targ_name.lower()[-1]
             pos = ins.targs if isinstance(ins.targs, int) else ins.targs[0]
             x = self.used_qbit_y[pos]
             if tar_name == "x":

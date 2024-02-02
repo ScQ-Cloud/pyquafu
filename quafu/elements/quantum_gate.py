@@ -27,11 +27,8 @@ from .utils import extract_float
 
 __all__ = [
     "QuantumGate",
-    "FixedGate",
-    "ParametricGate",
-    "SingleQubitGate",
-    "MultiQubitGate",
     "ControlledGate",
+    "ControlledU"
 ]
 
 HERMITIAN = [
@@ -130,7 +127,7 @@ class QuantumGate(Instruction):
     def named_pos(self) -> Dict:
         return {"pos": self.pos}
     
-    @property
+    @property 
     def named_paras(self) -> Dict:
         return {"paras": self.paras}
     
@@ -150,16 +147,16 @@ class QuantumGate(Instruction):
             raise ValueError(f"Name {name} already exists.")
         cls.gate_classes[name] = subclass
         Instruction.register_ins(subclass, name)
+        return subclass
 
     @classmethod
-    def register(cls, subclass, name: str = None):
+    def register(cls, name: str = None):
         """Decorator for register_gate."""
 
         def wrapper(subclass):
-            cls.register_gate(subclass, name)
-            return subclass
+            return cls.register_gate(subclass, name)
 
-        return wrapper(subclass)
+        return wrapper
 
     @property
     def _paras(self):
@@ -224,7 +221,10 @@ class QuantumGate(Instruction):
         """Update parameters of this gate"""
         if paras is None:
             return
-        self.paras = paras
+        if isinstance(paras, list):
+            self.paras = paras
+        else:
+            self.paras = [paras] 
 
     # # # # # # # # # # # # algebraic operations # # # # # # # # # # # #
     def power(self, n) -> "QuantumGate":
@@ -299,31 +299,41 @@ class QuantumGate(Instruction):
             """
             [m1]control-([m2]control-U) = [m1+m2]control-U
             """
+            if self.ctrls == ctrls:
+                raise ValueError("Can't not add the same control qubit.")
             ctrls = list(set(self.ctrls) | set(ctrls))
         elif set(ctrls) & set(pos):
             raise ValueError("Control qubits should not be overlap with target qubits.")
-
-        if len(ctrls) == 1 and len(pos) == 1:  # ctrl-single-qubit gate
-            cname = "c" + name
-            if cname not in self.gate_classes:
-                raise NotImplementedError(
-                    f"ctrl-by is not implemented for {self.__class__.__name__}"
-                )
+        
+        #named controlled gate
+        print(self.name)
+        args = self.pos + self.paras
+        print(args)
+        if self.name in ["X" ,"Y" ,"Z", "RX", "RY", "RZ"]: 
+            args = self.pos + self.paras
+            if len(ctrls) == 1:  # single-ctrl gate
+                cname = "c" + name
+                cop = QuantumGate.gate_classes[cname](ctrls[0], *args)
+                return cop
             else:
-                return self.gate_classes[cname](ctrls[0], pos[0])
-        elif name in ["mcx", "mcy", "mcz"]:
-            cname = name
-            return self.gate_classes[cname](ctrls, self.pos)
-        elif name in ["x", "y", "z"]:
-            cname = "mc" + self.name.lower()
-            return self.gate_classes[cname](ctrls, self.pos)
-        else:
+                cname = "mc" + name
+                cop = QuantumGate.gate_classes[cname](ctrls, *args)
+                return cop
+        elif self.name in ["CX" ,"CY" ,"CZ", "CRX", "CRY", "CRZ"]:
+            args=  self.targs + self.paras
+            cname = "m" + name
+            print(cname)
+            cop = QuantumGate.gate_classes[cname](ctrls, *args)
+            return cop
+        else: #unnamed controlled gate
             if isinstance(self, ControlledGate):
                 cop = ControlledGate("mc"+self._targ_name, self._targ_name, ctrls+self.ctrls, self.targs, self.paras, self._targ_matrix)
                 return cop
             else:
-                return ControlledU("c"+self.name, ctrls, self)
-                        
+                if len(ctrls) == 1:
+                    return ControlledU("c"+name, ctrls, self)
+                else:
+                    return ControlledU("mc"+name, ctrls, self)
 
  
 # Gate types below are statically implemented to support type identification
@@ -391,6 +401,7 @@ class ControlledGate(QuantumGate):
 
     def __init__(
             self,
+            name: str,
             targ_name: str,
             ctrls: List[int],
             targs: List[int],
@@ -399,8 +410,8 @@ class ControlledGate(QuantumGate):
     ):
         self.ctrls = copy.deepcopy(ctrls)
         self.targs = copy.deepcopy(targs)
-        self.targ_name = targ_name
-        super().__init__(self.name, ctrls+targs, paras, targ_matrix)
+        self._targ_name = targ_name
+        super().__init__(name, ctrls+targs, paras, targ_matrix)
         self._targ_matrix = targ_matrix
         self._raw_matrix = self._rawmatfunc
 
@@ -434,7 +445,7 @@ class ControlledGate(QuantumGate):
         return raw_matrix
     
     def power(self, n) -> "ControlledGate":
-        """TODO:Use implementation in QuantumGate via ControlledU"""
+        #TODO:Use implementation in QuantumGate via Controlled
         name = self.name
         if self._targ_name in ["RX", "RY", "RZ", "P", "RZZ", "RXX", "RYY"]:
             return ControlledGate(name, self._targ_name, self.ctrls, self.targs, [self.paras[0] * n], self._targ_matrix)
@@ -449,7 +460,7 @@ class ControlledGate(QuantumGate):
     
         
     def dagger(self) -> "ControlledGate":
-        """TODO:Use implementation in QuantumGate via ControlledU"""
+        #TODO:Use implementation in QuantumGate via ControlledU
         name = self.name
         if self._targ_name in ["RX", "RY", "RZ", "P", "RZZ", "RXX", "RYY"]:
             return ControlledGate(name, self._targ_name, self.ctrls, self.targs, [-self.paras[0]], self._targ_matrix)
@@ -463,10 +474,6 @@ class ControlledGate(QuantumGate):
 
             return ControlledGate(name, self._targ_name+"^†", self.ctrls, self.targs, self.paras, targ_matrix)
     
-    
-    @property
-    def name(self) -> str:
-        return "c" + self.targ_name
 
     @property
     def symbol(self):
@@ -475,11 +482,6 @@ class ControlledGate(QuantumGate):
             return symbol
         else:
             return "%s" %self._targ_name
-
-    @property
-    def matrix(self):
-        # TODO: update matrix when paras of controlled-gate changed
-        return self._matrix
 
     @property
     def ct_nums(self):

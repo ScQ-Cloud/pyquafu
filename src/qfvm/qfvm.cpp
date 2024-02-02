@@ -79,7 +79,6 @@ simulate_circuit(py::object const& pycircuit,
     uint actual_shots = shots;
     if (circuit.final_measure())
         actual_shots = 1;
-    StateVector<double> global_state;
     vector<std::pair<uint, uint>> measures = circuit.measure_vec();
     std::map<uint, bool> cbit_measured;
     for (auto& pair : measures) {
@@ -94,7 +93,6 @@ simulate_circuit(py::object const& pycircuit,
     }
     if (circuit.final_measure()){
         simulate(circuit, state);
-        std::cout << "simualte done" << std::endl;
         if (!measures.empty()){
             auto countstr = state.measure_samples(circuit.measure_vec(), shots);
             for (auto it : countstr){
@@ -109,10 +107,13 @@ simulate_circuit(py::object const& pycircuit,
             return std::make_pair(outcount, np_inputstate);
     }
     else{
-        for (uint i = 0; i < shots; i++) { 
-            vector<std::complex<double>> data_copy(data_ptr, data_ptr + data_size);
-            state = 
-                std::move(StateVector<double>(data_copy.data(), data_copy.size()));
+        for (uint i = 0; i < shots; i++) {
+            if (data_size != 0){ 
+                vector<std::complex<double>> data_copy(data_ptr, data_ptr + data_size);
+                state = std::move(StateVector<double>(data_copy.data(), data_copy.size()));
+            }else{
+                state = StateVector<double>();
+            }
             simulate(circuit, state);
             // store reg
             vector<uint> tmpcreg = state.creg();

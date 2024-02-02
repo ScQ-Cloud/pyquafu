@@ -298,7 +298,7 @@ class QuantumCircuit:
                         for ctrl in gate.ctrls:
                             printlist[reduce_map[ctrl] * 2, l] = "*"
 
-                        if gate.targ_name == "SWAP":
+                        if gate._targ_name == "SWAP":
                             printlist[reduce_map[gate.targs[0]] * 2, l] = "x"
                             printlist[reduce_map[gate.targs[1]] * 2, l] = "x"
                         else:
@@ -377,12 +377,16 @@ class QuantumCircuit:
         Returns:
             openqasm text.
         """
+        valid_gates = QuantumGate.gate_classes #TODO:include instruction futher
         qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n'
         qasm += "qreg q[%d];\n" % self.num
         qasm += "creg meas[%d];\n" % len(self.measures)
         for gate in self.gates:
-            qasm += gate.to_qasm() + ";\n"
-
+            if gate.name.lower() in valid_gates:
+                qasm += gate.to_qasm() + ";\n"
+            else:
+                #TODO: add decompose subroutine
+                raise NotImplementedError(f"gate {gate.name} can not convert to qasm2 directly, you may decompose it manuallly")
         for key in self.measures:
             qasm += "measure q[%d] -> meas[%d];\n" % (key, self.measures[key])
 

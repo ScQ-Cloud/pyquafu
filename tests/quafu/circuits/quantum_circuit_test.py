@@ -14,7 +14,7 @@ class TestQuantumCircuit:
         print("\n ------ Testing ------ \n")
         c.draw_circuit()
         assert isinstance(g, RXGate)
-        assert math.isclose(g.paras, 0.5)
+        assert math.isclose(g.paras[0], 0.5)
 
     def test_update_parameters(self):
         """Test parameter update"""
@@ -25,11 +25,11 @@ class TestQuantumCircuit:
         g = c.parameterized_gates[0]
         c.draw_circuit()
         assert isinstance(g, RXGate)
-        assert math.isclose(g.paras, 0.1)
+        assert math.isclose(g.paras[0], 0.1)
         c.update_params([0.2])
-        assert math.isclose(g.paras, 0.2)
+        assert math.isclose(g.paras[0], 0.2)
         c.update_params([None])
-        assert math.isclose(g.paras, 0.2)
+        assert math.isclose(g.paras[0], 0.2)
 
     def test_instantiated_params(self):
         """Create Parameter objects"""
