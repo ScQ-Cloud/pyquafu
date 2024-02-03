@@ -90,8 +90,10 @@ simulate_circuit(py::object const& pycircuit,
     StateVector<double> state;
     if (data_size != 0){
         state.load_data(data_ptr, data_size);
+        state.print_state();
     }
     if (circuit.final_measure()){
+        state.print_state();
         simulate(circuit, state);
         if (!measures.empty()){
             auto countstr = state.measure_samples(circuit.measure_vec(), shots);
@@ -106,6 +108,7 @@ simulate_circuit(py::object const& pycircuit,
             return std::make_pair(outcount,
                             to_numpy(state.move_data_to_python()));
         else
+            state.move_data_to_python();
             return std::make_pair(outcount, np_inputstate);
     }
     else{
