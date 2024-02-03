@@ -74,7 +74,7 @@ vector<QuantumOperator> Circuit::gates() {
         classics.end()) {
         QuantumOperator *gate_ptr = dynamic_cast<QuantumOperator*>(op.get());
         if (gate_ptr != nullptr){
-            QuantumOperator gate  = *std::move(gate_ptr); //copy.may use shared_ptr  
+            QuantumOperator gate  = *gate_ptr; //copy.may use shared_ptr  
             gates.push_back(gate);
         }
         else{
@@ -89,8 +89,8 @@ vector<QuantumOperator> Circuit::gates() {
 Circuit::Circuit(py::object const& pycircuit, bool get_full_mat, bool reverse) : max_targe_num_(0) {
   // auto pygates = pycircuit.attr("gates");
   auto pyops = pycircuit.attr("instructions"); 
-  qubit_num_ = pycircuit.attr("num").cast<uint>(); //To consist with other simulators (e.g. qiskit)
-  // auto used_qubits = pycircuit.attr("used_qubits").cast<vector<pos_t>>();
+  qubit_num_ = pycircuit.attr("num").cast<uint>(); //To consist with other simulators  (e.g. qiskit)
+//   auto used_qubits = pycircuit.attr("used_qubits").cast<vector<pos_t>>();
 // qubit_num_ = *std::max_element(used_qubits.begin(), used_qubits.end()) + 1;
 
   cbit_num_ = pycircuit.attr("cbits_num").cast<uint>();
@@ -106,7 +106,7 @@ Circuit::Circuit(py::object const& pycircuit, bool get_full_mat, bool reverse) :
     }
     else{
       std::unique_ptr<Instruction> ins = from_pyops(pyop, get_full_mat, reverse);
-      check_operator(*(ins));
+    //   check_operator(*(ins));
       if (*ins){
         if (ins->name() == "measure"){
             measured = true;

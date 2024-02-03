@@ -1,7 +1,7 @@
 from quafu import QuantumCircuit, simulate
-from quafu.elements.element_gates import *
+# from quafu.elements.element_gates import *
 import quafu.elements.element_gates as qeg
-from quafu.elements.parameters import Parameter
+# from quafu.elements.parameters import Parameter
 import math
 
 
@@ -57,14 +57,28 @@ import math
 # assert math.isclose(g.paras[0], 0.2)
 # c.update_params([None])
 
-#test collapse
-qc = QuantumCircuit(2)
+# #test collapse
+# qc = QuantumCircuit(2)
+# qc.x(0)
+# qc.measure([0], [0])
+# qc.cx(0, 1)
+# qc.measure([1], [1])
+
+# result = simulate(qc, shots=10)
+# probs = result.probabilities
+# counts = result.count
+# print(counts)
+import numpy as np
+
+qc = QuantumCircuit(2)  
 qc.x(0)
 qc.measure([0], [0])
-qc.cx(0, 1)
-qc.measure([1], [1])
+qc.reset([0])
+qc.measure([0], [1])
 
-result = simulate(qc, shots=10)
+psi = np.zeros(4, dtype=np.complex128)
+psi[0] = 1.
+result = simulate(qc, shots=10, psi = psi)
 probs = result.probabilities
 counts = result.count
 print(counts)

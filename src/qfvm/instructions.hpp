@@ -46,7 +46,8 @@ public:
     virtual vector<pos_t> cbits() const { return {}; }
  
     virtual uint condition() const { return 0; }
-    virtual vector<Instruction> instructions() { return {}; }
+    virtual vector<std::unique_ptr<Instruction>>& instructions() {  vector<std::unique_ptr<Instruction>> empty = {};
+    return empty; }
 
 };
 
@@ -137,29 +138,33 @@ public:
 
 
 class Reset : public Instruction{
+protected:
+    vector<pos_t> qbits_;
 public:
-    Reset(vector<pos_t> const& positions) { 
-        Instruction::name_ = "Reset";
-        Instruction:: positions_ = positions; 
+    Reset(vector<pos_t> const& qbits) :
+    qbits_(qbits)
+    {  
+        Instruction:name_ = "reset";
     }
+    virtual vector<pos_t> qbits() const override { return qbits_; }
 };
 
 class Cif : public Instruction{
 protected:
     vector<pos_t> cbits_;
     uint condition_;
-    vector<Instruction> instructions_;
+    vector<std::unique_ptr<Instruction>> instructions_;
 public:
-    Cif(vector<pos_t> &cbits, uint condition, vector<Instruction> &instructions)
+    Cif(vector<pos_t> &cbits, uint condition, vector<std::unique_ptr<Instruction>> &instructions)
     :
     cbits_(cbits), 
-    condition_(condition), 
-    instructions_(instructions)
+    condition_(condition),
+    instructions_(std::move(instructions))
     {  
         Instruction:name_ = "cif";
     }
     virtual uint condition() const override{ return condition_; }
-    virtual vector<Instruction> instructions() override { return instructions_; }
+    virtual vector<std::unique_ptr<Instruction>>& instructions() override { return instructions_; }
     virtual vector<pos_t> cbits() const override { return cbits_; }
 };
 
@@ -301,7 +306,7 @@ std::unique_ptr<Instruction> from_pyops(py::object const& obj, bool get_full_mat
 
     } else if (name == "cif") {
         uint condition = 0;
-        vector<Instruction> instructions;
+        vector<std::unique_ptr<Instruction>> instructions;
         cbits = obj.attr("cbits").cast<vector<pos_t>>();
         condition = obj.attr("condition").cast<pos_t>();
 
@@ -312,8 +317,8 @@ std::unique_ptr<Instruction> from_pyops(py::object const& obj, bool get_full_mat
                 py::object pyop = py::reinterpret_borrow<py::object>(pyop_h);
                 std::unique_ptr<Instruction> ins = from_pyops(pyop);
                 if (*ins) 
-                    instructions.push_back(std::move(*ins));
-                }
+                    instructions.push_back(std::move(ins));
+            }   
         }
         return  std::make_unique<Cif>(cbits, condition, instructions);
 

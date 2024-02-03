@@ -31,25 +31,25 @@ public:
   // construct function
   StateVector();
   explicit StateVector(uint num);
-  explicit StateVector(complex<real_t>* data, size_t data_size);
-  // move assign
-  //  StateVector& operator=(StateVector&& other){
-  //      if(this != &other){
-  //          data_ = std::move(other.data_);
-  //          creg_ = std::move(other.creg_);
-  //          num_ = other.num_;
-  //          cbit_num_ = other.cbit_num_;
-  //          size_ = other.size_;
+  StateVector(complex<real_t>* data, size_t data_size);
+//   StateVector(std::unique_ptr<complex<real_t>[]> & data, size_t data_size): 
+//   data_(std::move(data)),
+//   size_(data_size),
+//   num_(static_cast<int>(std::log2(size_)))
+//   { }
 
-  //     }
-  //     return *this;
-  // }
-  
   void load_data(complex<real_t>* data, size_t data_size){
     data_.reset(data);
     size_ = data_size;
     num_ = static_cast<int>(std::log2(size_));
   }
+
+  void load_data(std::unique_ptr<complex<real_t>[]> & data, size_t data_size){
+    data_ = std::move(data);
+    size_ = data_size;
+    num_ = static_cast<int>(std::log2(size_));
+  }
+
   // Named gate function
   void apply_x(pos_t pos);
   void apply_y(pos_t pos);

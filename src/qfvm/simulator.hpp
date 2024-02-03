@@ -105,8 +105,8 @@ void apply_op(Instruction& op, StateVector<data_t>& state) {
             matched = state.check_cif(op.cbits(), op.condition());
             // apply op in instructions
             if (matched) {
-            for (auto op_h : op.instructions()) {
-                apply_op(op_h, state);
+                for (const auto& op_h : op.instructions()) {
+                    apply_op(*op_h, state);
                 }
             }
             break;

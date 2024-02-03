@@ -75,11 +75,12 @@ class TestParser:
             assert gate1.name == gate2.name
             if hasattr(gate1, "pos"):
                 assert gate1.pos == gate2.pos
-            if hasattr(gate1, "paras") and gate1.paras is None:
-                assert gate2.paras is None
-            if hasattr(gate1, "paras") and gate1.paras != None:
-                assert gate2.paras is not None
-                assert math.isclose(gate1.paras, gate2.paras)
+            if hasattr(gate1, "paras") and len(gate1.paras) == 0:
+                assert len(gate2.paras)  == 0
+            if hasattr(gate1, "paras") and len(gate1.paras) > 0:
+                assert len(gate2.paras) > 0
+                for i, para in enumerate(gate1.paras):
+                    assert math.isclose(para, gate2.paras[i])
 
     # ----------------------------------------
     #   test for lexer
@@ -139,7 +140,7 @@ class TestParser:
         qasm = f"qreg q[1]; U(0, 0, {num1})q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == num1
+        assert cir.gates[0].paras[0] == num1
 
     def test_exp_unary_symbolic(self):
         qasm = """
@@ -149,43 +150,43 @@ class TestParser:
         qreg q[1]; test(0.5, 1.0, 2.0)q[0];
         """
         cir = qasm_to_quafu(openqasm=qasm)
-        assert cir.gates[0].paras == 0.5 + 2.0 - 1.0
-        assert cir.gates[1].paras == 0.5 + 1.0
-        assert cir.gates[2].paras == -(0.5 - 2.0)
+        assert cir.gates[0].paras[0] == 0.5 + 2.0 - 1.0
+        assert cir.gates[1].paras[0] == 0.5 + 1.0
+        assert cir.gates[2].paras[0] == -(0.5 - 2.0)
 
     def test_exp_add(self):
         num1 = random.random()
         qasm = f"qreg q[1]; U(0, 0, {num1} + 1 + 1)q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == num1 + 1 + 1
+        assert cir.gates[0].paras[0] == num1 + 1 + 1
 
     def test_exp_sub(self):
         num1 = random.random()
         qasm = f"qreg q[1]; U(0, 0, 3 - {num1})q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == 3 - num1
+        assert cir.gates[0].paras[0] == 3 - num1
 
     def test_exp_mul(self):
         num1 = random.random()
         qasm = f"qreg q[1]; U(0, 0, 2 * {num1})q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == 2 * num1
+        assert cir.gates[0].paras[0] == 2 * num1
 
     def test_exp_div(self):
         num1 = random.random()
         qasm = f"qreg q[1]; U(0, 0, {num1}/2)q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == num1 / 2
+        assert cir.gates[0].paras[0] == num1 / 2
 
     def test_exp_power(self):
         qasm = f"qreg q[1]; U(0, 0, 2^3)q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == 2**3
+        assert cir.gates[0].paras[0] == 2**3
 
     @pytest.mark.parametrize(
         ["symbol", "op"],
@@ -203,7 +204,7 @@ class TestParser:
         qasm = f"qreg q[1]; U(0, 0, {num1}{symbol}{num2})q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == op(num1, num2)
+        assert cir.gates[0].paras[0] == op(num1, num2)
 
     @pytest.mark.parametrize(
         ["symbol", "op"],
@@ -227,33 +228,33 @@ class TestParser:
         """
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == op(num2, op(num1, num2))
+        assert cir.gates[0].paras[0] == op(num2, op(num1, num2))
 
     def test_exp_mix(self):
         qasm = f"qreg q[1]; U(2+1*2-3, 1+3-2, 2/2*2)q[0]; U(3*(2+1),3-(2-1)*2,(2-1)+1)q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == 2 / 2 * 2
+        assert cir.gates[0].paras[0] == 2 / 2 * 2
         assert cir.gates[1].name == "RY"
-        assert cir.gates[1].paras == 2 + 1 * 2 - 3
+        assert cir.gates[1].paras[0] == 2 + 1 * 2 - 3
         assert cir.gates[2].name == "RZ"
-        assert cir.gates[2].paras == 1 + 3 - 2
+        assert cir.gates[2].paras[0] == 1 + 3 - 2
         assert cir.gates[3].name == "RZ"
-        assert cir.gates[3].paras == (2 - 1) + 1
+        assert cir.gates[3].paras[0] == (2 - 1) + 1
         assert cir.gates[4].name == "RY"
-        assert cir.gates[4].paras == 3 * (2 + 1)
+        assert cir.gates[4].paras[0] == 3 * (2 + 1)
         assert cir.gates[5].name == "RZ"
-        assert cir.gates[5].paras == 3 - (2 - 1) * 2
+        assert cir.gates[5].paras[0] == 3 - (2 - 1) * 2
 
     def test_exp_par(self):
         qasm = f"qreg q[1]; U((1-2)+(3-2), -(2*2-2), 2*(2-3))q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == 2 * (2 - 3)
+        assert cir.gates[0].paras[0] == 2 * (2 - 3)
         assert cir.gates[1].name == "RY"
-        assert cir.gates[1].paras == (1 - 2) + (3 - 2)
+        assert cir.gates[1].paras[0] == (1 - 2) + (3 - 2)
         assert cir.gates[2].name == "RZ"
-        assert cir.gates[2].paras == -(2 * 2 - 2)
+        assert cir.gates[2].paras[0] == -(2 * 2 - 2)
 
     @pytest.mark.parametrize(
         ["func", "mathop"],
@@ -269,9 +270,9 @@ class TestParser:
     def test_exp_func(self, func, mathop):
         qasm = f"qreg q[1]; U({func}(0.5),{func}(1.0),{func}(pi)) q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
-        assert math.isclose(cir.gates[0].paras, mathop(math.pi))
-        assert math.isclose(cir.gates[1].paras, mathop(0.5))
-        assert math.isclose(cir.gates[2].paras, mathop(1.0))
+        assert math.isclose(cir.gates[0].paras[0], mathop(math.pi))
+        assert math.isclose(cir.gates[1].paras[0], mathop(0.5))
+        assert math.isclose(cir.gates[2].paras[0], mathop(1.0))
 
     @pytest.mark.parametrize(
         ["func", "mathop"],
@@ -296,9 +297,9 @@ class TestParser:
         test({num1},{num2},{num3}) q[0];
         """
         cir = qasm_to_quafu(openqasm=qasm)
-        assert math.isclose(cir.gates[0].paras, mathop(num3))
-        assert math.isclose(cir.gates[1].paras, mathop(num1))
-        assert math.isclose(cir.gates[2].paras, mathop(num2))
+        assert math.isclose(cir.gates[0].paras[0], mathop(num3))
+        assert math.isclose(cir.gates[1].paras[0], mathop(num1))
+        assert math.isclose(cir.gates[2].paras[0], mathop(num2))
 
     def test_exp_precedence(self):
         num1 = random.random()
@@ -310,31 +311,31 @@ class TestParser:
         expected = num1 + 1.5 * (-num3) ** 2 - num2 / 0.5
         qasm = f"qreg q[1]; U( 0, 0, {expr}) q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
-        assert math.isclose(cir.gates[0].paras, expected)
+        assert math.isclose(cir.gates[0].paras[0], expected)
 
     def test_exp_sub_left(self):
         qasm = f"qreg q[1]; U( 0 , 0 , 2.0-1.0-1.0 ) q[0];"
         print(qasm)
         cir = qasm_to_quafu(openqasm=qasm)
-        assert cir.gates[0].paras == 0
-        assert cir.gates[1].paras == 0
-        assert cir.gates[2].paras == 0
+        assert cir.gates[0].paras[0] == 0
+        assert cir.gates[1].paras[0] == 0
+        assert cir.gates[2].paras[0] == 0
 
     def test_exp_div_left(self):
         qasm = f"qreg q[1]; U( 0 , 0 , 2.0/2.0/2.0 ) q[0];"
         print(qasm)
         cir = qasm_to_quafu(openqasm=qasm)
-        assert cir.gates[0].paras == 0.5
-        assert cir.gates[1].paras == 0
-        assert cir.gates[2].paras == 0
+        assert cir.gates[0].paras[0] == 0.5
+        assert cir.gates[1].paras[0] == 0
+        assert cir.gates[2].paras[0] == 0
 
     def test_exp_pow_right(self):
         qasm = f"qreg q[1]; U( 0 , 0 , 2.0^3.0^2.0 ) q[0];"
         print(qasm)
         cir = qasm_to_quafu(openqasm=qasm)
-        assert cir.gates[0].paras == 512.0
-        assert cir.gates[1].paras == 0
-        assert cir.gates[2].paras == 0
+        assert cir.gates[0].paras[0] == 512.0
+        assert cir.gates[1].paras[0] == 0
+        assert cir.gates[2].paras[0] == 0
 
     def test_exp_div_zero(self):
         with pytest.raises(ParserError, match=r"Divided by 0 at line.*") as e:
@@ -431,7 +432,7 @@ theta ,
         qasm = f"qreg q[1]; U(0, 0, {num})q[0];"
         cir = qasm_to_quafu(openqasm=qasm)
         assert cir.gates[0].name == "RZ"
-        assert cir.gates[0].paras == float(num)
+        assert cir.gates[0].paras[0] == float(num)
 
     def test_id_cannot_start_with_num(self):
         with pytest.raises(ParserError, match=r"Expecting an ID, received .*") as e:

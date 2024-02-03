@@ -73,7 +73,7 @@ def simulate(
         measures = list(qc.measures.keys())
         values_tmp = list(qc.measures.values())
         values = np.argsort(values_tmp)
-        num = max(qc.used_qubits) + 1
+        num = qc.num
         if len(measures) == 0:
             measures = list(range(num))
             values = list(range(num))

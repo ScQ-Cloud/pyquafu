@@ -96,7 +96,9 @@ simulate_circuit(py::object const& pycircuit,
         if (!measures.empty()){
             auto countstr = state.measure_samples(circuit.measure_vec(), shots);
             for (auto it : countstr){
-                uint si = std::stoi(it.first);
+                std::cout << it.first << std::endl;
+                uint si = std::stoi(it.first, nullptr, 2);
+                std::cout << si << std::endl;
                 outcount[si] = it.second;
             }
         }
@@ -108,15 +110,19 @@ simulate_circuit(py::object const& pycircuit,
     }
     else{
         for (uint i = 0; i < shots; i++) {
-            if (data_size != 0){ 
-                vector<std::complex<double>> data_copy(data_ptr, data_ptr + data_size);
-                state = std::move(StateVector<double>(data_copy.data(), data_copy.size()));
+            StateVector<double> buffer;
+            if (data_size != 0){
+                auto buffer_ptr = std::make_unique<complex<double>[]>(data_size);
+                std::copy(data_ptr, data_ptr + data_size, buffer_ptr.get());
+                buffer.load_data(buffer_ptr, data_size);
+                buffer.print_state();
             }else{
-                state = StateVector<double>();
+                buffer = StateVector<double>();
             }
-            simulate(circuit, state);
+            buffer.print_state();
+            simulate(circuit, buffer);
             // store reg
-            vector<uint> tmpcreg = state.creg();
+            vector<uint> tmpcreg = buffer.creg();
             uint outcome = 0;
             for (uint j = 0; j < tmpcreg.size(); j++) {
                 if (cbit_measured.find(j) == cbit_measured.end())
@@ -128,9 +134,12 @@ simulate_circuit(py::object const& pycircuit,
                 outcount[outcome]++;
             else
                 outcount[outcome] = 1;
+
+            if (i == shots-1){
+                return std::make_pair(outcount,
+                            to_numpy(buffer.move_data_to_python()));
+            }
         }
-        return std::make_pair(outcount,
-                            to_numpy(state.move_data_to_python()));
   }
 
 
@@ -142,9 +151,9 @@ simulate_circuit(py::object const& pycircuit,
 //       simulate(circuit, state);
 //     } else {
 //       // deepcopy state
-//       vector<std::complex<double>> data_copy(data_ptr, data_ptr + data_size);
+//       vector<std::complex<double>> buffer_ptr(data_ptr, data_ptr + data_size);
 //       state =
-//           std::move(StateVector<double>(data_copy.data(), data_copy.size()));
+//           std::move(StateVector<double>(buffer_ptr.data(), buffer_ptr.size()));
 //       simulate(circuit, state);
 //     }
 //     if (!circuit.final_measure()) {
