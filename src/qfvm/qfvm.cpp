@@ -90,7 +90,6 @@ simulate_circuit(py::object const& pycircuit,
     StateVector<double> state;
     if (data_size != 0){
         state.load_data(data_ptr, data_size);
-        state.print_state();
     }
     if (circuit.final_measure()){
         state.print_state();
@@ -118,11 +117,9 @@ simulate_circuit(py::object const& pycircuit,
                 auto buffer_ptr = std::make_unique<complex<double>[]>(data_size);
                 std::copy(data_ptr, data_ptr + data_size, buffer_ptr.get());
                 buffer.load_data(buffer_ptr, data_size);
-                buffer.print_state();
             }else{
                 buffer = StateVector<double>();
             }
-            buffer.print_state();
             simulate(circuit, buffer);
             // store reg
             vector<uint> tmpcreg = buffer.creg();

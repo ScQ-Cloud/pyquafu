@@ -196,16 +196,6 @@ class QuantumGate(Instruction):
         else:
            return raw_mat
         
-    # @property
-    # @abstractmethod
-    # def matrix(self):
-    #     if self._matrix is not None:
-    #         return self._matrix
-    #     else:
-    #         raise NotImplementedError(
-    #             "Matrix is not implemented for %s" % self.__class__.__name__
-    #             + ", this should never happen."
-    #         )
   
     def to_qasm(self) -> str:
         """OPENQASM 2.0"""
@@ -260,7 +250,8 @@ class QuantumGate(Instruction):
                 theta = -theta
             return self.gate_classes["rz"](self.pos, theta * n)
         elif name in ROTATION:
-            return self.gate_classes[name](self.pos, self.paras[0] * n)
+            args = self.pos + [self.paras[0] * n]
+            return self.gate_classes[name](*args)
         else:
             name = self.name + "^%d" %n
             raw_matrix = self._raw_matrix 
@@ -276,7 +267,8 @@ class QuantumGate(Instruction):
         if name in HERMITIAN:  # Hermitian gate
             return copy.deepcopy(self)
         if name in ROTATION:  # rotation gate
-            return self.gate_classes[name](self.pos, -self.paras[0])
+            args = self.pos + [-self.paras[0]]
+            return self.gate_classes[name](*args)
         elif name in PAIRED:  # pairwise-occurrence gate
             _conj_name = PAIRED[name]
             return self.gate_classes[_conj_name](self.pos)
@@ -306,9 +298,7 @@ class QuantumGate(Instruction):
             raise ValueError("Control qubits should not be overlap with target qubits.")
         
         #named controlled gate
-        print(self.name)
         args = self.pos + self.paras
-        print(args)
         if self.name in ["X" ,"Y" ,"Z", "RX", "RY", "RZ"]: 
             args = self.pos + self.paras
             if len(ctrls) == 1:  # single-ctrl gate
@@ -322,78 +312,17 @@ class QuantumGate(Instruction):
         elif self.name in ["CX" ,"CY" ,"CZ", "CRX", "CRY", "CRZ"]:
             args=  self.targs + self.paras
             cname = "m" + name
-            print(cname)
             cop = QuantumGate.gate_classes[cname](ctrls, *args)
             return cop
         else: #unnamed controlled gate
             if isinstance(self, ControlledGate):
-                cop = ControlledGate("mc"+self._targ_name, self._targ_name, ctrls+self.ctrls, self.targs, self.paras, self._targ_matrix)
+                cop = ControlledGate("MC"+self._targ_name, self._targ_name, ctrls+self.ctrls, self.targs, self.paras, self._targ_matrix)
                 return cop
             else:
                 if len(ctrls) == 1:
-                    return ControlledU("c"+name, ctrls, self)
+                    return ControlledU("MC"+name, ctrls, self)
                 else:
-                    return ControlledU("mc"+name, ctrls, self)
-
- 
-# Gate types below are statically implemented to support type identification
-# and provide shared attributes. However, single/multi qubit may be
-# inferred from ``pos``, while para/fixed type may be inferred by ``paras``.
-# Therefore, these types may be (partly) deprecated in the future.
-
-
-# class SingleQubitGate(QuantumGate, ABC):
-#     def __init__(self, pos: int, paras: Optional[ParameterType] = None):
-#         QuantumGate.__init__(self, pos=pos, paras=paras)
-
-#     def get_targ_matrix(self):
-#         return self.matrix
-
-#     @property
-#     def named_pos(self) -> Dict:
-#         return {"pos": self.pos}
-
-
-# class MultiQubitGate(QuantumGate, ABC):
-#     def __init__(self, pos: List, paras: Optional[ParameterType] = None):
-#         QuantumGate.__init__(self, pos, paras)
-
-#     def get_targ_matrix(self, reverse_order=False):
-#         """ """
-#         targ_matrix = self.matrix
-
-#         if reverse_order and (len(self.pos) > 1):
-#             qnum = len(self.pos)
-#             dim = 2 ** qnum
-#             order = np.array(range(len(self.pos))[::-1])
-#             order = np.concatenate([order, order + qnum])
-#             tensorm = targ_matrix.reshape([2] * 2 * qnum)
-#             targ_matrix = np.transpose(tensorm, order).reshape([dim, dim])
-#         return targ_matrix
-
-
-# class ParametricGate(QuantumGate, ABC):
-#     def __init__(self, pos: List[int], paras: Union[ParameterType, List[ParameterType]]):
-#         if paras is None:
-#             raise ValueError("`paras` can not be None for ParametricGate")
-#         super().__init__(pos, paras)
-
-#     @property
-#     def named_paras(self) -> Dict:
-#         return {"paras": self.paras}
-
-#     @property
-#     def named_pos(self) -> Dict:
-#         return {"pos": self.pos}
-
-
-# class FixedGate(QuantumGate, ABC):
-#     def __init__(self, pos):
-#         super().__init__(pos=pos, paras=None)
-
-#     @property
-#     def named_paras(self) -> Dict:
-#         return {}
+                    return ControlledU("MC"+name, ctrls, self)
 
 
 class ControlledGate(QuantumGate):
@@ -491,6 +420,7 @@ class ControlledGate(QuantumGate):
         return ctrl_num, targ_num, num
         
     def _get_targ_matrix(self, reverse_order=False):
+        print(self.name)
         targ_mat = self._targ_matrix
         if isinstance(self._targ_matrix, Callable):
             targ_mat = self._targ_matrix(self._paras)

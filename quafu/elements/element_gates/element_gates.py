@@ -325,24 +325,24 @@ class CTGate(ControlledGate):
 @QuantumGate.register()
 class CPGate(ControlledGate):
     def __init__(self, ctrl:int, targ:int, _lambda:ParameterType):
-        super().__init__("CP", "P", [ctrl], [targ], [_lambda], mat.pmatrix)
+        super().__init__("CP", "P", [ctrl], [targ], [_lambda], wrap_para(mat.pmatrix))
 
 
 
 @QuantumGate.register()
 class CRXGate(ControlledGate):
     def __init__(self, ctrl:int, targ:int, theta:ParameterType):
-        super().__init__("CRX", "RX", [ctrl], [targ], [theta], mat.rx_mat)
+        super().__init__("CRX", "RX", [ctrl], [targ], [theta], wrap_para(mat.rx_mat))
 
 @QuantumGate.register()
 class CRYGate(ControlledGate):
     def __init__(self, ctrl:int, targ:int, theta:ParameterType):
-        super().__init__("CRY", "RY", [ctrl], [targ], [theta], mat.ry_mat)
+        super().__init__("CRY", "RY", [ctrl], [targ], [theta], wrap_para(mat.ry_mat))
 
 @QuantumGate.register()
 class CRZGate(ControlledGate):
     def __init__(self, ctrl:int, targ:int, theta:ParameterType):
-        super().__init__("CRZ", "RZ", [ctrl], [targ], [theta], mat.rz_mat)
+        super().__init__("CRZ", "RZ", [ctrl], [targ], [theta], wrap_para(mat.rz_mat))
 
 # # # # # # # # # # # # # MultiCtrl-Paulis # # # # # # # # # # # # #
 @QuantumGate.register()
@@ -367,17 +367,17 @@ class MCZGate(ControlledGate):
 @QuantumGate.register()
 class MCRXGate(ControlledGate):
     def __init__(self, ctrls:List[int], targ:int, theta:ParameterType):
-        super().__init__("MCRX", "RX", ctrls, [targ], [theta], mat.rx_mat)
+        super().__init__("MCRX", "RX", ctrls, [targ], [theta], wrap_para(mat.rx_mat))
 
 @QuantumGate.register()
 class MCRYGate(ControlledGate):
     def __init__(self, ctrls:List[int], targ:int, theta:ParameterType):
-        super().__init__("MCRY", "RY", ctrls, [targ], [theta], mat.ry_mat)
+        super().__init__("MCRY", "RY", ctrls, [targ], [theta], wrap_para(mat.ry_mat))
 
 @QuantumGate.register()
 class MCRZGate(ControlledGate):
     def __init__(self, ctrls:List[int], targ:int, theta:ParameterType):
-        super().__init__("MCRZ", "RZ", ctrls, [targ], [theta], mat.rz_mat)
+        super().__init__("MCRZ", "RZ", ctrls, [targ], [theta], wrap_para(mat.rz_mat))
 
 
 

@@ -70,15 +70,15 @@ import math
 # print(counts)
 import numpy as np
 
-qc = QuantumCircuit(2)  
-qc.h(0)
-qc.cnot(0, 1)
-# qc.measure([0, 1], [0, 1])
+qc = QuantumCircuit(2)
+qc.x(0)
+qc.measure([0], [0])
+qc.reset([0])
+qc.measure([0], [1])
 
 psi = np.zeros(4, dtype=np.complex128)
 psi[0] = 1.
-result = simulate(qc, shots=10, psi=psi)
+result = simulate(qc, shots=10, psi = psi)
 probs = result.probabilities
 counts = result.count
-print(probs)
 print(counts)
