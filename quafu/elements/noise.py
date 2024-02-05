@@ -34,6 +34,9 @@ class KrausChannel(Instruction):
     def named_paras(self):
         return {"paras": self.paras}
     
+    def to_qasm(self):
+        raise ValueError("Can not convert noise channel to qasm")
+
     @property
     def symbol(self):
         if len(self.paras) > 0:

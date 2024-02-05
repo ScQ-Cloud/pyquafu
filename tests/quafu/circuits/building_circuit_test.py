@@ -5,7 +5,6 @@ import numpy as np
 import math
 
 class TestBuildingCircuit:
-    #TODO:add wrapper test
     def test_control(self):
         q = QuantumCircuit(3) 
         q << (XGate(1))
@@ -49,8 +48,8 @@ class TestBuildingCircuit:
         q1 << RXGate(0, 0.2).power(2)
         q1 << CRYGate(0, 1, 0.23).power(2)
 
-        sv1 = simulate(q, output="state_vector").get_statevector()
-        sv2 = simulate(q1, output="state_vector").get_statevector()
+        sv1 = simulate(q).get_statevector()
+        sv2 = simulate(q1).get_statevector()
         assert math.isclose(np.abs(np.dot(sv1, sv2.conj())), 1.0)
 
     def test_dagger(self):
@@ -74,6 +73,81 @@ class TestBuildingCircuit:
         q3 << HGate(1)
         q3 << HGate(2)    
 
-        sv1 = simulate(q.dagger(), output="state_vector").get_statevector()
-        sv3 = simulate(q3, output="state_vector").get_statevector()
+        sv1 = simulate(q.dagger()).get_statevector()
+        sv3 = simulate(q3).get_statevector()
         assert math.isclose(np.abs(np.dot(sv1, sv3.conj())), 1.0)
+
+    def test_wrapper_power(self):
+        q = QuantumCircuit(2)
+        q << HGate(0)
+        q << HGate(1)
+
+        q1 = QuantumCircuit(2)
+        q1 << U3Gate(1, 0.2, 0.1, 0.3)
+        q1 << RYYGate(0, 1, Parameter("p1", 0.4)) 
+        q1 << RXGate(0, 0.2)
+        q1 << CRYGate(0, 1, 0.23)
+        nq1 = q.join(q1.power(2), inplace=False)
+        nq2 = q.join(q1.wrap().power(2), inplace=False)
+
+        nq1.draw_circuit()
+        nq2.unwrap().draw_circuit()
+        from quafu.simulators.simulator import SVSimulator
+        backend = SVSimulator()
+        sv1 = backend.run(nq1)["statevector"]
+        sv2 = backend.run(nq2)["statevector"]
+        assert math.isclose(np.abs(np.dot(sv1, sv2.conj())), 1.0)
+
+    def test_wrapper(self, inplace=True):
+        q = QuantumCircuit(3)
+        q << HGate(0)
+        q << HGate(1)
+        q << HGate(2)
+
+        q1 = QuantumCircuit(3)
+        q1 << CXGate(0, 1)
+        q1 << RXGate(2, Parameter("p1", 0.2))
+        
+        q = q.join(q1.wrap(), qbits=[2, 3, 4], inplace=inplace)
+        q.draw_circuit()
+        from quafu.simulators.simulator import SVSimulator
+        backend = SVSimulator()
+        sv1 = backend.run(q)["statevector"]
+        q.unwrap().draw_circuit()
+
+        #multi-wrapper
+        q2 = QuantumCircuit(3)
+        q2 << XGate(0)
+        q2 << CXGate(0, 1)
+        q2 = q2.join(q.wrap())
+        q2.draw_circuit()
+        sv2 = backend.run(q2)["statevector"]
+
+        q2.unwrap()
+        q2.draw_circuit()
+        sv3 = backend.run(q2)["statevector"]
+        assert math.isclose(np.abs(np.dot(sv2, sv3.conj())), 1.0)
+
+
+    def test_control_wrapper(self):
+        q = QuantumCircuit(3)
+        q << HGate(0)
+        q << HGate(1)
+        q << HGate(2)
+    
+        q1 = QuantumCircuit(3)
+        q1 << CRYGate(0, 1, Parameter("p1", 0.3))
+        q1 << RXGate(2, 0.2)
+
+        q.join(q1.wrap().add_controls([3, 4]), [2, 3, 4, 5, 6])
+        q.draw_circuit()
+        from quafu.simulators.simulator import SVSimulator
+        backend = SVSimulator()
+        sv1 = backend.run(q)["statevector"]
+        q.unwrap()
+        q.draw_circuit()
+        sv2 = backend.run(q)["statevector"]
+        assert math.isclose(np.abs(np.dot(sv1, sv2.conj())), 1.0)
+
+if  __name__ == "__main__":
+    TestBuildingCircuit().test_wrapper()

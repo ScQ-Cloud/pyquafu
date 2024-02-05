@@ -120,7 +120,6 @@ void simulate(Circuit & circuit, StateVector<data_t>& state) {
   // skip measure and handle it in qfvm.cpp
   bool skip_measure = circuit.final_measure();
   for (const auto& op_ptr : circuit.instructions()) {
-     check_operator(*op_ptr);
     if (skip_measure == true && op_ptr->name() == "measure")
       continue;
     apply_op(*op_ptr, state);

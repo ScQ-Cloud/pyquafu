@@ -420,7 +420,6 @@ class ControlledGate(QuantumGate):
         return ctrl_num, targ_num, num
         
     def _get_targ_matrix(self, reverse_order=False):
-        print(self.name)
         targ_mat = self._targ_matrix
         if isinstance(self._targ_matrix, Callable):
             targ_mat = self._targ_matrix(self._paras)
@@ -449,90 +448,73 @@ class ControlledU(ControlledGate):
         targs = U.pos
         super().__init__(name, U.name, ctrls, targs, U.paras, targ_matrix=self.targ_gate._raw_matrix)
 
-# TODO(ChenWei): update OracleGate so that compatible with CtrlGate
-# class CircuitWrapper(QuantumGate):
-#     def __init__(self, name: str, circ, qbits=[]):
-#         self.name = name
-#         self.pos = list(range(circ.num))
-#         self.circuit = copy.deepcopy(circ)
-#
-#         # TODO:Handle wrapper paras
-#         # if hasattr(circ, "paras"):
-#         #     self._paras = circ.paras
-#         # else:
-#         #     self._paras = []
-#         #     for op in self.circuit.operations:
-#         #         self._paras.extend(op.paras)
-#
-#         if qbits:
-#             self._reallocate(qbits)
-#
-#     # @property
-#     # def paras(self):
-#     #     return self._paras
-#
-#     # @paras.setter
-#     # def paras(self, __paras):
-#     #     self._paras = __paras
-#     #     self.circuit.paras = __paras
-#
-#     def _reallocate(self, qbits):
-#         num = max(self.circuit.num - 1, max(qbits)) + 1
-#         self.pos = qbits
-#         self.circuit._reallocate(num, qbits)
-#
-#     @property
-#     def symbol(self):
-#         return "%s" % self.name
-#
-#     def add_controls(self, ctrls: List[int] = []) -> QuantumGate:
-#         return ControlCircuitWrapper("MC" + self.name, self, ctrls)
-#
-#     def power(self, n: int):
-#         self.name += "^%d" % n
-#         self.circuit = self.circuit.power(n)
-#         return self
-#
-#     def dagger(self):
-#         self.name += "^†"
-#         self.circuit = self.circuit.dagger()
-#         return self
-#
-#     def to_qasm(self):
-#         qasm = ""
-#         for operation in self.circuit.operations:
-#             qasm += operation.to_qasm() + ";\n"
-#         return qasm
-#
-#
-# class ControlCircuitWrapper(CircuitWrapper):
-#     def __init__(self, name: str, circwrp: CircuitWrapper, ctrls: List[int]):
-#         self.name = name
-#         self.ctrls = ctrls
-#         self.targs = circwrp.pos
-#         self.circuit = circwrp.circuit.add_controls(len(ctrls), ctrls, self.targs)
-#         self.pos = list(range(self.circuit.num))
-#         self._targ_name = circwrp.name
-#
-#     @property
-#     def symbol(self):
-#         return "%s" % self._targ_name
-#
-#     # def power(self, n: int):
-#     #     self._targ_name += "^%d" % n
-#     #     return super().power(n)
-#     #
-#     # def dagger(self):
-#     #     self.name += "^†"
-#     #     return super().dagger()
-#
-#     def _reallocate(self, qbits):
-#         num = max(self.circuit.num - 1, max(qbits)) + 1
-#         self.pos = qbits
-#         self.circuit._reallocate(num, qbits)
-#         qbits_map = dict(zip(range(len(qbits)), qbits))
-#         for i in range(len(self.ctrls)):
-#             self.ctrls[i] = qbits_map[self.ctrls[i]]
-#
-#         for i in range(len(self.targs)):
-#             self.targs[i] = qbits_map[self.targs[i]]
+class CircuitWrapper(QuantumGate):
+    def __init__(self, name:str, circ, qbits=[]):
+        self.name  = name
+        self.pos = list(range(circ.num))
+        self.circuit = copy.deepcopy(circ)
+
+        
+        if qbits:
+            self._reallocate(qbits)
+    
+    def _reallocate(self, qbits):
+        num = max(self.circuit.num-1, max(qbits))+1
+        self.pos = qbits
+        self.circuit._reallocate(num, qbits)
+    
+    @property
+    def symbol(self):
+        return "%s" %self.name
+
+    def add_controls(self, ctrls:List[int]=[]) -> QuantumGate:
+        return ControlledCircuitWrapper("MC"+self.name, self, ctrls)
+
+    def power(self, n:int):
+        self.name +="^%d" %n
+        self.circuit = self.circuit.power(n)
+        return self
+
+    def dagger(self):
+        self.name += "^†"
+        self.circuit = self.circuit.dagger()
+        return self
+
+    def to_qasm(self):
+        qasm = ''
+        for operation in self.circuit.operations:
+            qasm += operation.to_qasm() + ";\n"
+        return qasm
+    
+class ControlledCircuitWrapper(CircuitWrapper):
+    def __init__(self, name:str, circwrp:CircuitWrapper, ctrls:List[int]):
+        self.name = name
+        self.ctrls = ctrls
+        self.targs = circwrp.pos
+        self.circuit = circwrp.circuit.add_controls(len(ctrls), ctrls, self.targs)
+        self.pos = list(range(self.circuit.num))
+        self._targ_name = circwrp.name
+
+    
+    @property
+    def symbol(self):
+        return "%s" %self._targ_name
+
+    def power(self, n: int):
+        self._targ_name += "^%d" %n
+        return super().power(n)
+
+    def dagger(self):
+        self.name += "^†"
+        return super().dagger()
+    
+    def _reallocate(self, qbits):
+        num = max(self.circuit.num-1, max(qbits))+1
+        self.pos = qbits
+        self.circuit._reallocate(num, qbits)
+        qbits_map = dict(zip(range(len(qbits)), qbits))
+        for i in range(len(self.ctrls)):
+            self.ctrls[i] = qbits_map[self.ctrls[i]]
+        
+        for i in range(len(self.targs)):
+            self.targs[i] = qbits_map[self.targs[i]]

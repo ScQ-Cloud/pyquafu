@@ -22,14 +22,15 @@ from quafu.elements.classical_element import Cif
 from quafu.elements.instruction import Instruction
 from quafu.elements import Measure, Reset
 from quafu.elements.parameters import ParameterType, ParameterExpression, Parameter
-from quafu.elements.pulses import QuantumPulse
-from quafu.elements.oracle import OracleGate, ControlledOracle
+from ..elements.quantum_gate import CircuitWrapper, ControlledCircuitWrapper
 from ..elements import (
     Barrier,
     ControlledGate,
     Delay,
     QuantumGate,
     XYResonance,
+    KrausChannel, OracleGate, ControlledOracle, QuantumPulse,
+    CircuitWrapper, ControlledCircuitWrapper
 )
 from ..exceptions import CircuitError
 from .classical_register import ClassicalRegister
@@ -41,7 +42,7 @@ class QuantumCircuit:
     Representation of quantum circuit.
     """
 
-    def __init__(self, qnum: int, cnum: Optional[int] = None, *args, **kwargs):
+    def __init__(self, qnum: int, cnum: Optional[int] = None, name="", *args, **kwargs):
         """
         Initialize a QuantumCircuit object
 
@@ -49,6 +50,7 @@ class QuantumCircuit:
             qnum (int): Total qubit number used
             cnum (int): Classical bit number, equals to qubit number in default
         """
+        self.name = name
         self.qregs = [QuantumRegister(qnum)] if qnum > 0 else []
         cnum = self.num if cnum is None else cnum
         self.cregs = [ClassicalRegister(cnum)] if cnum > 0 else []
@@ -118,7 +120,7 @@ class QuantumCircuit:
         if max_pos >= self.num:
             raise CircuitError("Operation act on qubit that not allocated")
         self.add_ins(operation)
-        if isinstance(operation, OracleGate):
+        if isinstance(operation, CircuitWrapper):
             self._has_wrap = True
         return self
 
@@ -149,7 +151,7 @@ class QuantumCircuit:
         """
         Add instruction to circuit, with NO checking yet.
         """
-        if isinstance(ins, (QuantumGate, Delay, Barrier, XYResonance)):
+        if isinstance(ins, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel)):
             # TODO: Delay, Barrier added by add_gate for backward compatibility.
             #       Figure out better handling in the future.
             self.add_gate(ins)
@@ -164,8 +166,11 @@ class QuantumCircuit:
                 raise  ValueError("Invalid gate name")
         
         newinstructions = []
+        newgates = []
         for op in self.instructions:
             newinstructions.append(op)
+            if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance)):
+                newgates.append(op)
             if isinstance(op, QuantumGate):
                 add_q = False
                 add_g = False
@@ -185,9 +190,21 @@ class QuantumCircuit:
                 if add_q and add_g:
                     for q in op.pos:
                         if q in qubits:
-                            newinstructions.append(Instruction.gate_classes[channel](q, *channel_args))
+                            newinstructions.append(Instruction.ins_classes[channel](q, *channel_args))
+                            newgates.append(Instruction.ins_classes[channel](q, *channel_args))
         self.instructions = newinstructions
+        self._gates = newgates
         return self
+    
+    @property
+    def noised(self):
+        if self._has_wrap:
+            self.unwrap()
+
+        for op in self.instructions:
+            if isinstance(op, KrausChannel):
+                return True
+        return False
     
     def get_parameter_grads(self):
         if self._has_wrap:
@@ -555,7 +572,7 @@ class QuantumCircuit:
         return qc
 
     def join(self, 
-             qc : ["QuantumCircuit", OracleGate, ControlledOracle], 
+             qc : ["QuantumCircuit",CircuitWrapper, ControlledCircuitWrapper], 
              qbits:List[int]=[], 
              inplace=True)->"QuantumCircuit":
         
@@ -624,17 +641,29 @@ class QuantumCircuit:
                     nq << op
             nq.measures = self.measures
             return nq
+        
+    def wrap(self, qbits=[]):
+        #TODO:use OracleGate
+        name = self.name if self.name else "Oracle"
+        return CircuitWrapper(name, self, qbits)
     
     def unwrap(self):
         instructions = []
+        gates = []
         for op in self.instructions:
-            if isinstance(op, OracleGate) or isinstance(op, ControlledOracle):
+            if isinstance(op, CircuitWrapper):
                 circ = op.circuit.unwrap()
                 for op_ in circ.instructions:
                     instructions.append(op_)
+                    if isinstance(op_, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel)):
+                        gates.append(op_)
             else:
                 instructions.append(op)
+                if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel)):
+                    gates.append(op)
+
         self.instructions = instructions
+        self._gates = gates
         self._has_wrap = False
         return self
     

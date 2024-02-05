@@ -51,12 +51,10 @@ py::object applyop_statevec(py::object const& pyop, py::array_t<complex<double>>
 
 py::dict sampling_statevec(py::dict const& pymeas, py::array_t<complex<double>> &np_inputstate, int shots){
     std::vector<std::pair<uint, uint> > measures;
-    int ind = 0;
     for (auto item : pymeas){
         int qbit = item.first.cast<uint>();
         int cbit = item.second.cast<uint>();
-        measures[ind] = std::pair<uint, uint>(qbit, cbit);
-        ind++;
+        measures.push_back(std::pair<uint, uint>(qbit, cbit));
     }
     py::buffer_info buf = np_inputstate.request();
     auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
@@ -92,14 +90,11 @@ simulate_circuit(py::object const& pycircuit,
         state.load_data(data_ptr, data_size);
     }
     if (circuit.final_measure()){
-        state.print_state();
         simulate(circuit, state);
         if (!measures.empty()){
             auto countstr = state.measure_samples(circuit.measure_vec(), shots);
             for (auto it : countstr){
-                std::cout << it.first << std::endl;
                 uint si = std::stoi(it.first, nullptr, 2);
-                std::cout << si << std::endl;
                 outcount[si] = it.second;
             }
         }
