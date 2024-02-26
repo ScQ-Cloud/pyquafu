@@ -83,19 +83,38 @@ def jacobian(
 
 
 def compute_vjp(jac: np.ndarray, dy: np.ndarray):
-    """compute vector-jacobian product
+    r"""compute vector-jacobian product
 
     Args:
         jac (np.ndarray): jac with shape (batch_size, num_outputs, num_params)
         dy (np.ndarray): dy with shape (batch_size, num_outputs)
+
+    Notes:
+        Suppose there are n inputs and m outputs in current node
+        Let x, y denote the inputs and outputs of current node, o denotes the final output
+        Essentially, jacobian is
+
+        .. math::
+            \begin{bmatrix}
+	    \frac{\partial y_1}{\partial x_1} & \cdots & \frac{\partial y_1}{x_n} \\
+	    \vdots & \ddots & \vdots \\
+	    \frac{\partial y_m}{\partial x_1} & \cdots & \frac{\partial y_m}{x_n}
+            \end{bmatrix}
+
+        `dy` is actually the vjp of dependent node
+
+        .. math:: \[ \frac{partial o}{partial y_1} \dots \frac{partial o}{partial y_m} \]
+
+        Therefore the vector jocobian product gets
+
+        .. math:: \[ \frac{partial o}{partial x_1} \dots \frac{partial o}{partial x_n} \]
     """
     batch_size, num_outputs, num_params = jac.shape
     assert dy.shape[0] == batch_size and dy.shape[1] == num_outputs
 
-    vjp = np.zeros((batch_size, num_params))
-
-    for i in range(batch_size):
-        vjp[i] = dy[i, :].T @ jac[i, :, :]
+    # Compute vector-Jacobian product using Einstein summation convention
+    #   the scripts simply mean 'jac-dims,dy-dims->vjp-dims'; so num_outputs is summed over
+    vjp = np.einsum("ijk,ij->ik", jac, dy)
 
     return vjp
 

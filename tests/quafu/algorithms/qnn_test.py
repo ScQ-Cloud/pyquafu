@@ -180,7 +180,14 @@ class TestLayers:
         model = ModelQuantumNeuralNetworkNative(qnn)
         self._model_grad(model, batch_size)
 
-    def test_classification_on_random_dataset(self, num_epochs):
+    def test_classification_on_random_dataset(self, num_epochs, batch_size):
+        """Test e2e hybrid quantum-classical nn training using a synthetic dataset
+
+        Args:
+            num_epochs: number of epoches for training
+            batch_size: batch size for training
+
+        """
         # Define the hyperparameters
         num_inputs = 2
         num_classes = 2
@@ -209,7 +216,7 @@ class TestLayers:
         optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
         # Create data loader
-        data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
+        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
         # Train the model
         for epoch in range(num_epochs):
