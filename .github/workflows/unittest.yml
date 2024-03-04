@@ -22,7 +22,7 @@ jobs:
             run: python -m pip install torch torchvision torchaudio
 
         -   name: Install pyquafu
-            run: python -m pip install .
+            run: python setup.py develop
 
         -   name: Run unit tests
             run: pytest tests/

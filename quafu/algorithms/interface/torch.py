@@ -13,8 +13,11 @@
 # limitations under the License.
 """quafu PyTorch quantum layer"""
 
+from typing import Optional
+
 import numpy as np
 import torch
+from quafu.algorithms.estimator import Estimator
 
 from quafu import QuantumCircuit
 
@@ -28,7 +31,7 @@ class TorchTransformer:
         """Return torch gradient tensor with specified shape"""
         return torch.randn(*shape, requires_grad=True, dtype=torch.double)
 
-    # TODO(zhaoyilun): doc
+    # TODO(zhaoyilun): docstrings
     @staticmethod
     def execute(
         circ: QuantumCircuit,
@@ -36,6 +39,7 @@ class TorchTransformer:
         run_fn=run_circ,
         grad_fn=None,
         method="internal",
+        estimator: Optional[Estimator] = None,
     ):
         """execute.
 
@@ -45,11 +49,19 @@ class TorchTransformer:
             grad_fn:
         """
 
-        kwargs = {"circ": circ, "run_fn": run_fn, "grad_fn": grad_fn}
+        kwargs = {
+            "circ": circ,
+            "run_fn": run_fn,
+            "grad_fn": grad_fn,
+            "estimator": estimator,
+        }
 
         if method == "external":
             return ExecuteCircuits.apply(parameters, kwargs)
         if method == "internal":
+            from ..ansatz import QuantumNeuralNetwork
+
+            assert isinstance(circ, QuantumNeuralNetwork)
             return ExecuteCircuits.apply(circ.weights, kwargs)
         raise NotImplementedError(f"Unsupported execution method: {method}")
 
@@ -61,11 +73,12 @@ class ExecuteCircuits(torch.autograd.Function):
     def forward(ctx, parameters, kwargs):
         ctx.run_fn = kwargs["run_fn"]
         ctx.circ = kwargs["circ"]
+        ctx.estimator = kwargs["estimator"]
         ctx.save_for_backward(parameters)
         parameters = parameters.numpy().tolist()
         outputs = []
         for para in parameters:
-            out = ctx.run_fn(ctx.circ, para)
+            out = ctx.run_fn(ctx.circ, para, estimator=ctx.estimator)
             outputs.append(out)
         outputs = np.stack(outputs)
         outputs = torch.from_numpy(outputs)
@@ -74,7 +87,7 @@ class ExecuteCircuits(torch.autograd.Function):
     @staticmethod
     def backward(ctx, grad_out):
         (parameters,) = ctx.saved_tensors
-        jac = jacobian(ctx.circ, parameters.numpy())
+        jac = jacobian(ctx.circ, parameters.numpy(), estimator=ctx.estimator)
         vjp = compute_vjp(jac, grad_out.numpy())
         vjp = torch.from_numpy(vjp)
         return vjp, None
