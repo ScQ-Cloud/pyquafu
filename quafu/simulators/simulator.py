@@ -11,137 +11,194 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""simulator for quantum circuit and qasm"""
+"""simulator for quantum circuit"""
 
-from typing import Union
-
+from ..elements import CircuitWrapper, QuantumGate, KrausChannel, UnitaryChannel
+from ..circuits import QuantumCircuit
+from abc  import ABC, abstractmethod
+from .qfvm import simulate_circuit, applyop_statevec, expect_statevec, sampling_statevec,simulate_circuit_clifford
 import numpy as np
-
-from quafu import QuantumCircuit
-
 from ..exceptions import QuafuError
 from ..results.results import SimuResult
-from .default_simulator import permutebits, ptrace, py_simulate
+from ..algorithms.hamiltonian import Hamiltonian
 
+class Simulator(ABC):
+    @abstractmethod
+    def run(self):
+        raise NotImplementedError
+    
+class SVSimulator(Simulator):
+    def __init__(self, use_gpu:bool=False, use_custatevec:bool=False):
+        self.use_gpu  = use_gpu
+        self.use_custatevec = use_custatevec
 
-def simulate(
-    qc: Union[QuantumCircuit, str],
-    psi: np.ndarray = np.array([]),
-    simulator: str = "qfvm_circ",
-    output: str = "probabilities",
-    shots: int = 100,
-    use_gpu: bool = False,
-    use_custatevec: bool = False,
-) -> SimuResult:
-    """Simulate quantum circuit
-    Args:
-        qc: quantum circuit or qasm string that need to be simulated.
-        psi : Input state vector
-        simulator:`"qfvm_circ"`: The high performance C++ circuit simulator with optional GPU support.
-                `"py_simu"`: Python implemented simulator by sparse matrix with low performace for large scale circuit.
-                `"qfvm_qasm"`: The high performance C++ qasm simulator with limited gate set.
+    def config(self, **kwargs):
+        for attr, value in kwargs.items():
+            if hasattr(self, attr):
+                setattr(self, attr, value)
+            else:
+                raise ValueError("No such attribute")
 
-        output: `"probabilities"`: Return probabilities on measured qubits, ordered in big endian convention.
-                `"density_matrix"`: Return reduced density_amtrix on measured qubits, ordered in big endian convention.
-                `"state_vector"`: Return original full statevector. The statevector returned by `qfvm` backend is ordered in little endian convention (same as qiskit), while `py_simu` backend is orderd in big endian convention.
-        shots: The shots of simulator executions. Only supported for cpu.
-        use_gpu: Use the GPU version of `qfvm_circ` simulator.
-        use_custatevec: Use cuStateVec-based `qfvm_circ` simulator. The argument `use_gpu` must also be True.
+    def _apply_op(self, op, psi):
+        #TODO: support GPU
+        if isinstance(op,CircuitWrapper):
+            psi = self.run(op.circuit, psi)["statevector"]
+            return psi
+        elif isinstance(op, QuantumGate):
+            psi = applyop_statevec(op, psi)
+            return psi
+        elif isinstance(op, KrausChannel):
+            temppsi = np.copy(psi)
+            norm0 = np.linalg.norm(psi)
+            s = 0.
+            r = np.random.rand()
+            for kop in op.gatelist:
+                temppsi = applyop_statevec(kop, temppsi)
+                norm1 = np.linalg.norm(temppsi)
+                s += norm1 / norm0
+                if r < s:
+                    psi = temppsi
+                    psi = psi / norm1
+                    return psi
+                else:
+                    temppsi = np.copy(psi)
+            return psi
+        else:
+            raise NotImplementedError
+    
+    def _apply_hamil(self, hamil, psi):
+        psi_out = np.zeros(len(psi), dtype=complex) 
+        for pauli in hamil.paulis:
+            psi1 = np.copy(psi)
+            for name, pos in zip(pauli.paulistr, pauli.pos):
+                op = QuantumGate.gate_classes[name.lower()](pos)
+                psi1 = self._apply_op(op, psi1)
+            psi1 = psi1 * pauli.coeff
+            psi_out += psi1
+    
+        return psi_out
 
-    Returns:
-        SimuResult object that contain the results."""
-    qasm = ""
-    if simulator == "qfvm_qasm":
-        if not isinstance(qc, str):
-            raise ValueError("Must input valid qasm str for qfvm_qasm simulator")
-        qasm = qc
-        qc = QuantumCircuit(0)
-        qc.from_openqasm(qasm)
-
-    # two type of measures for py_simu and qfvm_circ
-    measures = []
-    values = []
-    num = 0
-    if simulator == "py_simu":
-        measures = [qc.used_qubits.index(i) for i in qc.measures.keys()]
-        values_tmp = list(qc.measures.values())
-        values = np.argsort(values_tmp)
-        if len(measures) == 0:
-            measures = list(range(qc.used_qubits))
-            values = list(range(qc.used_qubits))
-    else:
-        measures = list(qc.measures.keys())
-        values_tmp = list(qc.measures.values())
-        values = np.argsort(values_tmp)
-        num = max(qc.used_qubits) + 1
-        if len(measures) == 0:
-            measures = list(range(num))
-            values = list(range(num))
-
-    count_dict = None
-    from .qfvm import simulate_circuit
-
-    # simulate
-    if simulator == "qfvm_circ":
-        if use_gpu:
+    def run(self, qc : QuantumCircuit, psi : np.ndarray= np.array([]), shots:int=0, hamiltonian:Hamiltonian=None):
+        res_info = {}
+        if qc.noised:
+            raise QuafuError("Can not run noisy circuits with statevector simulator, please use the noisy version.")
+        
+        if self.use_gpu:
             if qc.executable_on_backend == False:
-                raise QuafuError("classical operation only support for `qfvm_qasm`")
+                raise QuafuError("classical operation do not support gpu currently")
 
-            if use_custatevec:
+            if self.use_custatevec:
                 try:
                     from .qfvm import simulate_circuit_custate
                 except ImportError:
                     raise QuafuError("pyquafu isn't installed with cuquantum support")
                 psi = simulate_circuit_custate(qc, psi)
+                count_dict = sampling_statevec(qc.measures, psi, shots)
+                res_info["statevector"] = psi
+                res_info["counts"] = count_dict
             else:
                 try:
                     from .qfvm import simulate_circuit_gpu
                 except ImportError:
                     raise QuafuError("you are not using the GPU version of pyquafu")
                 psi = simulate_circuit_gpu(qc, psi)
+                count_dict = sampling_statevec(qc.measures, psi, shots)
         else:
             count_dict, psi = simulate_circuit(qc, psi, shots)
+            res_info["statevector"] = psi
+            res_info["counts"] = count_dict
 
-    elif simulator == "qfvm_clifford":
-        try:
-            from .qfvm import simulate_circuit_clifford
-        except ImportError:
-            raise QuafuError("you are not using the clifford version of pyquafu")
+        if hamiltonian:
+            paulis = hamiltonian.paulis
+            res = expect_statevec(res_info["statevector"], paulis)
+            for i in range(len(paulis)):
+                res[i] *= paulis[i].coeff
+            res_info["pauli_expects"] = res
+        else:
+            res_info["pauli_expects"] = []
+        res_info["qbitnum"] = qc.num
+        res_info["measures"] =  qc.measures
+        res_info["simulator"] = "statevector"
+        return SimuResult(res_info)
 
+class NoiseSVSimulator(Simulator):
+    def __init__(self, use_gpu:bool=False, use_custatevec:bool=False):
+        self.backend = SVSimulator(use_gpu=use_gpu, use_custatevec=use_custatevec)
+
+    def run_once(self, qc : QuantumCircuit, psi, hamiltonian=None):
+        newqc = self.gen_circuit(qc)
+        for op in newqc.instructions:
+            psi = self.backend._apply_op(op, psi)
+        sample = list(sampling_statevec(qc.measures, psi, 1).keys())[0]
+
+        if hamiltonian:
+            paulis = hamiltonian.paulis
+            res = expect_statevec(psi, paulis)
+            for i in range(len(paulis)):
+                res[i] *= paulis[i].coeff
+            return sample, res
+        return sample, None
+
+    def run(self, qc:QuantumCircuit,  psi : np.ndarray= np.array([]), shots:int=0, hamiltonian:Hamiltonian=None):
+        counts = {}
+        pauli_expects = 0.
+        
+        for _ in range(shots):
+            if not psi:
+                tpsi = np.zeros(2**qc.num, dtype=complex)
+                tpsi[0] = 1.0
+            else:
+                tpsi = np.copy(psi)
+            sample, pauli_res = self.run_once(qc, tpsi, hamiltonian)
+            if sample in counts.keys():
+                counts[sample] += 1
+            else:
+                counts[sample] = 1
+            if hamiltonian:
+                pauli_expects += np.array(pauli_res)
+        pauli_expects /= shots
+        if not hamiltonian:
+            pauli_expects = []
+        else:
+            pauli_expects = list(pauli_expects)
+        res_info = {"counts":counts, "pauli_expects": pauli_expects}
+        res_info["qbitnum"] = qc.num
+        res_info["measures"] =  qc.measures 
+        res_info["simulator"] = "noisy statevector"
+        return SimuResult(res_info)
+
+    @staticmethod
+    def gen_circuit(qc):
+        """
+        sample circuit from noise circuit
+        """ 
+        num = qc.num
+        new_qc = QuantumCircuit(num)
+        temp_qc = QuantumCircuit(num)
+        if qc._has_wrap:
+            qc.unwarp()
+
+        for op in qc.instructions:
+            if isinstance(op, QuantumGate):
+                temp_qc << op
+            elif isinstance(op, UnitaryChannel):
+                g = op.gen_gate()
+                if g.name != "ID":
+                    temp_qc << g
+            elif isinstance(op, KrausChannel):
+                new_qc << temp_qc.wrap()
+                new_qc << op
+                temp_qc =  QuantumCircuit(num)
+        new_qc << temp_qc.wrap()
+        return new_qc
+    
+class CliffordSimulator(Simulator):
+     def run(self, qc : QuantumCircuit, shots:int=0):
+        res_info = {}
         count_dict = simulate_circuit_clifford(qc, shots)
-
-    elif simulator == "py_simu":
-        if qc.executable_on_backend == False:
-            raise QuafuError("classical operation only support for `qfvm_qasm`")
-        psi = py_simulate(qc, psi)
-
-    elif simulator == "qfvm_qasm":
-        psi = simulate_circuit(qc, psi, shots)
-
-    else:
-        raise ValueError("invalid circuit")
-
-    if output == "density_matrix":
-        if simulator in ["qfvm_circ", "qfvm_qasm"]:
-            psi = permutebits(psi, range(num)[::-1])
-        rho = ptrace(psi, measures, diag=False)
-        rho = permutebits(rho, values)
-        return SimuResult(rho, output, count_dict)
-
-    if output == "probabilities":
-        if simulator in ["qfvm_circ", "qfvm_qasm"]:
-            psi = permutebits(psi, range(num)[::-1])
-        probabilities = ptrace(psi, measures)
-        probabilities = permutebits(probabilities, values)
-        return SimuResult(probabilities, output, count_dict)
-
-    if output == "state_vector":
-        return SimuResult(psi, output, count_dict)
-
-    elif output == "count_dict":
-        return SimuResult(max(qc.used_qubits) + 1, output, count_dict)
-
-    else:
-        raise ValueError(
-            "output should in be 'density_matrix', 'probabilities', or 'state_vector'"
-        )
+        res_info["qbitnum"] = qc.num
+        res_info["counts"] = count_dict
+        res_info["measures"] = qc.measures
+        res_info["simuator"] = "clifford"
+        return SimuResult(res_info)
+     

@@ -92,7 +92,7 @@ class TestClassicOp(BaseTest):
         assert len(circ.instructions[-2].instructions) == 1
         result = simulate(qc=circ, shots=10)
         probs = result.probabilities
-        count = result.count
+        count = result.counts
         self.assertAlmostEqual(probs[0], 0)
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
@@ -118,7 +118,7 @@ class TestClassicOp(BaseTest):
         assert len(circ.instructions[-2].instructions) == 2  # x m[0]; x m[1];
         result = simulate(qc=circ, shots=10)
         probs = result.probabilities
-        count = result.count
+        count = result.counts
         self.assertAlmostEqual(probs[0], 0)
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)

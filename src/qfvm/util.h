@@ -26,6 +26,18 @@ std::vector<int> randomArr(size_t length, size_t max) {
   return arr;
 }
 
+std::vector<double> randomDoubleArr(size_t length){
+    std::random_device rd;
+    std::default_random_engine eng(rd());
+    std::uniform_real_distribution<double> distr(0., 1.);
+    
+    std::vector<double> randarr;
+    for (auto n = 0; n < length;++n){
+        randarr.push_back(distr(eng));
+    }
+    return randarr;
+}
+
 int randomint(int min, int max) {
   srand((unsigned)time(NULL));
   return (rand() % (max - min + 1)) + min;
@@ -103,6 +115,8 @@ std::vector<real_t> find_numbers(const std::string& str) {
 
   return res;
 }
+
+
 
 
 /*----------------bit function------------------*/

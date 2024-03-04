@@ -59,7 +59,7 @@ qc.x(1)
 qc.measure([1, 2], [1, 0])
 qc.measure([3, 0], [2, 3])
 
-result = simulate(qc=qc, shots=10, simulator="qfvm_clifford", output="count_dict")
+result = simulate(qc=qc, shots=10, simulator="clifford")
 counts = result.count
 
 # {"0101": 10}

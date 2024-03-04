@@ -24,9 +24,7 @@ from sparse import COO, SparseArray
 from ..elements import (
     Barrier,
     Delay,
-    MultiQubitGate,
     QuantumGate,
-    SingleQubitGate,
     XYResonance,
 )
 from ..results.results import SimuResult
@@ -35,13 +33,13 @@ from ..results.results import SimuResult
 def global_op(gate: QuantumGate, global_qubits: List) -> coo_matrix:
     """Local operators to global operators"""
     num = len(global_qubits)
-    if isinstance(gate, SingleQubitGate):
+    if len(gate.pos) == 1:
         local_mat = coo_matrix(gate.matrix)
         pos = global_qubits.index(gate.pos)
         local_mat = kron(kron(eye(2**pos), local_mat), eye(2 ** (num - pos - 1)))
         return local_mat
 
-    elif isinstance(gate, MultiQubitGate):
+    else:
         local_mat = coo_matrix(gate.matrix)
         pos = [global_qubits.index(p) for p in gate.pos]
         num_left = min(pos)

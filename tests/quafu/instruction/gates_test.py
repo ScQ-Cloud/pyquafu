@@ -33,13 +33,13 @@ class TestGate(unittest.TestCase):
         tdg = qeg.TdgGate(pos=0)
 
         # Rotation
-        ph = qeg.PhaseGate(pos=0, paras=pi)
-        rx = qeg.RXGate(pos=0, paras=pi)
-        ry = qeg.RYGate(pos=0, paras=pi)
-        rz = qeg.RZGate(pos=0, paras=pi)
-        rxx = qeg.RXXGate(q1=0, q2=3, paras=pi)
-        ryy = qeg.RYYGate(q1=0, q2=3, paras=pi)
-        rzz = qeg.RZZGate(q1=0, q2=3, paras=pi)
+        ph = qeg.PhaseGate(0, pi)
+        rx = qeg.RXGate(0, pi)
+        ry = qeg.RYGate(0, pi)
+        rz = qeg.RZGate(0, pi)
+        rxx = qeg.RXXGate(0, 3, pi)
+        ryy = qeg.RYYGate(0, 3, pi)
+        rzz = qeg.RZZGate(0, 3, pi)
 
         # Swap
         swap = qeg.SwapGate(q1=0, q2=3)
@@ -52,7 +52,7 @@ class TestGate(unittest.TestCase):
         cz = qeg.CZGate(ctrl=0, targ=1)
         cs = qeg.CSGate(ctrl=0, targ=1)
         ct = qeg.CTGate(ctrl=0, targ=1)
-        cp = qeg.CPGate(ctrl=0, targ=1, paras=pi)
+        cp = qeg.CPGate(0, 1, pi)
         mcx = qeg.MCXGate(ctrls=[0, 1, 2], targ=3)
         mcy = qeg.MCYGate(ctrls=[0, 1, 2], targ=3)
         mcz = qeg.MCZGate(ctrls=[0, 1, 2], targ=3)

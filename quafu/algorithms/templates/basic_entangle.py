@@ -59,7 +59,7 @@ class BasicEntangleLayers:
         gate_list = []
         for layer in range(repeat):
             for i in range(self.num_qubits):
-                gate = self.op(pos=i, paras=self.weights[layer][i])
+                gate = self.op(i, self.weights[layer][i])
                 gate_list.append(gate)
 
             # if num_qubits equals two, it just need to apply CNOT one time

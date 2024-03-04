@@ -2,7 +2,7 @@ from .circuits.quantum_circuit import QuantumCircuit
 from .algorithms.hamiltonian import Hamiltonian
 from .circuits.quantum_register import QuantumRegister, Qubit
 from .results.results import ExecResult, SimuResult
-from .simulators.simulator import simulate
+from .simulators import simulate
 from .tasks.tasks import Task
 from .users.userapi import User
 

@@ -16,13 +16,13 @@ from typing import List, Optional
 from ..circuits.quantum_circuit import QuantumCircuit
 from ..tasks.tasks import Task
 from .hamiltonian import Hamiltonian
-from ..simulators.simulator import simulate
+from ..simulators import simulate
 
 
 def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
     """Execute circuit on quafu simulator"""
-    sim_res = simulate(circ, output="state_vector")
-    expectations = sim_res.expect_paulis(observables)
+    sim_res = simulate(circ, hamiltonian= observables)
+    expectations = sim_res["pauli_expects"]
     return sum(expectations)
 
 
@@ -67,7 +67,7 @@ class Estimator:
 
     def _run_simulation(self, observables: Hamiltonian):
         """Run using quafu simulator"""
-        # sim_state = simulate(self._circ, output="state_vector").get_statevector()
+        # sim_state = simulate(self._circ).get_statevector()
         # expectation = np.matmul(
         #     np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
         # ).real

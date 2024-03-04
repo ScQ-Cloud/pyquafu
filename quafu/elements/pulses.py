@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from quafu.elements.instruction import Instruction, PosType
+from quafu.elements.instruction import Instruction
 
 TimeType = Union[np.ndarray, float, int]
 
@@ -14,7 +14,7 @@ class QuantumPulse(Instruction, ABC):
 
     def __init__(
         self,
-        pos: PosType,
+        pos: int,
         paras: list,
         duration: Union[float, int],
         unit: str,

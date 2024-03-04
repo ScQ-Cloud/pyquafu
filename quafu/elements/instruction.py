@@ -13,13 +13,12 @@
 #  limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union 
 
 from .parameters import ParameterType
 
-__all__ = ["Instruction", "Barrier", "Measure", "PosType", "Reset"]
+__all__ = ["Instruction", "Barrier", "Measure", "Reset"]
 
-PosType = Union[int, List[int]]
 
 
 class Instruction(ABC):
@@ -35,8 +34,8 @@ class Instruction(ABC):
 
     def __init__(
         self,
-        pos: PosType,
-        paras: Optional[Union[ParameterType, List[ParameterType]]] = None,
+        pos: List[int],
+        paras: List[ParameterType] = [],
         *args,
         **kwargs,
     ):
@@ -77,17 +76,17 @@ class Instruction(ABC):
         assert issubclass(subclass, cls)
 
         if name is None:
-            name = str(subclass.name).lower()
+            name = str(subclass.__name__).lower()
         if name in cls.ins_classes:
             raise ValueError(f"Name {name} already exists.")
         cls.ins_classes[name] = subclass
-
+        return subclass
+    
     @classmethod
     def register(cls, name: str = None):
         def wrapper(subclass):
-            cls.register_ins(subclass, name)
-            return subclass
-
+            return cls.register_ins(subclass, name)
+        
         return wrapper
 
     @abstractmethod

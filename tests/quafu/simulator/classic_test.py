@@ -17,7 +17,7 @@ import unittest
 from base import BaseTest
 
 from quafu import QuantumCircuit, simulate
-
+import numpy as np
 
 class ClassicalCircuits:
     """Container for reference circuits used by the tests."""
@@ -104,7 +104,7 @@ class TestSimulatorClassic(BaseTest):
         self.circuit = ClassicalCircuits.cif_true()
         result = simulate(qc=self.circuit, shots=10)
         probs = result.probabilities
-        count = result.count
+        count = result.counts
         self.assertAlmostEqual(probs[0], 0)
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
@@ -115,7 +115,7 @@ class TestSimulatorClassic(BaseTest):
         self.circuit = ClassicalCircuits.cif_false()
         result = simulate(qc=self.circuit, shots=10)
         probs = result.probabilities
-        count = result.count
+        count = result.counts
         self.assertAlmostEqual(probs[0], 1)
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
@@ -126,7 +126,7 @@ class TestSimulatorClassic(BaseTest):
         self.circuit = ClassicalCircuits.cif_list_true()
         result = simulate(qc=self.circuit, shots=10)
         probs = result.probabilities
-        count = result.count
+        count = result.counts
         self.assertAlmostEqual(probs[0], 0)
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
@@ -141,7 +141,7 @@ class TestSimulatorClassic(BaseTest):
         self.circuit = ClassicalCircuits.cif_list_false()
         result = simulate(qc=self.circuit, shots=10)
         probs = result.probabilities
-        count = result.count
+        count = result.counts
         self.assertAlmostEqual(probs[0], 0)
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
@@ -156,7 +156,7 @@ class TestSimulatorClassic(BaseTest):
         self.circuit = ClassicalCircuits.single_reset()
         result = simulate(qc=self.circuit, shots=10)
         probs = result.probabilities
-        count = result.count
+        count = result.counts
         self.assertAlmostEqual(probs[0], 1)
         self.assertAlmostEqual(probs[1], 0)
         self.assertDictAlmostEqual(count, {"10": 10})
@@ -165,9 +165,20 @@ class TestSimulatorClassic(BaseTest):
         self.circuit = ClassicalCircuits.multi_reset()
         result = simulate(qc=self.circuit, shots=10)
         probs = result.probabilities
-        count = result.count
+        count = result.counts
         self.assertAlmostEqual(probs[0], 1)
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
         self.assertAlmostEqual(probs[3], 0)
         self.assertDictAlmostEqual(count, {"1100": 10})
+
+    def test_cls_input_psi(self):
+        self.circuit = ClassicalCircuits.single_reset()
+        psi = np.zeros(4, dtype=np.complex128)
+        psi[0] = 1.
+        result = simulate(qc=self.circuit, shots=10, psi=psi)
+        probs = result.probabilities
+        count = result.counts
+        self.assertAlmostEqual(probs[0], 1)
+        self.assertAlmostEqual(probs[1], 0)
+        self.assertDictAlmostEqual(count, {"10": 10})

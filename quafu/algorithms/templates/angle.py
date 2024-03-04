@@ -43,7 +43,7 @@ class AngleEmbedding:
     def _build(self):
         gate_list = []
         for i in range(self.num_qubits):
-            gate = self.op(pos=i, paras=self.features[i])
+            gate = self.op(i, self.features[i])
             gate_list.append(gate)
         return gate_list
 
