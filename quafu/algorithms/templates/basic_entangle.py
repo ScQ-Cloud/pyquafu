@@ -82,7 +82,6 @@ class BasicEntangleLayers:
                 Parameter("theta_%d" % j, np.round(np.random.rand(), 3))
                 for j in range(repeat * self.num_qubits)
             ]
-        print(theta)
         for layer in range(repeat):
             j = layer * self.num_qubits
             for i in range(self.num_qubits):
