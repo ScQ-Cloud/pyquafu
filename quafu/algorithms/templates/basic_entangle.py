@@ -13,17 +13,16 @@
 # limitations under the License.
 
 """Layers consisting of one-parameter single-qubit rotations on each qubit, followed by a closed chain or ring of CNOT gates"""
-import quafu.elements.element_gates as qeg
 import numpy as np
-from quafu.elements.parameters import Parameter
+import quafu.elements.element_gates as qeg
 from quafu.elements import QuantumGate
-
+from quafu.elements.parameters import Parameter
 
 ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
 
 class BasicEntangleLayers:
-    def __init__(self, num_qubits=None, weights=None, repeat=None, rotation="X"):
+    def __init__(self, weights=None, num_qubits=None, repeat=None, rotation="X"):
         """
         Args:
             weights(array): Each weight is used as a parameter for the rotation
@@ -34,7 +33,7 @@ class BasicEntangleLayers:
         if num_qubits is None:
             raise ValueError(f"num_qubits must be provided")
         if weights is not None:
-            self.weights = np.asarray(weights)
+            weights = np.asarray(weights)
             shape = np.shape(weights)
             ##TODO(): If weights are batched, i.e. dim>3, additional processing is required
             if weights.ndim > 2:
@@ -56,28 +55,33 @@ class BasicEntangleLayers:
         else:
             self.weights = None
             if repeat is None:
-                raise ValueError(
-                    f"repeat must be provided if weights is None")
+                raise ValueError(f"repeat must be provided if weights is None")
         # convert weights to numpy array if weights is list otherwise keep unchanged
         self.weights = weights
         self.num_qubits = num_qubits
         self.op = ROT[rotation]
         self.repeat = repeat
 
-
         """Build the quantum basic_entangle layer and get the gate_list"""
         self.gate_list = self._build()
-        
+
     def _build(self):
         gate_list = []
         if self.weights is not None:
             repeat = np.shape(self.weights)[-2]
-            theta = [Parameter("theta_%d" % (layer * self.num_qubits + i), self.weights[layer][i]) 
-                     for layer in range(repeat) for i in range(self.num_qubits)]
+            theta = [
+                Parameter(
+                    "theta_%d" % (layer * self.num_qubits + i), self.weights[layer][i]
+                )
+                for layer in range(repeat)
+                for i in range(self.num_qubits)
+            ]
         else:
             repeat = self.repeat
-            theta = [Parameter("theta_%d" % j, np.round(np.random.rand(), 3)) 
-                    for j in range(repeat * self.num_qubits)]
+            theta = [
+                Parameter("theta_%d" % j, np.round(np.random.rand(), 3))
+                for j in range(repeat * self.num_qubits)
+            ]
         print(theta)
         for layer in range(repeat):
             j = layer * self.num_qubits
@@ -101,7 +105,7 @@ class BasicEntangleLayers:
 
     def __getitem__(self, index):
         return self.gate_list[index]
-    
+
     def __add__(self, gates):
         """Addition operator."""
         out = []
@@ -111,7 +115,7 @@ class BasicEntangleLayers:
         else:
             raise TypeError("Contains unsupported gate")
         return out
-    
+
     def __radd__(self, other):
         out = []
         if all(isinstance(gate, QuantumGate) for gate in other):
