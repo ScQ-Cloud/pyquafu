@@ -203,7 +203,7 @@ def _apply_uniform_rotation_dagger(gate, alpha, control_wires, target_wire):
 
     if gray_code_rank == 0:
         if np.all(theta[..., 0] != 0.0):
-            gate_list.append(gate(pos = target_wire, paras = theta[0]))
+            gate_list.append(gate(target_wire, theta[0]))
         return gate_list
 
     code = gray_code(gray_code_rank)
@@ -216,7 +216,7 @@ def _apply_uniform_rotation_dagger(gate, alpha, control_wires, target_wire):
 
     for i, control_index in enumerate(control_indices):
         if np.all(theta[..., i] != 0.0):
-            gate_list.append(gate(pos=target_wire, paras=theta[i]))
+            gate_list.append(gate(target_wire, theta[i]))
         gate_list.append(qeg.CXGate(control_wires[control_index], target_wire))
     return gate_list
 

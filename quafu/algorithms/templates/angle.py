@@ -45,7 +45,7 @@ class AngleEmbedding:
         gate_list = []
         for j in range(self.batch_size):
             for i in range(self.num_qubits):
-                gate = self.op(pos=i, paras=self.features[j, i])
+                gate = self.op(i, self.features[j, i])
                 gate_list.append(gate)
         return gate_list
 

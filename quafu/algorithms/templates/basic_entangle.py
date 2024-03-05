@@ -82,7 +82,7 @@ class BasicEntangleLayers:
         for layer in range(repeat):
             j = layer * self.num_qubits
             for i in range(self.num_qubits):
-                gate = self.op(pos=i, paras=theta[j])
+                gate = self.op(i, theta[j])
                 gate_list.append(gate)
                 j += 1
 
