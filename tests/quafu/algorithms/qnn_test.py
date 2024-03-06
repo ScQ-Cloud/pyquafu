@@ -156,7 +156,7 @@ class TestLayers:
         """Use QuantumNeuralNetwork ansatz"""
         weights = np.random.randn(2, 2)
         entangle_layer = BasicEntangleLayers(weights, 2)
-        qnn = QuantumNeuralNetwork(2, [entangle_layer])
+        qnn = QuantumNeuralNetwork(2, entangle_layer)
         batch_size = 1
 
         # Legacy invokation style
@@ -172,7 +172,7 @@ class TestLayers:
         """Use QuantumNeuralNetwork ansatz"""
         weights = np.random.randn(2, 2)
         entangle_layer = BasicEntangleLayers(weights, 2)
-        qnn = QuantumNeuralNetwork(2, [entangle_layer], backend="ScQ-P10")
+        qnn = QuantumNeuralNetwork(2, entangle_layer, backend="ScQ-P10")
         qnn.measure([0, 1], [0, 1])
         batch_size = 1
 
@@ -200,7 +200,7 @@ class TestLayers:
         num_qubits = num_classes
         weights = np.random.randn(num_qubits, 2)
         entangle_layer = BasicEntangleLayers(weights, 2)
-        qnn = QuantumNeuralNetwork(num_qubits, [entangle_layer])
+        qnn = QuantumNeuralNetwork(num_qubits, entangle_layer)
         # qnn_model = ModelQuantumNeuralNetworkNative(qnn)
         qnn_model = ModelStandardCircuit(qnn)
 
