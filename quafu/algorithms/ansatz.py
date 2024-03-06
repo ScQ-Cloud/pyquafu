@@ -168,8 +168,7 @@ class QuantumNeuralNetwork(Ansatz):
 
     def _build(self):
         """Essentially initialize weights using transformer"""
-        for layer in self._layers:
-            self.add_gates(layer)
+        self.add_gates(self._layers)
 
         self._weights = self._transformer.init_weights((1, self.num_parameters))
 
