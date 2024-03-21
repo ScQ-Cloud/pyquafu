@@ -204,7 +204,8 @@ class Task(object):
                 % (qc.num, self.backend.name, self.backend.qubit_num)
             )
 
-        self.check_valid_gates(qc)
+        if not self.backend.name == "ScQ-P156":
+            self.check_valid_gates(qc)
         qc.to_openqasm()
         data = {
             "qtasm": qc.openqasm,
