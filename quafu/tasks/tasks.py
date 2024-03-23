@@ -18,16 +18,15 @@ from typing import Dict, List, Optional, Tuple
 from urllib import parse
 
 import numpy as np
-import requests
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.users.userapi import User
 
-from ..exceptions import CircuitError, CompileError, ServerError
+from ..exceptions import CircuitError, UserError, validate_server_resp
 from ..results.results import ExecResult, merge_measure
-from ..users.exceptions import UserError
+from ..utils.client_wrapper import ClientWrapper
 
 
-class Task(object):
+class Task:
     """
     Class for submitting quantum computation task to the backend.
 
@@ -233,11 +232,12 @@ class Task(object):
         }
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
-        response = requests.post(
+        response = ClientWrapper.post(
             url, headers=headers, data=data
         )  # type: requests.models.Response
 
         # TODO: completing status code checks
+        # FIXME: Maybe we need to delete below code
         if not response.ok:
             logging.warning("Received a non-200 response from the server.\n")
         if response.status_code == 502:
@@ -246,26 +246,19 @@ class Task(object):
                 "If there is persistent failure, please report it on our github page."
             )
             raise UserError("502 Bad Gateway response")
+        # FIXME: Maybe we need to delete above code
+
+        res_dict = response.json()  # type: dict
+        validate_server_resp(res_dict)
+
+        task_id = res_dict["task_id"]
+
+        if group not in self.submit_history:
+            self.submit_history[group] = [task_id]
         else:
-            res_dict = response.json()  # type: dict
-            quafu_status = res_dict["status"]
-            if quafu_status in [201, 205]:
-                raise UserError(res_dict["message"])
-            elif quafu_status == 5001:
-                raise CircuitError(res_dict["message"])
-            elif quafu_status == 5003:
-                raise ServerError(res_dict["message"])
-            elif quafu_status == 5004:
-                raise CompileError(res_dict["message"])
-            else:
-                task_id = res_dict["task_id"]
+            self.submit_history[group].append(task_id)
 
-                if group not in self.submit_history:
-                    self.submit_history[group] = [task_id]
-                else:
-                    self.submit_history[group].append(task_id)
-
-                return ExecResult(res_dict)
+        return ExecResult(res_dict)
 
     def retrieve(self, taskid: str) -> ExecResult:
         """
@@ -281,7 +274,7 @@ class Task(object):
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
             "api_token": self.user.api_token,
         }
-        response = requests.post(url, headers=headers, data=data)
+        response = ClientWrapper.post(url, headers=headers, data=data)
 
         res_dict = response.json()
         return ExecResult(res_dict)

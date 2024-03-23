@@ -1,0 +1,169 @@
+{
+  "data": [
+    {
+      "QV": 0,
+      "clops": 0.0,
+      "priority_qubits": null,
+      "qubits": 10,
+      "status": "Offline",
+      "system_id": 0,
+      "system_name": "ScQ-P10",
+      "valid_gates": [
+        "cx",
+        "cz",
+        "rx",
+        "ry",
+        "rz",
+        "x",
+        "y",
+        "z",
+        "h",
+        "sx",
+        "sy",
+        "id",
+        "delay",
+        "barrier",
+        "cy",
+        "cnot",
+        "swap"
+      ]
+    },
+    {
+      "QV": 0,
+      "clops": 0.0,
+      "priority_qubits": null,
+      "qubits": 8,
+      "status": "Maintenance",
+      "system_id": 1,
+      "system_name": "ScQ-P18",
+      "valid_gates": [
+        "cx",
+        "cz",
+        "rx",
+        "ry",
+        "rz",
+        "x",
+        "y",
+        "z",
+        "h",
+        "sx",
+        "sy",
+        "id",
+        "delay",
+        "barrier",
+        "cy",
+        "cnot",
+        "swap"
+      ]
+    },
+    {
+      "QV": 0,
+      "clops": 0.0,
+      "priority_qubits": "[108, 109, 119, 120, 121, 110, 111, 122, 123]",
+      "qubits": 136,
+      "status": "Online",
+      "system_id": 2,
+      "system_name": "ScQ-P136",
+      "valid_gates": [
+        "cx",
+        "cz",
+        "rx",
+        "ry",
+        "rz",
+        "x",
+        "y",
+        "z",
+        "h",
+        "delay",
+        "barrier"
+      ]
+    },
+    {
+      "QV": 0,
+      "clops": 0.0,
+      "priority_qubits": null,
+      "qubits": 102,
+      "status": "Maintenance",
+      "system_id": 3,
+      "system_name": "ScQ-P102",
+      "valid_gates": [
+        "cx",
+        "cz",
+        "rx",
+        "ry",
+        "rz",
+        "x",
+        "y",
+        "z",
+        "h",
+        "sx",
+        "sy",
+        "id",
+        "delay",
+        "barrier",
+        "cy",
+        "cnot",
+        "swap"
+      ]
+    },
+    {
+      "QV": 0,
+      "clops": 0.0,
+      "priority_qubits": null,
+      "qubits": 10,
+      "status": "Maintenance",
+      "system_id": 4,
+      "system_name": "ScQ-P10C",
+      "valid_gates": [
+        "cx",
+        "cz",
+        "rx",
+        "ry",
+        "rz",
+        "x",
+        "y",
+        "z",
+        "h",
+        "delay",
+        "barrier"
+      ]
+    },
+    {
+      "QV": 1,
+      "clops": 1.0,
+      "priority_qubits": null,
+      "qubits": 2,
+      "status": "Offline",
+      "system_id": 5,
+      "system_name": "ScQ-XXX",
+      "valid_gates": [
+        "cx",
+        "cz",
+        "rx",
+        "ry",
+        "rz",
+        "x",
+        "y",
+        "z",
+        "h",
+        "delay",
+        "barrier"
+      ]
+    },
+    {
+      "QV": 0,
+      "clops": 0.0,
+      "priority_qubits": "[1]",
+      "qubits": 156,
+      "status": "None Status",
+      "system_id": 6,
+      "system_name": "ScQ-P156",
+      "valid_gates": [
+        "cx"
+      ]
+    }
+  ],
+  "message": "success",
+  "ok": true,
+  "status": 200
+}

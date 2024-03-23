@@ -1,4 +1,4 @@
-from ..exceptions import QuafuError
+from .quafu_error import QuafuError
 
 
 class UserError(QuafuError):
