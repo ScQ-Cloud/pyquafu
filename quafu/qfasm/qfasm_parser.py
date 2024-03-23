@@ -70,6 +70,7 @@ class QfasmParser(object):
         self.stdgate = list(gate_classes.keys())
         # extent keyword(the )
         self.stdgate.extend(["U", "CX"])
+        self.mulctrl = ["mcx", "mcz", "mcy"]
         self.parser = yacc.yacc(module=self, debug=debug)
         # when there is reset/op after measure/if, set to false
         self.executable_on_backend = True
@@ -148,11 +149,7 @@ class QfasmParser(object):
     def handle_gateins(self, gateins: GateInstruction):
         gate_list = []
         # end of recurse
-        if gateins.name in self.stdgate and gateins.name not in [
-            "reset",
-            "barrier",
-            "measure",
-        ]:
+        if gateins.name in self.stdgate and gateins.name not in self.nuop:
             args = []
             # add qubits to args, it's might be a qubit or a qreg
             for qarg in gateins.qargs:
@@ -188,6 +185,8 @@ class QfasmParser(object):
                     gate_list.append(gate_classes["rz"](*[*oneargs, gateins.cargs[2]]))
                     gate_list.append(gate_classes["ry"](*[*oneargs, gateins.cargs[0]]))
                     gate_list.append(gate_classes["rz"](*[*oneargs, gateins.cargs[1]]))
+                if gateins.name in self.mulctrl:
+                    gate_list.append(gate_classes[gateins.name](oneargs[:-1], oneargs[-1]))
                 else:
                     # add carg to args if there is
                     if gateins.cargs is not None and len(gateins.cargs) > 0:
@@ -373,7 +372,7 @@ class QfasmParser(object):
     def check_qargs(self, gateins: GateInstruction):
         # check gatename declared
         qargslist = []
-        if gateins.name not in self.nuop:
+        if gateins.name not in self.nuop and gateins.name not in self.mulctrl:
             if gateins.name not in self.global_symtab:
                 raise ParserError(
                     f"The gate {gateins.name} is undefined at line {gateins.lineno} file {gateins.filename}"
@@ -419,7 +418,7 @@ class QfasmParser(object):
     def check_cargs(self, gateins: GateInstruction):
         # check that cargs belongs to unary (they must be int or float)
         # cargs is different from CREG
-        if gateins.name not in self.nuop:
+        if gateins.name not in self.nuop and gateins.name not in self.mulctrl:
             if gateins.name not in self.global_symtab:
                 raise ParserError(
                     f"The gate {gateins.name} is undefined at line {gateins.lineno} file {gateins.filename}"
