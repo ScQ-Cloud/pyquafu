@@ -181,11 +181,12 @@ class QfasmParser(object):
                 # if it's U or CX
                 if gateins.name == "CX":
                     gateins.name = "cx"
-                if gateins.name == "U":
+                    gate_list.append(gate_classes[gateins.name](*oneargs))
+                elif gateins.name == "U":
                     gate_list.append(gate_classes["rz"](*[*oneargs, gateins.cargs[2]]))
                     gate_list.append(gate_classes["ry"](*[*oneargs, gateins.cargs[0]]))
                     gate_list.append(gate_classes["rz"](*[*oneargs, gateins.cargs[1]]))
-                if gateins.name in self.mulctrl:
+                elif gateins.name in self.mulctrl:
                     gate_list.append(gate_classes[gateins.name](oneargs[:-1], oneargs[-1]))
                 else:
                     # add carg to args if there is
