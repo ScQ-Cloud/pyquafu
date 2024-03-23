@@ -267,3 +267,24 @@ gate c4x a,b,c,d,e
     c3x a,b,c,d;
     c3sqrtx a,b,c,e;
 }
+
+// add gate supported by pyquafu
+// cnot
+gate cnot c,t {}
+// mcx mcy mcz need more support in parser
+// ryy
+gate ryy(theta) a,b {}
+// cs
+gate cs a,b {}
+// ct
+gate ct a,b {}
+// sy
+gate sy a {}
+// w
+gate w a {}
+// sw
+gate sw a {}
+// Toffoli
+gate toffoli a,b,c {}
+// Fredkin
+gate fredkin a,b,c {}

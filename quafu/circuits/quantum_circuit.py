@@ -492,7 +492,7 @@ class QuantumCircuit:
         valid_gates = QuantumGate.gate_classes #TODO:include instruction futher
         qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n'
         qasm += "qreg q[%d];\n" % self.num
-        qasm += "creg meas[%d];\n" % len(self.measures)
+        qasm += "creg meas[%d];\n" % self.cbits_num
         for gate in self.gates:
             if gate.name.lower() in valid_gates:
                 qasm += gate.to_qasm() + ";\n"
