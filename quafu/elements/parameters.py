@@ -95,6 +95,9 @@ class ParameterExpression:
 
         return ParameterExpression(self.pivot, v, operands, funcs)
 
+    def __radd__(self, r):
+        return self + r
+
     def __mul__(self, r):
         operands = [opr for opr in self.operands]
         funcs = copy.deepcopy(self.funcs)
