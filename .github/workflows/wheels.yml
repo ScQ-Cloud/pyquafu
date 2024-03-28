@@ -57,3 +57,13 @@ jobs:
             env:
                 TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
                 TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+
+        # Used to update whl in latest draft
+        -   uses: ncipollo/release-action@v1
+            with:
+                artifacts: dist/*.whl
+                allowUpdates: true
+                tag: pre-release
+                draft: true
+                prerelease: true
+                token: ${{ secrets.GITHUB_TOKEN }}

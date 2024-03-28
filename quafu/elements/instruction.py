@@ -90,7 +90,7 @@ class Instruction(ABC):
         return wrapper
 
     @abstractmethod
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         pass
 
 
@@ -130,7 +130,7 @@ class Barrier(Instruction):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         return "barrier " + ",".join(
             ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
         )
@@ -161,7 +161,7 @@ class Reset(Instruction):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         return "reset " + ",".join(
             ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
         )
@@ -187,7 +187,7 @@ class Measure(Instruction):
     def named_paras(self):
         return self.named_paras
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         lines = [
             "measure q[%d] -> meas[%d];\n" % (q, c)
             for q, c in zip(self.qbits, self.cbits)

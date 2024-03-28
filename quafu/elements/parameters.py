@@ -159,10 +159,10 @@ class ParameterExpression:
         operands = [opr for opr in self.operands]
         funcs = copy.deepcopy(self.funcs)
         operands.append(n)
-        funcs.append(_operator.truediv)
+        funcs.append(_operator.pow)
         v = 0.0
         if isinstance(n, float) or isinstance(n, int):
-            v = self**n
+            v = self.value**n
         else:
             raise NotImplementedError
         return ParameterExpression(self.pivot, v, operands, funcs)

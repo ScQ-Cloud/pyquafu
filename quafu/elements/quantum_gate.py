@@ -23,7 +23,7 @@ from quafu.elements.matrices.mat_utils import reorder_matrix
 
 from .instruction import Instruction
 from .parameters import ParameterType
-from .utils import extract_float
+from .utils import extract_float, handle_expression
 
 __all__ = [
     "QuantumGate",
@@ -197,12 +197,15 @@ class QuantumGate(Instruction):
            return raw_mat
         
   
-    def to_qasm(self) -> str:
+    def to_qasm(self, with_para=False) -> str:
         """OPENQASM 2.0"""
         # TODO: support register naming
         qstr = "%s" %self.name.lower()
         if self.paras:
-            qstr += "(" + ",".join(["%s" %para for para in self._paras]) + ")"
+            if with_para:
+                qstr += "(" + ",".join(["%s" % handle_expression(para) for para in self.paras]) + ")"
+            else:
+                qstr += "(" + ",".join(["%s" % para for para in self._paras]) + ")"
         qstr += " "
         qstr += ",".join(["q[%d]" % p for p in self.pos])
         return qstr
@@ -480,10 +483,10 @@ class CircuitWrapper(QuantumGate):
         self.circuit = self.circuit.dagger()
         return self
 
-    def to_qasm(self):
+    def to_qasm(self, with_para=False):
         qasm = ''
         for operation in self.circuit.operations:
-            qasm += operation.to_qasm() + ";\n"
+            qasm += operation.to_qasm(with_para) + ";\n"
         return qasm
     
 class ControlledCircuitWrapper(CircuitWrapper):

@@ -34,7 +34,7 @@ class Cif(Instruction):
     def named_pos(self) -> Dict:
         return {"cbits": self.cbits}
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         raise NotImplementedError
 
     def set_ins(self, instructions: List[Instruction]):
