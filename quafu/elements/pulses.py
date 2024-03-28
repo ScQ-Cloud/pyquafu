@@ -101,7 +101,7 @@ class QuantumPulse(Instruction, ABC):
         """Return a deepcopy of the pulse"""
         return deepcopy(self)
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         return self.__str__() + " q[%d]" % self.pos
 
     def plot(
@@ -256,7 +256,7 @@ class Delay(Instruction):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         return "delay(%d%s) q[%d]" % (self.duration, self.unit, self.pos)
 
 
@@ -272,7 +272,7 @@ class XYResonance(Instruction):
         self.unit = unit
         self.symbol = "XY(%d%s)" % (duration, unit)
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         return "xy(%d%s) " % (self.duration, self.unit) + ",".join(
             ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
         )

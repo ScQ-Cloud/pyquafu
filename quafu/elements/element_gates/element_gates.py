@@ -129,7 +129,7 @@ class SYGate(QuantumGate):
     def __init__(self, pos: int):
        self.pos =  [pos]
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         return "ry(pi/2) q[%d]" %(self.pos[0])
 
 @QuantumGate.register()
@@ -161,7 +161,7 @@ class WGate(QuantumGate):
     def __init__(self, pos: int):
        self.pos =  [pos]
     
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         q = self.pos[0]
         return "rz(-pi/4) q[%d];\nrx(pi) q[%d];\nrz(pi/4) q[%d]"  %(q, q, q)
 
@@ -173,7 +173,7 @@ class SWGate(QuantumGate):
     def __init__(self, pos: int):
        self.pos =  [pos]
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         q = self.pos[0]
         return "rz(-pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(pi/4) q[%d]"  %(q, q, q)
 
@@ -185,7 +185,7 @@ class SWdgGate(QuantumGate):
     def __init__(self, pos: int):
        self.pos =  [pos]
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         q = self.pos[0]
         return "rz(-pi/4) q[%d];\nrx(-pi/2) q[%d];\nrz(pi/4) q[%d]"  %(q, q, q)
 
@@ -300,7 +300,7 @@ class CSGate(ControlledGate):
         self.targs = [targ]
         self.pos = self.ctrls + self.targs
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         return "cp(pi/2) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
     
 @QuantumGate.register()
@@ -316,7 +316,7 @@ class CTGate(ControlledGate):
         self.targs = [targ]
         self.pos = self.ctrls + self.targs
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         return "cp(pi/4) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
 
 

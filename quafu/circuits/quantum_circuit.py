@@ -36,7 +36,6 @@ from ..exceptions import CircuitError
 from .classical_register import ClassicalRegister
 from .quantum_register import QuantumRegister
 
-
 class QuantumCircuit:
     """
     Representation of quantum circuit.
@@ -482,24 +481,30 @@ class QuantumCircuit:
 
         return qasm2_to_quafu_qc(self, openqasm)
 
-    def to_openqasm(self) -> str:
+    def to_openqasm(self, with_para=False) -> str:
         """
         Convert the circuit to openqasm text.
 
         Returns:
             openqasm text.
         """
+
         valid_gates = list(QuantumGate.gate_classes.keys()) #TODO:include instruction futher
         valid_gates.extend(["barrier", "delay", "reset"])
+
         qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n'
         qasm += "qreg q[%d];\n" % self.num
         qasm += "creg meas[%d];\n" % self.cbits_num
+        if with_para:
+            for variable in self.variables:
+                qasm += f"{variable.latex} = {variable.value};\n"
         for gate in self.gates:
             if gate.name.lower() in valid_gates:
-                qasm += gate.to_qasm() + ";\n"
+                qasm += gate.to_qasm(with_para) + ";\n"
             else:
-                #TODO: add decompose subroutine
-                raise NotImplementedError(f"gate {gate.name} can not convert to qasm2 directly, you may decompose it manuallly")
+                # TODO: add decompose subroutine
+                raise NotImplementedError(
+                    f"gate {gate.name} can not convert to qasm2 directly, you may decompose it manuallly")
         for key in self.measures:
             qasm += "measure q[%d] -> meas[%d];\n" % (key, self.measures[key])
 
