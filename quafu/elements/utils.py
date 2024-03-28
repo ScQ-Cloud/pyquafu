@@ -64,13 +64,13 @@ def handle_expression(param: ParameterType):
         elif param.funcs[i] == _operator.pow:
             retstr = f"pow({retstr}, {handle_expression(param.operands[i])})"
         elif param.funcs[i] == anp.arcsin:
-            retstr = f"arcsin({retstr})"
+            retstr = f"asin({retstr})"
         elif param.funcs[i] == anp.arccos:
-            retstr = f"arccos({retstr})"
+            retstr = f"acos({retstr})"
         elif param.funcs[i] == anp.arctan:
-            retstr = f"arctan({retstr})"
+            retstr = f"atan({retstr})"
         elif param.funcs[i] == anp.exp:
             retstr = f"exp({retstr})"
         elif param.funcs[i] == anp.log:
-            retstr = f"log({retstr})"
+            retstr = f"ln({retstr})"
     return retstr
