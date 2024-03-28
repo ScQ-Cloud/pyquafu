@@ -203,7 +203,7 @@ class Task:
                 % (qc.num, self.backend.name, self.backend.qubit_num)
             )
 
-        if not self.backend.name == "ScQ-P156":
+        if self.backend.name not in ["ScQ-P156", "ScQ-P106"]:
             self.check_valid_gates(qc)
         qc.to_openqasm()
         data = {
