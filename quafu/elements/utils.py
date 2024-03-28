@@ -14,11 +14,10 @@
 
 
 from typing import Iterable, List, Union
-
 import numpy as np
-
-from .parameters import Parameter, ParameterExpression
-
+from quafu.elements.parameters import ParameterType, Parameter, ParameterExpression
+import _operator
+import autograd.numpy as anp
 
 def reorder_matrix(matrix: np.ndarray, pos: List):
     """Reorder the input sorted matrix to the pos order"""
@@ -40,3 +39,38 @@ def extract_float(paras):
         elif isinstance(para, Parameter) or isinstance(para, ParameterExpression):
             paras_f.append(para.get_value())
     return paras_f
+
+def handle_expression(param: ParameterType):
+    if isinstance(param, float) or isinstance(param, int):
+        return param
+    if param.latex:
+        return param.latex
+    retstr = handle_expression(param.pivot)
+    for i in range(len(param.funcs)):
+        if param.funcs[i] == _operator.add:
+            retstr = f"({retstr} + {handle_expression(param.operands[i])})"
+        elif param.funcs[i] == _operator.mul:
+            retstr = f"{retstr} * {handle_expression(param.operands[i])}"
+        elif param.funcs[i] == _operator.sub:
+            retstr = f"({retstr} - {handle_expression(param.operands[i])})"
+        elif param.funcs[i] == _operator.truediv:
+            retstr = f"{retstr} / {handle_expression(param.operands[i])}"
+        elif param.funcs[i] == anp.sin:
+            retstr = f"sin({retstr})"
+        elif param.funcs[i] == anp.cos:
+            retstr = f"cos({retstr})"
+        elif param.funcs[i] == anp.tan:
+            retstr = f"tan({retstr})"
+        elif param.funcs[i] == _operator.pow:
+            retstr = f"pow({retstr}, {handle_expression(param.operands[i])})"
+        elif param.funcs[i] == anp.arcsin:
+            retstr = f"arcsin({retstr})"
+        elif param.funcs[i] == anp.arccos:
+            retstr = f"arccos({retstr})"
+        elif param.funcs[i] == anp.arctan:
+            retstr = f"arctan({retstr})"
+        elif param.funcs[i] == anp.exp:
+            retstr = f"exp({retstr})"
+        elif param.funcs[i] == anp.log:
+            retstr = f"log({retstr})"
+    return retstr

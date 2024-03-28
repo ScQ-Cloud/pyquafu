@@ -87,7 +87,7 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
         # TODO: how to manage paras and the names?
         return self._named_pos
 
-    def to_qasm(self):
+    def to_qasm(self, with_para):
         # TODO: this is similar to QuantumCircuit.to_qasm
         raise NotImplemented
 
