@@ -488,7 +488,10 @@ class QuantumCircuit:
         Returns:
             openqasm text.
         """
-        valid_gates = QuantumGate.gate_classes  # TODO:include instruction futher
+
+        valid_gates = list(QuantumGate.gate_classes.keys()) #TODO:include instruction futher
+        valid_gates.extend(["barrier", "delay", "reset"])
+
         qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n'
         qasm += "qreg q[%d];\n" % self.num
         qasm += "creg meas[%d];\n" % self.cbits_num
