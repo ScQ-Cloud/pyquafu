@@ -18,6 +18,7 @@ archs = ["x86_64"]
 
 
 [tool.cibuildwheel.macos]
+environment = {MACOSX_DEPLOYMENT_TARGET = "13.6"}
 archs = ["x86_64", "arm64"]
 
 repair-wheel-command = [

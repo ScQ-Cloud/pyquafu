@@ -10,8 +10,9 @@ except ImportError:
     )
     raise
 
-from setuptools import find_packages
 from os import path
+
+from setuptools import find_packages
 
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
@@ -28,9 +29,9 @@ requirements = [
     "sparse>=0.13.0",
     "scikit-build>=0.16.1",
     "pybind11>=2.10.3",
-    "pygraphviz>=1.11",
+    "graphviz>=0.14.2",
     "ply~=3.11",
-    "Pillow~=10.0.0"
+    "autograd>=1.6.2",
 ]
 
 setup(
@@ -44,11 +45,13 @@ setup(
     packages=find_packages(exclude=["test*"]),
     cmake_install_dir="quafu/simulators/",
     include_package_data=True,
+    package_data={"quafu": ["qfasm/*.inc"]},
     long_description=long_description,
     long_description_content_type="text/markdown",
     extras_require={"test": ["pytest"]},
+    cmake_args=['-DCMAKE_BUILD_TYPE:STRING=Debug'],
     python_requires=">=3.8",
     zip_safe=False,
     setup_cfg=True,
-    license="Apache-2.0 License"
+    license="Apache-2.0 License",
 )

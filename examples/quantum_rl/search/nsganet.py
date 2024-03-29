@@ -6,8 +6,7 @@ from pymoo.model.survival import Survival
 from pymoo.operators.crossover.point_crossover import PointCrossover
 from pymoo.operators.mutation.polynomial_mutation import PolynomialMutation
 from pymoo.operators.sampling.random_sampling import RandomSampling
-from pymoo.operators.selection.tournament_selection import (
-    TournamentSelection, compare)
+from pymoo.operators.selection.tournament_selection import TournamentSelection, compare
 from pymoo.util.display import disp_multi_objective
 from pymoo.util.dominator import Dominator
 from pymoo.util.non_dominated_sorting import NonDominatedSorting
@@ -20,12 +19,11 @@ from pymoo.util.randomized_argsort import randomized_argsort
 
 
 class NSGANet(GeneticAlgorithm):
-
     def __init__(self, **kwargs):
-        kwargs['individual'] = Individual(rank=np.inf, crowding=-1)
+        kwargs["individual"] = Individual(rank=np.inf, crowding=-1)
         super().__init__(**kwargs)
 
-        self.tournament_type = 'comp_by_dom_and_crowding'
+        self.tournament_type = "comp_by_dom_and_crowding"
         self.func_display_attrs = disp_multi_objective
 
 
@@ -42,34 +40,46 @@ def binary_tournament(pop, P, algorithm, **kwargs):
     S = np.full(P.shape[0], np.nan)
 
     for i in range(P.shape[0]):
-
         a, b = P[i, 0], P[i, 1]
 
         # if at least one solution is infeasible
         if pop[a].CV > 0.0 or pop[b].CV > 0.0:
-            S[i] = compare(a, pop[a].CV, b, pop[b].CV, method='smaller_is_better', return_random_if_equal=True)
+            S[i] = compare(
+                a,
+                pop[a].CV,
+                b,
+                pop[b].CV,
+                method="smaller_is_better",
+                return_random_if_equal=True,
+            )
 
         # both solutions are feasible
         else:
-
-            if tournament_type == 'comp_by_dom_and_crowding':
+            if tournament_type == "comp_by_dom_and_crowding":
                 rel = Dominator.get_relation(pop[a].F, pop[b].F)
                 if rel == 1:
                     S[i] = a
                 elif rel == -1:
                     S[i] = b
 
-            elif tournament_type == 'comp_by_rank_and_crowding':
-                S[i] = compare(a, pop[a].rank, b, pop[b].rank,
-                               method='smaller_is_better')
+            elif tournament_type == "comp_by_rank_and_crowding":
+                S[i] = compare(
+                    a, pop[a].rank, b, pop[b].rank, method="smaller_is_better"
+                )
 
             else:
                 raise Exception("Unknown tournament type.")
 
             # if rank or domination relation didn't make a decision compare by crowding
             if np.isnan(S[i]):
-                S[i] = compare(a, pop[a].get("crowding"), b, pop[b].get("crowding"),
-                               method='larger_is_better', return_random_if_equal=True)
+                S[i] = compare(
+                    a,
+                    pop[a].get("crowding"),
+                    b,
+                    pop[b].get("crowding"),
+                    method="larger_is_better",
+                    return_random_if_equal=True,
+                )
 
     return S[:, None].astype(np.int)
 
@@ -80,12 +90,10 @@ def binary_tournament(pop, P, algorithm, **kwargs):
 
 
 class RankAndCrowdingSurvival(Survival):
-
     def __init__(self) -> None:
         super().__init__(True)
 
     def _do(self, pop, n_survive, D=None, **kwargs):
-
         # get the objective space values and objects
         F = pop.get("F")
 
@@ -96,7 +104,6 @@ class RankAndCrowdingSurvival(Survival):
         fronts = NonDominatedSorting().do(F, n_stop_if_ranked=n_survive)
 
         for k, front in enumerate(fronts):
-
             # calculate the crowding distance of the front
             crowding_of_front = calc_crowding_distance(F[front, :])
 
@@ -107,8 +114,10 @@ class RankAndCrowdingSurvival(Survival):
 
             # current front sorted by crowding distance if splitting
             if len(survivors) + len(front) > n_survive:
-                I = randomized_argsort(crowding_of_front, order='descending', method='numpy')
-                I = I[:(n_survive - len(survivors))]
+                I = randomized_argsort(
+                    crowding_of_front, order="descending", method="numpy"
+                )
+                I = I[: (n_survive - len(survivors))]
 
             # otherwise take the whole front unsorted
             else:
@@ -121,7 +130,7 @@ class RankAndCrowdingSurvival(Survival):
 
 
 def calc_crowding_distance(F):
-    infinity = 1e+14
+    infinity = 1e14
 
     n_points = F.shape[0]
     n_obj = F.shape[1]
@@ -129,16 +138,16 @@ def calc_crowding_distance(F):
     if n_points <= 2:
         return np.full(n_points, infinity)
     else:
-
         # sort each column and get index
-        I = np.argsort(F, axis=0, kind='mergesort')
+        I = np.argsort(F, axis=0, kind="mergesort")
 
         # now really sort the whole array
         F = F[I, np.arange(n_obj)]
 
         # get the distance to the last element in sorted list and replace zeros with actual values
-        dist = np.concatenate([F, np.full((1, n_obj), np.inf)]) \
-               - np.concatenate([np.full((1, n_obj), -np.inf), F])
+        dist = np.concatenate([F, np.full((1, n_obj), np.inf)]) - np.concatenate(
+            [np.full((1, n_obj), -np.inf), F]
+        )
 
         index_dist_is_zero = np.where(dist == 0)
 
@@ -161,7 +170,13 @@ def calc_crowding_distance(F):
 
         # sum up the distance to next and last and norm by objectives - also reorder from sorted list
         J = np.argsort(I, axis=0)
-        crowding = np.sum(dist_to_last[J, np.arange(n_obj)] + dist_to_next[J, np.arange(n_obj)], axis=1) / n_obj
+        crowding = (
+            np.sum(
+                dist_to_last[J, np.arange(n_obj)] + dist_to_next[J, np.arange(n_obj)],
+                axis=1,
+            )
+            / n_obj
+        )
 
     # replace infinity with a large number
     crowding[np.isinf(crowding)] = infinity
@@ -175,14 +190,15 @@ def calc_crowding_distance(F):
 
 
 def nsganet(
-        pop_size=100,
-        sampling=RandomSampling(var_type=np.int),
-        selection=TournamentSelection(func_comp=binary_tournament),
-        crossover=PointCrossover(n_points=2),
-        mutation=PolynomialMutation(eta=3, var_type=np.int),
-        eliminate_duplicates=True,
-        n_offsprings=None,
-        **kwargs):
+    pop_size=100,
+    sampling=RandomSampling(var_type=np.int),
+    selection=TournamentSelection(func_comp=binary_tournament),
+    crossover=PointCrossover(n_points=2),
+    mutation=PolynomialMutation(eta=3, var_type=np.int),
+    eliminate_duplicates=True,
+    n_offsprings=None,
+    **kwargs
+):
     """
 
     Parameters
@@ -203,15 +219,17 @@ def nsganet(
 
     """
 
-    return NSGANet(pop_size=pop_size,
-                   sampling=sampling,
-                   selection=selection,
-                   crossover=crossover,
-                   mutation=mutation,
-                   survival=RankAndCrowdingSurvival(),
-                   eliminate_duplicates=eliminate_duplicates,
-                   n_offsprings=n_offsprings,
-                   **kwargs)
+    return NSGANet(
+        pop_size=pop_size,
+        sampling=sampling,
+        selection=selection,
+        crossover=crossover,
+        mutation=mutation,
+        survival=RankAndCrowdingSurvival(),
+        eliminate_duplicates=eliminate_duplicates,
+        n_offsprings=n_offsprings,
+        **kwargs
+    )
 
 
 parse_doc_string(nsganet)

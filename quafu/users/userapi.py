@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import os
+from typing import Optional
 
-import requests
-
-from .exceptions import UserError, APITokenNotFound
+from ..exceptions import APITokenNotFound, UserError, validate_server_resp
+from ..utils.client_wrapper import ClientWrapper
 from ..utils.platform import get_homedir
 
 
@@ -28,7 +28,9 @@ class User(object):
     exec_async_api = "qbackend/scq_kit_asyc/"
     exec_recall_api = "qbackend/scq_task_recall/"
 
-    def __init__(self, api_token: str = None, token_dir: str = None):
+    def __init__(
+        self, api_token: Optional[str] = None, token_dir: Optional[str] = None
+    ):
         """
         Initialize user account and load backend information.
 
@@ -100,12 +102,10 @@ class User(object):
         """
         headers = {"api_token": self.api_token}
         url = self.url + self.backends_api
-        response = requests.post(url=url, headers=headers)
+        response = ClientWrapper.post(url=url, headers=headers)
         backends_info = response.json()
-        if response.status_code == 201:
-            raise UserError(backends_info["message"])
-        else:
-            return backends_info["data"]
+        validate_server_resp(backends_info)
+        return backends_info["data"]
 
     def get_available_backends(self, print_info=True):
         """

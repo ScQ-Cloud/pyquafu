@@ -1,155 +1,130 @@
 #pragma once
-#include "operators.hpp"
+#include "instructions.hpp"
 #include "qasm.hpp"
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
-#include <pybind11/stl.h>
-#include <pybind11/eigen.h>
 #include "util.h"
 #include <Eigen/Core>
 #include <algorithm>
+#include <iostream>
+
 
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-// Construct C++ operators from pygates
-QuantumOperator from_pyops(py::object const &obj){
-    string name;
-    vector<pos_t> positions;
-    vector<double> paras;
-    uint control_num = 0;
-    RowMatrixXcd mat;
-    
-    name = obj.attr("name").attr("lower")().cast<string>();
-    if (!(name == "barrier" || name == "delay" || name == "id"))
-    {
-        if (py::isinstance<py::list>(obj.attr("pos"))){
-            positions = obj.attr("pos").cast<vector<pos_t>>();
-        }
-        else if(py::isinstance<py::int_>(obj.attr("pos"))){
-            positions = vector<pos_t>{obj.attr("pos").cast<pos_t>()};
-        }
 
-        if (py::isinstance<py::list>(obj.attr("paras"))){
-            paras = obj.attr("paras").cast<vector<double>>();
-        }
-        else if(py::isinstance<py::float_>(obj.attr("paras")) || py::isinstance<py::int_>(obj.attr("paras"))){
-            paras = vector<double>{obj.attr("paras").cast<double>()};
-        }
-
-        if (py::hasattr(obj, "ctrls")){
-                control_num = py::len(obj.attr("ctrls"));
-        }
-        
-        //Reverse order for multi-target gate
-        if (py::hasattr(obj, "_targ_matrix")){
-                mat = obj.attr("get_targ_matrix")("reverse_order"_a=true).cast<RowMatrixXcd>();
-        }
-        else{ //Single target gate
-                mat = obj.attr("matrix").cast<RowMatrixXcd>();
-        }
-        return QuantumOperator(name, paras, positions, control_num, mat);
-    }
-    else{
-        return QuantumOperator();
-    }
-   
-}
-
-void check_operator(QuantumOperator &op){
-    std::cout << "-------------" << std::endl;
-
-    std::cout << "name: " << op.name() << std::endl;
-    std::cout << "pos: ";
-    Qfutil::printVector(op.positions());
-
-    std::cout << "paras: ";
-    Qfutil::printVector(op.paras());
-
-    std::cout << "control number: ";
-    std::cout << op.control_num() << std::endl;
-
-    std::cout << "matrix: " << std::endl;
-    std::cout << op.mat() << std::endl;
-
-    std::cout << "flatten matrix: " << std::endl;
-    auto mat = op.mat();
-    // Eigen::Map<Eigen::RowVectorXcd> v1(mat.data(), mat.size());
-    // std::cout << "v1: " << v1 << std::endl;
-    auto matv = mat.data();
-    for (auto i = 0;i < mat.size();i++){
-        std::cout << matv[i] << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "-------------" << std::endl;
-}
-
-
-class Circuit{
+class Circuit {
     private:
-        uint qubit_num_;    
-        vector<QuantumOperator> gates_{0};
+        uint qubit_num_;
+        vector<std::unique_ptr<Instruction>> instructions_;
         uint max_targe_num_;
+        uint cbit_num_;
+        // to sample count
+        vector<std::pair<uint, uint>> measure_vec_;
+        bool final_measure_ = true;
+
     public:
-    Circuit();
-    explicit Circuit(uint qubit_num);
-    explicit Circuit(vector<QuantumOperator> &gates);
-    explicit Circuit(py::object const&pycircuit); 
+        Circuit();
+        explicit Circuit(uint qubit_num);
+        explicit Circuit(vector<std::unique_ptr<Instruction>> & ops);
+        Circuit(py::object const&pycircuit, bool get_full_mat=false, bool reverse=true);
 
-    void add_gate(QuantumOperator &gate);
-    void compress_gates();
-    uint qubit_num() const { return qubit_num_; }
-    uint max_targe_num() const {return max_targe_num_;}
-    vector<QuantumOperator>gates() const { return gates_; }
-
+        void add_op(std::unique_ptr<Instruction> op);
+        void compress_instructions();
+        uint qubit_num() const { return qubit_num_; }
+        uint cbit_num() const { return cbit_num_; }
+        uint max_targe_num() const { return max_targe_num_; }
+        bool final_measure() const { return final_measure_; }
+        vector<QuantumOperator> gates();
+        vector<std::pair<uint, uint>> measure_vec() { return measure_vec_; }
+        vector<std::unique_ptr<Instruction>>& instructions() { return instructions_; }
 };
 
-void Circuit::add_gate(QuantumOperator &gate){
-    for (pos_t pos : gate.positions()){
-        if (pos > qubit_num_) {
-            throw "invalid position on quantum registers";
+void Circuit::add_op(std::unique_ptr<Instruction> op) {
+  for (pos_t pos : op->positions()) {
+    if (pos > qubit_num_) {
+      throw "invalid position on quantum registers";
+    } else {
+      instructions_.push_back(std::move(op));
+    }
+  }
+}
+
+Circuit::Circuit(){};
+Circuit::Circuit(uint qubit_num) : qubit_num_(qubit_num) {}
+
+Circuit::Circuit(vector<std::unique_ptr<Instruction>>& ops)
+    : instructions_(std::move(ops)), max_targe_num_(0) {
+  qubit_num_ = 0;
+  for (auto& op : instructions_) {
+    for (pos_t pos : op->positions()) {
+      if (op->targe_num() > max_targe_num_)
+        max_targe_num_ = op->targe_num();
+      if (pos + 1 > qubit_num_) {
+        qubit_num_ = pos + 1;
+      }
+    }
+  }
+}
+
+vector<QuantumOperator> Circuit::gates() {
+  // provide gates for gpu and custate
+  std::vector<std::string> classics = {"measure", "cif", "reset"};
+  vector<QuantumOperator> gates;
+  for (auto& op : instructions_) {
+    if (std::find(classics.begin(), classics.end(), op->name()) ==
+        classics.end()) {
+        QuantumOperator *gate_ptr = dynamic_cast<QuantumOperator*>(op.get());
+        if (gate_ptr != nullptr){
+            QuantumOperator gate  = *gate_ptr; //copy.may use shared_ptr  
+            gates.push_back(gate);
         }
         else{
-            gates_.push_back(gate);
+            std::cout << "Dynamic cast failed." << std::endl;
         }
     }
+  }
+  return gates;
 }
 
- Circuit::Circuit(){};
- Circuit::Circuit(uint qubit_num)
- :
- qubit_num_(qubit_num){ }
 
- Circuit::Circuit(vector<QuantumOperator> &gates)
- :
- gates_(gates),
- max_targe_num_(0){
-    qubit_num_ = 0;
-    for (auto gate : gates){
-        for (pos_t pos : gate.positions()){
-            if (gate.targe_num() > max_targe_num_)
-                max_targe_num_ = gate.targe_num();
-            if (pos+1 > qubit_num_){ qubit_num_ = pos+1; }
+Circuit::Circuit(py::object const& pycircuit, bool get_full_mat, bool reverse) : max_targe_num_(0) {
+  // auto pygates = pycircuit.attr("gates");
+  auto pyops = pycircuit.attr("instructions"); 
+  qubit_num_ = pycircuit.attr("num").cast<uint>(); //To consist with other simulators  (e.g. qiskit)
+//   auto used_qubits = pycircuit.attr("used_qubits").cast<vector<pos_t>>();
+// qubit_num_ = *std::max_element(used_qubits.begin(), used_qubits.end()) + 1;
+
+  cbit_num_ = pycircuit.attr("cbits_num").cast<uint>();
+  // judge wheather op qubit after measure
+  bool measured = false;
+  for (auto pyop_h : pyops) {
+    py::object pyop = py::reinterpret_borrow<py::object>(pyop_h);
+    if (py::hasattr(pyop, "circuit")){ //handle oracle
+        auto wrap_circuit = Circuit(pyop.attr("circuit"), get_full_mat, reverse);
+        for (auto& op : wrap_circuit.instructions()){
+           instructions_.push_back(std::move(op));
         }
     }
+    else{
+      std::unique_ptr<Instruction> ins = from_pyops(pyop, get_full_mat, reverse);
+    //   check_operator(*(ins));
+      if (*ins){
+        if (ins->name() == "measure"){
+            measured = true;
+            // record qbit-cbit measure map
+            for (uint i = 0; i < ins->qbits().size(); i++) {
+                measure_vec_.push_back(std::make_pair(ins->qbits()[i], ins->cbits()[i]));
+            }
+        }
+        else{
+            if (ins->targe_num() > max_targe_num_)
+                max_targe_num_ = ins->targe_num();
+            if (measured == true)
+                final_measure_ = false;
+        }
+        instructions_.push_back(std::move(ins));
+      }
+    }
+  }
 }
 
-Circuit::Circuit(py::object const&pycircuit)
-:
-max_targe_num_(0)
-{
-    auto pygates = pycircuit.attr("gates");
-    auto used_qubits = pycircuit.attr("used_qubits").cast<vector<pos_t>>();
-    qubit_num_ = *std::max_element(used_qubits.begin(), used_qubits.end())+1;
-    for (auto pygate_h : pygates){
-        py::object pygate = py::reinterpret_borrow<py::object>(pygate_h);
-        QuantumOperator gate = from_pyops(pygate);
-        if (gate){
-            if (gate.targe_num() > max_targe_num_)
-                max_targe_num_ = gate.targe_num();
-            gates_.push_back(std::move(gate));
-        }        
-    }
-} 
-
-void Circuit::compress_gates(){}
+void Circuit::compress_instructions() {}

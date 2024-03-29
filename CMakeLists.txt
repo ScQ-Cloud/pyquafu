@@ -4,9 +4,15 @@ cmake_minimum_required(VERSION 3.14...3.22)
 
 project(qfvm LANGUAGES CXX C)
 
-set (CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_STANDARD 17)
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Build type not set - defaulting to Release")
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+set(CMAKE_BUILD_TYPE Debug)
+
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CUDA_ARCHITECTURES 70;75;80;90)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(SKBUILD)
 
 execute_process(
@@ -35,6 +41,7 @@ else()
 	endif()
 endif()
 
+list ( APPEND PRJ_COMPILE_OPTIONS -g)
 #install eigen
 set(EIGEN3_ROOT  ${CMAKE_SOURCE_DIR}/thirdparty/Eigen3)
 set(EIGEN3_INCLUDE_DIR ${EIGEN3_ROOT}/include/eigen3)
@@ -42,7 +49,7 @@ include(ExternalProject)
 ExternalProject_Add(Eigen3
 		PREFIX             ${EIGEN3_ROOT}
 		GIT_REPOSITORY     https://gitlab.com/libeigen/eigen.git
-		GIT_TAG            3.3.9
+		GIT_TAG            3.4
 
 		CONFIGURE_COMMAND ""
 		BUILD_COMMAND ""
@@ -51,7 +58,6 @@ ExternalProject_Add(Eigen3
       && ${CMAKE_COMMAND} -E copy_directory ${EIGEN3_ROOT}/src/Eigen3/unsupported ${EIGEN3_INCLUDE_DIR}/unsupported
 )
 list (APPEND PRJ_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
-
 
 find_package(pybind11 CONFIG)
 list (APPEND PRJ_INCLUDE_DIRS ${PYBIND11_INCLUDE_DIR})
@@ -70,7 +76,7 @@ if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR 
 	endif()
 endif()
 
-list (APPEND PRJ_INCLUDE_DIRS src/qfvm)
+list (APPEND PRJ_INCLUDE_DIRS src/qfvm src/qfvm_clifford)
 pybind11_add_module(${PROJECT_NAME} MODULE src/${PROJECT_NAME}/${PROJECT_NAME}.cpp)
 add_dependencies(${PROJECT_NAME} Eigen3) #must add dependence for ninja
 target_compile_options(${PROJECT_NAME} PUBLIC ${PRJ_COMPILE_OPTIONS})

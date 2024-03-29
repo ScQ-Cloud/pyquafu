@@ -14,20 +14,19 @@
 
 import copy
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 from urllib import parse
 
 import numpy as np
-import requests
-
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.users.userapi import User
-from ..exceptions import CircuitError, ServerError, CompileError
+
+from ..exceptions import CircuitError, UserError, validate_server_resp
 from ..results.results import ExecResult, merge_measure
-from ..users.exceptions import UserError
+from ..utils.client_wrapper import ClientWrapper
 
 
-class Task(object):
+class Task:
     """
     Class for submitting quantum computation task to the backend.
 
@@ -42,7 +41,7 @@ class Task(object):
 
     """
 
-    def __init__(self, user: User = None):
+    def __init__(self, user: Optional[User] = None):
         self.user = User() if user is None else user
 
         self.shots = 1000
@@ -182,11 +181,7 @@ class Task(object):
         return res
 
     def send(
-        self,
-        qc: QuantumCircuit,
-        name: str = "",
-        group: str = "",
-        wait: bool = True,
+        self, qc: QuantumCircuit, name: str = "", group: str = "", wait: bool = True
     ) -> ExecResult:
         """
         Run the circuit on experimental device.
@@ -208,7 +203,8 @@ class Task(object):
                 % (qc.num, self.backend.name, self.backend.qubit_num)
             )
 
-        self.check_valid_gates(qc)
+        if self.backend.name not in ["ScQ-P156", "ScQ-P106"]:
+            self.check_valid_gates(qc)
         qc.to_openqasm()
         data = {
             "qtasm": qc.openqasm,
@@ -236,40 +232,33 @@ class Task(object):
         }
         data = parse.urlencode(data)
         data = data.replace("%27", "'")
-        response = requests.post(
+        response = ClientWrapper.post(
             url, headers=headers, data=data
         )  # type: requests.models.Response
 
         # TODO: completing status code checks
-        # assert response.ok
+        # FIXME: Maybe we need to delete below code
+        if not response.ok:
+            logging.warning("Received a non-200 response from the server.\n")
         if response.status_code == 502:
             logging.critical(
                 "Received a 502 Bad Gateway response. Please try again later.\n"
                 "If there is persistent failure, please report it on our github page."
             )
-            raise UserError()
+            raise UserError("502 Bad Gateway response")
+        # FIXME: Maybe we need to delete above code
+
+        res_dict = response.json()  # type: dict
+        validate_server_resp(res_dict)
+
+        task_id = res_dict["task_id"]
+
+        if group not in self.submit_history:
+            self.submit_history[group] = [task_id]
         else:
-            res_dict = response.json()
-            import pprint
+            self.submit_history[group].append(task_id)
 
-            pprint.pprint(res_dict)
-            if response.status_code in [201, 205]:
-                raise UserError(res_dict["message"])
-            elif response.status_code == 5001:
-                raise CircuitError(res_dict["message"])
-            elif response.status_code == 5003:
-                raise ServerError(res_dict["message"])
-            elif response.status_code == 5004:
-                raise CompileError(res_dict["message"])
-            else:
-                task_id = res_dict["task_id"]
-
-                if not (group in self.submit_history):
-                    self.submit_history[group] = [task_id]
-                else:
-                    self.submit_history[group].append(task_id)
-
-                return ExecResult(res_dict, qc.measures)
+        return ExecResult(res_dict)
 
     def retrieve(self, taskid: str) -> ExecResult:
         """
@@ -285,17 +274,10 @@ class Task(object):
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
             "api_token": self.user.api_token,
         }
-        response = requests.post(url, headers=headers, data=data)
+        response = ClientWrapper.post(url, headers=headers, data=data)
 
         res_dict = response.json()
-        measures = eval(res_dict["measure"])
-        if measures is None:
-            raise Exception(
-                "Measure info returned is None. This may be the error under repairing."
-                " See https://github.com/ScQ-Cloud/pyquafu/issues/50"
-            )
-
-        return ExecResult(res_dict, measures)
+        return ExecResult(res_dict)
 
     def retrieve_group(
         self, group: str, history: Dict = None, verbose: bool = True

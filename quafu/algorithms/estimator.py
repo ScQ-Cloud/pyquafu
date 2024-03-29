@@ -12,11 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Pre-build wrapper to calculate expectation value"""
+from typing import List, Optional
+from ..circuits.quantum_circuit import QuantumCircuit
+from ..tasks.tasks import Task
+from .hamiltonian import Hamiltonian
+from ..simulators import simulate
 
-from typing import Optional
-from quafu import QuantumCircuit
-from quafu.simulators.simulator import simulate
-from quafu.tasks.tasks import Task
+
+def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
+    """Execute circuit on quafu simulator"""
+    sim_res = simulate(circ, hamiltonian= observables)
+    expectations = sim_res["pauli_expects"]
+    return sum(expectations)
 
 
 class Estimator:
@@ -47,29 +54,38 @@ class Estimator:
             self._task.config(backend=self._backend)
             self._task.config(**task_options)
 
-    def _run_real_machine(self, observables):
+    def _run_real_machine(self, observables: Hamiltonian):
         """Submit to quafu service"""
         if not isinstance(self._task, Task):
             raise ValueError("task not set")
-        res, obsexp = self._task.submit(self._circ, observables)
-        return res, obsexp
+        # TODO(zhaoyilun): replace old `submit` API in the future,
+        #   investigate the best implementation for calculating
+        #   expectation on real devices.
+        obs = observables.to_legacy_quafu_pauli_list()
+        _, obsexp = self._task.submit(self._circ, obs)
+        return sum(obsexp)
 
-    def _run_simulation(self, observables):
-        """TODO"""
-        sim_res = simulate(self._circ)
-        # TODO
-        # sim_res.calculate_obs()
-        return None, None
+    def _run_simulation(self, observables: Hamiltonian):
+        """Run using quafu simulator"""
+        # sim_state = simulate(self._circ).get_statevector()
+        # expectation = np.matmul(
+        #     np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
+        # ).real
+        # return expectation
+        return execute_circuit(self._circ, observables)
 
-    def run(self, observables, paras_list=None):
+    def run(self, observables: Hamiltonian, params: List[float]):
         """Calculate estimation for given observables
 
         Args:
             observables: observables to be estimated.
             paras_list: list of parameters of self.circ.
+
+        Returns:
+            Expectation value
         """
-        if paras_list is not None:
-            self._circ.update_params(paras_list)
+        if params is not None:
+            self._circ.update_params(params)
 
         if self._backend == "sim":
             return self._run_simulation(observables)

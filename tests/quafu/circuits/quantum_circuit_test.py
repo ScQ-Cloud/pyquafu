@@ -1,5 +1,6 @@
 from quafu.circuits import QuantumCircuit
 from quafu.elements.element_gates import RXGate
+from quafu.elements.parameters import Parameter
 import math
 
 
@@ -13,7 +14,7 @@ class TestQuantumCircuit:
         print("\n ------ Testing ------ \n")
         c.draw_circuit()
         assert isinstance(g, RXGate)
-        assert math.isclose(g.paras, 0.5)
+        assert math.isclose(g.paras[0], 0.5)
 
     def test_update_parameters(self):
         """Test parameter update"""
@@ -24,8 +25,19 @@ class TestQuantumCircuit:
         g = c.parameterized_gates[0]
         c.draw_circuit()
         assert isinstance(g, RXGate)
-        assert math.isclose(g.paras, 0.1)
+        assert math.isclose(g.paras[0], 0.1)
         c.update_params([0.2])
-        assert math.isclose(g.paras, 0.2)
+        assert math.isclose(g.paras[0], 0.2)
         c.update_params([None])
-        assert math.isclose(g.paras, 0.2)
+        assert math.isclose(g.paras[0], 0.2)
+
+    def test_instantiated_params(self):
+        """Create Parameter objects"""
+        pq = QuantumCircuit(4)
+        theta = [Parameter("theta_%d" %(i), i+1) for i in range(4)]
+
+        for i in range(4):
+            pq.rx(i, theta[i])
+
+        pq.ry(2, theta[0]*theta[1]-3.*theta[0])
+        pq.draw_circuit()

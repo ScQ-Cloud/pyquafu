@@ -2,8 +2,8 @@ import copy
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
+from ..algorithms.hamiltonian import Hamiltonian
 from ..utils.basis import *
-
 
 class Result(object):
     """Basis class for quantum results"""
@@ -22,7 +22,7 @@ class ExecResult(Result):
         transpiled_circuit (QuantumCircuit): Quantum circuit transpiled on backend.
     """
 
-    def __init__(self, input_dict, measures):
+    def __init__(self, input_dict):
         status_map = {
             0: "In Queue",
             1: "Running",
@@ -30,18 +30,6 @@ class ExecResult(Result):
             "Canceled": 3,
             4: "Failed",
         }
-        self.measures = measures
-        self.task_status = status_map[input_dict["status"]]
-        self.res = eval(input_dict["res"])
-        self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
-        self.logicalq_res = {}
-        cbits = list(self.measures.values())
-        indexed_cbits = {bit: i for i, bit in enumerate(sorted(cbits))}
-        squeezed_cbits = [indexed_cbits[bit] for bit in cbits]
-        for key, values in self.counts.items():
-            newkey = "".join([key[i] for i in squeezed_cbits])
-            self.logicalq_res[newkey] = values
-
         self.taskid = input_dict["task_id"]
         self.taskname = input_dict["task_name"]
         self.transpiled_openqasm = input_dict["openqasm"]
@@ -50,10 +38,24 @@ class ExecResult(Result):
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
         self.measure_base = []
+
+        self.measures = self.transpiled_circuit.measures
+        self.task_status = status_map[input_dict["status"]]
+        self.res = eval(input_dict["res"])
+        self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
+
+        self.logicalq_res = {}
+        cbits = list(self.measures.values())
+        indexed_cbits = {bit: i for i, bit in enumerate(sorted(cbits))}
+        squeezed_cbits = [indexed_cbits[bit] for bit in cbits]
+        for key, values in self.counts.items():
+            newkey = "".join([key[i] for i in squeezed_cbits])
+            self.logicalq_res[newkey] = values
+
         total_counts = sum(self.counts.values())
         self.probabilities = {}
-        for key in self.counts:
-            self.probabilities[key] = self.counts[key] / total_counts
+        for bit_str in self.counts:
+            self.probabilities[bit_str] = self.counts[bit_str] / total_counts
 
     def calculate_obs(self, pos):
         """
@@ -77,73 +79,131 @@ class ExecResult(Result):
 
 
 class SimuResult(Result):
-    """
-    Class that save the execute simulation results returned from classical simulator.
-
-    Attributes:
-        num (int): Numbers of measured qubits
-        probabilities (ndarray): Calculated probabilities on each bitstring.
-        rho (ndarray): Simulated density matrix of measured qubits
-    """
-
-    def __init__(self, input, input_form):
-        self.num = int(np.log2(input.shape[0]))
-        if input_form == "density_matrix":
-            self.rho = np.array(input)
-            self.probabilities = np.diag(input)
-        elif input_form == "probabilities":
-            self.probabilities = input
-        elif input_form == "state_vector":
-            self.state_vector = input
-
-    def plot_probabilities(
-        self, full: bool = False, reverse_basis: bool = False, sort: bool = None
-    ):
+    def __init__(self, res_info : dict):
         """
-        Plot the probabilities from simulated results, ordered in big endian convention.
-
         Args:
-            full: Whether plot on the full basis of measured qubits.
-            reverse_basis: Whether reverse the bitstring of basis. (Little endian convention).
-            sort:  Sort the results by probabilities values. Can be `"ascend"` order or `"descend"` order.
+            res_info: data from simulator
         """
+        self._meta_data  = res_info
+        counts = res_info["counts"]
+        if counts:
+            if isinstance(list(counts.keys())[0], int):
+                cbits_num = len(res_info["measures"])
+                newcounts = {}
+                for key, value in counts.items():
+                    bitstr = bin(key)[2:].zfill(cbits_num)
+                    newcounts[bitstr] = value
+                self._meta_data["counts"] = newcounts
 
-        probs = self.probabilities
-        inds = range(len(probs))
-        if not full:
-            inds = np.where(self.probabilities > 1e-14)[0]
-            probs = self.probabilities[inds]
+        self._probabilities = []
 
-        basis = np.array([bin(i)[2:].zfill(self.num) for i in inds])
-        if reverse_basis:
-            basis = np.array([bin(i)[2:].zfill(self.num)[::-1] for i in inds])
-
-        if sort == "ascend":
-            orders = np.argsort(probs)
-            probs = probs[orders]
-            basis = basis[orders]
-        elif sort == "descend":
-            orders = np.argsort(probs)
-            probs = probs[orders][::-1]
-            basis = basis[orders][::-1]
-
-        plt.figure()
-        plt.bar(inds, probs, tick_label=basis)
-        plt.xticks(rotation=70)
-        plt.ylabel("probabilities")
+    def __getitem__(self, key:str):
+        """
+        Get meta_data of simulate results.
+        Args:
+            `"statevector"`: full state vector
+            `"counts"`: sampled  bitstring counts
+            `"pauli_expects"`: pauli expectations of input paulistrings
+        """
+        return self._meta_data[key]
 
     def get_statevector(self):
-        return self.state_vector
+        try:
+            return self["statevector"]
+        except KeyError:
+            raise KeyError("no statevector saved from %s simulator" %self["simulator"])
+    
+    @property
+    def probabilities(self):
+        if not self._probabilities:
+            self.calc_probabilities()
+        return self._probabilities
+   
+    @property
+    def counts(self):
+       return self["counts"]
+    
+    def calc_probabilities(self):    
+        psi =  self.get_statevector()
+        num = self["qbitnum"]
+        measures = list(self["measures"].keys())
+        values_tmp = list(self["measures"].values())
+        values = np.argsort(values_tmp)
+       
 
-    def calculate_obs(self, pos):
-        "Calculate observables Z on input position using probabilities"
-        inds = np.where(self.probabilities > 1e-14)[0]
-        probs = self.probabilities[inds]
-        basis = np.array([bin(i)[2:].zfill(self.num) for i in inds])
-        res_reduced = dict(zip(basis, probs))
-        return measure_obs(pos, res_reduced)
+        from ..simulators.default_simulator import permutebits, ptrace
+        psi = permutebits(psi, range(num)[::-1])
+        if measures:
+            self._probabilities = ptrace(psi, measures)
+            self._probabilities = permutebits(self._probabilities, values)
+        else:
+            self._probabilities = np.abs(psi)**2
 
 
+    def plot_probabilities(self, full: bool=False, reverse_basis: bool=False, sort:bool=None, from_counts=False):
+        """
+        Plot the probabilites of measured qubits
+        """
+        import matplotlib.pyplot as plt
+        if from_counts:
+            counts = self._meta_data["counts"]
+            total_counts = sum(counts.values())
+            probabilities = {}
+            for key in self._meta_data["counts"]:
+                probabilities[key] = counts[key]/total_counts
+
+            
+            bitstrs = list(probabilities.keys())
+            probs = list(probabilities.values())
+            plt.figure()
+            plt.bar(range(len(probs)), probs, tick_label = bitstrs)
+            plt.xticks(rotation=70)
+            plt.ylabel("probabilities")
+            
+        elif len(self.get_statevector()) > 0:
+            if not full:
+                inds = np.where(self.probabilities > 1e-14)[0]
+                probs = self.probabilities[inds]
+            
+            measures = self._meta_data["measures"]
+            num = len(measures) if measures else self["qbitnum"]
+            basis=np.array([bin(i)[2:].zfill(num) for i in inds])
+            if reverse_basis:
+                basis=np.array([bin(i)[2:].zfill(num)[::-1] for i in inds])
+
+            if sort == "ascend":
+                orders = np.argsort(probs)
+                probs = probs[orders]
+                basis = basis[orders]
+            elif sort == "descend":
+                orders = np.argsort(probs)
+                probs = probs[orders][::-1]
+                basis = basis[orders][::-1]
+
+            plt.figure()
+            plt.bar(inds, probs, tick_label=basis)
+            plt.xticks(rotation=70)
+            plt.ylabel("probabilities")
+        else:
+            raise ValueError("No data for ploting")
+
+     
+    def calc_density_matrix(self):
+        psi = self.get_statevector()
+        num = self["qbitnum"]
+        measures = list(self["measures"].keys())
+        values_tmp = list(self["measures"].values())
+        values = np.argsort(values_tmp)
+        if len(measures) == 0:
+            measures = list(range(num))
+            values = list(range(num))
+        from ..simulators.default_simulator import permutebits, ptrace
+        psi = permutebits(psi, range(num)[::-1])
+        rho = ptrace(psi, measures, diag=False)
+        rho = permutebits(rho, values)
+        return rho
+
+#TODO:These should merge to paulis
 def intersec(a, b):
     inter = []
     aind = []

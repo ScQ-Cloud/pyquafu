@@ -1,24 +1,18 @@
-import numpy as np
-from quafu import QuantumCircuit
-
-from quafu.elements.element_gates import *
-from quafu.elements.quantum_element import Barrier, Delay, Measure, XYResonance
-from quafu.elements.quantum_element.pulses.quantum_pulse import GaussianPulse, RectPulse, FlattopPulse
+import copy
+from typing import Any, List
 
 import networkx as nx
-from typing import Dict, Any, List, Union
-import copy
-
-from quafu.dagcircuits.instruction_node import (
-    InstructionNode,
-)  # instruction_node.py in the same folder as circuit_dag.py now
-from quafu.dagcircuits.dag_circuit import (
+from quafu.dagcircuits.dag_circuit import (  # dag_circuit.py in the same folder as circuit_dag.py now
     DAGCircuit,
-)  #  dag_circuit.py in the same folder as circuit_dag.py now
+)
+from quafu.dagcircuits.instruction_node import (  # instruction_node.py in the same folder as circuit_dag.py now
+    InstructionNode,
+)
+from quafu.elements import Barrier, Delay, Measure, XYResonance
+from quafu.elements.element_gates import *
+from quafu.elements.pulses import FlattopPulse, GaussianPulse, RectPulse
 
-# import pygraphviz as pgv
-from networkx.drawing.nx_pydot import write_dot
-from IPython.display import Image, SVG
+from quafu import QuantumCircuit
 
 
 # transform a gate in quantumcircuit of quafu(not include measure_gate),
@@ -338,58 +332,6 @@ def dag_to_circuit(dep_graph, n: int):
                 # use gate_transform to transform gate in dag graph to gate in circuit
                 qcircuit.gates.append(node_to_gate(gate))
     return qcircuit
-
-
-# Helper function to visualize the DAG,check the example in the docstring
-def draw_dag(dep_g, output_format="png"):
-    """
-    Helper function to visualize the DAG
-
-    Args:
-        dep_g (DAG): DAG with Hashable Gates
-        output_format (str): output format, "png" or "svg"
-
-    Returns:
-        img (Image or SVG): show the image of DAG, which is Image(filename="dag.png") or SVG(filename="dag.svg")
-
-    example:
-        .. jupyter-execute::
-        ex1:
-            # directly draw  PNG picture
-            draw_dag(dep_g, output_format="png")    # save a png picture "dag.png" and show it in jupyter notebook
-
-            # directly draw  SVG   picture
-            draw_dag(dep_g, output_format="svg")    # save a svg picture "dag.svg" and show it in jupyter notebook
-
-        ex2:
-            # generate   PNG  picture
-            img_png = draw_dag(dep_g, output_format="png")
-
-            # generate   SVG  picture
-            img_svg = draw_dag(dep_g, output_format="svg")
-
-            # show PNG picture
-            img_png
-
-            # show SVG picture
-            img_svg
-
-
-    """
-    import pygraphviz
-
-    write_dot(dep_g, "dag.dot")
-    G = pygraphviz.AGraph("dag.dot")
-    G.layout(prog="dot")
-
-    if output_format == "png":
-        G.draw("dag.png")
-        return Image(filename="dag.png")
-    elif output_format == "svg":
-        G.draw("dag.svg")
-        return SVG(filename="dag.svg")
-    else:
-        raise ValueError("Unsupported output format: choose either 'png' or 'svg'")
 
 
 def nodelist_to_dag(op_nodes: List[Any]) -> DAGCircuit:
