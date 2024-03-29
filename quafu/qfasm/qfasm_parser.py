@@ -23,11 +23,12 @@ from quafu.elements.classical_element import Cif
 from quafu.qfasm.exceptions import ParserError
 
 from quafu import QuantumCircuit
-
+from quafu.elements import Parameter, ParameterExpression
 from .qfasm_lexer import QfasmLexer
 from .qfasm_utils import *
 
-unaryop = ["sin", "cos", "tan", "exp", "ln", "sqrt", "acos", "atan", "asin"]
+unaryop = {"sin": "sin", "cos": "cos", "tan": "tan", "exp": "exp",
+           "ln": "log", "sqrt": "sqrt", "acos": "arccos", "atan": "arctan", "asin": "arcsin"}
 unarynp = {
     "sin": np.sin,
     "cos": np.cos,
@@ -84,6 +85,8 @@ class QfasmParser(object):
         self.qnum = 0
         # cbit num used
         self.cnum = 0
+        # param
+        self.params = {}
 
     def add_U_CX(self):
         # Add U and CX in global_symtab
@@ -172,7 +175,9 @@ class QfasmParser(object):
                     for i in range(symnode.num):
                         tempargs.append(symnode.start + i)
                     args.append(tempargs)
-
+            # change carg to parameter
+            for i in range(len(gateins.cargs)):
+                gateins.cargs[i] = self.compute_exp(gateins.cargs[i])
             # call many times
             for i in range(len(args[0])):
                 oneargs = []
@@ -252,52 +257,49 @@ class QfasmParser(object):
                 # change newins's qarg to real q
                 for i in range(len(newins.qargs)):
                     newins.qargs[i] = qargdict[newins.qargs[i].name]
-                # change newins's carg to real carg (consider exp)
+                # change newins's carg to real carg (consider exp and parameter)
                 for i in range(len(newins.cargs)):
-                    if not (
-                        isinstance(newins.cargs[i], int)
-                        or isinstance(newins.cargs[i], float)
-                    ):
-                        # for expression
-                        newins.cargs[i] = self.compute_exp(newins.cargs[i], cargdict)
+                    # for expression and parameter, it will return parameter or int/float
+                    newins.cargs[i] = self.compute_exp(newins.cargs[i], cargdict)
                 # now, recurse
                 gate_list.extend(self.handle_gateins(newins))
 
         return gate_list
 
-    def compute_exp(self, carg, cargdict: dict):
+    def compute_exp(self, carg, cargdict: dict={}):
         # recurse
-        if isinstance(carg, int) or isinstance(carg, float):
+        if isinstance(carg, int) or isinstance(carg, float) or isinstance(carg, ParameterExpression):
             return carg
         # if it's id, should get real number from gateins
         elif isinstance(carg, Id):
-            return cargdict[carg.name]
+            if carg.name in cargdict:
+                return cargdict[carg.name]
+            # if it's parameter, just return
+            else:
+                return self.params[carg.name]
         elif isinstance(carg, UnaryExpr):
             if carg.type == "-":
                 return -self.compute_exp(carg.children[0], cargdict)
             elif carg.type in unaryop:
-                return unarynp[carg.type](self.compute_exp(carg.children[0], cargdict))
+                nowcarg = self.compute_exp(carg.children[0], cargdict)
+                if isinstance(nowcarg, ParameterExpression):
+                    func = getattr(nowcarg, unaryop[carg.type])
+                    return func()
+                else:
+                    return unarynp[carg.type](nowcarg)
         elif isinstance(carg, BinaryExpr):
+            cargl = self.compute_exp(carg.children[0], cargdict)
+            cargr = self.compute_exp(carg.children[1], cargdict)
             if carg.type == "+":
-                return self.compute_exp(carg.children[0], cargdict) + self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return cargl + cargr
             elif carg.type == "-":
-                return self.compute_exp(carg.children[0], cargdict) - self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return cargl - cargr
             elif carg.type == "*":
-                return self.compute_exp(carg.children[0], cargdict) * self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return cargl * cargr
             elif carg.type == "/":
-                return self.compute_exp(carg.children[0], cargdict) / self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return cargl / cargr
             elif carg.type == "^":
-                return self.compute_exp(carg.children[0], cargdict) ** self.compute_exp(
-                    carg.children[1], cargdict
-                )
+                return cargl ** cargr
 
     def addInstruction(self, qc: QuantumCircuit, ins):
         if ins is None:
@@ -416,8 +418,19 @@ class QfasmParser(object):
                 f"Qubit used as different argument when call gate {gateins.name} at line {gateins.lineno} file {gateins.filename}"
             )
 
+    def check_param(self, carg):
+        if isinstance(carg, int) or isinstance(carg, float):
+            return
+        elif isinstance(carg, Id) and carg.name not in self.params:
+            raise ParserError(f"The parameter {carg.name} is undefined at line {carg.lineno} file {carg.filename}")
+        elif isinstance(carg, UnaryExpr):
+            self.check_param(carg.children[0])
+        elif isinstance(carg, BinaryExpr):
+            self.check_param(carg.children[0])
+            self.check_param(carg.children[1])
+
     def check_cargs(self, gateins: GateInstruction):
-        # check that cargs belongs to unary (they must be int or float)
+        # check that cargs belongs to unary (they must be int or float or parameter)
         # cargs is different from CREG
         if gateins.name not in self.nuop and gateins.name not in self.mulctrl:
             if gateins.name not in self.global_symtab:
@@ -429,12 +442,9 @@ class QfasmParser(object):
                 raise ParserError(
                     f"The {gateins.name} is not declared as a gate at line {gateins.lineno} file {gateins.filename}"
                 )
-            # check every carg in [int, float]
+            # check every carg in [int, float, parameter]
             for carg in gateins.cargs:
-                if not (isinstance(carg, int) or isinstance(carg, float)):
-                    raise ParserError(
-                        f"Classical argument must be of type int or float at line {gateins.lineno} file {gateins.filename}"
-                    )
+                self.check_param(carg)
             # check cargs's num matches gate's delcared cargs
             if len(gateins.cargs) != len(gatenote.cargs):
                 raise ParserError(
@@ -482,11 +492,11 @@ class QfasmParser(object):
 
     def check_gate_cargs(self, gateins: GateInstruction):
         # check gate_op's classcal args, must matches num declared by gate
-        if gateins.name == "barrier" and len(gateins.cargs) > 0:
+        if gateins.name in ["barrier", "reset", "measure"] and len(gateins.cargs) > 0:
             raise ParserError(
                 f"Barrier can not receive classical argument at line {gateins.lineno} file {gateins.filename}"
             )
-        if gateins.name != "barrier":
+        if gateins.name not in ["barrier", "reset", "measure"]:
             if gateins.name not in self.global_symtab:
                 raise ParserError(
                     f"The gate {gateins.name} is undefined at line {gateins.lineno} file {gateins.filename}"
@@ -500,7 +510,7 @@ class QfasmParser(object):
                 raise ParserError(
                     f"The number of classical argument declared in gate {gateins.name} is inconsistent with instruction at line {gateins.lineno} file {gateins.filename}"
                 )
-            # check carg must from gate declared argument or int/float
+            # check carg must from gate declared argument or int/float or parameter
             for carg in gateins.cargs:
                 # recurse check expression
                 self.check_carg_declartion(carg)
@@ -510,16 +520,17 @@ class QfasmParser(object):
             return
         if isinstance(node, Id):
             # check declaration
-            if node.name not in self.symtab:
+            if node.name in self.symtab:
+                symnode = self.symtab[node.name]
+                if symnode.type != "CARG":
+                    raise ParserError(
+                        f"The {node.name} is not declared as a classical bit at line {node.lineno} file {node.filename}"
+                    )
+                return
+            elif node.name not in self.params:
                 raise ParserError(
                     f"The classical argument {node.name} is undefined at line {node.lineno} file {node.filename}"
                 )
-            symnode = self.symtab[node.name]
-            if symnode.type != "CARG":
-                raise ParserError(
-                    f"The {node.name} is not declared as a classical bit at line {node.lineno} file {node.filename}"
-                )
-            return
         if isinstance(node, UnaryExpr):
             self.check_carg_declartion(node.children[0])
         elif isinstance(node, BinaryExpr):
@@ -579,7 +590,7 @@ class QfasmParser(object):
                 | qif error
         """
         if p[2] != ";":
-            raise ParserError(f"Expecting ';' behind statement")
+            raise ParserError(f"Expecting ';' behind statement at line {p[1].lineno} file {p[1].filename}")
         p[0] = p[1]
 
     def p_statement_empty(self, p):
@@ -979,6 +990,8 @@ class QfasmParser(object):
         """
         statement : qdecl ';'
                     | cdecl ';'
+                    | defparam ';'
+                    | defparam error
                     | qdecl error
                     | cdecl error
                     | error
@@ -990,6 +1003,20 @@ class QfasmParser(object):
                 f"Expecting ';' in qreg or creg declaration at line {p.lineno(2)}"
             )
         p[0] = p[1]
+
+    def p_statement_defparam(self, p):
+        """
+        defparam : id EQUAL FLOAT
+                 | id EQUAL INT
+                 | id EQUAL error
+        """
+        if not isinstance(p[3], int) and not isinstance(p[3], float):
+            raise ParserError(f"Expecting 'INT' or 'FLOAT behind '=' at line {p[1].lineno} file {p[1].filename}")
+        param_name = p[1].name
+        if param_name in self.params:
+            raise ParserError(f"Duplicate declaration for parameter {p[1].name} at line {p[1].lineno} file {p[1].filename}")
+        self.params[param_name] = Parameter(param_name, p[3])
+        p[0] = None
 
     def p_qdecl(self, p):
         """
@@ -1169,7 +1196,7 @@ class QfasmParser(object):
         """
         if p[1].name not in unaryop:
             raise ParserError(
-                f"Math function {p[1].name} not supported, only support {unaryop} line {p[1].lineno} file {p[1].filename}"
+                f"Math function {p[1].name} not supported, only support {unaryop.keys()} line {p[1].lineno} file {p[1].filename}"
             )
         if not isinstance(p[3], Node):
             p[0] = unarynp[p[1].name](p[3])
