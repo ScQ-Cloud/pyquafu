@@ -118,7 +118,7 @@ class TestParser:
             qasm_to_quafu(token)
 
     def test_single_equals_error(self):
-        with pytest.raises(LexerError, match=r"Illegal character =.*") as e:
+        with pytest.raises(ParserError, match=r"Illegal IF statement, .*") as e:
             qasm = f"if (a=2) U(0,0,0)q[0];"
             qasm_to_quafu(qasm)
 

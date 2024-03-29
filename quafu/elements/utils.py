@@ -55,14 +55,14 @@ def handle_expression(param: ParameterType):
             retstr = f"({retstr} - {handle_expression(param.operands[i])})"
         elif param.funcs[i] == _operator.truediv:
             retstr = f"{retstr} / {handle_expression(param.operands[i])}"
+        elif param.funcs[i] == _operator.pow:
+            retstr = f"({retstr}) ^ {handle_expression(param.operands[i])}"
         elif param.funcs[i] == anp.sin:
             retstr = f"sin({retstr})"
         elif param.funcs[i] == anp.cos:
             retstr = f"cos({retstr})"
         elif param.funcs[i] == anp.tan:
             retstr = f"tan({retstr})"
-        elif param.funcs[i] == _operator.pow:
-            retstr = f"pow({retstr}, {handle_expression(param.operands[i])})"
         elif param.funcs[i] == anp.arcsin:
             retstr = f"asin({retstr})"
         elif param.funcs[i] == anp.arccos:
