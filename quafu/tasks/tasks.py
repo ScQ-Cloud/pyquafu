@@ -197,7 +197,7 @@ class Task:
         from quafu import get_version
 
         version = get_version()
-        if qc.num > self.backend.qubt_num:
+        if qc.num > self.backend.qubit_num:
             raise CircuitError(
                 "The qubit number %d is too large for backend %s which has %d qubits"
                 % (qc.num, self.backend.name, self.backend.qubit_num)
