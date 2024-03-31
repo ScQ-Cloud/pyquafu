@@ -46,7 +46,7 @@ class Task:
 
         self.shots = 1000
         self.tomo = False
-        self.compile = True
+        self.compile = False
         self.priority = self.user.priority
         self.runtime_job_id = ""
         self.submit_history = {}
@@ -197,7 +197,7 @@ class Task:
         from quafu import get_version
 
         version = get_version()
-        if qc.num > self.backend.qubit_num:
+        if qc.num > self.backend.qubt_num:
             raise CircuitError(
                 "The qubit number %d is too large for backend %s which has %d qubits"
                 % (qc.num, self.backend.name, self.backend.qubit_num)
@@ -339,9 +339,10 @@ class Task:
                     )
 
         else:
+            # TODO: use system_id for ScQ-S41
             if self.backend.name == "ScQ-S41":
                 raise CircuitError("Backend ScQ-S41 must be used without compilation")
-            if self.backend.name == "ScQ-P136":
+            if self.backend.system_id == 2:  # ScQ-P136
                 for gate in qc.gates:
                     if gate.name.lower() in ["xy"]:
                         raise CircuitError(

@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import re
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import requests
 from quafu.users.userapi import User
+from quafu.utils.client_wrapper import ClientWrapper
 
 
 class Backend(object):
@@ -38,8 +37,8 @@ class Backend(object):
         data = {"system_name": self.name.lower()}
         headers = {"api_token": api_token}
         url = User.url + User.chip_api
-        chip_info = requests.post(url=url, data=data, headers=headers)
-        chip_info = json.loads(chip_info.text)
+        chip_info = ClientWrapper.post(url=url, data=data, headers=headers)
+        chip_info = chip_info.json()
         json_topo_struct = chip_info["topological_structure"]
         qubits_list = []
         for gate in json_topo_struct.keys():
