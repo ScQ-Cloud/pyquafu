@@ -46,7 +46,7 @@ class Task:
 
         self.shots = 1000
         self.tomo = False
-        self.compile = True
+        self.compile = False
         self.priority = self.user.priority
         self.runtime_job_id = ""
         self.submit_history = {}
@@ -339,9 +339,10 @@ class Task:
                     )
 
         else:
+            # TODO: use system_id for ScQ-S41
             if self.backend.name == "ScQ-S41":
                 raise CircuitError("Backend ScQ-S41 must be used without compilation")
-            if self.backend.name == "ScQ-P136":
+            if self.backend.system_id == 2:  # ScQ-P136
                 for gate in qc.gates:
                     if gate.name.lower() in ["xy"]:
                         raise CircuitError(
