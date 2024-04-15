@@ -127,7 +127,7 @@ class QfasmLexer(object):
         return self.lexer.token()
 
     def t_FLOAT(self, t):
-        r"([0-9]\d*\.\d*)"
+        r"([0-9]+\.\d*(e[-+]?[0-9]+)?)"
         t.value = float(t.value)
         return t
 
