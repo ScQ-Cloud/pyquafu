@@ -1,11 +1,6 @@
 User Guide
 ==========
 
-.. note::
-    PyQuafu is under active development and this is user guide
-    for the latest version(0.3.5). If you are using ``pyquafu<=0.2``,
-    please see :ref:`historical_version`.
-
 Installation
 ------------
 
@@ -18,7 +13,7 @@ line/terminal:
 
 ::
 
-   pip install pyquafu 
+   pip install pyquafu
 
 Set up your Quafu account
 -------------------------
@@ -77,12 +72,12 @@ other instructions.
 .. code:: python
 
    qc.x(0)
-   qc.x(1) 
-   qc.cnot(2, 1) 
-   qc.ry(1, np.pi/2) 
-   qc.rx(2, np.pi) 
-   qc.rz(3, 0.1) 
-   qc.cz(2, 3) 
+   qc.x(1)
+   qc.cnot(2, 1)
+   qc.ry(1, np.pi/2)
+   qc.rx(2, np.pi)
+   qc.rz(3, 0.1)
+   qc.cz(2, 3)
 
 ::
 
@@ -93,7 +88,7 @@ circuit.
 
 .. code:: python
 
-   # equivalent to qc.x(0) 
+   # equivalent to qc.x(0)
    import quafu.elements.element_gates as qeg
    gate = qeg.XGate(pos=0)
    qc.add_gate(gate)
@@ -144,13 +139,13 @@ visualize quantum circuits. You can draw the circuit using the
 ::
 
    q[0]  ------X--------X-------------------- M->c[0]
-                                             
+
    q[1]  ------X--------+----RY(1.571)------- M->c[1]
-                        |                    
+                        |
    q[2]  ---------------*----RX(3.142)----*-- M->c[2]
-                                          |  
+                                          |
    q[3]  --RZ(0.100)----------------------Z-- M->c[4]
-                                             
+
    q[4]  ------------------------------------ M->c[3]
 
 Alternatively, you may create a figure by
@@ -255,7 +250,7 @@ convention by default, see also the next sectioin.
    OrderedDict([('00100', 717), ('00110', 31), ('01000', 6), ('01100', 1185), ('01110', 39), ('10100', 22)])
    {'00100': 0.3585, '00110': 0.0155, '01000': 0.003, '01100': 0.5925, '01110': 0.0195, '10100': 0.011}
 
-.. figure:: output_37_1.png
+.. figure:: assets/output_37_1.png
    :alt: png
 
    png
@@ -373,13 +368,13 @@ First, we initialize a circuit with three Hadamard gate
 ::
 
    q[0]  --H-- M->c[0]
-              
+
    q[1]  ----- M->c[1]
-              
+
    q[2]  --H-- M->c[2]
-              
+
    q[3]  ----- M->c[3]
-              
+
    q[4]  --H-- M->c[4]
 
 Next, we set operators that need to be measured to calculate the energy
@@ -409,7 +404,7 @@ circuit is only executed twice, with measurement basis [[‘XXXXX’, [0, 1,
 | ​
 | |image5| ​
 
-.. figure:: output_55_1.png
+.. figure:: assets/output_55_1.png
    :alt: png
 
    png
@@ -450,7 +445,7 @@ Prepare parameters of a group of tasks and send the task asynchronously.
 
    ts = range(0, 21, 1)
    names = ["%dus" %t for t in ts]
-   for name, t in zip(names, ts): 
+   for name, t in zip(names, ts):
        q = QuantumCircuit(3)
        q.x(2)
        q.delay(2, t, unit="us")
@@ -475,28 +470,28 @@ method.
 ::
 
    Group:  Q3_T1
-   task_id              task_name      status    
-   326564501AF5CF47     0us            Completed 
-   32656450226701BD     1us            Completed 
-   326564502A80CC5D     2us            Completed 
-   3265645032D98C32     3us            Completed 
-   326564503AEFE7EA     4us            Completed 
-   326564600CFE2817     5us            Completed 
-   3265646014FFEA5F     6us            Completed 
-   326564601C2E9597     7us            Completed 
-   32656460240A93E6     8us            Completed 
-   326564602C15CFFB     9us            Completed 
-   3265646033EEBD20     10us           Running   
-   326564603B1A478D     11us           In Queue  
-   3265647006C96D3D     12us           In Queue  
-   326564700F71B85A     13us           In Queue  
-   32656470204A3472     14us           In Queue  
-   32656470384DCD98     15us           In Queue  
-   3265648004FB6BCF     16us           In Queue  
-   326564800DA63F54     17us           In Queue  
-   3265648022DAC675     18us           In Queue  
-   3265648036F7EA24     19us           In Queue  
-   326564901AB566FF     20us           In Queue  
+   task_id              task_name      status
+   326564501AF5CF47     0us            Completed
+   32656450226701BD     1us            Completed
+   326564502A80CC5D     2us            Completed
+   3265645032D98C32     3us            Completed
+   326564503AEFE7EA     4us            Completed
+   326564600CFE2817     5us            Completed
+   3265646014FFEA5F     6us            Completed
+   326564601C2E9597     7us            Completed
+   32656460240A93E6     8us            Completed
+   326564602C15CFFB     9us            Completed
+   3265646033EEBD20     10us           Running
+   326564603B1A478D     11us           In Queue
+   3265647006C96D3D     12us           In Queue
+   326564700F71B85A     13us           In Queue
+   32656470204A3472     14us           In Queue
+   32656470384DCD98     15us           In Queue
+   3265648004FB6BCF     16us           In Queue
+   326564800DA63F54     17us           In Queue
+   3265648022DAC675     18us           In Queue
+   3265648036F7EA24     19us           In Queue
+   326564901AB566FF     20us           In Queue
 
 Once all the tasks are completed, we can do the next step to get
 :math:`T_1`.
@@ -509,28 +504,28 @@ Once all the tasks are completed, we can do the next step to get
 ::
 
    Group:  Q3_T1
-   task_id              task_name      status    
-   326564501AF5CF47     0us            Completed 
-   32656450226701BD     1us            Completed 
-   326564502A80CC5D     2us            Completed 
-   3265645032D98C32     3us            Completed 
-   326564503AEFE7EA     4us            Completed 
-   326564600CFE2817     5us            Completed 
-   3265646014FFEA5F     6us            Completed 
-   326564601C2E9597     7us            Completed 
-   32656460240A93E6     8us            Completed 
-   326564602C15CFFB     9us            Completed 
-   3265646033EEBD20     10us           Completed 
-   326564603B1A478D     11us           Completed 
-   3265647006C96D3D     12us           Completed 
-   326564700F71B85A     13us           Completed 
-   32656470204A3472     14us           Completed 
-   32656470384DCD98     15us           Completed 
-   3265648004FB6BCF     16us           Completed 
-   326564800DA63F54     17us           Completed 
-   3265648022DAC675     18us           Completed 
-   3265648036F7EA24     19us           Completed 
-   326564901AB566FF     20us           Completed 
+   task_id              task_name      status
+   326564501AF5CF47     0us            Completed
+   32656450226701BD     1us            Completed
+   326564502A80CC5D     2us            Completed
+   3265645032D98C32     3us            Completed
+   326564503AEFE7EA     4us            Completed
+   326564600CFE2817     5us            Completed
+   3265646014FFEA5F     6us            Completed
+   326564601C2E9597     7us            Completed
+   32656460240A93E6     8us            Completed
+   326564602C15CFFB     9us            Completed
+   3265646033EEBD20     10us           Completed
+   326564603B1A478D     11us           Completed
+   3265647006C96D3D     12us           Completed
+   326564700F71B85A     13us           Completed
+   32656470204A3472     14us           Completed
+   32656470384DCD98     15us           Completed
+   3265648004FB6BCF     16us           Completed
+   326564800DA63F54     17us           Completed
+   3265648022DAC675     18us           Completed
+   3265648036F7EA24     19us           Completed
+   326564901AB566FF     20us           Completed
 
 .. code:: python
 
@@ -575,7 +570,7 @@ for a quick start.
        print('Tasks info stored')
        print("Task list:")
        for task_info in db.find_all_tasks():
-           print_task_info(task_info) 
+           print_task_info(task_info)
            break  # this is to avoid demo too long, you may cancel this line to view the whole info
 
 ::
@@ -604,10 +599,10 @@ Finally, you can also retrieve a single task using its unique
 
    {'0': 0.662, '1': 0.338}
 
-.. |png| image:: output_23_0.png
-.. |image1| image:: output_28_0.png
-.. |image2| image:: output_39_0.png
-.. |image3| image:: output_41_0.png
-.. |image4| image:: output_45_0.png
-.. |image5| image:: output_55_0.png
-.. |image6| image:: output_67_1.png
+.. |png| image:: assets/output_23_0.png
+.. |image1| image:: assets/output_28_0.png
+.. |image2| image:: assets/output_39_0.png
+.. |image3| image:: assets/output_41_0.png
+.. |image4| image:: assets/output_45_0.png
+.. |image5| image:: assets/output_55_0.png
+.. |image6| image:: assets/output_67_1.png
