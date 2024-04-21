@@ -46,7 +46,10 @@ if build_all_docs is not None:
 
     html_context = {
         "current_version": current_version,
-        "versions": [],
+        "versions": [
+            ["0.2.x", pages_root + "/0.2.x"],
+            ["0.3.x", pages_root + "/0.3.x"]
+        ],
     }
 
     with open("versions.json", "r") as json_file:

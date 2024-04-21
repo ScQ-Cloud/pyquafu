@@ -18,7 +18,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   User Guide <user_guide/getting_started>
+   Tutorial <tutorial>
    API Reference <apiref>
 
 Links

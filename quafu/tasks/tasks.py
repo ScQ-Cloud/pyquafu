@@ -181,7 +181,7 @@ class Task:
         return res
 
     def send(
-        self, qc: QuantumCircuit, name: str = "", group: str = "", wait: bool = True
+        self, qc: QuantumCircuit, name: str = "", group: str = "", wait: bool = False
     ) -> ExecResult:
         """
         Run the circuit on experimental device.

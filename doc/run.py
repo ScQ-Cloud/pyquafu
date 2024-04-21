@@ -21,7 +21,7 @@ if __name__ == "__main__":
     subprocess.run("rm -rf build/ pages/", shell=True)
 
     os.environ["build_all_docs"] = str(True)
-    os.environ["pages_root"] = "http://127.0.0.1:8000"
+    os.environ["pages_root"] = "https://scq-cloud.github.io"
 
     build_doc("latest", "master")
     move_dir("./build/html/", "./pages/")

@@ -41,10 +41,18 @@ experimental backends.
 
 ::
 
-   system_name  qubits  status
-   ScQ-P10      10      Online
-   ScQ-P18      18      Online
-   ScQ-P136     136     Online
+   system_name      qubits  status
+   ScQ-P10          10      Offline
+   ScQ-P18          18      None Status
+   Baiwang          136     Online
+   ScQ-P102         102     Offline
+   ScQ-P10C         10      Maintenance
+   Miaofeng         108     Online
+   Dongling         106     Online
+   Haituo           105     Online
+   Baihua           118     Online
+   Yunmeng          156     Online
+   Xiang            35      Offline
 
 *Note*: The next time you visit ``pyquafu``, you don’t have to save the
 token again. Yet a quafu token is not permanently validating, from time
@@ -89,9 +97,12 @@ circuit.
 .. code:: python
 
    # equivalent to qc.x(0)
-   import quafu.elements.element_gates as qeg
-   gate = qeg.XGate(pos=0)
+   from quafu.elements.element_gates import *
+   gate = XGate(pos=0)
    qc.add_gate(gate)
+   # you may also use the left shift operator
+   # qc << XGate(pos=0)
+
 
 This is actually what ``.name(args)`` functions do. You would find
 the second style convenient when build a new circuit from existing one.
@@ -106,6 +117,7 @@ or use python-buitin ``dir()`` method.
 ::
 
    ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_used_qubits', 'add_gate', 'add_pulse', 'barrier', 'circuit', 'cnot', 'cp', 'cs', 'ct', 'cx', 'cy', 'cz', 'delay', 'draw_circuit', 'fredkin', 'from_openqasm', 'gates', 'h', 'id', 'iswap', 'layered_circuit', 'mcx', 'mcy', 'mcz', 'measure', 'measures', 'num', 'openqasm', 'p', 'plot_circuit', 'rx', 'rxx', 'ry', 'ryy', 'rz', 'rzz', 's', 'sdg', 'sw', 'swap', 'sx', 'sxdg', 'sy', 'sydg', 't', 'tdg', 'to_openqasm', 'toffoli', 'unitary', 'used_qubits', 'w', 'x', 'xy', 'y', 'z']
+
 
 Measure
 ~~~~~~~
@@ -205,6 +217,12 @@ circuit with openqasm text.
 | ​
 | |image1| ​
 
+
+Parameter
+~~~~~~~~~
+
+
+
 Execution and Simulation
 ------------------------
 
@@ -230,6 +248,8 @@ If you set the ``compile`` parameter to ``False``, make sure that you
 know the topology of the backend well and submit a valid circuit.
 
 Send the quantum circuit to the backend and wait for the results.
+Note that, by default the ``wait`` option is set to be ``False``, which
+means that you need use the ``retrieve`` method to fetch results when task is done.
 
 .. code:: python
 
@@ -429,9 +449,7 @@ Submit task asynchronously
 --------------------------
 
 In the above examples, we chose opening python kernal and waiting for
-the result. You may also set the ``wait=False`` in
-``send`` function to submit
-the task asynchronously. Here we use another example that measures the
+the result. You may also submit the task asynchronously. Here we use another example that measures the
 qubit decoherence time :math:`T_1` to demonstrate the usage.
 
 .. code:: python
@@ -450,7 +468,7 @@ Prepare parameters of a group of tasks and send the task asynchronously.
        q.x(2)
        q.delay(2, t, unit="us")
        q.measure([2])
-       res = task.send(q, wait=False, name=name, group="Q3_T1")
+       res = task.send(q, name=name, group="Q3_T1")
 
 Here the ``delay`` options will idle the target qubit ``2`` for a
 duration ``t`` in the time unit ``us`` (microsecond) and do nothing. In
@@ -606,3 +624,121 @@ Finally, you can also retrieve a single task using its unique
 .. |image4| image:: assets/output_45_0.png
 .. |image5| image:: assets/output_55_0.png
 .. |image6| image:: assets/output_67_1.png
+
+
+Advanced usage
+--------------
+
+We offer some methods to build a quantum circuit more efficiently.
+
+Apply the same gate repeatedly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Could use the ``power()`` method to apply the same gate consecutively.
+
+.. code:: python
+
+   import numpy as np
+   import math
+   from quafu import QuantumCircuit, simulate
+   from quafu.elements.element_gates import *
+
+   q = QuantumCircuit(2)
+   q << HGate(0)
+   q << HGate(1)
+   q << U3Gate(1, 0.2, 0.1, 0.3)
+   q << U3Gate(1, 0.2, 0.1, 0.3)
+   q << RYYGate(0, 1, 0.4)
+   q << RYYGate(0, 1, 0.4)
+   q << RXGate(0, 0.2)
+   q << RXGate(0, 0.2)
+   q << CRYGate(0, 1, 0.23)
+   q << CRYGate(0, 1, 0.23)
+
+   # Create another circuit using `power` method
+   q1 = QuantumCircuit(2)
+   q1 << HGate(0)
+   q1 << HGate(1)
+   q1 << U3Gate(1, 0.2, 0.1, 0.3).power(2)
+   q1 << RYYGate(0, 1, 0.4).power(2)
+   q1 << RXGate(0, 0.2).power(2)
+   q1 << CRYGate(0, 1, 0.23).power(2)
+
+   sv1 = simulate(q).get_statevector()
+   sv2 = simulate(q1).get_statevector()
+
+   # Check equivalence of two circuits
+   assert math.isclose(np.abs(np.dot(sv1, sv2.conj())), 1.0)
+
+
+Join two quantum circuits
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the ``join()`` method to merge two different quantum circuit.
+
+.. code:: python
+
+   from quafu import QuantumCircuit, simulate
+   from quafu.elements.element_gates import *
+
+   q = QuantumCircuit(3)
+   q << (XGate(1))
+   q << (CXGate(0, 2))
+   q1 =  QuantumCircuit(2)
+   q1 << HGate(1) << CXGate(1, 0)
+
+   # This extends the circuit `q` to 4 qubits,
+   # and apply `q1` to the 3rd and 4th qubit of `q`
+   q.join(q1, [2, 3])
+   q.draw_circuit()
+
+::
+
+    q[0]  -------*-------
+                 |
+    q[1]  --X----|-------
+                 |
+    q[2]  -------+----+--
+                      |
+    q[3]  --H---------*--
+
+
+Reverse a quantum circuit
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Use the ``dagger()`` method to reverse a quantum circuit.
+
+
+.. code:: python
+
+   import numpy as np
+   import math
+   from quafu import QuantumCircuit, simulate
+   from quafu.elements.element_gates import *
+
+   q = QuantumCircuit(3)
+   q << HGate(0)
+   q << HGate(1)
+   q << HGate(2)
+   q << RXGate(2, 0.3)
+   q << RYGate(2, 0.1)
+   q << CXGate(0, 1)
+   q << CRZGate(2, 1, 0.2)
+   q << RXXGate(0, 2, 1.2)
+
+   # Now create a reversed circuit of q
+   q1 = QuantumCircuit(3)
+   q1 << RXXGate(0, 2, -1.2)
+   q1 << CRZGate(2, 1, -0.2)
+   q1 << CXGate(0, 1)
+   q1 << RYGate(2, -0.1)
+   q1 << RXGate(2, -0.3)
+   q1 << HGate(0)
+   q1 << HGate(1)
+   q1 << HGate(2)
+
+   # Check equivalence
+   sv0 = simulate(q.dagger()).get_statevector()
+   sv1 = simulate(q1).get_statevector()
+   assert math.isclose(np.abs(np.dot(sv0, sv1.conj())), 1.0)
