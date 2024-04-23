@@ -253,7 +253,9 @@ means that you need use the ``retrieve`` method to fetch results when task is do
 
 .. code:: python
 
-   res = task.send(qc, wait=True)
+   res = task.send(qc)
+   # After task is done, you could fetch results as below
+   res = task.retrieve(<your-task-id>)
 
 You can use the returned results to check the count and probability of
 each measured bit string. The output bits are arranged in **big-endian**
