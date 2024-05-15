@@ -51,4 +51,4 @@ The example shows quantum reinforcement learning interacts with Quafu to solve C
 Refer to https://github.com/enchanted123/quantum-RL-with-quafu for more details.
 
 ## Author
-This project is developed by the quantum cloud computing team at the Beijing Academy of Quantum Information Sciences and Shandong Yunhai Guochuang Innovative Technology Co., Ltd.
+This project is developed by the quantum cloud computing team at the Beijing Academy of Quantum Information Sciences.
