@@ -293,7 +293,7 @@ provide simple circuit similator
 .. code:: python
 
    from quafu import simulate
-   simu_res = simulate(qc, output="probabilities")
+   simu_res = simulate(qc)
    simu_res.plot_probabilities()
 
 | ​
@@ -335,9 +335,9 @@ small-endian instead.
 
 .. code:: python
 
-   res = simulate(qc, output='state_vector')
-   print(res.state_vector[:2])
-   state_tensor = res.state_vector.reshape(tuple(n*[2])).transpose([-3, -2, -1])
+   res = simulate(qc)
+   print(res.get_statevector()[:2])
+   state_tensor = res.get_statevector().reshape(tuple(n*[2])).transpose([-3, -2, -1])
    print(state_tensor[0, 0, 0])
    print(state_tensor[0, 0, 1])
    print(state_tensor[1, 0, 0])
