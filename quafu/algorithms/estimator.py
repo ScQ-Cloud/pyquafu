@@ -13,15 +13,16 @@
 # limitations under the License.
 """Pre-build wrapper to calculate expectation value"""
 from typing import List, Optional
+
 from ..circuits.quantum_circuit import QuantumCircuit
+from ..simulators import simulate
 from ..tasks.tasks import Task
 from .hamiltonian import Hamiltonian
-from ..simulators import simulate
 
 
 def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
     """Execute circuit on quafu simulator"""
-    sim_res = simulate(circ, hamiltonian= observables)
+    sim_res = simulate(circ, hamiltonian=observables)
     expectations = sim_res["pauli_expects"]
     return sum(expectations)
 
@@ -44,6 +45,7 @@ class Estimator:
             task_options: options to config a task instance
         """
         self._circ = circ
+        self._circ.get_parameter_grads()  # parameter shift currently requires calling this for initialization
         self._backend = backend
         self._task = None
         if backend != "sim":
@@ -85,7 +87,7 @@ class Estimator:
             Expectation value
         """
         if params is not None:
-            self._circ.update_params(params)
+            self._circ._update_params(params)
 
         if self._backend == "sim":
             return self._run_simulation(observables)

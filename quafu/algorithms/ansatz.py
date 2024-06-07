@@ -17,6 +17,7 @@ from typing import Any, List
 
 import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
+from quafu.elements import Parameter
 from quafu.synthesis.evolution import ProductFormula
 
 from .hamiltonian import Hamiltonian
@@ -52,8 +53,10 @@ class QAOAAnsatz(Ansatz):
         self._evol = ProductFormula()
 
         # Initialize parameters
-        self._beta = np.zeros(num_layers)
-        self._gamma = np.zeros(num_layers)
+        self._beta = np.array([Parameter(f"beta_{i}", 0.0) for i in range(num_layers)])
+        self._gamma = np.array(
+            [Parameter(f"gamma_{i}", 0.0) for i in range(num_layers)]
+        )
 
         # Build circuit structure
         super().__init__(num_qubits)
@@ -122,7 +125,10 @@ class AlterLayeredAnsatz(Ansatz):
             layer: Number of layers.
         """
         self._layer = layer
-        self._theta = np.zeros((layer + 1, num_qubits))
+        self._theta = np.array(
+            [Parameter(f"theta_{i}", 0.0) for i in range((layer + 1) * num_qubits)]
+        )
+        self._theta = np.reshape(self._theta, (layer + 1, num_qubits))
         super().__init__(num_qubits)
 
     def _build(self):

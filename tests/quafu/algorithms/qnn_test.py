@@ -19,6 +19,7 @@ from quafu.algorithms.gradients import compute_vjp, jacobian
 from quafu.algorithms.interface.torch import TorchTransformer
 from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers
 from quafu.circuits.quantum_circuit import QuantumCircuit
+from quafu.elements import Parameter
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -112,10 +113,11 @@ class ModelQuantumNeuralNetworkNative(nn.Module):
 
 class TestLayers:
     circ = QuantumCircuit(2)
+    theta = [Parameter(f"theta_{i}", 0.1) for i in range(3)]
     circ.x(0)
-    circ.rx(0, 0.1)
-    circ.ry(1, 0.5)
-    circ.ry(0, 0.1)
+    circ.rx(0, theta[0])
+    circ.ry(1, theta[1])
+    circ.ry(0, theta[2])
 
     def _model_grad(self, model, batch_size):
         """Test one forward pass and gradient calculation of a model"""

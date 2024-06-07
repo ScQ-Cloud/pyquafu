@@ -277,6 +277,7 @@ class QuantumCircuit:
             val = values[order[i]] if order else values[i]
             self._variables[i].value = val
 
+    # TODO: delete after 0.4.1
     def update_params(self, paras_list: List[Any]):
         """Update parameters of parameterized gates
         Args:

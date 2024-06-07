@@ -12,5 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .gradiant import grad_adjoint, grad_finit_diff, grad_para_shift
 from .param_shift import ParamShift
 from .vjp import compute_vjp, jacobian, run_circ

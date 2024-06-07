@@ -14,29 +14,47 @@
 
 import sys
 
+import numpy as np
 import pytest
 from quafu.algorithms.estimator import Estimator
-from quafu.algorithms.gradients import ParamShift
+from quafu.algorithms.gradients import ParamShift, grad_para_shift
 from quafu.algorithms.hamiltonian import Hamiltonian
 from quafu.circuits.quantum_circuit import QuantumCircuit
+from quafu.elements import Parameter
 
 
+# TODO: remove this test after releasing 0.4.1 as it is not necessary
 class TestParamShift:
     @pytest.mark.skipif(
         sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
     )
     def test_call(self):
+        """
+        This test simply ensures that the legacy implementation of parameter shift produces
+        the same results with the new implementation
+        """
+        theta_0 = Parameter("theta_0", 0.2)
+        theta_1 = Parameter("theta_1", 0.6)
         ham = Hamiltonian.from_pauli_list([("Z0 Z1", 1), ("X1", 1)])
-        circ = QuantumCircuit(2)
-        # circ.h(0)
-        # circ.h(1)
-        circ.rx(0, 0.5)
-        circ.cnot(0, 1)
-        circ.ry(1, 0.5)
+
+        circ_0 = QuantumCircuit(2)
+        circ_0.rx(0, theta_0)
+        circ_0.cnot(0, 1)
+        circ_0.ry(1, theta_1)
 
         params = [0.2, 0.6]
-        estimator = Estimator(circ)
+        estimator = Estimator(circ_0)
         grad = ParamShift(estimator)
 
-        grads = grad(ham, params)
-        print(grads)
+        grads_0 = grad(ham, params)
+        print(grads_0)
+
+        circ_1 = QuantumCircuit(2)
+        circ_1.rx(0, theta_0)
+        circ_1.cnot(0, 1)
+        circ_1.ry(1, theta_1)
+        circ_1.get_parameter_grads()
+        grads_1 = grad_para_shift(circ_1, ham)
+        print(grads_1)
+
+        assert np.allclose(grads_0, grads_1, atol=1e-6)

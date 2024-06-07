@@ -18,10 +18,10 @@ from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers
 from quafu.circuits.quantum_circuit import QuantumCircuit
 
 
-class TestMergeCircuits:
-    """Example of merging circuits"""
+class TestConstructQLayers:
+    """Test stacking multiple different quantum layers"""
 
-    def test_merge_circuits(self):
+    def test_construct_qlayers(self):
         state = np.array([7, 2, 3, 4])
         encoding_layer = AmplitudeEmbedding(state=state, num_qubits=2, normalize=True)
 
