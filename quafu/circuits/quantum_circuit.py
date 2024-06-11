@@ -74,6 +74,7 @@ class QuantumCircuit:
     @property
     def parameterized_gates(self):
         """Return the list of gates which the parameters are tunable"""
+        # FIXME: if we add parameterized gates after calling this function it will not work
         if not self._parameterized_gates:
             self._parameterized_gates = [g for g in self.gates if len(g.paras) != 0]
         return self._parameterized_gates
@@ -272,7 +273,10 @@ class QuantumCircuit:
             order: For transplied circuit that change the order of variables,
             need pass the order to match untranspiled circuit's variable.
         """
-
+        if len(values) != len(self.variables):
+            raise CircuitError(
+                "The size of input values must be the same to the parameters"
+            )
         for i in range(len(values)):
             val = values[order[i]] if order else values[i]
             self._variables[i].value = val

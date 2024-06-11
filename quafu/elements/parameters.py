@@ -233,12 +233,13 @@ class ParameterExpression:
 
 
 class Parameter(ParameterExpression):
-    def __init__(self, name, value: float = 0.0):
+    def __init__(self, name, value: float = 0.0, tunable: bool = True):
         self.name = name
         self.value = float(value)
         self.operands = []
         self.funcs = []
         self.latex = self.name
+        self.tunable = tunable
 
     @property
     def pivot(self):

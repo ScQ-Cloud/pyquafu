@@ -159,25 +159,34 @@ class QuantumNeuralNetwork(Ansatz):
         self._transformer = InterfaceProvider.get(interface)
         self._layers = layers
 
-        # FIXME(zhaoyilun): don't use this default value
-        self._weights = np.empty((1, 1))
+        self._weights = None
 
         self._backend = backend
         super().__init__(num_qubits)
 
-    def __call__(self, features):
+    def __call__(self, inputs):
         """Compute outputs of QNN given input features"""
         from .estimator import Estimator
 
         estimator = Estimator(self, backend=self._backend)
-        return self._transformer.execute(self, features, estimator=estimator)
+        return self._transformer.execute(self, inputs, estimator=estimator)
 
     def _build(self):
         """Essentially initialize weights using transformer"""
         self.add_gates(self._layers)
 
-        self._weights = self._transformer.init_weights((1, self.num_parameters))
+        self._weights = self._transformer.init_weights((1, self.num_tunable_parameters))
 
     @property
     def weights(self):
         return self._weights
+
+    @property
+    def num_tunable_parameters(self):
+        num_tunable_params = 0
+        for g in self.gates:
+            paras = g.paras
+            for p in paras:
+                if hasattr(p, "tunable") and p.tunable:
+                    num_tunable_params += 1
+        return num_tunable_params
