@@ -17,7 +17,9 @@ from typing import Optional
 
 import numpy as np
 import torch
+from quafu.algorithms.ansatz import QuantumNeuralNetwork
 from quafu.algorithms.estimator import Estimator
+from torch import nn
 
 from quafu import QuantumCircuit
 
@@ -56,14 +58,7 @@ class TorchTransformer:
             "estimator": estimator,
         }
 
-        if method == "external":
-            return ExecuteCircuits.apply(parameters, kwargs)
-        if method == "internal":
-            from ..ansatz import QuantumNeuralNetwork
-
-            assert isinstance(circ, QuantumNeuralNetwork)
-            return ExecuteCircuits.apply(circ.weights, kwargs)
-        raise NotImplementedError(f"Unsupported execution method: {method}")
+        return ExecuteCircuits.apply(parameters, kwargs)
 
 
 class ExecuteCircuits(torch.autograd.Function):
@@ -91,3 +86,42 @@ class ExecuteCircuits(torch.autograd.Function):
         vjp = compute_vjp(jac, grad_out.numpy())
         vjp = torch.from_numpy(vjp)
         return vjp, None
+
+
+class ModuleWrapper(nn.Module):
+    """
+    A wrapper class to transform quafu circuit to a torch module
+    """
+
+    def __init__(self, qnn: QuantumNeuralNetwork):
+        """
+        Initialization of quafu torch module
+
+        Args:
+            circ (QuantumCircuit): the original parameterized quantum circuit
+        """
+        super().__init__()
+        self._qnn = qnn
+        if qnn.weights is not None:
+            self.weights = nn.parameter.Parameter(qnn.weights)
+        else:
+            self.weights = None
+
+    def forward(self, inputs: torch.Tensor):
+        """
+        Args:
+            inputs (torch.Tensor): raw input data or output from previous
+                classical/quantum layers.
+        """
+        # if weights are not empty, it will be combined with inputs to form
+        # the complete parameter vector and feed to the quantum circuit
+        bsz, _ = inputs.shape  # FIXME: currently we assume 2-D inputs
+
+        # use the last dimension since it is currently initialized as (1, D)
+        if self.weights is not None:
+            weight_dim = self.weights.size(-1)
+            weights_expanded = self.weights.expand(bsz, weight_dim)
+            inputs_to_circ = torch.cat((inputs, weights_expanded), dim=1)
+        else:
+            inputs_to_circ = inputs
+        return self._qnn(inputs_to_circ)

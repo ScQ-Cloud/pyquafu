@@ -19,6 +19,7 @@ import numpy as np
 
 from ..estimator import Estimator
 from ..hamiltonian import Hamiltonian
+from .gradiant import grad_para_shift
 
 
 class ParamShift:
@@ -34,7 +35,7 @@ class ParamShift:
             estimator (Estimator): estimator to calculate expectation values
             params (List[float]): params to optimize
         """
-        return self.grad(obs, params)
+        return self.new_grad(obs, params)
 
     def _gen_param_shift_vals(self, params):
         """Given a param list with n values, replicate to 2*n param list"""
@@ -45,6 +46,7 @@ class ParamShift:
         minus_params = params - offsets * np.pi / 2
         return plus_params.tolist() + minus_params.tolist()
 
+    # TODO: delete after 0.4.1
     def grad(self, obs: Hamiltonian, params: List[float]):
         """grad.
 
@@ -61,3 +63,12 @@ class ParamShift:
         num_shift_params = len(res)
         grads = (res[: num_shift_params // 2] - res[num_shift_params // 2 :]) / 2
         return grads
+
+    def new_grad(self, obs: Hamiltonian, params: List[float]):
+        """Calculate the gradients of given the circuit based on the parameter shift rule
+        Args:
+            obs (Hamiltonian): observables for measurement.
+            params (List[float]): parameters to apply to the circuit.
+        """
+        self._est._circ._update_params(params)
+        return grad_para_shift(self._est._circ, obs)

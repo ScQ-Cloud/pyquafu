@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 import scipy.sparse as sp
-from quafu.algorithms.gradient import grad_adjoint, grad_finit_diff, grad_para_shift
+from quafu.algorithms.gradients import grad_adjoint, grad_finit_diff, grad_para_shift
 from quafu.algorithms.hamiltonian import Hamiltonian, PauliMats, PauliOp
 from quafu.elements import Parameter
 from quafu.elements.element_gates import CRYGate, CXGate, HGate, RXGate, RYGate, RZGate

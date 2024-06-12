@@ -14,7 +14,7 @@
 """Angel Embedding in Quantum Data embedding"""
 import numpy as np
 import quafu.elements.element_gates as qeg
-from quafu.elements import QuantumGate
+from quafu.elements import Parameter, QuantumGate
 
 ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
@@ -45,7 +45,9 @@ class AngleEmbedding:
         gate_list = []
         for j in range(self.batch_size):
             for i in range(self.num_qubits):
-                gate = self.op(i, self.features[j, i])
+                gate = self.op(
+                    i, Parameter(f"phi_{i}", self.features[j, i], tunable=False)
+                )
                 gate_list.append(gate)
         return gate_list
 
