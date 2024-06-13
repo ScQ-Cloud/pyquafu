@@ -6,7 +6,7 @@
 
 ## Introduction
 
-**PyQuafu** is designed for users to construct, compile, and execute quantum circuits on quantum devices on [Quafu](http://quafu.baqis.ac.cn/) with Python. With PyQuafu, you can interact with various real quantum backends provided by the experimental group from [Quafu](http://quafu.baqis.ac.cn/).
+**PyQuafu** is designed for users to construct, compile, and execute quantum circuits on quantum devices on [Quafu](http://quafu.baqis.ac.cn/) using Python. With PyQuafu, you can interact with various real quantum backends provided by the experimental group from [Quafu](http://quafu.baqis.ac.cn/).
 
 ## Installation
 
