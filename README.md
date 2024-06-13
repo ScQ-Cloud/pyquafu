@@ -4,8 +4,6 @@
 [![](https://img.shields.io/github/release/ScQ-Cloud/pyquafu.svg?style=popout-square)](https://github.com/ScQ-Cloud/pyquafu/releases)
 [![](https://img.shields.io/pypi/dm/pyquafu?style=popout-square)](https://pypi.org/project/pyquafu/)
 
-A Python toolkit for submitting quantum circuits to the superconducting quantum computing cloud [Quafu](http://quafu.baqis.ac.cn/).
-
 ## Introduction
 
 **PyQuafu** is designed for users to construct, compile, and execute quantum circuits on quantum devices on [Quafu](http://quafu.baqis.ac.cn/) with Python. With PyQuafu, you can interact with various real quantum backends provided by the experimental group from [Quafu](http://quafu.baqis.ac.cn/).
