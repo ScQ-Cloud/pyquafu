@@ -13,11 +13,13 @@
 # limitations under the License.
 
 
-from typing import Iterable, List, Union
-import numpy as np
-from quafu.elements.parameters import ParameterType, Parameter, ParameterExpression
+from typing import Iterable, List
+
 import _operator
 import autograd.numpy as anp
+import numpy as np
+from quafu.elements.parameters import Parameter, ParameterExpression, ParameterType
+
 
 def reorder_matrix(matrix: np.ndarray, pos: List):
     """Reorder the input sorted matrix to the pos order"""
@@ -39,6 +41,7 @@ def extract_float(paras):
         elif isinstance(para, Parameter) or isinstance(para, ParameterExpression):
             paras_f.append(para.get_value())
     return paras_f
+
 
 def handle_expression(param: ParameterType):
     if isinstance(param, float) or isinstance(param, int):

@@ -1,8 +1,8 @@
-import math
+from quafu.elements import Parameter, ParameterExpression
+from quafu.qfasm.qfasm_convertor import qasm_to_quafu
 
 from quafu import QuantumCircuit
-from quafu.qfasm.qfasm_convertor import qasm_to_quafu
-from quafu.elements import ParameterExpression, Parameter
+
 
 class TestParser:
     """
@@ -32,7 +32,9 @@ class TestParser:
                     self.compare_parameter(gate1.paras[j], gate2.paras[j])
 
     def compare_parameter(self, param1, param2):
-        if isinstance(param1, ParameterExpression) or isinstance(param2, ParameterExpression):
+        if isinstance(param1, ParameterExpression) or isinstance(
+            param2, ParameterExpression
+        ):
             assert isinstance(param2, ParameterExpression)
             assert isinstance(param1, ParameterExpression)
             assert param1.latex == param2.latex
@@ -47,6 +49,7 @@ class TestParser:
                 self.compare_parameter(param1.operands[i], param2.operands[i])
         else:
             assert param1 == param2
+
     # ----------------------------------------
     #   test for parameter
     # ----------------------------------------
@@ -64,7 +67,7 @@ class TestParser:
 
     def test_parameter_func(self):
         qasm = """
-               theta1 = 1.0; theta2 = 2.0; 
+               theta1 = 1.0; theta2 = 2.0;
                gate test(rz, ry) a {
                     rz(rz) a;
                     ry(ry) a;
@@ -120,7 +123,7 @@ class TestParser:
 
     def test_parameter_expression(self):
         qasm = """
-                theta1 = 1.0; theta2 = 2.0; 
+                theta1 = 1.0; theta2 = 2.0;
                 qreg q[2]; rx(theta1+theta2) q[0]; rx(theta1+theta1*theta2) q[1];
             """
         cir = qasm_to_quafu(openqasm=qasm)
@@ -130,13 +133,13 @@ class TestParser:
         theta2 = Parameter("theta2", 2.0)
         self.compare_parameter(cir.variables[0], theta1)
         self.compare_parameter(cir.variables[1], theta2)
-        self.compare_parameter(cir.gates[0].paras[0], theta1+theta2)
-        self.compare_parameter(cir.gates[1].paras[0], theta1+theta1*theta2)
+        self.compare_parameter(cir.gates[0].paras[0], theta1 + theta2)
+        self.compare_parameter(cir.gates[1].paras[0], theta1 + theta1 * theta2)
         qasm = """
                 theta1 = 1.0; theta2 = 2.0;
-                theta3 = 3.0; theta4 = 4.0; 
-                qreg q[2]; 
-                rx(theta1+theta2-theta3*theta4^2) q[0]; 
+                theta3 = 3.0; theta4 = 4.0;
+                qreg q[2];
+                rx(theta1+theta2-theta3*theta4^2) q[0];
                 rx(sin(theta1*2+theta2)) q[1];
             """
         cir = qasm_to_quafu(openqasm=qasm)
@@ -147,15 +150,14 @@ class TestParser:
         theta3 = Parameter("theta3", 3.0)
         theta4 = Parameter("theta4", 4.0)
         assert len(cir.variables) == 4
-        theta = theta1 + theta2 - theta3 * theta4 ** 2
+        theta = theta1 + theta2 - theta3 * theta4**2
         self.compare_parameter(cir.variables[0], theta1)
         self.compare_parameter(cir.variables[1], theta2)
         self.compare_parameter(cir.variables[2], theta3)
         self.compare_parameter(cir.variables[3], theta4)
         self.compare_parameter(cir.gates[0].paras[0], theta)
-        theta = (theta1*2+theta2).sin()
+        theta = (theta1 * 2 + theta2).sin()
         self.compare_parameter(cir.gates[1].paras[0], theta)
-
 
     def test_parameter_to_from(self):
         qc = QuantumCircuit(4)
@@ -165,4 +167,4 @@ class TestParser:
         qc.rx(0, theta2)
         qc2 = QuantumCircuit(4)
         qc2.from_openqasm(qc.to_openqasm(with_para=True))
-        self.compare_cir(qc,qc2)
+        self.compare_cir(qc, qc2)

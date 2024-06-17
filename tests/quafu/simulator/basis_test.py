@@ -264,7 +264,6 @@ class TestSimulatorBasis(BaseTest):
         )
         self.assertTrue(success)
 
-    
 
 class TestCliffordSimulatorBasis(BaseTest):
     """Test C++ Clifford simulator"""
@@ -282,64 +281,48 @@ class TestCliffordSimulatorBasis(BaseTest):
     def test_simulate(self):
         print("test_simulate")
         self.circuit = BellCircuits.bell_no_measure()
-        result = simulate(
-            qc=self.circuit, simulator="clifford"
-        )
+        result = simulate(qc=self.circuit, simulator="clifford")
         count = result.counts
         self.assertDictAlmostEqual(count, {})
 
     def test_singleQgate_measure_atlast(self):
         self.circuit = BasicCircuits.singleQgate_measure_atlast()
-        result = simulate(
-            qc=self.circuit, shots=1, simulator="clifford"
-        )
+        result = simulate(qc=self.circuit, shots=1, simulator="clifford")
         counts = result.counts
         self.assertDictAlmostEqual(counts, {"11": 1})
 
     def test_singleQgate_no_measure(self):
         self.circuit = BasicCircuits.singleQgate_no_measure()
-        result = simulate(
-            qc=self.circuit, shots=1, simulator="clifford"
-        )
+        result = simulate(qc=self.circuit, shots=1, simulator="clifford")
         counts = result.counts
         self.assertDictAlmostEqual(counts, {})
 
     def test_singleQgate_measure_normal(self):
         self.circuit = BasicCircuits.singleQgate_measure_normal()
-        result = simulate(
-            qc=self.circuit, shots=10, simulator="clifford"
-        )
+        result = simulate(qc=self.circuit, shots=10, simulator="clifford")
         counts = result.counts
         self.assertDictAlmostEqual(counts, {"11": 10})
 
     def test_multiQgate_measure_atlast(self):
         self.circuit = BasicCircuits.multiQgate_measure_atlast()
-        result = simulate(
-            qc=self.circuit, shots=10, simulator="clifford"
-        )
+        result = simulate(qc=self.circuit, shots=10, simulator="clifford")
         counts = result.counts
         self.assertDictAlmostEqual(counts, {"11": 10})
 
     def test_multiQgate_no_measure(self):
         self.circuit = BasicCircuits.multiQgate_no_measure()
-        result = simulate(
-            qc=self.circuit, shots=1, simulator="clifford"
-        )
+        result = simulate(qc=self.circuit, shots=1, simulator="clifford")
         counts = result.counts
         self.assertDictAlmostEqual(counts, {})
 
     def test_multiQgate_measure_normal(self):
         self.circuit = BasicCircuits.multiQgate_measure_normal()
-        result = simulate(
-            qc=self.circuit, shots=10, simulator="clifford"
-        )
+        result = simulate(qc=self.circuit, shots=10, simulator="clifford")
         counts = result.counts
         self.assertDictAlmostEqual(counts, {"11": 10})
 
     def test_anycbit_measure(self):
         self.circuit = BasicCircuits.any_cbit_measure()
-        result = simulate(
-            qc=self.circuit, shots=10, simulator="clifford"
-        )
-        counts = result.counts 
+        result = simulate(qc=self.circuit, shots=10, simulator="clifford")
+        counts = result.counts
         self.assertDictAlmostEqual(counts, {"0101": 10})

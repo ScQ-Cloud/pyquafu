@@ -48,7 +48,7 @@ if build_all_docs is not None:
         "current_version": current_version,
         "versions": [
             ["0.2.x", pages_root + "/0.2.x"],
-            ["0.3.x", pages_root + "/0.3.x"]
+            ["0.3.x", pages_root + "/0.3.x"],
         ],
     }
 

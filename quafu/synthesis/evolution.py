@@ -16,8 +16,8 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from quafu.algorithms.hamiltonian import PauliOp
 import quafu.elements.element_gates as qeg
+from quafu.algorithms.hamiltonian import PauliOp
 
 
 def single_qubit_evol(pauli: PauliOp, time: float):

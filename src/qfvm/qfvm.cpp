@@ -1,5 +1,5 @@
-#include "simulator.hpp"
 #include "instructions.hpp"
+#include "simulator.hpp"
 #include <iostream>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -32,109 +32,108 @@ py::array_t<T> to_numpy(const std::tuple<T*, size_t>& src) {
   return py::array_t<T>(src_size, src_ptr, capsule);
 }
 
-py::object applyop_statevec(py::object const& pyop, py::array_t<complex<double>> &np_inputstate){
-    py::buffer_info buf = np_inputstate.request();
-    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
-    size_t data_size = buf.size;
+py::object applyop_statevec(py::object const& pyop,
+                            py::array_t<complex<double>>& np_inputstate) {
+  py::buffer_info buf = np_inputstate.request();
+  auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+  size_t data_size = buf.size;
 
-    auto op =  from_pyops(pyop);
-    if (data_size == 0){
-        return np_inputstate;
-    }
-    else{
-        StateVector<double> state(data_ptr, buf.size);
-        apply_op(*op, state);
-        state.move_data_to_python();
-        return np_inputstate;
-    }
+  auto op = from_pyops(pyop);
+  if (data_size == 0) {
+    return np_inputstate;
+  } else {
+    StateVector<double> state(data_ptr, buf.size);
+    apply_op(*op, state);
+    state.move_data_to_python();
+    return np_inputstate;
+  }
 }
 
-py::dict sampling_statevec(py::dict const& pymeas, py::array_t<complex<double>> &np_inputstate, int shots){
-    std::vector<std::pair<uint, uint> > measures;
-    for (auto item : pymeas){
-        int qbit = item.first.cast<uint>();
-        int cbit = item.second.cast<uint>();
-        measures.push_back(std::pair<uint, uint>(qbit, cbit));
-    }
-    py::buffer_info buf = np_inputstate.request();
-    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
-    size_t data_size = buf.size;
-    StateVector<double> state(data_ptr, buf.size);
-    auto counts = state.measure_samples(measures, shots);
-    state.move_data_to_python();
-    return py::cast(counts);
+py::dict sampling_statevec(py::dict const& pymeas,
+                           py::array_t<complex<double>>& np_inputstate,
+                           int shots) {
+  std::vector<std::pair<uint, uint>> measures;
+  for (auto item : pymeas) {
+    int qbit = item.first.cast<uint>();
+    int cbit = item.second.cast<uint>();
+    measures.push_back(std::pair<uint, uint>(qbit, cbit));
+  }
+  py::buffer_info buf = np_inputstate.request();
+  auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+  size_t data_size = buf.size;
+  StateVector<double> state(data_ptr, buf.size);
+  auto counts = state.measure_samples(measures, shots);
+  state.move_data_to_python();
+  return py::cast(counts);
 }
 
 std::pair<std::map<uint, uint>, py::array_t<complex<double>>>
 simulate_circuit(py::object const& pycircuit,
                  py::array_t<complex<double>>& np_inputstate,
                  const int& shots) {
-    auto circuit = Circuit(pycircuit);
-    py::buffer_info buf = np_inputstate.request();
-    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
-    size_t data_size = buf.size;
-    // If measure all at the end, simulate once
-    uint actual_shots = shots;
-    if (circuit.final_measure())
-        actual_shots = 1;
-    vector<std::pair<uint, uint>> measures = circuit.measure_vec();
-    std::map<uint, bool> cbit_measured;
-    for (auto& pair : measures) {
-        cbit_measured[pair.second] = true;
-    }
+  auto circuit = Circuit(pycircuit);
+  py::buffer_info buf = np_inputstate.request();
+  auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+  size_t data_size = buf.size;
+  // If measure all at the end, simulate once
+  uint actual_shots = shots;
+  if (circuit.final_measure())
+    actual_shots = 1;
+  vector<std::pair<uint, uint>> measures = circuit.measure_vec();
+  std::map<uint, bool> cbit_measured;
+  for (auto& pair : measures) {
+    cbit_measured[pair.second] = true;
+  }
 
-    // Store outcome's count
-    std::map<uint, uint> outcount;
-    StateVector<double> state;
-    if (data_size != 0){
-        state.load_data(data_ptr, data_size);
+  // Store outcome's count
+  std::map<uint, uint> outcount;
+  StateVector<double> state;
+  if (data_size != 0) {
+    state.load_data(data_ptr, data_size);
+  }
+  if (circuit.final_measure()) {
+    simulate(circuit, state);
+    if (!measures.empty()) {
+      auto countstr = state.measure_samples(circuit.measure_vec(), shots);
+      for (auto it : countstr) {
+        uint si = std::stoi(it.first, nullptr, 2);
+        outcount[si] = it.second;
+      }
     }
-    if (circuit.final_measure()){
-        simulate(circuit, state);
-        if (!measures.empty()){
-            auto countstr = state.measure_samples(circuit.measure_vec(), shots);
-            for (auto it : countstr){
-                uint si = std::stoi(it.first, nullptr, 2);
-                outcount[si] = it.second;
-            }
-        }
-        if (data_size == 0)
-            return std::make_pair(outcount,
-                            to_numpy(state.move_data_to_python()));
-        else
-            state.move_data_to_python();
-            return std::make_pair(outcount, np_inputstate);
-    }
-    else{
-        for (uint i = 0; i < shots; i++) {
-            StateVector<double> buffer;
-            if (data_size != 0){
-                auto buffer_ptr = std::make_unique<complex<double>[]>(data_size);
-                std::copy(data_ptr, data_ptr + data_size, buffer_ptr.get());
-                buffer.load_data(buffer_ptr, data_size);
-            }else{
-                buffer = StateVector<double>();
-            }
-            simulate(circuit, buffer);
-            // store reg
-            vector<uint> tmpcreg = buffer.creg();
-            uint outcome = 0;
-            for (uint j = 0; j < tmpcreg.size(); j++) {
-                if (cbit_measured.find(j) == cbit_measured.end())
-                continue;
-                outcome *= 2;
-                outcome += tmpcreg[j];
-            }
-            if (outcount.find(outcome) != outcount.end())
-                outcount[outcome]++;
-            else
-                outcount[outcome] = 1;
+    if (data_size == 0)
+      return std::make_pair(outcount, to_numpy(state.move_data_to_python()));
+    else
+      state.move_data_to_python();
+    return std::make_pair(outcount, np_inputstate);
+  } else {
+    for (uint i = 0; i < shots; i++) {
+      StateVector<double> buffer;
+      if (data_size != 0) {
+        auto buffer_ptr = std::make_unique<complex<double>[]>(data_size);
+        std::copy(data_ptr, data_ptr + data_size, buffer_ptr.get());
+        buffer.load_data(buffer_ptr, data_size);
+      } else {
+        buffer = StateVector<double>();
+      }
+      simulate(circuit, buffer);
+      // store reg
+      vector<uint> tmpcreg = buffer.creg();
+      uint outcome = 0;
+      for (uint j = 0; j < tmpcreg.size(); j++) {
+        if (cbit_measured.find(j) == cbit_measured.end())
+          continue;
+        outcome *= 2;
+        outcome += tmpcreg[j];
+      }
+      if (outcount.find(outcome) != outcount.end())
+        outcount[outcome]++;
+      else
+        outcount[outcome] = 1;
 
-            if (i == shots-1){
-                return std::make_pair(outcount,
-                            to_numpy(buffer.move_data_to_python()));
-            }
-        }
+      if (i == shots - 1) {
+        return std::make_pair(outcount, to_numpy(buffer.move_data_to_python()));
+      }
+    }
   }
 }
 
@@ -257,22 +256,22 @@ simulate_circuit_custate(py::object const& pycircuit,
 }
 #endif
 
-py::object expect_statevec(py::array_t<complex<double>> const&np_inputstate, py::list const paulis)
-{
-    py::buffer_info buf = np_inputstate.request();
-    auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
-    size_t data_size = buf.size;
-    StateVector<double> state(data_ptr, buf.size);
-    py::list pyres;
-    for (auto pauli_h : paulis){
-         py::object pypauli = py::reinterpret_borrow<py::object>(pauli_h);
-         std::vector<pos_t> posv = pypauli.attr("pos").cast<std::vector<pos_t>>();
-         string paulistr = pypauli.attr("paulistr").cast<string>();
-        double expec = state.expect_pauli(paulistr, posv);
-        pyres.attr("append")(expec);
-    }
-    state.move_data_to_python();
-    return pyres;
+py::object expect_statevec(py::array_t<complex<double>> const& np_inputstate,
+                           py::list const paulis) {
+  py::buffer_info buf = np_inputstate.request();
+  auto* data_ptr = reinterpret_cast<std::complex<double>*>(buf.ptr);
+  size_t data_size = buf.size;
+  StateVector<double> state(data_ptr, buf.size);
+  py::list pyres;
+  for (auto pauli_h : paulis) {
+    py::object pypauli = py::reinterpret_borrow<py::object>(pauli_h);
+    std::vector<pos_t> posv = pypauli.attr("pos").cast<std::vector<pos_t>>();
+    string paulistr = pypauli.attr("paulistr").cast<string>();
+    double expec = state.expect_pauli(paulistr, posv);
+    pyres.attr("append")(expec);
+  }
+  state.move_data_to_python();
+  return pyres;
 }
 
 PYBIND11_MODULE(qfvm, m) {
@@ -285,12 +284,14 @@ PYBIND11_MODULE(qfvm, m) {
         "Simulate with circuit using clifford", py::arg("circuit"),
         py::arg("shots"));
 
-  m.def("expect_statevec", &expect_statevec, "Calculate paulis expectation", py::arg("inputstate"), py::arg("paulis"));
+  m.def("expect_statevec", &expect_statevec, "Calculate paulis expectation",
+        py::arg("inputstate"), py::arg("paulis"));
 
-  m.def("applyop_statevec", &applyop_statevec, "Apply single operator to state", py::arg("operation"), py::arg("inputstate"));
+  m.def("applyop_statevec", &applyop_statevec, "Apply single operator to state",
+        py::arg("operation"), py::arg("inputstate"));
 
-  m.def("sampling_statevec", &sampling_statevec, "sampling state", py::arg("measures"), py::arg("inputstate"), py::arg("shots"));
-
+  m.def("sampling_statevec", &sampling_statevec, "sampling state",
+        py::arg("measures"), py::arg("inputstate"), py::arg("shots"));
 
 #ifdef _USE_GPU
   m.def("simulate_circuit_gpu", &simulate_circuit_gpu, "Simulate with circuit",

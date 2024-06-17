@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from quafu.circuits import QuantumCircuit
+import numpy as np
 import quafu.elements.element_gates as qeg
 from quafu.algorithms import AmplitudeEmbedding
-import numpy as np
+from quafu.circuits import QuantumCircuit
 
 
 class TestAmplitudeEmbedding:

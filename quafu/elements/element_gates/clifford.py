@@ -1,5 +1,3 @@
-from .element_gates import HGate, SGate, CXGate
+from .element_gates import CXGate, HGate, SGate
 
-__all__ = ['HGate', 'SGate', 'CXGate']
-
-
+__all__ = ["HGate", "SGate", "CXGate"]

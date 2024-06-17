@@ -21,12 +21,7 @@ from quafu.circuits.quantum_circuit import QuantumCircuit
 from scipy.sparse import coo_matrix, eye, kron
 from sparse import COO, SparseArray
 
-from ..elements import (
-    Barrier,
-    Delay,
-    QuantumGate,
-    XYResonance,
-)
+from ..elements import Barrier, Delay, QuantumGate, XYResonance
 from ..results.results import SimuResult
 
 

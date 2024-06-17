@@ -20,7 +20,6 @@ import numpy as np
 import pytest
 from quafu.algorithms.estimator import Estimator
 from quafu.algorithms.hamiltonian import Hamiltonian, PauliOp
-
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.tasks.tasks import Task
 

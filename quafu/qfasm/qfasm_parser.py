@@ -19,16 +19,26 @@ import ply.yacc as yacc
 from quafu.circuits.classical_register import ClassicalRegister
 from quafu.circuits.quantum_register import QuantumRegister
 from quafu.elements import *
+from quafu.elements import Parameter, ParameterExpression
 from quafu.elements.classical_element import Cif
 from quafu.qfasm.exceptions import ParserError
 
 from quafu import QuantumCircuit
-from quafu.elements import Parameter, ParameterExpression
+
 from .qfasm_lexer import QfasmLexer
 from .qfasm_utils import *
 
-unaryop = {"sin": "sin", "cos": "cos", "tan": "tan", "exp": "exp",
-           "ln": "log", "sqrt": "sqrt", "acos": "arccos", "atan": "arctan", "asin": "arcsin"}
+unaryop = {
+    "sin": "sin",
+    "cos": "cos",
+    "tan": "tan",
+    "exp": "exp",
+    "ln": "log",
+    "sqrt": "sqrt",
+    "acos": "arccos",
+    "atan": "arctan",
+    "asin": "arcsin",
+}
 unarynp = {
     "sin": np.sin,
     "cos": np.cos,
@@ -192,7 +202,9 @@ class QfasmParser(object):
                     gate_list.append(gate_classes["ry"](*[*oneargs, gateins.cargs[0]]))
                     gate_list.append(gate_classes["rz"](*[*oneargs, gateins.cargs[1]]))
                 elif gateins.name in self.mulctrl:
-                    gate_list.append(gate_classes[gateins.name](oneargs[:-1], oneargs[-1]))
+                    gate_list.append(
+                        gate_classes[gateins.name](oneargs[:-1], oneargs[-1])
+                    )
                 else:
                     # add carg to args if there is
                     if gateins.cargs is not None and len(gateins.cargs) > 0:
@@ -266,9 +278,13 @@ class QfasmParser(object):
 
         return gate_list
 
-    def compute_exp(self, carg, cargdict: dict={}):
+    def compute_exp(self, carg, cargdict: dict = {}):
         # recurse
-        if isinstance(carg, int) or isinstance(carg, float) or isinstance(carg, ParameterExpression):
+        if (
+            isinstance(carg, int)
+            or isinstance(carg, float)
+            or isinstance(carg, ParameterExpression)
+        ):
             return carg
         # if it's id, should get real number from gateins
         elif isinstance(carg, Id):
@@ -299,7 +315,7 @@ class QfasmParser(object):
             elif carg.type == "/":
                 return cargl / cargr
             elif carg.type == "^":
-                return cargl ** cargr
+                return cargl**cargr
 
     def addInstruction(self, qc: QuantumCircuit, ins):
         if ins is None:
@@ -422,7 +438,9 @@ class QfasmParser(object):
         if isinstance(carg, int) or isinstance(carg, float):
             return
         elif isinstance(carg, Id) and carg.name not in self.params:
-            raise ParserError(f"The parameter {carg.name} is undefined at line {carg.lineno} file {carg.filename}")
+            raise ParserError(
+                f"The parameter {carg.name} is undefined at line {carg.lineno} file {carg.filename}"
+            )
         elif isinstance(carg, UnaryExpr):
             self.check_param(carg.children[0])
         elif isinstance(carg, BinaryExpr):
@@ -590,7 +608,9 @@ class QfasmParser(object):
                 | qif error
         """
         if p[2] != ";":
-            raise ParserError(f"Expecting ';' behind statement at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(
+                f"Expecting ';' behind statement at line {p[1].lineno} file {p[1].filename}"
+            )
         p[0] = p[1]
 
     def p_statement_empty(self, p):
@@ -1011,10 +1031,14 @@ class QfasmParser(object):
                  | id EQUAL error
         """
         if not isinstance(p[3], int) and not isinstance(p[3], float):
-            raise ParserError(f"Expecting 'INT' or 'FLOAT behind '=' at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(
+                f"Expecting 'INT' or 'FLOAT behind '=' at line {p[1].lineno} file {p[1].filename}"
+            )
         param_name = p[1].name
         if param_name in self.params:
-            raise ParserError(f"Duplicate declaration for parameter {p[1].name} at line {p[1].lineno} file {p[1].filename}")
+            raise ParserError(
+                f"Duplicate declaration for parameter {p[1].name} at line {p[1].lineno} file {p[1].filename}"
+            )
         self.params[param_name] = Parameter(param_name, p[3])
         p[0] = None
 

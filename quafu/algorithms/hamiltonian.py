@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from typing import Iterable
-import scipy.sparse as sp
-import numpy as np
 
+import numpy as np
+import scipy.sparse as sp
 from quafu.exceptions.quafu_error import QuafuError
 
 IMat = sp.coo_matrix(np.array([[1.0, 0.0], [0.0, 1.0]], dtype=complex))

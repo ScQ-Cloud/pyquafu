@@ -13,10 +13,9 @@
 # limitations under the License.
 
 """Amplitude Embedding by a decomposition into gates"""
-import quafu.elements.element_gates as qeg
 import numpy as np
+import quafu.elements.element_gates as qeg
 from quafu.elements import QuantumGate
-
 
 # from .basic_entangle import BasicEntangleLayers
 
@@ -41,7 +40,7 @@ class AmplitudeEmbedding:
 
     def __getitem__(self, index):
         return self.gate_list[index]
-    
+
     def __add__(self, gates):
         """Addition operator."""
         out = []
@@ -51,7 +50,7 @@ class AmplitudeEmbedding:
         else:
             raise TypeError("Contains unsupported gate")
         return out
-    
+
     def __radd__(self, other):
         out = []
         if all(isinstance(gate, QuantumGate) for gate in other):
@@ -75,10 +74,12 @@ class AmplitudeEmbedding:
 
             # check shape
             if len(shape) != 1:
-                raise ValueError(f"state must be a one-dimensional tensor; got shape {shape}.")
+                raise ValueError(
+                    f"state must be a one-dimensional tensor; got shape {shape}."
+                )
 
             n_state = shape[0]
-            dim = 2 ** num_qubits
+            dim = 2**num_qubits
             if pad_with is None and n_state != dim:
                 raise ValueError(
                     f"The length of state should be {dim}; got length {n_state}.Please check num_qubits "
@@ -111,10 +112,13 @@ class AmplitudeEmbedding:
                     )
             new_state_batch.append(feature_set)
 
-        return np.stack(new_state_batch).astype(np.complex128) if batched else new_state_batch[0].astype(np.complex128)
+        return (
+            np.stack(new_state_batch).astype(np.complex128)
+            if batched
+            else new_state_batch[0].astype(np.complex128)
+        )
 
-    def _build(self):  
-
+    def _build(self):
         a = np.abs(self.state)
         omega = np.angle(self.state)
         # change order of qubits, since original code was written for IBM machines
@@ -126,7 +130,9 @@ class AmplitudeEmbedding:
             alpha_y_k = _get_alpha_y(a, len(qubits_reverse), k)
             control = qubits_reverse[k:]
             target = qubits_reverse[k - 1]
-            gate_list.extend(_apply_uniform_rotation_dagger(qeg.RYGate, alpha_y_k, control, target))
+            gate_list.extend(
+                _apply_uniform_rotation_dagger(qeg.RYGate, alpha_y_k, control, target)
+            )
 
         # If necessary, apply inverse z rotation cascade to prepare correct phases of amplitudes
         if not np.allclose(omega, 0):
@@ -136,11 +142,14 @@ class AmplitudeEmbedding:
                 target = qubits_reverse[k - 1]
                 if len(alpha_z_k) > 0:
                     gate_list.extend(
-                        _apply_uniform_rotation_dagger(qeg.RZGate, alpha_z_k, control, target)
+                        _apply_uniform_rotation_dagger(
+                            qeg.RZGate, alpha_z_k, control, target
+                        )
                     )
 
         return gate_list
-    
+
+
 ## MottonenStatePreparation related functions.
 def gray_code(rank):
     """Generates the Gray code of given rank.
@@ -167,18 +176,19 @@ def gray_code(rank):
 
     return g
 
+
 def _matrix_M_entry(row, col):
-        
-        # (col >> 1) ^ col is the Gray code of col
-        b_and_g = row & ((col >> 1) ^ col)
-        sum_of_ones = 0
-        while b_and_g > 0:
-            if b_and_g & 0b1:
-                sum_of_ones += 1
+    # (col >> 1) ^ col is the Gray code of col
+    b_and_g = row & ((col >> 1) ^ col)
+    sum_of_ones = 0
+    while b_and_g > 0:
+        if b_and_g & 0b1:
+            sum_of_ones += 1
 
-            b_and_g = b_and_g >> 1
+        b_and_g = b_and_g >> 1
 
-        return (-1) ** sum_of_ones
+    return (-1) ** sum_of_ones
+
 
 def compute_theta(alpha):
     ln = alpha.shape[-1]
@@ -195,7 +205,6 @@ def compute_theta(alpha):
 
 
 def _apply_uniform_rotation_dagger(gate, alpha, control_wires, target_wire):
-
     gate_list = []
     theta = compute_theta(alpha)
 
@@ -220,8 +229,8 @@ def _apply_uniform_rotation_dagger(gate, alpha, control_wires, target_wire):
         gate_list.append(qeg.CXGate(control_wires[control_index], target_wire))
     return gate_list
 
-def _get_alpha_z(omega, n, k):
 
+def _get_alpha_z(omega, n, k):
     indices1 = [
         [(2 * j - 1) * 2 ** (k - 1) + l - 1 for l in range(1, 2 ** (k - 1) + 1)]
         for j in range(1, 2 ** (n - k) + 1)
@@ -237,8 +246,8 @@ def _get_alpha_z(omega, n, k):
 
     return np.sum(diff, axis=-1)
 
-def _get_alpha_y(a, n, k):
 
+def _get_alpha_y(a, n, k):
     indices_numerator = [
         [(2 * (j + 1) - 1) * 2 ** (k - 1) + l for l in range(2 ** (k - 1))]
         for j in range(2 ** (n - k))
@@ -246,7 +255,9 @@ def _get_alpha_y(a, n, k):
     numerator = np.take(a, indices=indices_numerator, axis=-1)
     numerator = np.sum(np.abs(numerator) ** 2, axis=-1)
 
-    indices_denominator = [[j * 2**k + l for l in range(2**k)] for j in range(2 ** (n - k))]
+    indices_denominator = [
+        [j * 2**k + l for l in range(2**k)] for j in range(2 ** (n - k))
+    ]
     denominator = np.take(a, indices=indices_denominator, axis=-1)
     denominator = np.sum(np.abs(denominator) ** 2, axis=-1)
 

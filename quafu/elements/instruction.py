@@ -13,12 +13,11 @@
 #  limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union 
+from typing import Dict, List
 
 from .parameters import ParameterType
 
 __all__ = ["Instruction", "Barrier", "Measure", "Reset"]
-
 
 
 class Instruction(ABC):
@@ -81,12 +80,12 @@ class Instruction(ABC):
             raise ValueError(f"Name {name} already exists.")
         cls.ins_classes[name] = subclass
         return subclass
-    
+
     @classmethod
     def register(cls, name: str = None):
         def wrapper(subclass):
             return cls.register_ins(subclass, name)
-        
+
         return wrapper
 
     @abstractmethod

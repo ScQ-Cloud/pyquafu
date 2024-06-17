@@ -1,19 +1,23 @@
 #pragma once
 
+#include "types.hpp"
 #include <bitset>
+#include <chrono>
 #include <iostream>
+#include <random>
 #include <regex>
+#include <set>
 #include <time.h>
 #include <type_traits>
-#include <bitset>
-#include <random>
-#include <chrono>
-#include <set>
 #include <vector>
-#include "types.hpp"
 
 #define TICK(x) auto bench_##x = std::chrono::steady_clock::now();
-#define TOCK(x) std::cout << #x ": " << std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - bench_##x).count() << "s" << std::endl;
+#define TOCK(x)                                                                \
+  std::cout << #x ": "                                                         \
+            << std::chrono::duration_cast<std::chrono::duration<double>>(      \
+                   std::chrono::steady_clock::now() - bench_##x)               \
+                   .count()                                                    \
+            << "s" << std::endl;
 
 namespace Qfutil {
 
@@ -26,16 +30,16 @@ std::vector<int> randomArr(size_t length, size_t max) {
   return arr;
 }
 
-std::vector<double> randomDoubleArr(size_t length){
-    std::random_device rd;
-    std::default_random_engine eng(rd());
-    std::uniform_real_distribution<double> distr(0., 1.);
-    
-    std::vector<double> randarr;
-    for (auto n = 0; n < length;++n){
-        randarr.push_back(distr(eng));
-    }
-    return randarr;
+std::vector<double> randomDoubleArr(size_t length) {
+  std::random_device rd;
+  std::default_random_engine eng(rd());
+  std::uniform_real_distribution<double> distr(0., 1.);
+
+  std::vector<double> randarr;
+  for (auto n = 0; n < length; ++n) {
+    randarr.push_back(distr(eng));
+  }
+  return randarr;
 }
 
 int randomint(int min, int max) {
@@ -116,20 +120,17 @@ std::vector<real_t> find_numbers(const std::string& str) {
   return res;
 }
 
-
-
-
 /*----------------bit function------------------*/
 const std::complex<double> PHASE_YZ[4] = {1, imag_I, -1, -imag_I};
 
 inline static uint popcount(uint x) {
-    x = ((x & 0xaaaaaaaaaaaaaaaaUL) >> 1) + (x & 0x5555555555555555UL);
-    x = ((x & 0xccccccccccccccccUL) >> 2) + (x & 0x3333333333333333UL);
-    x = ((x & 0xf0f0f0f0f0f0f0f0UL) >> 4) + (x & 0x0f0f0f0f0f0f0f0fUL);
-    x = ((x & 0xff00ff00ff00ff00UL) >> 8) + (x & 0x00ff00ff00ff00ffUL);
-    x = ((x & 0xffff0000ffff0000UL) >> 16) + (x & 0x0000ffff0000ffffUL);
-    x = ((x & 0xffffffff00000000UL) >> 32) + (x & 0x00000000ffffffffUL);
-    return (uint)x;
+  x = ((x & 0xaaaaaaaaaaaaaaaaUL) >> 1) + (x & 0x5555555555555555UL);
+  x = ((x & 0xccccccccccccccccUL) >> 2) + (x & 0x3333333333333333UL);
+  x = ((x & 0xf0f0f0f0f0f0f0f0UL) >> 4) + (x & 0x0f0f0f0f0f0f0f0fUL);
+  x = ((x & 0xff00ff00ff00ff00UL) >> 8) + (x & 0x00ff00ff00ff00ffUL);
+  x = ((x & 0xffff0000ffff0000UL) >> 16) + (x & 0x0000ffff0000ffffUL);
+  x = ((x & 0xffffffff00000000UL) >> 32) + (x & 0x00000000ffffffffUL);
+  return (uint)x;
 }
 
-}//namespace Qfutil
+} // namespace Qfutil
