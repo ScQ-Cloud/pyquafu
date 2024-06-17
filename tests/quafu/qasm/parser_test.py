@@ -76,7 +76,7 @@ class TestParser:
             if hasattr(gate1, "pos"):
                 assert gate1.pos == gate2.pos
             if hasattr(gate1, "paras") and len(gate1.paras) == 0:
-                assert len(gate2.paras)  == 0
+                assert len(gate2.paras) == 0
             if hasattr(gate1, "paras") and len(gate1.paras) > 0:
                 assert len(gate2.paras) > 0
                 for i, para in enumerate(gate1.paras):

@@ -14,10 +14,11 @@
 
 import unittest
 
+import numpy as np
 from base import BaseTest
 
 from quafu import QuantumCircuit, simulate
-import numpy as np
+
 
 class ClassicalCircuits:
     """Container for reference circuits used by the tests."""
@@ -175,7 +176,7 @@ class TestSimulatorClassic(BaseTest):
     def test_cls_input_psi(self):
         self.circuit = ClassicalCircuits.single_reset()
         psi = np.zeros(4, dtype=np.complex128)
-        psi[0] = 1.
+        psi[0] = 1.0
         result = simulate(qc=self.circuit, shots=10, psi=psi)
         probs = result.probabilities
         count = result.counts

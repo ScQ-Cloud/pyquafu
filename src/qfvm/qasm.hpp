@@ -11,8 +11,10 @@ using Qfutil::split_string;
 #name, Opname::name                                                        \
   }
 
-
-/****This is C++-statevector-native gate set, it has not to be consistent with pyquafu. It is used to avoid matrix copy from py at present. Of course providing more native gate is needed in the future, e.g. efficient swap-like gate.****/
+/****This is C++-statevector-native gate set, it has not to be consistent with
+ * pyquafu. It is used to avoid matrix copy from py at present. Of course
+ * providing more native gate is needed in the future, e.g. efficient swap-like
+ * gate.****/
 enum class Opname {
   creg,
   x,
@@ -40,11 +42,10 @@ enum class Opname {
 };
 
 std::unordered_map<string, Opname> OPMAP{
-    Pair(creg),    Pair(x),     Pair(y),     Pair(z),   Pair(h),   Pair(s),
-    Pair(sdg),     Pair(t),     Pair(tdg),   Pair(p),   Pair(rx),  Pair(ry),
-    Pair(rz),      Pair(cnot),  Pair(cx),    Pair(cz),  Pair(cp),
-    Pair(ccx),     Pair(rzz),
-    Pair(measure), Pair(reset), Pair(cif)};
+    Pair(creg), Pair(x),       Pair(y),     Pair(z),  Pair(h),  Pair(s),
+    Pair(sdg),  Pair(t),       Pair(tdg),   Pair(p),  Pair(rx), Pair(ry),
+    Pair(rz),   Pair(cnot),    Pair(cx),    Pair(cz), Pair(cp), Pair(ccx),
+    Pair(rzz),  Pair(measure), Pair(reset), Pair(cif)};
 
 struct Operation {
   string name;

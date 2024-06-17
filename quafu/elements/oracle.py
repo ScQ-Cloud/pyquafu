@@ -16,7 +16,7 @@ import copy
 from abc import ABCMeta
 from typing import Dict, Iterable, List
 
-from quafu.elements import Instruction, QuantumGate, ControlledGate
+from quafu.elements import ControlledGate, Instruction, QuantumGate
 
 
 class OracleGateMeta(ABCMeta):

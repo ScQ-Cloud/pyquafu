@@ -32,19 +32,19 @@ public:
   StateVector();
   explicit StateVector(uint num);
   StateVector(complex<real_t>* data, size_t data_size);
-//   StateVector(std::unique_ptr<complex<real_t>[]> & data, size_t data_size): 
-//   data_(std::move(data)),
-//   size_(data_size),
-//   num_(static_cast<int>(std::log2(size_)))
-//   { }
+  //   StateVector(std::unique_ptr<complex<real_t>[]> & data, size_t data_size):
+  //   data_(std::move(data)),
+  //   size_(data_size),
+  //   num_(static_cast<int>(std::log2(size_)))
+  //   { }
 
-  void load_data(complex<real_t>* data, size_t data_size){
+  void load_data(complex<real_t>* data, size_t data_size) {
     data_.reset(data);
     size_ = data_size;
     num_ = static_cast<int>(std::log2(size_));
   }
 
-  void load_data(std::unique_ptr<complex<real_t>[]> & data, size_t data_size){
+  void load_data(std::unique_ptr<complex<real_t>[]>& data, size_t data_size) {
     data_ = std::move(data);
     size_ = data_size;
     num_ = static_cast<int>(std::log2(size_));
@@ -92,8 +92,9 @@ public:
 
   // Expectation and measurement
   double expect_pauli(string paulistr, vector<pos_t> const& posv);
-  std::unordered_map<std::string, int> measure_samples(vector<std::pair<uint, uint>> meas, int shots);
-  
+  std::unordered_map<std::string, int>
+  measure_samples(vector<std::pair<uint, uint>> meas, int shots);
+
   // Measure and Reset
   std::pair<uint, double> sample_measure_probs(vector<pos_t> const& qbits);
   vector<double> probabilities() const;
@@ -1047,8 +1048,6 @@ vector<double> StateVector<real_t>::probabilities() const {
   return probs;
 }
 
-
-
 vector<std::complex<double>> convert(const vector<std::complex<double>>& v) {
   vector<std::complex<double>> ret(v.size(), 0.);
   for (size_t i = 0; i < v.size(); ++i)
@@ -1408,38 +1407,38 @@ void StateVector<real_t>::apply_reset(vector<pos_t> const& qbits) {
   update(qbits, 0, meas.first, meas.second);
 }
 
-
- //sample results
+// sample results
 template <class real_t>
-std::unordered_map<std::string, int> StateVector<real_t>::measure_samples(vector<std::pair<uint, uint>> meas, int shots){
-    std::unordered_map<std::string, int> counts;
-    auto rands = Qfutil::randomDoubleArr(shots);
+std::unordered_map<std::string, int>
+StateVector<real_t>::measure_samples(vector<std::pair<uint, uint>> meas,
+                                     int shots) {
+  std::unordered_map<std::string, int> counts;
+  auto rands = Qfutil::randomDoubleArr(shots);
 
 #pragma omp for
-    for (int i = 0;i < shots;++i){
-        std::string bitstring(meas.size(), '0');
-        double rand = rands[i];
-        double p = .0;
-        size_t sample;
-        for (sample = 0;sample < size_;++sample){
-            p += std::real(data_[sample] * std::conj(data_[sample]));
-            if (rand < p){
-                break;
-            }
-        }
-        for (auto it : meas){
-            size_t bit = (sample >> it.first) & 1;
-            bitstring.replace(it.second, 1, std::to_string(bit).c_str());
-        }
-        
-        if (counts.count(bitstring) > 0){
-#pragma omp atomic
-            counts[bitstring] += 1;
-        }else{
-#pragma omp critical
-        counts[bitstring] = 1;
-        }
+  for (int i = 0; i < shots; ++i) {
+    std::string bitstring(meas.size(), '0');
+    double rand = rands[i];
+    double p = .0;
+    size_t sample;
+    for (sample = 0; sample < size_; ++sample) {
+      p += std::real(data_[sample] * std::conj(data_[sample]));
+      if (rand < p) {
+        break;
+      }
     }
-    return counts;
-}
+    for (auto it : meas) {
+      size_t bit = (sample >> it.first) & 1;
+      bitstring.replace(it.second, 1, std::to_string(bit).c_str());
+    }
 
+    if (counts.count(bitstring) > 0) {
+#pragma omp atomic
+      counts[bitstring] += 1;
+    } else {
+#pragma omp critical
+      counts[bitstring] = 1;
+    }
+  }
+  return counts;
+}

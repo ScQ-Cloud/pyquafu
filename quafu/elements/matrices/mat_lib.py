@@ -1,31 +1,17 @@
 import numpy as np
 
 IdMatrix = np.eye(2, dtype=complex)
-XMatrix = np.array(
-    [[0.0, 1.0],
-     [1.0, 0.0]], dtype=complex)
-YMatrix = np.array(
-    [[0.0, -1.0j],
-     [1.0j, 0.0]], dtype=complex)
-ZMatrix = np.array(
-    [[1.0, 0.0],
-     [0.0, -1.0]], dtype=complex)
-SMatrix = np.array(
-    [[1.0, 0.0],
-     [0.0, 1.0j]], dtype=complex)
-SXMatrix = np.array(
-    [[1.0, 1.0j],
-     [1.0j, 1.0]], dtype=complex) / np.sqrt(2)
-SYMatrix = np.array(
-    [[1.0, -1.0],
-     [1.0, 1.0]], dtype=complex) / np.sqrt(2)
-TMatrix = np.array(
-    [[1.0, 0.0],
-     [0.0, np.exp(1.0j * np.pi / 4)]], dtype=complex)
+XMatrix = np.array([[0.0, 1.0], [1.0, 0.0]], dtype=complex)
+YMatrix = np.array([[0.0, -1.0j], [1.0j, 0.0]], dtype=complex)
+ZMatrix = np.array([[1.0, 0.0], [0.0, -1.0]], dtype=complex)
+SMatrix = np.array([[1.0, 0.0], [0.0, 1.0j]], dtype=complex)
+SXMatrix = np.array([[1.0, 1.0j], [1.0j, 1.0]], dtype=complex) / np.sqrt(2)
+SYMatrix = np.array([[1.0, -1.0], [1.0, 1.0]], dtype=complex) / np.sqrt(2)
+TMatrix = np.array([[1.0, 0.0], [0.0, np.exp(1.0j * np.pi / 4)]], dtype=complex)
 WMatrix = (XMatrix + YMatrix) / np.sqrt(2)
 SWMatrix = np.array(
-    [[0.5 + 0.5j, -np.sqrt(0.5) * 1j],
-     [np.sqrt(0.5), 0.5 + 0.5j]], dtype=complex)
+    [[0.5 + 0.5j, -np.sqrt(0.5) * 1j], [np.sqrt(0.5), 0.5 + 0.5j]], dtype=complex
+)
 HMatrix = (XMatrix + ZMatrix) / np.sqrt(2)
 SwapMatrix = np.array(
     [
@@ -196,12 +182,28 @@ def u3matrix(_theta=0.0, _phi=0.0, _lambda=0.0):
     )
 
 
-mat_dict = {'id': IdMatrix, 'x': XMatrix, 'y': YMatrix, 'z': ZMatrix,
-            'h': HMatrix, 'w': WMatrix,
-            's': SMatrix, 't': TMatrix,
-            'cx': CXMatrix, 'cnot': CXMatrix, 'cy': CYMatrix, 'cz': CZMatrix,
-            'swap': SwapMatrix, 'iswap': ISwapMatrix,
-            'rx': rx_mat, 'ry': ry_mat, 'rz': rz_mat, 'p': pmatrix,
-            'rxx': rxx_mat, 'ryy': ryy_mat, 'rzz': rzz_mat,
-            'u2': u2matrix, 'u3': u3matrix
-            }
+mat_dict = {
+    "id": IdMatrix,
+    "x": XMatrix,
+    "y": YMatrix,
+    "z": ZMatrix,
+    "h": HMatrix,
+    "w": WMatrix,
+    "s": SMatrix,
+    "t": TMatrix,
+    "cx": CXMatrix,
+    "cnot": CXMatrix,
+    "cy": CYMatrix,
+    "cz": CZMatrix,
+    "swap": SwapMatrix,
+    "iswap": ISwapMatrix,
+    "rx": rx_mat,
+    "ry": ry_mat,
+    "rz": rz_mat,
+    "p": pmatrix,
+    "rxx": rxx_mat,
+    "ryy": ryy_mat,
+    "rzz": rzz_mat,
+    "u2": u2matrix,
+    "u3": u3matrix,
+}
