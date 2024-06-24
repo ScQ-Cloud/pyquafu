@@ -6,9 +6,8 @@ project(qfvm LANGUAGES CXX C)
 
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "Build type not set - defaulting to Release")
-    set(CMAKE_BUILD_TYPE Debug)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
-set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CUDA_ARCHITECTURES 70;75;80;90)
@@ -42,7 +41,6 @@ else()
 	endif()
 endif()
 
-list ( APPEND PRJ_COMPILE_OPTIONS -g)
 #install eigen
 set(EIGEN3_ROOT  ${CMAKE_SOURCE_DIR}/thirdparty/Eigen3)
 set(EIGEN3_INCLUDE_DIR ${EIGEN3_ROOT}/include/eigen3)
