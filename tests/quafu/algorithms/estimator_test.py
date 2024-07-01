@@ -57,7 +57,7 @@ class TestEstimator:
         )
         return circ, test_ising
 
-    @patch("quafu.users.userapi.User._load_account_token", autospec=True)
+    @patch("quafu.users.userapi.User._load_account", autospec=True)
     @patch("quafu.users.userapi.User.get_available_backends", autospec=True)
     @patch("quafu.tasks.tasks.Task.send", autospec=True)
     def test_run(self, mock_send, mock_backends, mock_load_account):
