@@ -18,21 +18,12 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-requirements = [
-    "ipython>=8.14.0",
-    "matplotlib>=3.5.2",
-    "networkx>=2.6.3",
-    "numpy>=1.20.3",
-    "requests>=2.26.0",
-    "scipy>=1.8.1",
-    "setuptools>=58.0.4",
-    "sparse>=0.13.0",
-    "scikit-build>=0.16.1",
-    "pybind11>=2.10.3",
-    "graphviz>=0.14.2",
-    "ply~=3.11",
-    "autograd>=1.6.2",
-]
+def parse_requirements(filename):
+     with open(filename, 'r') as file:
+        lines = (line.strip() for line in file)
+        return [line for line in lines if line and not line.startswith("#")]
+
+requirements = parse_requirements("requirements.txt")
 
 setup(
     name="pyquafu",
