@@ -27,7 +27,7 @@ requirements = parse_requirements("requirements.txt")
 
 setup(
     name="pyquafu",
-    version="0.4.0",
+    version="0.4.1",
     author="ssli",
     author_email="ssli@iphy.ac.cn",
     url="https://github.com/ScQ-Cloud/pyquafu",
@@ -40,7 +40,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     extras_require={"test": ["pytest"]},
-    cmake_args=["-DCMAKE_BUILD_TYPE:STRING=Debug"],
+    # cmake_args=["-DCMAKE_BUILD_TYPE:STRING=Debug"],
     python_requires=">=3.8",
     zip_safe=False,
     setup_cfg=True,

@@ -27,3 +27,7 @@ wheelhouse
 # documents
 doc/build
 doc/pages
+
+# lsp
+.cache
+compile_commands.json
