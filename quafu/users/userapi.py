@@ -112,9 +112,8 @@ class User(object):
 
     def _load_account(self):
         """
-        Load Quafu account, only api at present.
-
-        TODO: expand to load more user information
+        Load Quafu account, if any configurable attribute present in
+        configuration file, we will override it
         """
         file_dir = os.path.join(self.token_dir, "api")
         attr_names = self.__class__.list_configurable_attributes()

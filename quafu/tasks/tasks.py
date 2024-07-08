@@ -20,6 +20,7 @@ from urllib import parse
 import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.users.userapi import User
+from requests import Response
 
 from ..exceptions import CircuitError, UserError, validate_server_resp
 from ..results.results import ExecResult, merge_measure
@@ -50,10 +51,14 @@ class Task:
         self.priority = self.user.priority
         self.runtime_job_id = ""
         self.submit_history = {}
-        self._available_backends = self.user.get_available_backends(print_info=False)
-        self.backend = self._available_backends[
-            list(self._available_backends.keys())[0]
-        ]
+        self._available_backends = {}
+        if self.user.backend_type == "quafu":
+            self._available_backends = self.user.get_available_backends(
+                print_info=False
+            )
+            self.backend = self._available_backends[
+                list(self._available_backends.keys())[0]
+            ]
 
     def config(
         self,
@@ -180,6 +185,23 @@ class Task:
 
         return res
 
+    def _send_runtime(self, qc: QuantumCircuit, name: str = ""):
+        """send task to runtime server"""
+        qc.to_openqasm()
+        data = {
+            "shots": self.shots,
+            "selected_server": 1,
+            "qtasm": qc.openqasm,
+            "compile": int(self.compile),
+            "priority": 1,
+            "task_name": name,
+            "task_id": "test",
+        }
+
+        headers = {"Content-Type": "application/json"}
+        url = User.url + User.exec_api
+        return ClientWrapper.post(url, headers=headers, data=data)
+
     def send(
         self, qc: QuantumCircuit, name: str = "", group: str = "", wait: bool = False
     ) -> ExecResult:
@@ -194,6 +216,10 @@ class Task:
         Returns:
             ExecResult object that contain the dict return from quantum device.
         """
+        if User.backend_type == "runtime":
+            resp = self._send_runtime(qc, name=name)
+            return self._post_send(resp, group=group)
+
         from quafu import get_version
 
         version = get_version()
@@ -248,6 +274,9 @@ class Task:
             raise UserError("502 Bad Gateway response")
         # FIXME: Maybe we need to delete above code
 
+        return self._post_send(response, group=group)
+
+    def _post_send(self, response: Response, group: str = ""):
         res_dict = response.json()  # type: dict
         validate_server_resp(res_dict)
 
