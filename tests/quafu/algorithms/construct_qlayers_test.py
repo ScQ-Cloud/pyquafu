@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pytest
+
+pytest.importorskip("torch")
 import numpy as np
 from quafu.algorithms import AmplitudeEmbedding, AngleEmbedding
 from quafu.algorithms.ansatz import QuantumNeuralNetwork
