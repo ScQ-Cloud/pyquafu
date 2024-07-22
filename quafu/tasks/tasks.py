@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import copy
 import logging
 from typing import Dict, List, Optional, Tuple
@@ -200,7 +201,7 @@ class Task:
 
         headers = {"Content-Type": "application/json"}
         url = User.url + User.exec_api
-        return ClientWrapper.post(url, headers=headers, data=data)
+        return ClientWrapper.post(url, headers=headers, json=data)
 
     def send(
         self, qc: QuantumCircuit, name: str = "", group: str = "", wait: bool = False
