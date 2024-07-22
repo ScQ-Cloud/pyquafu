@@ -114,7 +114,6 @@ class ModelQuantumNeuralNetworkNative(nn.Module):
     #         yield nn.Parameter(p)
 
 
-@pytest.importorskip("torch")
 class TestLayers:
     circ = QuantumCircuit(2)
     theta = [Parameter(f"theta_{i}", 0.1) for i in range(3)]
