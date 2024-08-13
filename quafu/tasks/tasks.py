@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import copy
 import logging
 from typing import Dict, List, Optional, Tuple
@@ -171,7 +170,7 @@ class Task:
             measure_base (list[str, list[int]]): measure base and its positions.
         """
         if measure_base is None:
-            res = self.send(qc)
+            res = self.send(qc, wait=True)
             res.measure_base = ""
 
         else:
@@ -181,7 +180,7 @@ class Task:
                 elif base == "Y":
                     qc.rx(pos, np.pi / 2)
 
-            res = self.send(qc)
+            res = self.send(qc, wait=True)
             res.measure_base = measure_base
 
         return res

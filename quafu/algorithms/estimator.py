@@ -53,8 +53,7 @@ class Estimator:
                 self._task = task
             else:
                 self._task = Task()
-            self._task.config(backend=self._backend)
-            self._task.config(**task_options)
+            self._task.config(backend=self._backend, **task_options)
 
     def _run_real_machine(self, observables: Hamiltonian):
         """Submit to quafu service"""
