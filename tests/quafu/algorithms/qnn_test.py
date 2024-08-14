@@ -13,6 +13,8 @@
 # limitations under the License.
 import numpy as np
 import pytest
+
+pytest.importorskip("torch")
 import torch
 from quafu.algorithms.ansatz import QuantumNeuralNetwork
 from quafu.algorithms.gradients import compute_vjp, jacobian

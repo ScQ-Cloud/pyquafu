@@ -81,7 +81,6 @@ class User(object):
         Save the api-token of your Quafu account.
         """
         if apitoken is not None:
-            import warnings
 
             warnings.warn(
                 "The argument 'apitoken' in this function will be deprecated "
@@ -98,7 +97,11 @@ class User(object):
             # if the configuration file exists
             # only update api token
             with open(file_path, "r") as f:
-                data = json.load(f)
+                try:
+                    data = json.load(f)
+                except Exception as e:
+                    warnings.warn(f"Jsonfy api file failed due to {type(e)}:{e}. overriding...")
+                    data = {"url": self.url}
             data["token"] = self.api_token
         else:
             # if the configuration file does not exist
@@ -112,9 +115,8 @@ class User(object):
 
     def _load_account(self):
         """
-        Load Quafu account, only api at present.
-
-        TODO: expand to load more user information
+        Load Quafu account, if any configurable attribute present in
+        configuration file, we will override it
         """
         file_dir = os.path.join(self.token_dir, "api")
         attr_names = self.__class__.list_configurable_attributes()
