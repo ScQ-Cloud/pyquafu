@@ -40,52 +40,50 @@ def wl_subtree_kernel(g1: nx.Graph, g2: nx.Graph, iteration: int = 3):
 
 
 def _subtree_kernel(g1: nx.Graph, g2: nx.Graph):
-    """Compute the Subtree Kernel between two graphs.
-    """
+    """Compute the Subtree Kernel between two graphs."""
     value = 0
     for items1 in g1.edges.data():
-        from1 = g1.nodes[items1[0]]['weight']
-        to1 = g1.nodes[items1[1]]['weight']
+        from1 = g1.nodes[items1[0]]["weight"]
+        to1 = g1.nodes[items1[1]]["weight"]
         if from1 > to1:
             mid = from1
             from1 = to1
             to1 = mid
-        weight1 = items1[2]['weight']
+        weight1 = items1[2]["weight"]
         for items2 in g2.edges.data():
-            from2 = g2.nodes[items2[0]]['weight']
-            to2 = g2.nodes[items2[1]]['weight']
+            from2 = g2.nodes[items2[0]]["weight"]
+            to2 = g2.nodes[items2[1]]["weight"]
             if from2 > to2:
                 mid = from2
                 from2 = to2
                 to2 = mid
-            weight2 = items2[2]['weight']
+            weight2 = items2[2]["weight"]
             if from1 == from2 and to1 == to2:
                 value = value + 1 / np.exp((weight1 - weight2) ** 2)
     return value
 
 
 def _iteration_graph(g1: nx.Graph, g2: nx.Graph):
-    """Iteratively generate subtree graph.
-    """
+    """Iteratively generate subtree graph."""
     num = 0
     dic = {}
     res1 = {}
     res2 = {}
     for items1 in g1.nodes.data():
-        weight1 = items1[1]['weight']
+        weight1 = items1[1]["weight"]
         for items2 in g2.nodes.data():
-            weight2 = items2[1]['weight']
+            weight2 = items2[1]["weight"]
             if weight1 > num:
                 num = weight1
             if weight2 > num:
                 num = weight2
     num = num + 1
     for items1 in g1.nodes.data():
-        key = str(items1[1]['weight']) + ","
+        key = str(items1[1]["weight"]) + ","
         rellist = []
         neilist = [n for n in g1.neighbors(items1[0])]
         for i in neilist:
-            rellist.append(g1.nodes[i]['weight'])
+            rellist.append(g1.nodes[i]["weight"])
         rellist.sort()
         for i in rellist:
             key = key + str(i)
@@ -96,11 +94,11 @@ def _iteration_graph(g1: nx.Graph, g2: nx.Graph):
         else:
             res1[items1[0]] = dic[key]
     for items2 in g2.nodes.data():
-        key = str(items2[1]['weight']) + ","
+        key = str(items2[1]["weight"]) + ","
         rellist = []
         neilist = [n for n in g2.neighbors(items2[0])]
         for i in neilist:
-            rellist.append(g2.nodes[i]['weight'])
+            rellist.append(g2.nodes[i]["weight"])
         rellist.sort()
         for i in rellist:
             key = key + str(i)
@@ -156,20 +154,18 @@ def fast_subtree_kernel(g1, g2, iteration: int = 3):
 
 
 def _get_labels(graph):
-    """Get labels of graph.
-    """
+    """Get labels of graph."""
     labels = []
     for node in graph.nodes():
-        label = str(graph.nodes[node]['weight'])
+        label = str(graph.nodes[node]["weight"])
         for neighbor in graph.neighbors(node):
-            label += '_' + str(graph.nodes[neighbor]['weight'])
+            label += "_" + str(graph.nodes[neighbor]["weight"])
         labels.append(label)
     return labels
 
 
 def _get_node_pairs(graph):
-    """Obtain all node pairs in graph.
-    """
+    """Obtain all node pairs in graph."""
     node_pairs = []
     for node in graph.nodes():
         for neighbor in graph.neighbors(node):
@@ -178,8 +174,7 @@ def _get_node_pairs(graph):
 
 
 def _get_subtrees(graph, node_pairs):
-    """Generate a subgraph based on node pairs.
-    """
+    """Generate a subgraph based on node pairs."""
     subtrees = {}
     for node_pair in node_pairs:
         subtree = nx.Graph()

@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import networkx as nx
 import copy
-from quafu import QuantumCircuit
+
+import networkx as nx
 from quafu.transpiler.graph.circuitgraph import circuit_to_graph, relabel_graph
-from quafu.transpiler.graph.graphkernel import wl_subtree_kernel, fast_subtree_kernel
+from quafu.transpiler.graph.graphkernel import fast_subtree_kernel, wl_subtree_kernel
+
+from quafu import QuantumCircuit
 
 
 def similar_struct(circuit: QuantumCircuit, sub_data):
-    """ Compare the similarity of weighted graph of circuit and substructure of quantum chip.
+    """Compare the similarity of weighted graph of circuit and substructure of quantum chip.
 
     Args:
         circuit(QuantumCircuit)
@@ -40,7 +42,7 @@ def similar_struct(circuit: QuantumCircuit, sub_data):
             g2 = nx.Graph()
             g1_copy = copy.deepcopy(g1)
             for item in sub_list:
-                g2.add_edges_from([(item[0], item[1], {'weight': item[2]})])
+                g2.add_edges_from([(item[0], item[1], {"weight": item[2]})])
             g2 = relabel_graph(g2)
 
             # # W-L subtree kernel iteration

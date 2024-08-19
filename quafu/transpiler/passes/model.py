@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Dict
+from typing import Dict
 
 from quafu.transpiler.backends.backend import Backend
 from quafu.transpiler.passes.datadict import DataDict
+
 
 class Model:
     """
@@ -30,9 +31,11 @@ class Model:
     #     self._backend = backend
     #     self._layout = layout
 
-    def __init__(self, backend: Backend, layout: Dict = None, datadict: DataDict = None):
+    def __init__(
+        self, backend: Backend, layout: Dict = None, datadict: DataDict = None
+    ):
         self._backend = backend
-        self._layout = {'initial_layout': None, 'final_layout': None}
+        self._layout = {"initial_layout": None, "final_layout": None}
         self.set_layout(layout)
         self.datadict = datadict
 
@@ -47,10 +50,10 @@ class Model:
     def set_layout(self, new_layout: Dict):
         """Set a new layout for the quantum system."""
         if isinstance(new_layout, Dict):
-            if 'initial_layout' in new_layout.keys():
-                self._layout['initial_layout'] = new_layout['initial_layout']
-            if 'final_layout' in new_layout.keys():
-                self._layout['final_layout'] = new_layout['final_layout']
+            if "initial_layout" in new_layout.keys():
+                self._layout["initial_layout"] = new_layout["initial_layout"]
+            if "final_layout" in new_layout.keys():
+                self._layout["final_layout"] = new_layout["final_layout"]
 
     def get_layout(self) -> Dict:
         """Return the layout of the quantum system."""

@@ -3,6 +3,11 @@ from copy import deepcopy
 from pprint import pprint
 from typing import List, Union
 
+from quafu.dagcircuits.circuit_dag import dag_to_circuit
+from quafu.dagcircuits.dag_circuit import DAGCircuit
+from quafu.transpiler.passes.basepass import BasePass
+from quafu.transpiler.passes.datadict import DataDict
+
 from quafu import QuantumCircuit
 
 # (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
@@ -20,11 +25,6 @@ from quafu import QuantumCircuit
 # limitations under the License.
 
 
-
-from quafu.dagcircuits.circuit_dag import dag_to_circuit
-from quafu.dagcircuits.dag_circuit import DAGCircuit
-from quafu.transpiler.passes.basepass import BasePass
-from quafu.transpiler.passes.datadict import DataDict
 
 
 class CompilerVis:
@@ -62,8 +62,10 @@ class CompilerVis:
         info = {}
 
         total_execution_time = 0.00  # ms
-        all_layouts = {"initial_layout": deepcopy(self.model.get_layout()['initial_layout']),
-                       "final_layout": None}
+        all_layouts = {
+            "initial_layout": deepcopy(self.model.get_layout()["initial_layout"]),
+            "final_layout": None,
+        }
 
         for idx, pass_instance in enumerate(self.workflow):
             pass_name = pass_instance.__class__.__name__
@@ -74,9 +76,11 @@ class CompilerVis:
 
             # get the circuit, layout and others before the pass
             circuit_before = deepcopy(circuit)
-            if hasattr(pass_instance, 'set_model'):
+            if hasattr(pass_instance, "set_model"):
                 pass_instance.set_model(self.model)
-            layout_before = deepcopy(self.model.get_layout()['final_layout'])  # get the pass initial layout
+            layout_before = deepcopy(
+                self.model.get_layout()["final_layout"]
+            )  # get the pass initial layout
             # cnot_count_before = circuit_before.count_ops().get("cx", 0)
             gates_count_before = len(circuit_before.gates)
             circuit_depth_before = len(circuit_before.layered_circuit().T) - 1
@@ -97,18 +101,24 @@ class CompilerVis:
             #     layout_before = deepcopy(self.model.get_layout()['initial_layout'])
 
             pass_execution_time = (pass_end_time - pass_start_time) * 1000  # ms
-            pass_execution_time = round(pass_execution_time, 2)  # round to 2 decimal places
+            pass_execution_time = round(
+                pass_execution_time, 2
+            )  # round to 2 decimal places
 
-            total_execution_time += pass_execution_time  # ms , add the execution time of each pass
-            total_execution_time = round(total_execution_time, 2)  # round to 2 decimal places
+            total_execution_time += (
+                pass_execution_time  # ms , add the execution time of each pass
+            )
+            total_execution_time = round(
+                total_execution_time, 2
+            )  # round to 2 decimal places
 
             # Get the circuit , layout and others  after the pass
             circuit_after = deepcopy(circuit)
-            if hasattr(pass_instance, 'get_model'):
+            if hasattr(pass_instance, "get_model"):
                 self.model = pass_instance.get_model()
 
             # Get the final layout of the pass, and we can compare layout_before and layout_after
-            layout_after = deepcopy(self.model.get_layout()['final_layout'])
+            layout_after = deepcopy(self.model.get_layout()["final_layout"])
             circuit_depth_after = len(circuit_after.layered_circuit().T) - 1
             gates_count_after = len(circuit_after.gates)
             mutil_qubit_gates_after = 0
@@ -121,14 +131,14 @@ class CompilerVis:
             if layout_before == layout_after:
                 layout_changed_status = False
             else:
-                if layout_before is None: # layout_after is not None
+                if layout_before is None:  # layout_after is not None
                     layout_changed_status = True
-                elif layout_after is None: # layout_before is not None
+                elif layout_after is None:  # layout_before is not None
                     layout_changed_status = True
                 else:
                     dict_layout_before = layout_before.v2p
                     dict_layout_after = layout_after.v2p
-                    layout_changed_status = (dict_layout_before != dict_layout_after)
+                    layout_changed_status = dict_layout_before != dict_layout_after
 
             # circuit_before, transpiled_qasm = qiskit2quafu(circuit_before)
             # print(circuit_before.draw_circuit())
@@ -149,7 +159,7 @@ class CompilerVis:
                 "Layout changed status": layout_changed_status,
                 "Circuit Before": circuit_before,
                 "Circuit After": circuit_after,
-                "Pass Docstring": pass_docstring
+                "Pass Docstring": pass_docstring,
             }
 
         if isinstance(circuit, DAGCircuit):
@@ -157,12 +167,16 @@ class CompilerVis:
 
         info["Total"] = {
             "Total Execution Time (ms)": total_execution_time,
-            "model": deepcopy(self.model)
+            "model": deepcopy(self.model),
         }
 
         # change the final layout of info's model
-        all_layouts["initial_layout"] = deepcopy(info["Total"]["model"].get_layout()['initial_layout'])
-        all_layouts["final_layout"] = deepcopy(info["Total"]["model"].get_layout()['final_layout'])
+        all_layouts["initial_layout"] = deepcopy(
+            info["Total"]["model"].get_layout()["initial_layout"]
+        )
+        all_layouts["final_layout"] = deepcopy(
+            info["Total"]["model"].get_layout()["final_layout"]
+        )
         info["Total"]["model"].set_layout(all_layouts)
 
         # make a copy of short info
@@ -191,7 +205,9 @@ def draw_allpass_circuits(info_dict, only_original_and_last=False):
             # draw the circuit before and after the pass
             # print the divider line
             print("*" * 100)
-            print(f"Drawing the circuit before and after {key}:", pass_info["Pass Name"])
+            print(
+                f"Drawing the circuit before and after {key}:", pass_info["Pass Name"]
+            )
             print("Circuit Before:")
             pass_info["Circuit Before"].draw_circuit()
             print("Circuit After:")
@@ -229,16 +245,16 @@ def draw_pass_info(info_dict, pass_idx):
         if key == "Layout Before":
             print(key, ":")
             if value is None:
-                print('None')
+                print("None")
                 continue
-            print('layout (v2p):', value.v2p)
+            print("layout (v2p):", value.v2p)
             continue
         if key == "Layout After":
             print(key, ":")
             if value is None:
-                print('None')
+                print("None")
                 continue
-            print('layout (v2p):', value.v2p)
+            print("layout (v2p):", value.v2p)
             continue
         if key == "Layout changed status":
             print(key, ":", end=" ")
@@ -250,7 +266,6 @@ def draw_pass_info(info_dict, pass_idx):
 
         print(key, ":", value)
 
-
     # print(f"Drawing the circuit before and after Pass_{pass_idx}:",end=" ")
     # print(info_dict[f"Pass_{pass_idx}"]["Pass Name"])
     # print("Circuit Before:")
@@ -261,23 +276,27 @@ def draw_pass_info(info_dict, pass_idx):
 
 
 def dynamic_draw(info_dict, short_info):
-    """ Draw the circuit before and after the input index pass. here the input index is dynamic
+    """Draw the circuit before and after the input index pass. here the input index is dynamic
     shot_info: to check the statistics of all passes
     info_dict: to check the model and the detail information of each pass
     """
     while True:
-        print("Please input 'm' to check the model,\n"
-              "or input 'q' to quit compilation information visualization,\n"
-              "or input 'c' to check the statistics of all passes,\n"
-              "or input the int (0-" + str(len(short_info) - 2) + ") index of the pass you want to draw:")
+        print(
+            "Please input 'm' to check the model,\n"
+            "or input 'q' to quit compilation information visualization,\n"
+            "or input 'c' to check the statistics of all passes,\n"
+            "or input the int (0-"
+            + str(len(short_info) - 2)
+            + ") index of the pass you want to draw:"
+        )
 
         input_str = input()
-        if input_str == 'q':
+        if input_str == "q":
             break
-        elif input_str == 'c':
+        elif input_str == "c":
             # pprint(short_info, sort_dicts=False)
-            from rich.table import Table
             from rich.console import Console
+            from rich.table import Table
 
             print("*" * 100)
             print("quafu transpile passes information:")
@@ -300,10 +319,19 @@ def dynamic_draw(info_dict, short_info):
                 if key == "Total":
                     continue
                 # add layout changed status
-                table.add_row(key, value["Pass Name"], str(value["Execution Time (ms)"]),
-                              str(value["Total Gates Before"]), str(value["Total Gates After"]),
-                              str(value["2qubit Gates Before"]), str(value["2qubit Gates After"]),
-                              str(value["Depth Before"]), str(value["Depth After"]),str(value["Layout changed status"]), end_section=True)
+                table.add_row(
+                    key,
+                    value["Pass Name"],
+                    str(value["Execution Time (ms)"]),
+                    str(value["Total Gates Before"]),
+                    str(value["Total Gates After"]),
+                    str(value["2qubit Gates Before"]),
+                    str(value["2qubit Gates After"]),
+                    str(value["Depth Before"]),
+                    str(value["Depth After"]),
+                    str(value["Layout changed status"]),
+                    end_section=True,
+                )
                 # table.add_row(key, value["Pass Name"], str(value["Execution Time (ms)"]),
                 #               str(value["Total Gates Before"]), str(value["Total Gates After"]),
                 #               str(value["2qubit Gates Before"]), str(value["2qubit Gates After"]),
@@ -311,7 +339,10 @@ def dynamic_draw(info_dict, short_info):
 
             console.print(table)
 
-            print("Total Execution Time (ms):", short_info["Total"]["Total Execution Time (ms)"])
+            print(
+                "Total Execution Time (ms):",
+                short_info["Total"]["Total Execution Time (ms)"],
+            )
 
             print("*" * 100)
             continue
@@ -324,15 +355,15 @@ def dynamic_draw(info_dict, short_info):
             print("The layout:")
             # pprint(model.get_layout())
             layout = model.get_layout()
-            if layout['initial_layout'] is None:
-                print('initial_layout: None')
+            if layout["initial_layout"] is None:
+                print("initial_layout: None")
             else:
-                print('initial_layout (v2p):', layout['initial_layout'].v2p)
+                print("initial_layout (v2p):", layout["initial_layout"].v2p)
 
-            if layout['final_layout'] is None:
-                print('final_layout: None')
+            if layout["final_layout"] is None:
+                print("final_layout: None")
             else:
-                print('final_layout (v2p):', layout['final_layout'].v2p)
+                print("final_layout (v2p):", layout["final_layout"].v2p)
             print("*" * 100)
             continue
         else:
@@ -346,32 +377,45 @@ def dynamic_draw(info_dict, short_info):
                 continue
 
 
-def dynamic_draw_tabulate(info_dict, short_info, tablefmt='fancy_grid'):
-    """ Draw the circuit before and after the input index pass. here the input index is dynamic"""
+def dynamic_draw_tabulate(info_dict, short_info, tablefmt="fancy_grid"):
+    """Draw the circuit before and after the input index pass. here the input index is dynamic"""
     # tablefmt = ["plain", "simple", "github", "grid", "fancy_grid", "pipe", "orgtbl", "jira",
     #             "presto", "psql", "rst", "mediawiki", "moinmoin", "youtrack", "html", "latex",
     #             "latex_raw", "latex_booktabs", "textile"]
 
     while True:
-        print("Please input 'm' to check the model,\n"
-              "or input 'q' to quit compilation information visualization,\n"
-              "or input 'c' to check the statistics of all passes,\n"
-              "or input the int (0-" + str(len(short_info) - 2) + ") index of the pass you want to draw:")
+        print(
+            "Please input 'm' to check the model,\n"
+            "or input 'q' to quit compilation information visualization,\n"
+            "or input 'c' to check the statistics of all passes,\n"
+            "or input the int (0-"
+            + str(len(short_info) - 2)
+            + ") index of the pass you want to draw:"
+        )
 
         input_str = input()
-        if input_str == 'q':
+        if input_str == "q":
             break
-        elif input_str == 'c':
-            from tabulate import tabulate
-            from rich.table import Table
+        elif input_str == "c":
             from rich.console import Console
+            from rich.table import Table
+            from tabulate import tabulate
 
             print("*" * 100)
             print("quafu transpile passes information:")
 
-            table_header = ['Pass', 'Pass Name', 'Execution Time (ms)', 'Total Gates Before',
-                            'Total Gates After', '2qubit Gates Before',
-                            '2qubit Gates After', 'Depth Before', 'Depth After','Layout changed status']
+            table_header = [
+                "Pass",
+                "Pass Name",
+                "Execution Time (ms)",
+                "Total Gates Before",
+                "Total Gates After",
+                "2qubit Gates Before",
+                "2qubit Gates After",
+                "Depth Before",
+                "Depth After",
+                "Layout changed status",
+            ]
             # table_header = ['Pass', 'Pass Name', 'Execution Time (ms)', 'Total Gates Before',
             #                 'Total Gates After', '2qubit Gates Before',
             #                 '2qubit Gates After', 'Depth Before', 'Depth After']
@@ -381,10 +425,20 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt='fancy_grid'):
                 if key == "Total":
                     continue
                 # add layout changed status
-                table_data.append((key, value["Pass Name"], str(value["Execution Time (ms)"]),
-                                   str(value["Total Gates Before"]), str(value["Total Gates After"]),
-                                   str(value["2qubit Gates Before"]), str(value["2qubit Gates After"]),
-                                   str(value["Depth Before"]), str(value["Depth After"]),str(value["Layout changed status"])))
+                table_data.append(
+                    (
+                        key,
+                        value["Pass Name"],
+                        str(value["Execution Time (ms)"]),
+                        str(value["Total Gates Before"]),
+                        str(value["Total Gates After"]),
+                        str(value["2qubit Gates Before"]),
+                        str(value["2qubit Gates After"]),
+                        str(value["Depth Before"]),
+                        str(value["Depth After"]),
+                        str(value["Layout changed status"]),
+                    )
+                )
                 # table_data.append([key, value["Pass Name"], str(value["Execution Time (ms)"]),
                 #                       str(value["Total Gates Before"]), str(value["Total Gates After"]),
                 #                       str(value["2qubit Gates Before"]), str(value["2qubit Gates After"]),
@@ -392,7 +446,10 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt='fancy_grid'):
 
             print(tabulate(table_data, headers=table_header, tablefmt=tablefmt))
 
-            print("Total Execution Time (ms):", short_info["Total"]["Total Execution Time (ms)"])
+            print(
+                "Total Execution Time (ms):",
+                short_info["Total"]["Total Execution Time (ms)"],
+            )
 
             print("*" * 100)
             continue
@@ -405,15 +462,15 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt='fancy_grid'):
             print("The layout:")
             # pprint(model.get_layout())
             layout = model.get_layout()
-            if layout['initial_layout'] is None:
-                print('initial_layout: None')
+            if layout["initial_layout"] is None:
+                print("initial_layout: None")
             else:
-                print('initial_layout (v2p):', layout['initial_layout'].v2p)
+                print("initial_layout (v2p):", layout["initial_layout"].v2p)
 
-            if layout['final_layout'] is None:
-                print('final_layout: None')
+            if layout["final_layout"] is None:
+                print("final_layout: None")
             else:
-                print('final_layout (v2p):', layout['final_layout'].v2p)
+                print("final_layout (v2p):", layout["final_layout"].v2p)
             print("*" * 100)
             continue
         else:

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Any, List, Union
 import dataclasses
+from typing import Any, Dict, List, Union
 
 
 @dataclasses.dataclass
@@ -45,6 +45,7 @@ class InstructionNode:
     __repr__(self)
         Returns a string representation of the instruction node.
     """
+
     name: Any  # gate.name
     pos: Union[List[Any], Dict[Any, Any]]  # gate.pos |  Dict[Any,Any] for measure
     paras: List[Any]  # gate.paras
@@ -57,34 +58,33 @@ class InstructionNode:
         return hash((type(self.name), tuple(self.pos), self.label))
 
     def __str__(self):
-        if self.name == 'measure':
-            args = ','.join(str(q) for q in self.pos.keys())
+        if self.name == "measure":
+            args = ",".join(str(q) for q in self.pos.keys())
             args += f'=>{",".join(str(c) for c in self.pos.values())}'
         else:
-            args = ','.join(str(q) for q in self.pos)
+            args = ",".join(str(q) for q in self.pos)
 
         if self.paras is None:
-            return f'{self.label}{{{self.name}({args})}}'
+            return f"{self.label}{{{self.name}({args})}}"
         else:
-
             # if self.paras not a list, then make it a list  of str of .3f float
             if not isinstance(self.paras, list):
                 if isinstance(self.paras, float):
-                    formatted_paras = [f'{self.paras:.3f}']
+                    formatted_paras = [f"{self.paras:.3f}"]
                 else:
                     formatted_paras = [str(self.paras)]
             else:
                 if all(isinstance(p, float) for p in self.paras):
-                    formatted_paras = [f'{p:.3f}' for p in self.paras]
+                    formatted_paras = [f"{p:.3f}" for p in self.paras]
                 else:
                     # for p in self.paras:
                     #        print(p, type(p))
                     formatted_paras = [str(p) for p in self.paras]
                     # print(formatted_paras)
 
-            formatted_paras_str = ','.join(formatted_paras)
+            formatted_paras_str = ",".join(formatted_paras)
 
-            return f'{self.label}{{{self.name}({args})}}({formatted_paras_str})'
+            return f"{self.label}{{{self.name}({args})}}({formatted_paras_str})"
 
     def __repr__(self):
         return str(self)

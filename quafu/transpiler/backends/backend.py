@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
+from typing import Dict, List, Optional, Union
 
-from typing import List, Union, Optional, Dict
 from quafu.transpiler.graph.couplinggraph import CouplingGraph
 
 
@@ -38,21 +38,22 @@ class Backend:
         _properties (dict): A dictionary containing all the properties of the backend.
     """
 
-    def __init__(self, name: str = 'backend',
-                 backend_type: str = 'superconducting',
-                 qubits_num: int = None,
-                 qubits_info: List[Dict] = None,
-                 coupling_list: List[Union[int, tuple]] = None,
-                 coupling_graph: CouplingGraph = None,
-                 avg_T1: Optional[float] = None,
-                 avg_T2: Optional[float] = None,
-                 avg_fidelity: Optional[float] = None,
-                 basis_gates: Optional[List[str]] = None,
-                 pulse: bool = False,
-                 calibration_time: Optional[float] = None,
-                 status: str = None,
-                 ):
-
+    def __init__(
+        self,
+        name: str = "backend",
+        backend_type: str = "superconducting",
+        qubits_num: int = None,
+        qubits_info: List[Dict] = None,
+        coupling_list: List[Union[int, tuple]] = None,
+        coupling_graph: CouplingGraph = None,
+        avg_T1: Optional[float] = None,
+        avg_T2: Optional[float] = None,
+        avg_fidelity: Optional[float] = None,
+        basis_gates: Optional[List[str]] = None,
+        pulse: bool = False,
+        calibration_time: Optional[float] = None,
+        status: str = None,
+    ):
         # Setting up bidirectional coupling graph.
         if coupling_list is not None:
             coupling_graph = CouplingGraph(coupling_list)
@@ -62,8 +63,10 @@ class Backend:
             if coupling_graph.is_bidirectional is False:
                 coupling_graph.do_bidirectional()
         else:
-            print("Warning: Both coupling_list and coupling_graph are None, "
-                  "which means there is no qubits coupling structure.")
+            print(
+                "Warning: Both coupling_list and coupling_graph are None, "
+                "which means there is no qubits coupling structure."
+            )
 
         self._properties = {
             "name": name,

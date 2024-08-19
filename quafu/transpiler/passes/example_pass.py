@@ -13,11 +13,12 @@
 # limitations under the License.
 
 from typing import Union
-from quafu import QuantumCircuit
 
-from quafu.dagcircuits.circuit_dag import circuit_to_dag, dag_to_circuit, copy_dag
+from quafu.dagcircuits.circuit_dag import circuit_to_dag, copy_dag, dag_to_circuit
 from quafu.dagcircuits.dag_circuit import DAGCircuit
 from quafu.transpiler.passes.basepass import BasePass
+
+from quafu import QuantumCircuit
 
 
 class TestPass(BasePass):
@@ -60,21 +61,20 @@ class TestPass(BasePass):
             context (str): The context in which this method is called.
             model: The model to print. If None, use the instance's model.
         """
-        print("-"*100)
+        print("-" * 100)
         model = model or self.model
         if model:
             print(f"{context} - Model: {model}")
             if isinstance(model, dict):
                 print(f"{context} - Model name: {model.get('name')}")
-            elif hasattr(model, 'name'):
+            elif hasattr(model, "name"):
                 print(f"{context} - Model name: {model.name}")
             else:
                 print(f"{context} - Model name: {None}")
 
-
         else:
             print(f"{context} - No model is set.")
-        print("-"*100)
+        print("-" * 100)
 
     def run(self, circ_dag: Union[QuantumCircuit, DAGCircuit]):
         """
@@ -94,12 +94,14 @@ class TestPass(BasePass):
             dag = copy_dag(circ_dag)
             circuit = dag_to_circuit(circ_dag, circ_dag.circuit_qubits)
         else:
-            raise TypeError('Error: TestPass only supports QuantumCircuit or DAGCircuit.')
+            raise TypeError(
+                "Error: TestPass only supports QuantumCircuit or DAGCircuit."
+            )
 
         # Traverse the DAG and print all gates
         print("Traversing the DAG and printing all the meaningful node gates:")
         for node in dag.nodes:
-            if node == -1 or node == float('inf'):
+            if node == -1 or node == float("inf"):
                 continue
             print(node)
 
@@ -107,13 +109,13 @@ class TestPass(BasePass):
         if self.model:
             if isinstance(self.model, dict):
                 # If self.model is a dictionary object, set the key-value pair directly.
-                self.model['name'] = 'NewModel'
-            elif hasattr(self.model, 'name'):
+                self.model["name"] = "NewModel"
+            elif hasattr(self.model, "name"):
                 # If self.model is an object with a name attribute
-                self.model.name = 'NewModel'
+                self.model.name = "NewModel"
             else:
                 # If self.model is an object, but does not have a name attribute.
-                setattr(self.model, 'name', 'NewModel')
+                setattr(self.model, "name", "NewModel")
 
             print("Model name  has been changed.")
             self.print_model_info("After changing model")

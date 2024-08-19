@@ -43,7 +43,9 @@ class Layout:
         self.v2p = {k: k for k in range(virtual_qubits)}
         self.p2v = {k: k for k in range(virtual_qubits)}
 
-    def generate_random_layout(self, virtual_qubits: int = None, physical_qubits: int = None):
+    def generate_random_layout(
+        self, virtual_qubits: int = None, physical_qubits: int = None
+    ):
         """
         Args:
             virtual_qubits (int): the number of virtual qubits in a circuit
@@ -60,8 +62,10 @@ class Layout:
                 self.v2p[v] = q
             self.p2v = {p: v for v, p in self.v2p.items()}
         else:
-            raise ValueError('Error: The number of virtual qubits in the circuit cannot be greater than '
-                             'the number of physical qubits in the chip.')
+            raise ValueError(
+                "Error: The number of virtual qubits in the circuit cannot be greater than "
+                "the number of physical qubits in the chip."
+            )
 
     def from_v2p_dict(self, input_dict: dict = None):
         """
@@ -84,4 +88,3 @@ class Layout:
     def swap(self, a, b):
         self.v2p[a], self.v2p[b] = self.v2p[b], self.v2p[a]
         self.p2v = {p: v for v, p in self.v2p.items()}
-

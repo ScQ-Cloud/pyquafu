@@ -13,10 +13,7 @@
 # limitations under the License.
 
 
-
-from typing import List, Union
-
-from quafu import QuantumCircuit
+from typing import Union
 
 from quafu.dagcircuits.circuit_dag import dag_to_circuit
 from quafu.dagcircuits.dag_circuit import DAGCircuit
@@ -24,6 +21,7 @@ from quafu.transpiler.passes.basepass import BasePass
 from quafu.transpiler.passes.datadict import DataDict
 from quafu.transpiler.passflow.passflow import PassFlow
 
+from quafu import QuantumCircuit
 
 
 class Compiler:
@@ -41,15 +39,15 @@ class Compiler:
 
     def compile(self, circuit: Union[QuantumCircuit, DAGCircuit]):
         # give the parameters of the original circuit only once,be careful!
-        self.model.datadict['variables'] = circuit.variables
+        self.model.datadict["variables"] = circuit.variables
 
         for pass_instance in self.passflow.passes:
-            if hasattr(pass_instance, 'set_model'):
+            if hasattr(pass_instance, "set_model"):
                 pass_instance.set_model(self.model)
 
             circuit = pass_instance.run(circuit)
 
-            if hasattr(pass_instance, 'get_model'):
+            if hasattr(pass_instance, "get_model"):
                 self.model = pass_instance.get_model()
 
         if isinstance(circuit, DAGCircuit):

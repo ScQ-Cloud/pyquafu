@@ -14,13 +14,13 @@
 
 import networkx as nx
 import numpy as np
-from quafu import QuantumCircuit
 from quafu.elements import Barrier, Measure
+
+from quafu import QuantumCircuit
 
 
 def relabel_graph(graph):
-    """Standardize the graph using degrees as node weights.
-    """
+    """Standardize the graph using degrees as node weights."""
     for nodes in graph.nodes.data():
         graph.add_node(nodes[0], weight=graph.degree[nodes[0]])
     return graph
@@ -52,15 +52,23 @@ def circuit_to_graph(circuit: QuantumCircuit):
 
 
 def draw_graph(g):
-    """Draw weighted graph
-    """
+    """Draw weighted graph"""
     import matplotlib.pyplot as plt
+
     label_name = list(list(g.edges(data=True))[0][2].keys())[0]
     labels = nx.get_edge_attributes(g, label_name)
     pos = nx.spring_layout(g)
     # pos = nx.circular_layout(g)
-    nx.draw_networkx(g, pos=pos, with_labels=True, node_color='r', node_size=200, edge_color='b',
-                     width=1, font_size=10)
+    nx.draw_networkx(
+        g,
+        pos=pos,
+        with_labels=True,
+        node_color="r",
+        node_size=200,
+        edge_color="b",
+        width=1,
+        font_size=10,
+    )
     if isinstance(g, nx.MultiDiGraph) or isinstance(g, nx.MultiGraph):
         pass
     else:

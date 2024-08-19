@@ -34,4 +34,3 @@ def reverse_circuit(circuit: QuantumCircuit):
     for gate in circuit.gates[::-1]:
         rev_circuit.add_gate(gate)
     return rev_circuit
-

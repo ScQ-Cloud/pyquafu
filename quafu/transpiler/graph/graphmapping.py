@@ -16,7 +16,6 @@ from collections import defaultdict
 
 import networkx as nx
 import numpy as np
-
 from quafu.transpiler.graph.circuitgraph import circuit_to_graph
 from quafu.transpiler.passes.mapping.baselayout import Layout
 
@@ -49,7 +48,7 @@ def initial_layout_degree(circuit, coupling):
     g1 = circuit_to_graph(circuit)
     g2 = nx.Graph()
     for item in coupling:
-        g2.add_edges_from([(item[0], item[1], {'weight': item[2]})])
+        g2.add_edges_from([(item[0], item[1], {"weight": item[2]})])
 
     g1_node_degree = node_degree(g1)
     g2_node_degree = node_degree(g2)
@@ -87,7 +86,7 @@ def initial_layout_fidelity(circuit, coupling):
     g1 = circuit_to_graph(circuit)
     g2 = nx.Graph()
     for item in coupling:
-        g2.add_edges_from([(item[0], item[1], {'weight': item[2]})])
+        g2.add_edges_from([(item[0], item[1], {"weight": item[2]})])
 
     g1_node_degree = node_degree(g1)
     g2_node_degree = node_degree(g2)
@@ -103,7 +102,9 @@ def initial_layout_fidelity(circuit, coupling):
 
     while g1_dict:
         max_g1_d = max(g1_dict.keys())
-        if max_g1_d == 0:  # The node degree is 0, which means that there is no two-qubit gate for this qubit
+        if (
+            max_g1_d == 0
+        ):  # The node degree is 0, which means that there is no two-qubit gate for this qubit
             remaining_node = g1_dict[max_g1_d]
             remaining_qubit = [i for k, v in g2_dict.items() for i in v]
             for i in range(len(remaining_node)):
@@ -121,8 +122,13 @@ def initial_layout_fidelity(circuit, coupling):
                     max_fidelity = 0
                     best_node = 0
                     for node in g2_dict[max_g2_d]:
-                        edge = list(max(g2.edges(node), key=lambda e: g2.get_edge_data(*e)['weight']))
-                        fidelity = g2.get_edge_data(edge[0], edge[1])['weight']
+                        edge = list(
+                            max(
+                                g2.edges(node),
+                                key=lambda e: g2.get_edge_data(*e)["weight"],
+                            )
+                        )
+                        fidelity = g2.get_edge_data(edge[0], edge[1])["weight"]
                         if fidelity > max_fidelity:
                             max_fidelity = fidelity
                             best_node = node
@@ -130,12 +136,18 @@ def initial_layout_fidelity(circuit, coupling):
                     g2_dict[max_g2_d].remove(best_node)
 
                 g1_dict.pop(max_g1_d)
-            elif len(g1_dict[max_g1_d]) > 1:  # When the node degrees are the same, compare the edge weights.
+            elif (
+                len(g1_dict[max_g1_d]) > 1
+            ):  # When the node degrees are the same, compare the edge weights.
                 max_g1_weight = 0
                 best_g1_node = 0
                 for node in g1_dict[max_g1_d]:
-                    edge = list(max(g1.edges(node), key=lambda e: g1.get_edge_data(*e)['weight']))
-                    weight = g1.get_edge_data(edge[0], edge[1])['weight']
+                    edge = list(
+                        max(
+                            g1.edges(node), key=lambda e: g1.get_edge_data(*e)["weight"]
+                        )
+                    )
+                    weight = g1.get_edge_data(edge[0], edge[1])["weight"]
                     if weight > max_g1_weight:
                         max_g1_weight = weight
                         best_g1_node = node
@@ -148,8 +160,13 @@ def initial_layout_fidelity(circuit, coupling):
                     max_fidelity = 0
                     best_node = 0
                     for node in g2_dict[max_g2_d]:
-                        edge = list(max(g2.edges(node), key=lambda e: g2.get_edge_data(*e)['weight']))
-                        fidelity = g2.get_edge_data(edge[0], edge[1])['weight']
+                        edge = list(
+                            max(
+                                g2.edges(node),
+                                key=lambda e: g2.get_edge_data(*e)["weight"],
+                            )
+                        )
+                        fidelity = g2.get_edge_data(edge[0], edge[1])["weight"]
                         if fidelity > max_fidelity:
                             max_fidelity = fidelity
                             best_node = node
@@ -196,8 +213,9 @@ def _sort_layout_all_fidelity(dict_mapping, coupling):
     for g in coupling:
         if g[2] < 1e-5:
             illegal_gates += 1
-        if (g[0] > g[1] and mapping_pyh2logi[g[0]] > mapping_pyh2logi[g[1]]) or \
-                (g[0] < g[1] and mapping_pyh2logi[g[0]] < mapping_pyh2logi[g[1]]):
+        if (g[0] > g[1] and mapping_pyh2logi[g[0]] > mapping_pyh2logi[g[1]]) or (
+            g[0] < g[1] and mapping_pyh2logi[g[0]] < mapping_pyh2logi[g[1]]
+        ):
             same_direction_fidelity += np.log(g[2])
             same_direction_num += 1
         else:
