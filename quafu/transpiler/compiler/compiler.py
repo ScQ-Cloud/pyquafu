@@ -1,17 +1,34 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
 from typing import List, Union
 
 from quafu import QuantumCircuit
 
 from quafu.dagcircuits.circuit_dag import dag_to_circuit
 from quafu.dagcircuits.dag_circuit import DAGCircuit
-from quafu.transpile.passes.basepass import BasePass
-from quafu.transpile.passes.datadict import DataDict
-from quafu.transpile.passflow.preset_passflow import PresetPassflow
+from quafu.transpiler.passes.basepass import BasePass
+from quafu.transpiler.passes.datadict import DataDict
+from quafu.transpiler.passflow.passflow import PassFlow
+
 
 
 class Compiler:
-    def __init__(self, workflow: List[BasePass] = None, initial_model=None):
-        self.workflow = workflow
+    def __init__(self, passflow: PassFlow = None, initial_model=None):
+        self.passflow = passflow
         if initial_model is None:
             self.model = DataDict()
         else:
@@ -22,26 +39,11 @@ class Compiler:
     def set_model(self, new_model):
         self.model = new_model
 
-    def compile(self, circuit: Union[QuantumCircuit, DAGCircuit], optimization_level: int = 0):
+    def compile(self, circuit: Union[QuantumCircuit, DAGCircuit]):
         # give the parameters of the original circuit only once,be careful!
         self.model.datadict['variables'] = circuit.variables
 
-
-        if self.workflow is None:
-            if optimization_level in [0, 1, 2, 3]:
-                self.workflow = PresetPassflow(self.model._backend.get_property('basis_gates'),
-                                               optimization_level=optimization_level).get_passflow()
-
-            # if optimization_level == 0:
-            #     pass
-            # elif optimization_level == 1:
-            #     pass
-            # elif optimization_level == 2:
-            #     pass
-            else:
-                raise ValueError("Error: The value of optimization_level is between [0,3].")
-
-        for pass_instance in self.workflow:
+        for pass_instance in self.passflow.passes:
             if hasattr(pass_instance, 'set_model'):
                 pass_instance.set_model(self.model)
 
