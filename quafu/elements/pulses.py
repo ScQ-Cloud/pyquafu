@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 from quafu.elements.instruction import Instruction
+from quafu.elements.quantum_gate import QuantumGate
 
 TimeType = Union[np.ndarray, float, int]
 
@@ -258,6 +259,14 @@ class Delay(Instruction):
 
     def to_qasm(self, with_para):
         return "delay(%d%s) q[%d]" % (self.duration, self.unit, self.pos)
+
+    @property
+    def named_paras(self) -> Dict:
+        return {"duration": self.duration}
+
+    @property
+    def named_pos(self) -> Dict:
+        return {"pos": self.pos}
 
 
 class XYResonance(Instruction):
