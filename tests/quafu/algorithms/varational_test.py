@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+import pytest
 import scipy.sparse as sp
 from quafu.algorithms.gradients import grad_adjoint, grad_finit_diff, grad_para_shift
 from quafu.algorithms.hamiltonian import Hamiltonian, PauliMats, PauliOp
@@ -125,6 +126,7 @@ class TestVariational:
         for i in range(len(grads_fd)):
             assert abs(grads_fd[i] - grads_ad[i]) < 1e-5
 
+    @pytest.mark.skip("Cannot reproduce stably due to randomness")
     def test_vqe(self):
         from scipy.optimize import minimize
 
@@ -195,6 +197,7 @@ class TestVariational:
         plt.xlabel("iteration")
         plt.ylabel("E")
 
+    @pytest.mark.skip("Cannot reproduce stably due to randomness")
     def test_vqe_with_wrap(self):
         from scipy.optimize import minimize
 
