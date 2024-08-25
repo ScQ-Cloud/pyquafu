@@ -288,3 +288,6 @@ gate sw a {}
 gate toffoli a,b,c {}
 // Fredkin
 gate fredkin a,b,c {}
+
+// Delay
+gate delay(t) a {}
