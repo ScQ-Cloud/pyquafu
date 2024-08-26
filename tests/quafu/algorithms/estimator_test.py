@@ -60,8 +60,10 @@ class TestEstimator:
     @patch("quafu.users.userapi.User._load_account", autospec=True)
     @patch("quafu.users.userapi.User.get_available_backends", autospec=True)
     @patch("quafu.tasks.tasks.Task.send", autospec=True)
-    def test_run(self, mock_send, mock_backends, mock_load_account):
+    @patch("quafu.tasks.tasks.Task.retrieve", autospec=True)
+    def test_run(self, mock_retrieve, mock_send, mock_backends, mock_load_account):
         """Test Estimator.run"""
+        mock_retrieve.return_value = TEST_EXE_RES
         mock_send.return_value = TEST_EXE_RES
         mock_backends.return_value = {"ScQ-P10": None}
         circ, test_ising = self.build_circuit()

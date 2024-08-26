@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Pre-build wrapper to calculate expectation value"""
+import copy
+import time
 from typing import List, Optional
+
+import numpy as np
+from quafu.exceptions.quafu_error import CircuitError
+from quafu.results.results import ExecResult, merge_measure
 
 from ..circuits.quantum_circuit import QuantumCircuit
 from ..simulators import simulate
@@ -56,15 +62,102 @@ class Estimator:
             self._task.config(backend=self._backend, **task_options)
 
     def _run_real_machine(self, observables: Hamiltonian):
-        """Submit to quafu service"""
+        """
+        Execute the circuit with observable expectation measurement task.
+        Args:
+            qc (QuantumCircuit): Quantum circuit that need to be executed on backend.
+            obslist (list[str, list[int]]): List of pauli string and its position.
+
+        Returns:
+            List of executed results and list of measured observable
+
+        Examples:
+            1) input [["XYX", [0, 1, 2]], ["Z", [1]]] measure pauli operator XYX at 0, 1, 2 qubit, and Z at 1 qubit.\n
+            2) Measure 5-qubit Ising Hamiltonian we can use\n
+            obslist = [["X", [i]] for i in range(5)]]\n
+            obslist.extend([["ZZ", [i, i+1]] for i in range(4)])\n
+
+        For the energy expectation of Ising Hamiltonian \n
+        res, obsexp = q.submit_task(obslist)\n
+        E = sum(obsexp)
+        """
         if not isinstance(self._task, Task):
-            raise ValueError("task not set")
-        # TODO(zhaoyilun): replace old `submit` API in the future,
+            raise ValueError("_task not initiated in Estimator")
+        # TODO(zhaoyilun):
         #   investigate the best implementation for calculating
         #   expectation on real devices.
-        obs = observables.to_legacy_quafu_pauli_list()
-        _, obsexp = self._task.submit(self._circ, obs)
-        return sum(obsexp)
+        obslist = observables.to_legacy_quafu_pauli_list()
+
+        # save input circuit
+        inputs = copy.deepcopy(self._circ.gates)
+        measures = list(self._circ.measures.keys())
+        if len(obslist) == 0:
+            print("No observable measurement task.")
+            res = self._measure_obs(self._circ)
+            return res, []
+
+        else:
+            for obs in obslist:
+                for p in obs[1]:
+                    if p not in measures:
+                        raise CircuitError(
+                            "Qubit %d in observer %s is not measured." % (p, obs[0])
+                        )
+
+            measure_basis, targlist = merge_measure(obslist)
+            print("Job start, need measured in ", measure_basis)
+
+            exec_res = []
+            lst_task_id = []
+            for measure_base in measure_basis:
+                res = self._measure_obs(self._circ, measure_base=measure_base)
+                self._circ.gates = copy.deepcopy(inputs)
+                lst_task_id.append(res.taskid)
+
+            for tid in lst_task_id:
+                # retrieve task results
+                while True:
+                    res = self._task.retrieve(tid)
+                    if res.task_status == "Completed":
+                        exec_res.append(res)
+                        break
+                    time.sleep(0.2)
+
+            measure_results = []
+            for obi in range(len(obslist)):
+                obs = obslist[obi]
+                rpos = [measures.index(p) for p in obs[1]]
+                measure_results.append(exec_res[targlist[obi]].calculate_obs(rpos))
+
+        return sum(measure_results)
+
+    def _measure_obs(
+        self, qc: QuantumCircuit, measure_base: Optional[List] = None
+    ) -> ExecResult:
+        """Single run for measurement task.
+
+        Args:
+            qc (QuantumCircuit): Quantum circuit that need to be executed on backend.
+            measure_base (list[str, list[int]]): measure base and its positions.
+        """
+        if not isinstance(self._task, Task):
+            raise ValueError("_task not initiated in Estimator")
+
+        if measure_base is None:
+            res = self._task.send(qc)
+            res.measure_base = ""
+
+        else:
+            for base, pos in zip(measure_base[0], measure_base[1]):
+                if base == "X":
+                    qc.ry(pos, -np.pi / 2)
+                elif base == "Y":
+                    qc.rx(pos, np.pi / 2)
+
+            res = self._task.send(qc)
+            res.measure_base = measure_base
+
+        return res
 
     def _run_simulation(self, observables: Hamiltonian):
         """Run using quafu simulator"""
