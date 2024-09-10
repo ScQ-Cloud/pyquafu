@@ -35,6 +35,8 @@ class ParamShift:
             estimator (Estimator): estimator to calculate expectation values
             params (List[float]): params to optimize
         """
+        if self._est._backend != "sim":
+            return self.grad(obs, params)
         return self.new_grad(obs, params)
 
     def _gen_param_shift_vals(self, params):
@@ -46,7 +48,6 @@ class ParamShift:
         minus_params = params - offsets * np.pi / 2
         return plus_params.tolist() + minus_params.tolist()
 
-    # TODO: delete after 0.4.1
     def grad(self, obs: Hamiltonian, params: List[float]):
         """grad.
 

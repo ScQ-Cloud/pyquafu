@@ -70,6 +70,8 @@ class QuantumCircuit:
         self._parameter_grads = {}
         self._variables = []
         self._has_wrap = False
+        self._def_para_name = "theta_inner"  # default parameter name prefix
+        self._para_id = 0  # current parameter index
 
     @property
     def parameterized_gates(self):
@@ -298,6 +300,17 @@ class QuantumCircuit:
         # TODO(): Support updating part of params of a single gate
         for gate, paras in zip(self.parameterized_gates, paras_list):
             gate.update_params(paras)
+
+    def angles2parameters(self):
+        """Transform all float value params to `Parameter`"""
+        for g in self.gates:
+            if all(isinstance(x, float) for x in g.paras):
+                for i in range(len(g.paras)):
+                    g.paras[i] = Parameter(
+                        f"{self._def_para_name}_{self._para_id}", value=g.paras[i]
+                    )
+                    self._para_id += 1
+        self.get_parameter_grads()
 
     def layered_circuit(self) -> np.ndarray:
         """
