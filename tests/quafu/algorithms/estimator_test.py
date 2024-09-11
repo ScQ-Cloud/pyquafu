@@ -70,7 +70,7 @@ class TestEstimator:
         estimator = Estimator(circ, backend="ScQ-P10")
         expectation = estimator.run(test_ising, None)
         task = Task()
-        res_org, obsexp_org = task.submit(circ, test_ising.to_legacy_quafu_pauli_list())
+        res_org, obsexp_org = task.submit(circ, test_ising.to_pauli_list())
         assert expectation == sum(obsexp_org)
 
     @pytest.mark.skipif(

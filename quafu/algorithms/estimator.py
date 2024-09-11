@@ -33,6 +33,7 @@ def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
     return sum(expectations)
 
 
+# TODO: cache measure results values and reuse for expectation calculation
 class Estimator:
     """Estimate expectation for quantum circuits and observables"""
 
@@ -86,7 +87,7 @@ class Estimator:
         # TODO(zhaoyilun):
         #   investigate the best implementation for calculating
         #   expectation on real devices.
-        obslist = observables.to_legacy_quafu_pauli_list()
+        obslist = observables.to_pauli_list()
 
         # save input circuit
         inputs = copy.deepcopy(self._circ.gates)

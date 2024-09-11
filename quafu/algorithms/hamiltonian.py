@@ -124,14 +124,20 @@ class Hamiltonian:
 
         return mat
 
-    # TODO(zhaoyilun): delete this in the future
-    def to_legacy_quafu_pauli_list(self):
-        """Transform to legacy quafu pauli list format,
-        this is a temperal function and should be deleted later"""
+    def to_pauli_list(self):
+        """
+        Transform to pauli list format for ease of
+        expectation calculation on cloud systems
+
+        Currently coeff does not make sense because expectation calculation
+        on cloud systems does not support it
+
+        Examples:
+            ("Z0 Z1 Z2 Z3") -> ["ZZZZ", [0, 1, 2, 3]]
+        """
         res = []
         for pauli_str in self.paulis:
-            for i, pos in enumerate(pauli_str.pos):
-                res.append([pauli_str.paulistr[i], [pos]])
+            res.append([pauli_str.paulistr, pauli_str.pos])
         return res
 
 

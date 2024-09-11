@@ -66,6 +66,7 @@ def jacobian(
     Args:
         circ (QuantumCircuit): circ
         params_input (np.ndarray): params_input, with shape [batch_size, num_params]
+        estimator (Estimator): estimator for calculating expectations.
     """
     batch_size, num_params = params_input.shape
     obs_list = _generate_expval_z(circ.num)
