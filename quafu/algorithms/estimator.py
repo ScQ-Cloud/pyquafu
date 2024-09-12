@@ -62,12 +62,18 @@ class Estimator:
                 self._task = Task()
             self._task.config(backend=self._backend, **task_options)
 
-    def _run_real_machine(self, observables: Hamiltonian):
+        # Caching expectation calculation results
+        self._exp_cache = {}
+
+    def _run_real_machine(
+        self, observables: Hamiltonian, cache_key: Optional[str] = None
+    ):
         """
         Execute the circuit with observable expectation measurement task.
         Args:
             qc (QuantumCircuit): Quantum circuit that need to be executed on backend.
             obslist (list[str, list[int]]): List of pauli string and its position.
+            cache_key: if set, check if cache hit and use cached measurement results.
 
         Returns:
             List of executed results and list of measured observable
@@ -109,20 +115,29 @@ class Estimator:
             print("Job start, need measured in ", measure_basis)
 
             exec_res = []
-            lst_task_id = []
-            for measure_base in measure_basis:
-                res = self._measure_obs(self._circ, measure_base=measure_base)
-                self._circ.gates = copy.deepcopy(inputs)
-                lst_task_id.append(res.taskid)
+            if cache_key is not None and cache_key in self._exp_cache:
+                # try to retrieve exe results from cache
+                exec_res = self._exp_cache[cache_key]
+            else:
+                # send tasks to cloud platform
+                lst_task_id = []
+                for measure_base in measure_basis:
+                    res = self._measure_obs(self._circ, measure_base=measure_base)
+                    self._circ.gates = copy.deepcopy(inputs)
+                    lst_task_id.append(res.taskid)
 
-            for tid in lst_task_id:
-                # retrieve task results
-                while True:
-                    res = self._task.retrieve(tid)
-                    if res.task_status == "Completed":
-                        exec_res.append(res)
-                        break
-                    time.sleep(0.2)
+                for tid in lst_task_id:
+                    # retrieve task results
+                    while True:
+                        res = self._task.retrieve(tid)
+                        if res.task_status == "Completed":
+                            exec_res.append(res)
+                            break
+                        time.sleep(0.2)
+
+                if cache_key is not None:
+                    # put into cache
+                    self._exp_cache[cache_key] = exec_res
 
             measure_results = []
             for obi in range(len(obslist)):
@@ -169,20 +184,35 @@ class Estimator:
         # return expectation
         return execute_circuit(self._circ, observables)
 
-    def run(self, observables: Hamiltonian, params: List[float]):
+    def clear_cache(self):
+        """clean expectation cache"""
+        self._exp_cache.clear()
+
+    def run(
+        self,
+        observables: Hamiltonian,
+        params: List[float],
+        cache_key: Optional[str] = None,
+    ):
         """Calculate estimation for given observables
 
         Args:
             observables: observables to be estimated.
-            paras_list: list of parameters of self.circ.
-
+            params: list of parameters of self.circ.
+            cache_key: if this value is set, we will first look into the _exp_cache to see
+                if previous measurement results can be reused. Note that it is the user's duty
+                to guarantee correctness.
         Returns:
             Expectation value
         """
+        res = None
         if params is not None:
             self._circ._update_params(params)
 
         if self._backend == "sim":
-            return self._run_simulation(observables)
+            res = self._run_simulation(observables)
         else:
-            return self._run_real_machine(observables)
+            # currently cache only work for real machine (cloud systems)
+            res = self._run_real_machine(observables, cache_key=cache_key)
+
+        return res
