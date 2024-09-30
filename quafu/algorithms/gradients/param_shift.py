@@ -13,7 +13,7 @@
 # limitations under the License.
 """Quafu parameter shift"""
 
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
@@ -28,7 +28,9 @@ class ParamShift:
     def __init__(self, estimator: Estimator) -> None:
         self._est = estimator
 
-    def __call__(self, obs: Hamiltonian, params: List[float]):
+    def __call__(
+        self, obs: Hamiltonian, params: List[float], cache_key: Optional[str] = None
+    ):
         """Calculate gradients using paramshift.
 
         Args:
@@ -36,7 +38,7 @@ class ParamShift:
             params (List[float]): params to optimize
         """
         if self._est._backend != "sim":
-            return self.grad(obs, params)
+            return self.grad(obs, params, cache_key=cache_key)
         return self.new_grad(obs, params)
 
     def _gen_param_shift_vals(self, params):
@@ -48,18 +50,26 @@ class ParamShift:
         minus_params = params - offsets * np.pi / 2
         return plus_params.tolist() + minus_params.tolist()
 
-    def grad(self, obs: Hamiltonian, params: List[float]):
+    def grad(
+        self, obs: Hamiltonian, params: List[float], cache_key: Optional[str] = None
+    ):
         """grad.
 
         Args:
             obs (Hamiltonian): obs
             params (List[float]): params
+            cache_key: cache prefix, currently the sample id in a batch
         """
         shifted_params_lists = self._gen_param_shift_vals(params)
 
         res = np.zeros(len(shifted_params_lists))
         for i, shifted_params in enumerate(shifted_params_lists):
-            res[i] = self._est.run(obs, shifted_params)
+            final_cache_key = None
+            if cache_key is not None:
+                # parameters is uniquely determined by
+                # <sample-id-in-the-batch><order-in-shifted-parameters>
+                final_cache_key = cache_key + str(i)
+            res[i] = self._est.run(obs, shifted_params, cache_key=final_cache_key)
 
         num_shift_params = len(res)
         grads = (res[: num_shift_params // 2] - res[num_shift_params // 2 :]) / 2
