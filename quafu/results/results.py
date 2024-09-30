@@ -29,8 +29,9 @@ class ExecResult(Result):
             0: "In Queue",
             1: "Running",
             2: "Completed",
-            "Canceled": 3,
+            3: "Canceled",
             4: "Failed",
+            5: "Pending",
         }
         self.taskid = input_dict["task_id"]
         self.taskname = input_dict["task_name"]
