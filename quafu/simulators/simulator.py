@@ -22,7 +22,7 @@ from ..circuits import QuantumCircuit
 from ..elements import CircuitWrapper, KrausChannel, QuantumGate, UnitaryChannel
 from ..exceptions import QuafuError
 from ..results.results import SimuResult
-from .qfvm import (  # pylint: disable=no-name-in-module
+from .qfvm import (  # pylint: disable=no-name-in-module,import-error
     applyop_statevec,
     expect_statevec,
     sampling_statevec,
