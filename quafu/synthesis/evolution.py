@@ -15,7 +15,6 @@
 
 from abc import ABC, abstractmethod
 
-import numpy as np
 import quafu.elements.element_gates as qeg
 from quafu.algorithms.hamiltonian import PauliOp
 
@@ -195,6 +194,7 @@ def cnot_fountain(pauli: PauliOp):
     return gates, gates[::-1]
 
 
+# pylint: disable=too-few-public-methods
 class BaseEvolution(ABC):
     """Generate evolution circuit based on operators"""
 
@@ -209,7 +209,6 @@ class BaseEvolution(ABC):
             pauli: The pauli to evolve.
             time: Evolution time.
         """
-        pass
 
 
 class ProductFormula(BaseEvolution):
@@ -222,9 +221,6 @@ class ProductFormula(BaseEvolution):
             pass
         elif num_non_id == 1:
             return single_qubit_evol(pauli, time)
-        elif num_non_id == 2:
+        if num_non_id == 2:
             return two_qubit_evol(pauli, time)
-        else:
-            # raise NotImplementedError(f"Pauli string {pauli} not yet supported")
-            return multi_qubit_evol(pauli, time)
-        return []
+        return multi_qubit_evol(pauli, time)

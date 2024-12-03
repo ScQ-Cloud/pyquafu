@@ -25,8 +25,6 @@ from quafu import QuantumCircuit
 # limitations under the License.
 
 
-
-
 class CompilerVis:
     def __init__(self, workflow: List[BasePass], initial_model=None):
         self.workflow = workflow
@@ -38,6 +36,7 @@ class CompilerVis:
     def set_model(self, new_model):
         self.model = new_model
 
+    # pylint: disable=too-many-statements, too-many-branches
     def compile_vis(self, circuit: Union[QuantumCircuit, DAGCircuit]):
         """
         Return the circuit and the information of each pass.
@@ -69,7 +68,6 @@ class CompilerVis:
 
         for idx, pass_instance in enumerate(self.workflow):
             pass_name = pass_instance.__class__.__name__
-            # print(f"Pass {idx}: {pass_name}")
 
             # get the pass docstring
             pass_docstring = pass_instance.__doc__
@@ -78,10 +76,7 @@ class CompilerVis:
             circuit_before = deepcopy(circuit)
             if hasattr(pass_instance, "set_model"):
                 pass_instance.set_model(self.model)
-            layout_before = deepcopy(
-                self.model.get_layout()["final_layout"]
-            )  # get the pass initial layout
-            # cnot_count_before = circuit_before.count_ops().get("cx", 0)
+            layout_before = deepcopy(self.model.get_layout()["final_layout"])  # get the pass initial layout
             gates_count_before = len(circuit_before.gates)
             circuit_depth_before = len(circuit_before.layered_circuit().T) - 1
             mutil_qubit_gates_before = 0
@@ -96,21 +91,11 @@ class CompilerVis:
             pass_end_time = time.perf_counter()  # us
             # timing the end time <--- end
 
-            # # Determine whether layout is changed in pass
-            # if layout_before != deepcopy(self.model.get_layout()['initial_layout']):
-            #     layout_before = deepcopy(self.model.get_layout()['initial_layout'])
-
             pass_execution_time = (pass_end_time - pass_start_time) * 1000  # ms
-            pass_execution_time = round(
-                pass_execution_time, 2
-            )  # round to 2 decimal places
+            pass_execution_time = round(pass_execution_time, 2)  # round to 2 decimal places
 
-            total_execution_time += (
-                pass_execution_time  # ms , add the execution time of each pass
-            )
-            total_execution_time = round(
-                total_execution_time, 2
-            )  # round to 2 decimal places
+            total_execution_time += pass_execution_time  # ms , add the execution time of each pass
+            total_execution_time = round(total_execution_time, 2)  # round to 2 decimal places
 
             # Get the circuit , layout and others  after the pass
             circuit_after = deepcopy(circuit)
@@ -140,11 +125,6 @@ class CompilerVis:
                     dict_layout_after = layout_after.v2p
                     layout_changed_status = dict_layout_before != dict_layout_after
 
-            # circuit_before, transpiled_qasm = qiskit2quafu(circuit_before)
-            # print(circuit_before.draw_circuit())
-            # circuit_after, transpiled_qasm = qiskit2quafu(circuit_after)
-            # circuit_after.draw_circuit()
-
             info[f"Pass_{idx}"] = {
                 "Pass Name": pass_name,
                 "Execution Time (ms)": pass_execution_time,
@@ -171,12 +151,8 @@ class CompilerVis:
         }
 
         # change the final layout of info's model
-        all_layouts["initial_layout"] = deepcopy(
-            info["Total"]["model"].get_layout()["initial_layout"]
-        )
-        all_layouts["final_layout"] = deepcopy(
-            info["Total"]["model"].get_layout()["final_layout"]
-        )
+        all_layouts["initial_layout"] = deepcopy(info["Total"]["model"].get_layout()["initial_layout"])
+        all_layouts["final_layout"] = deepcopy(info["Total"]["model"].get_layout()["final_layout"])
         info["Total"]["model"].set_layout(all_layouts)
 
         # make a copy of short info
@@ -184,11 +160,11 @@ class CompilerVis:
         for key, value in short_info.items():
             if key == "Total":
                 continue
-            short_info[key].pop("Circuit Before", None)
-            short_info[key].pop("Circuit After", None)
-            short_info[key].pop("Pass Docstring", None)
-            short_info[key].pop("Layout Before", None)
-            short_info[key].pop("Layout After", None)
+            value.pop("Circuit Before", None)
+            value.pop("Circuit After", None)
+            value.pop("Pass Docstring", None)
+            value.pop("Layout Before", None)
+            value.pop("Layout After", None)
         short_info["Total"].pop("model", None)
 
         return circuit, info, short_info
@@ -205,9 +181,7 @@ def draw_allpass_circuits(info_dict, only_original_and_last=False):
             # draw the circuit before and after the pass
             # print the divider line
             print("*" * 100)
-            print(
-                f"Drawing the circuit before and after {key}:", pass_info["Pass Name"]
-            )
+            print(f"Drawing the circuit before and after {key}:", pass_info["Pass Name"])
             print("Circuit Before:")
             pass_info["Circuit Before"].draw_circuit()
             print("Circuit After:")
@@ -266,15 +240,8 @@ def draw_pass_info(info_dict, pass_idx):
 
         print(key, ":", value)
 
-    # print(f"Drawing the circuit before and after Pass_{pass_idx}:",end=" ")
-    # print(info_dict[f"Pass_{pass_idx}"]["Pass Name"])
-    # print("Circuit Before:")
-    # info_dict[f"Pass_{pass_idx}"]["Circuit Before"].draw_circuit()
-    # print("Circuit After:")
-    # info_dict[f"Pass_{pass_idx}"]["Circuit After"].draw_circuit()
-    # print("*" * 100)
 
-
+# pylint: disable=too-many-statements
 def dynamic_draw(info_dict, short_info):
     """Draw the circuit before and after the input index pass. here the input index is dynamic
     shot_info: to check the statistics of all passes
@@ -285,22 +252,18 @@ def dynamic_draw(info_dict, short_info):
             "Please input 'm' to check the model,\n"
             "or input 'q' to quit compilation information visualization,\n"
             "or input 'c' to check the statistics of all passes,\n"
-            "or input the int (0-"
-            + str(len(short_info) - 2)
-            + ") index of the pass you want to draw:"
+            "or input the int (0-" + str(len(short_info) - 2) + ") index of the pass you want to draw:"
         )
 
         input_str = input()
         if input_str == "q":
             break
-        elif input_str == "c":
-            # pprint(short_info, sort_dicts=False)
-            from rich.console import Console
-            from rich.table import Table
+        if input_str == "c":
+            from rich.console import Console  # pylint: disable=import-outside-toplevel
+            from rich.table import Table  # pylint: disable=import-outside-toplevel
 
             print("*" * 100)
             print("quafu transpile passes information:")
-            # console = Console()
             console = Console(width=200)
             table = Table(show_header=True, header_style="bold magenta", expand=True)
             table.width = 150
@@ -332,10 +295,6 @@ def dynamic_draw(info_dict, short_info):
                     str(value["Layout changed status"]),
                     end_section=True,
                 )
-                # table.add_row(key, value["Pass Name"], str(value["Execution Time (ms)"]),
-                #               str(value["Total Gates Before"]), str(value["Total Gates After"]),
-                #               str(value["2qubit Gates Before"]), str(value["2qubit Gates After"]),
-                #               str(value["Depth Before"]), str(value["Depth After"]), end_section=True)
 
             console.print(table)
 
@@ -346,14 +305,13 @@ def dynamic_draw(info_dict, short_info):
 
             print("*" * 100)
             continue
-        elif input_str == "m":  # print the model
+        if input_str == "m":  # print the model
             model = info_dict["Total"]["model"]
             print("*" * 100)
             print("The model:", model)
             print("The backend:")
             pprint(model.get_backend().get_all_properties())
             print("The layout:")
-            # pprint(model.get_layout())
             layout = model.get_layout()
             if layout["initial_layout"] is None:
                 print("initial_layout: None")
@@ -366,15 +324,14 @@ def dynamic_draw(info_dict, short_info):
                 print("final_layout (v2p):", layout["final_layout"].v2p)
             print("*" * 100)
             continue
-        else:
-            try:
-                input_idx = int(input_str)
-                draw_pass_info(info_dict, input_idx)
-                print("*" * 100)
-                continue
-            except:
-                print("wrong input, please input again")
-                continue
+        try:
+            input_idx = int(input_str)
+            draw_pass_info(info_dict, input_idx)
+            print("*" * 100)
+            continue
+        except:  # noqa: E722  # pylint: disable=bare-except
+            print("wrong input, please input again")
+            continue
 
 
 def dynamic_draw_tabulate(info_dict, short_info, tablefmt="fancy_grid"):
@@ -388,18 +345,14 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt="fancy_grid"):
             "Please input 'm' to check the model,\n"
             "or input 'q' to quit compilation information visualization,\n"
             "or input 'c' to check the statistics of all passes,\n"
-            "or input the int (0-"
-            + str(len(short_info) - 2)
-            + ") index of the pass you want to draw:"
+            "or input the int (0-" + str(len(short_info) - 2) + ") index of the pass you want to draw:"
         )
 
         input_str = input()
         if input_str == "q":
             break
-        elif input_str == "c":
-            from rich.console import Console
-            from rich.table import Table
-            from tabulate import tabulate
+        if input_str == "c":
+            from tabulate import tabulate  # pylint: disable=import-outside-toplevel
 
             print("*" * 100)
             print("quafu transpile passes information:")
@@ -416,9 +369,6 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt="fancy_grid"):
                 "Depth After",
                 "Layout changed status",
             ]
-            # table_header = ['Pass', 'Pass Name', 'Execution Time (ms)', 'Total Gates Before',
-            #                 'Total Gates After', '2qubit Gates Before',
-            #                 '2qubit Gates After', 'Depth Before', 'Depth After']
 
             table_data = []
             for key, value in short_info.items():
@@ -439,10 +389,6 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt="fancy_grid"):
                         str(value["Layout changed status"]),
                     )
                 )
-                # table_data.append([key, value["Pass Name"], str(value["Execution Time (ms)"]),
-                #                       str(value["Total Gates Before"]), str(value["Total Gates After"]),
-                #                       str(value["2qubit Gates Before"]), str(value["2qubit Gates After"]),
-                #                       str(value["Depth Before"]), str(value["Depth After"])])
 
             print(tabulate(table_data, headers=table_header, tablefmt=tablefmt))
 
@@ -453,14 +399,13 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt="fancy_grid"):
 
             print("*" * 100)
             continue
-        elif input_str == "m":  # print the model
+        if input_str == "m":  # print the model
             model = info_dict["Total"]["model"]
             print("*" * 100)
             print("The model:", model)
             print("The backend:")
             pprint(model.get_backend().get_all_properties())
             print("The layout:")
-            # pprint(model.get_layout())
             layout = model.get_layout()
             if layout["initial_layout"] is None:
                 print("initial_layout: None")
@@ -473,12 +418,11 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt="fancy_grid"):
                 print("final_layout (v2p):", layout["final_layout"].v2p)
             print("*" * 100)
             continue
-        else:
-            try:
-                input_idx = int(input_str)
-                draw_pass_info(info_dict, input_idx)
-                print("*" * 100)
-                continue
-            except:
-                print("wrong input, please input again")
-                continue
+        try:
+            input_idx = int(input_str)
+            draw_pass_info(info_dict, input_idx)
+            print("*" * 100)
+            continue
+        except:  # noqa: E722 # pylint: disable=bare-except
+            print("wrong input, please input again")
+            continue

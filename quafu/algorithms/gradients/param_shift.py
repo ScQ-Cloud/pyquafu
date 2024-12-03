@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Quafu parameter shift"""
+"""Quafu parameter shift."""
 
 from typing import List, Optional
 
@@ -28,9 +28,7 @@ class ParamShift:
     def __init__(self, estimator: Estimator) -> None:
         self._est = estimator
 
-    def __call__(
-        self, obs: Hamiltonian, params: List[float], cache_key: Optional[str] = None
-    ):
+    def __call__(self, obs: Hamiltonian, params: List[float], cache_key: Optional[str] = None):
         """Calculate gradients using paramshift.
 
         Args:
@@ -50,9 +48,7 @@ class ParamShift:
         minus_params = params - offsets * np.pi / 2
         return plus_params.tolist() + minus_params.tolist()
 
-    def grad(
-        self, obs: Hamiltonian, params: List[float], cache_key: Optional[str] = None
-    ):
+    def grad(self, obs: Hamiltonian, params: List[float], cache_key: Optional[str] = None):
         """grad.
 
         Args:
@@ -72,8 +68,7 @@ class ParamShift:
             res[i] = self._est.run(obs, shifted_params, cache_key=final_cache_key)
 
         num_shift_params = len(res)
-        grads = (res[: num_shift_params // 2] - res[num_shift_params // 2 :]) / 2
-        return grads
+        return (res[: num_shift_params // 2] - res[num_shift_params // 2 :]) / 2
 
     def new_grad(self, obs: Hamiltonian, params: List[float]):
         """Calculate the gradients of given the circuit based on the parameter shift rule

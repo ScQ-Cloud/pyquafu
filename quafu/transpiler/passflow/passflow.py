@@ -17,6 +17,7 @@ from typing import List, Union
 from quafu.transpiler.passes.basepass import BasePass
 
 
+# pylint: disable=too-few-public-methods
 class PassFlow:
     """A transpiler passflow describes a quantum circuit compilation process."""
 

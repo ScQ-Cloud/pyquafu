@@ -16,7 +16,7 @@ import copy
 
 import networkx as nx
 from quafu.transpiler.graph.circuitgraph import circuit_to_graph, relabel_graph
-from quafu.transpiler.graph.graphkernel import fast_subtree_kernel, wl_subtree_kernel
+from quafu.transpiler.graph.graphkernel import wl_subtree_kernel
 
 from quafu import QuantumCircuit
 
@@ -50,13 +50,6 @@ def similar_struct(circuit: QuantumCircuit, sub_data):
             if round(kernel_value, 0) not in kernel_value_list:
                 kernel_value_list.append(round(kernel_value, 0))
                 similar_struct_list.append((sub_list, kernel_value))
-
-            # # fast subtree kernel iteration
-            # g2 = nx.convert_node_labels_to_integers(g2)
-            # kernel_value = fast_subtree_kernel(g1_copy, g2, iteration=2)
-            # if round(kernel_value, 0) not in kernel_value_list:
-            #     kernel_value_list.append(round(kernel_value, 0))
-            #     similar_struct_list.append((sub_list, kernel_value))
 
             g1_copy.clear()
             g2.clear()

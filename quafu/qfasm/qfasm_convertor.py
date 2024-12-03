@@ -11,9 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from quafu.circuits.quantum_circuit import QuantumCircuit
-
+"""QFASM Convertor."""
+from ..circuits import QuantumCircuit
 from .qfasm_parser import QfasmParser
 
 
@@ -29,9 +28,7 @@ def qasm_to_quafu(openqasm: str):
     qc = qparser.parse(openqasm)
     qc.openqasm = openqasm
     if not qc.executable_on_backend:
-        print(
-            "Warning: At present, quafu's back-end real machine does not support dynamic circuits."
-        )
+        print("Warning: At present, quafu's back-end real machine does not support dynamic circuits.")
     return qc
 
 
@@ -48,11 +45,9 @@ def qasm2_to_quafu_qc(qc: QuantumCircuit, openqasm: str):
     qc.openqasm = openqasm
     qc.gates = newqc.gates
     qc.instructions = newqc.instructions
-    qc._measures = newqc._measures
+    qc._measures = newqc._measures  # pylint: disable=protected-access
     qc.qregs = newqc.qregs
     qc.cregs = newqc.cregs
     qc.executable_on_backend = newqc.executable_on_backend
     if not qc.executable_on_backend:
-        print(
-            "Warning: At present, quafu's back-end real machine does not support dynamic circuits."
-        )
+        print("Warning: At present, quafu's back-end real machine does not support dynamic circuits.")

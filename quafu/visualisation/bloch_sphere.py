@@ -1,14 +1,25 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Plotting state of single qubit on the Bloch sphere."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-"""
-Plotting state of single qubit on the Bloch sphere.
-
-TODO:
-1. Plot by density matrix, say, from single-qubit sub-system.
-2. Plot geometrical representation of quantum operations.
-3. Plot a chain of qubits.
-"""
+# TODO:
+# 1. Plot by density matrix, say, from single-qubit sub-system.
+# 2. Plot geometrical representation of quantum operations.
+# 3. Plot a chain of qubits.
 
 
 def angles_to_xyz(thetas, phis):
@@ -85,11 +96,10 @@ def plot_bloch_vector(v_x, v_y, v_z, title=""):
         0,
         0,
         1.6,
-        "Bloch vector: ($\\theta=${:.2f}, $\\varphi$={:.2f})".format(v_theta, v_phi),
+        f"Bloch vector: ($\\theta=${v_theta:.2f}, $\\varphi$={v_phi:.2f})",
         fontsize=8,
         color="red",
     )
-    # ax.text(0, 0, 1.6, 'Bloch vector: ({:.2f}, {:.2f}, {:.2f})'.format(v_x, v_y, v_z), fontsize=8, color='red')
 
     # Set the range of the axes
     ax.set_box_aspect([1, 1, 1])

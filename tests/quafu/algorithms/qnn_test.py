@@ -15,16 +15,19 @@ import numpy as np
 import pytest
 
 pytest.importorskip("torch")
-import torch
-from quafu.algorithms.ansatz import QuantumNeuralNetwork
-from quafu.algorithms.gradients import compute_vjp, jacobian
-from quafu.algorithms.interface.torch import ModuleWrapper, TorchTransformer
-from quafu.algorithms.templates.angle import AngleEmbedding
-from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers
-from quafu.circuits.quantum_circuit import QuantumCircuit
-from quafu.elements import Parameter
-from torch import nn
-from torch.utils.data import DataLoader, TensorDataset
+import torch  # noqa: E402
+from quafu.algorithms.ansatz import QuantumNeuralNetwork  # noqa: E402
+from quafu.algorithms.gradients import compute_vjp, jacobian  # noqa: E402
+from quafu.algorithms.interface.torch import (  # noqa: E402
+    ModuleWrapper,
+    TorchTransformer,
+)
+from quafu.algorithms.templates.angle import AngleEmbedding  # noqa: E402
+from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers  # noqa: E402
+from quafu.circuits.quantum_circuit import QuantumCircuit  # noqa: E402
+from quafu.elements import Parameter  # noqa: E402
+from torch import nn  # noqa: E402
+from torch.utils.data import DataLoader, TensorDataset  # noqa: E402
 
 
 def _generate_random_dataset(num_inputs, num_samples):
@@ -46,9 +49,7 @@ def _generate_random_dataset(num_inputs, num_samples):
     y[torch.arange(num_samples), y01] = 1
 
     # Create a PyTorch dataset
-    dataset = TensorDataset(x, y)
-
-    return dataset
+    return TensorDataset(x, y)
 
 
 class MLP(nn.Module):
@@ -84,8 +85,7 @@ class ModelStandardCircuit(nn.Module):
 
     def forward(self, features):
         out = self.linear(features)
-        out = TorchTransformer.execute(self.circ, out)
-        return out
+        return TorchTransformer.execute(self.circ, out)
 
 
 class ModelQuantumNeuralNetwork(nn.Module):
@@ -94,8 +94,7 @@ class ModelQuantumNeuralNetwork(nn.Module):
         self.circ = circ
 
     def forward(self, features):
-        out = TorchTransformer.execute(self.circ, features)
-        return out
+        return TorchTransformer.execute(self.circ, features)
 
 
 class ModelQuantumNeuralNetworkNative(nn.Module):
@@ -106,12 +105,7 @@ class ModelQuantumNeuralNetworkNative(nn.Module):
         self.qnn = qnn
 
     def forward(self, features):
-        out = self.qnn(features)
-        return out
-
-    # def parameters(self, recurse=True):
-    #     for p in self.qnn.weights:
-    #         yield nn.Parameter(p)
+        return self.qnn(features)
 
 
 class TestLayers:
@@ -126,9 +120,7 @@ class TestLayers:
         """Test one forward pass and gradient calculation of a model"""
 
         # TODO(zhaoyilun): Make out dimension configurable
-        features = torch.randn(
-            batch_size, 2, requires_grad=True, dtype=torch.double
-        )  # batch_size=4, num_params=3
+        features = torch.randn(batch_size, 2, requires_grad=True, dtype=torch.double)  # batch_size=4, num_params=3
         outputs = model(features)
         targets = torch.randn(batch_size, 2, dtype=torch.double)
         criterion = nn.MSELoss()
@@ -148,9 +140,7 @@ class TestLayers:
     def test_torch_layer_standard_circuit(self):
         batch_size = 1
         model = ModelStandardCircuit(self.circ)
-        features = torch.randn(
-            batch_size, 3, requires_grad=True, dtype=torch.double
-        )  # batch_size=4, num_params=3
+        features = torch.randn(batch_size, 3, requires_grad=True, dtype=torch.double)  # batch_size=4, num_params=3
         outputs = model(features)
         targets = torch.randn(batch_size, 2, dtype=torch.double)
         criterion = nn.MSELoss()
@@ -159,8 +149,6 @@ class TestLayers:
 
     def test_torch_layer_qnn(self):
         """Use QuantumNeuralNetwork ansatz"""
-        weights = np.random.randn(2, 2)
-        # entangle_layer = BasicEntangleLayers(weights, 2)
         encoder_layer = AngleEmbedding(np.random.random((2,)), 2)
         qnn = QuantumNeuralNetwork(2, encoder_layer)
         batch_size = 1
@@ -195,9 +183,7 @@ class TestLayers:
         qlayer = ModuleWrapper(qnn)
         params = qlayer.parameters()
 
-        assert np.allclose(
-            qlayer.weights.detach().numpy(), params.__next__().detach().numpy()
-        )
+        assert np.allclose(qlayer.weights.detach().numpy(), params.__next__().detach().numpy())
 
     def test_classify_random_dataset_quantum(self, num_epochs, batch_size):
         """Test a pure quantum nn training using a synthetic dataset
@@ -224,7 +210,6 @@ class TestLayers:
 
         # Create hybrid model
         model = ModuleWrapper(qnn)
-        # model = mlp
 
         # Define the loss function and optimizer
         criterion = nn.CrossEntropyLoss()
@@ -285,7 +270,6 @@ class TestLayers:
         weights = np.random.randn(num_qubits, 2)
         entangle_layer = BasicEntangleLayers(weights, 2)
         qnn = QuantumNeuralNetwork(num_qubits, entangle_layer)
-        # qnn_model = ModelQuantumNeuralNetworkNative(qnn)
         qnn_model = ModelStandardCircuit(qnn)
 
         # Create MLP
@@ -293,7 +277,6 @@ class TestLayers:
 
         # Create hybrid model
         model = nn.Sequential(mlp, qnn_model)
-        # model = mlp
 
         # Define the loss function and optimizer
         criterion = nn.CrossEntropyLoss()

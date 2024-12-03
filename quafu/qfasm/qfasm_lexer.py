@@ -16,17 +16,20 @@
 # transfer circuit data to backends. Further it will
 # support more instructions (classical or quantum) to enable
 # interaction with quantum hardware
-
+"""Qfasm Lexer."""
 import os
 
-import ply.lex as lex
+from ply import lex
 
 from .exceptions import LexerError
 from .qfasm_utils import Id
 
 
-class QfasmLexer(object):
+# pylint: disable=too-many-public-methods
+class QfasmLexer:
     def __init__(self, filename: str = None):
+        self.lexer = None
+        self.data = None
         self.build(filename)
         self.file_lexer_stack = []
 
@@ -35,7 +38,7 @@ class QfasmLexer(object):
         self.lexer.filename = filename
         self.lexer.lineno = 1
         if filename:
-            with open(filename, "r") as ifile:
+            with open(filename, "r") as ifile:  # pylint: disable=unspecified-encoding
                 self.data = ifile.read()
             self.lexer.input(self.data)
 
@@ -46,7 +49,7 @@ class QfasmLexer(object):
     def pop_lexer(self):
         self.lexer = self.file_lexer_stack.pop()
 
-    def input(self, data):
+    def input(self, data):  # noqa:A003
         self.data = data
         self.lexer.input(data)
         # read qelib1.inc
@@ -54,8 +57,7 @@ class QfasmLexer(object):
         self.push_lexer(qelib1)
 
     def token(self):
-        ret = self.lexer.token()
-        return ret
+        return self.lexer.token()
 
     literals = r'()[]{};<>,+-/*^"'
 
@@ -92,7 +94,6 @@ class QfasmLexer(object):
         filename_token = self.lexer.token()
         if filename_token is None:
             raise LexerError("Expecting filename, received nothing.")
-        # print(filename_token.value)
         if isinstance(filename_token.value, str):
             filename = filename_token.value.strip('"')
             if filename == "":
@@ -108,13 +109,11 @@ class QfasmLexer(object):
                     f'Expecting ";" for INCLUDE at line {semicolon_token.lineno}, in file {self.lexer.filename}'
                 )
             return self.lexer.token()
-        # if filename == 'qelib1.inc':
-        #     filename = os.path.join(os.path.dirname(__file__), 'qelib1.inc')
 
         if not os.path.exists(filename):
-            # print(filename)
             raise LexerError(
-                f"Include file {filename} cannot be found, at line {filename_token.lineno}, in file {self.lexer.filename}"
+                f"Include file {filename} cannot be found, at line {filename_token.lineno},"
+                f" in file {self.lexer.filename}"
             )
 
         semicolon_token = self.lexer.token()
@@ -183,7 +182,6 @@ class QfasmLexer(object):
 
     def t_COMMENT(self, _):
         r"//.*"
-        pass
 
     t_ignore = " \t\r"
 
@@ -191,7 +189,7 @@ class QfasmLexer(object):
         raise LexerError(f"Illegal character {t.value[0]}")
 
     def t_newline(self, t):
-        r"\n+"
+        r"""\n+"""
         t.lexer.lineno += len(t.value)
 
     def t_eof(self, _):
@@ -209,9 +207,9 @@ class QfasmLexer(object):
             print(tok)
 
     def test_file(self):
-        print_file = open("lex.txt", "w+")
-        while True:
-            tok = self.lexer.token()
-            if not tok:
-                break
-            print(tok, file=print_file)
+        with open('lex.txt', 'w+') as print_file:  # noqa:SCS109  # pylint: disable=unspecified-encoding
+            while True:
+                tok = self.lexer.token()
+                if not tok:
+                    break
+                print(tok, file=print_file)

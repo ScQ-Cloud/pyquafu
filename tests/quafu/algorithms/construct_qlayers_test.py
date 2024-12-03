@@ -14,11 +14,9 @@
 import pytest
 
 pytest.importorskip("torch")
-import numpy as np
-from quafu.algorithms import AmplitudeEmbedding, AngleEmbedding
-from quafu.algorithms.ansatz import QuantumNeuralNetwork
-from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers
-from quafu.circuits.quantum_circuit import QuantumCircuit
+import numpy as np  # noqa: E402
+from quafu.algorithms import AmplitudeEmbedding, QuantumNeuralNetwork  # noqa: E402
+from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers  # noqa: E402
 
 
 class TestConstructQLayers:
@@ -28,13 +26,8 @@ class TestConstructQLayers:
         state = np.array([7, 2, 3, 4])
         encoding_layer = AmplitudeEmbedding(state=state, num_qubits=2, normalize=True)
 
-        # feature = np.array([[6, -12.5], [8, 9.5], [5, 0.5]])
-        # encoding_layer = AngleEmbedding(features=feature, num_qubits=2, rotation="Y")
-
         weights = np.array([[-0.850, 1.287], [0.871, 0.184]])
         entangle_layer = BasicEntangleLayers(weights=weights, num_qubits=2)
-
-        # entangle_layer2 = BasicEntangleLayers(num_qubits=2, repeat=3)
 
         circuit = encoding_layer + entangle_layer
 

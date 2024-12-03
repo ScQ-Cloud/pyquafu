@@ -1,9 +1,9 @@
 [build-system]
 requires = [
-    "setuptools>=42",
-    "pybind11>=2.9.2",
-    "cmake>=3.22",
-    "scikit-build>=0.15.0",
+  "setuptools>=42",
+  "pybind11>=2.9.2",
+  "cmake>=3.22",
+  "scikit-build>=0.15.0",
 ]
 
 build-backend = "setuptools.build_meta"
@@ -18,10 +18,46 @@ archs = ["x86_64"]
 
 
 [tool.cibuildwheel.macos]
-environment = {MACOSX_DEPLOYMENT_TARGET = "13.6"}
+environment = { MACOSX_DEPLOYMENT_TARGET = "13.6" }
 archs = ["x86_64", "arm64"]
 
 repair-wheel-command = [
   "delocate-listdeps {wheel}",
   "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} {wheel}",
 ]
+
+[tool.black]
+
+line-length = 120
+skip-string-normalization = true
+
+[tool.pylint.format]
+
+max-line-length = 120
+
+[tool.pylint]
+# TODO:disable doc related checks, should be remove in the future: "C0114", "R0801", "C0116", "C0115", "C0103", "C0112", "C8008"
+disable = [
+  "R0401",
+  "W0231",
+  "R0912",
+  "R0915",
+  "W0212",
+  "W0104",
+  "W0106",
+  "W0511",
+  "R0914",
+  "C0114",
+  "R0801",
+  "C0116",
+  "C0115",
+  "C0103",
+  "C0112",
+  "C8008",
+]
+ignore = ["conftest.py", "doc/run.py", "doc/source/conf.py", "setup.py"]
+ignore-paths = ['examples', 'doc']
+
+[tool.isort]
+
+profile = "black"

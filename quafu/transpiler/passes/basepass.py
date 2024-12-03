@@ -21,6 +21,7 @@ from quafu.elements import Instruction
 from quafu import QuantumCircuit
 
 
+# pylint: disable=too-few-public-methods
 class BasePass(ABC):
     """
     The Metaclass for quafu.transpile compiler passes.
@@ -31,6 +32,7 @@ class BasePass(ABC):
         pass
 
 
+# pylint: disable=too-few-public-methods
 class UnrollPass(BasePass):
     """
     The UnrollPass for quafu.transpile compiler unroll.

@@ -1,3 +1,17 @@
+# (C) Copyright 2024 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Matrices utils module."""
 import cmath
 from typing import List
 
@@ -21,9 +35,9 @@ def split_matrix(matrix: ndarray):
     """
     Evenly split a matrix into 4 sub-matrices.
     """
-    top, bottom = np.vsplit(matrix, 2)
-    t_left, t_right = np.hsplit(top, 2)
-    b_left, b_right = np.hsplit(bottom, 2)
+    top, bottom = np.vsplit(matrix, 2)  # pylint: disable=unbalanced-tuple-unpacking
+    t_left, t_right = np.hsplit(top, 2)  # pylint: disable=unbalanced-tuple-unpacking
+    b_left, b_right = np.hsplit(bottom, 2)  # pylint: disable=unbalanced-tuple-unpacking
     return t_left, t_right, b_left, b_right
 
 
@@ -33,8 +47,7 @@ def stack_matrices(t_left, t_right, b_left, b_right):
     """
     top = np.hstack((t_left, t_right))
     bottom = np.hstack((b_left, b_right))
-    mat = np.vstack((top, bottom))
-    return mat
+    return np.vstack((top, bottom))
 
 
 def multi_kron(op1, op2, ind1, ind2, nspin):
@@ -66,8 +79,6 @@ def is_zero(a):
 
 def is_approx(a, b, thres=1e-6):
     # TODO: seems there are some very small elements that cannot be compared correctly
-    # if not np.allclose(a, b, rtol=thres, atol=thres):
-    #    print(np.sum(a-b))
     return np.allclose(a, b, rtol=thres, atol=thres)
 
 
@@ -129,6 +140,4 @@ def matrix_distance_squared(unitary1, unitary2):
         Float : A single value between 0 and 1 indicating how closely unitary1 and unitary2 match.
         A value close to 0 indicates that unitary1 and unitary2 are the same unitary.
     """
-    return np.abs(
-        1 - np.abs(np.sum(np.multiply(unitary1, np.conj(unitary2)))) / unitary1.shape[0]
-    )
+    return np.abs(1 - np.abs(np.sum(np.multiply(unitary1, np.conj(unitary2)))) / unitary1.shape[0])

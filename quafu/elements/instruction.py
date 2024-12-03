@@ -11,9 +11,10 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+"""Instruction Module."""
+import warnings
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from .parameters import ParameterType
 
@@ -34,10 +35,11 @@ class Instruction(ABC):
     def __init__(
         self,
         pos: List[int],
-        paras: List[ParameterType] = [],
-        *args,
-        **kwargs,
+        paras: Union[List[ParameterType], None] = None,
+        **kwargs,  # pylint: disable=unused-argument
     ):
+        if paras is None:
+            paras = []
         self.pos = pos
         self.paras = paras
         self._symbol = None
@@ -45,10 +47,7 @@ class Instruction(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        raise NotImplementedError(
-            "name is not implemented for %s" % self.__class__.__name__
-            + ", this should never happen."
-        )
+        raise NotImplementedError(f"name is not implemented for {self.__class__.__name__}, this should never happen.")
 
     @property
     @abstractmethod
@@ -64,11 +63,7 @@ class Instruction(ABC):
 
     @name.setter
     def name(self, _):
-        import warnings
-
-        warnings.warn(
-            "Invalid assignment, names of standard instructions are not alterable."
-        )
+        warnings.warn("Invalid assignment, names of standard instructions are not alterable.")
 
     @classmethod
     def register_ins(cls, subclass, name: str = None):
@@ -100,20 +95,6 @@ class Barrier(Instruction):
 
     name = "barrier"
 
-    # def to_dag_node(self):
-    #     name = self.get_ins_id()
-    #     label = self.__repr__()
-    #
-    #     pos = self.pos
-    #     paras = self.paras
-    #     paras = {} if paras is None else paras
-    #     duration = paras.get('duration', None)
-    #     unit = paras.get('unit', None)
-    #     channel = paras.get('channel', None)
-    #     time_func = paras.get('time_func', None)
-    #
-    #     return InstructionNode(name, pos, paras, duration, unit, channel, time_func, label)
-
     def __init__(self, pos):
         super().__init__(pos)
         self.symbol = "||"
@@ -129,10 +110,8 @@ class Barrier(Instruction):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
-    def to_qasm(self, with_para):
-        return "barrier " + ",".join(
-            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
-        )
+    def to_qasm(self, _):
+        return "barrier " + ",".join([f"q[{p}]" for p in range(min(self.pos), max(self.pos) + 1)])
 
 
 class Reset(Instruction):
@@ -160,10 +139,8 @@ class Reset(Instruction):
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
-    def to_qasm(self, with_para):
-        return "reset " + ",".join(
-            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
-        )
+    def to_qasm(self, _):
+        return "reset " + ",".join([f"q[{p}]" for p in range(min(self.pos), max(self.pos) + 1)])
 
 
 class Measure(Instruction):
@@ -187,12 +164,8 @@ class Measure(Instruction):
         return self.named_paras
 
     def to_qasm(self, with_para):
-        lines = [
-            "measure q[%d] -> meas[%d];\n" % (q, c)
-            for q, c in zip(self.qbits, self.cbits)
-        ]
-        qasm = "".join(lines)
-        return qasm
+        lines = [f"measure q[{q}] -> meas[{c}];\n" for q, c in zip(self.qbits, self.cbits)]
+        return "".join(lines)
 
 
 Instruction.register_ins(Barrier)

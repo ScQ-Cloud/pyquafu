@@ -5,7 +5,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 from misc.utils import compute_returns, create_exp_dir, gather_episodes
-from models.quantum_models import generate_model_policy as Network
+from models.quantum_models import generate_model_policy as Network  # noqa: N812
 from search import quantum_encoding
 
 
@@ -69,26 +69,20 @@ def main(
             log_probs = tf.math.log(p_actions)
             loss = tf.math.reduce_sum(-log_probs * returns) / batch_size
         grads = tape.gradient(loss, model.trainable_variables)
-        for optimizer, w in zip(
-            [optimizer_in, optimizer_var, optimizer_out], [w_in, w_var, w_out]
-        ):
+        for optimizer, w in zip([optimizer_in, optimizer_var, optimizer_out], [w_in, w_var, w_out]):
             optimizer.apply_gradients([(grads[w], model.trainable_variables[w])])
 
     # Start training the agent
     episode_reward_history = []
     for batch in range(n_episodes // batch_size):
         # Gather episodes
-        _, episodes = gather_episodes(
-            state_bounds, n_actions, model, batch_size, env_name, beta, backend
-        )
+        _, episodes = gather_episodes(state_bounds, n_actions, model, batch_size, env_name, beta, backend)
 
         # Group states, actions and returns in numpy arrays
         states = np.concatenate([ep["states"] for ep in episodes])
         actions = np.concatenate([ep["actions"] for ep in episodes])
         rewards = [ep["rewards"] for ep in episodes]
-        returns = np.concatenate(
-            [compute_returns(ep_rwds, gamma) for ep_rwds in rewards]
-        )
+        returns = np.concatenate([compute_returns(ep_rwds, gamma) for ep_rwds in rewards])
         returns = np.array(returns, dtype=np.float32)
 
         id_action_pairs = np.array([[i, a] for i, a in enumerate(actions)])
@@ -107,6 +101,6 @@ def main(
 
         if avg_rewards >= 500.0 and env_name == "CartPole-v1":
             break
-        elif avg_rewards >= -110 and env_name == "MountainCar-v0":
+        if avg_rewards >= -110 and env_name == "MountainCar-v0":
             break
     return episode_reward_history

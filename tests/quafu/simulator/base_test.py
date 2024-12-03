@@ -11,14 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Test simulator."""
 
 
 class BaseTest:
-    def assertDictAlmostEqual(
-        self, dict1, dict2, delta=None, places=None, default_value=-1
-    ):
+    """Test simulator of quafu."""
+
+    def assert_dict_almost_equal(self, dict1, dict2, delta=None, places=None, default_value=-1):
         """
-        Assert two dictionaries with numeric values are almost equal.
+        Assert two dictionaries with numeric values with a threshold.
 
         Args:
             dict1 (dict): a dictionary.
@@ -30,11 +31,10 @@ class BaseTest:
         """
 
         def valid_comparison(value):
-            """compare value to delta, within places accuracy"""
+            """Compare value to delta, within places accuracy."""
             if places is not None:
                 return round(value, places) == 0
-            else:
-                return value < delta
+            return value < delta
 
         # Check arguments.
         if dict1 == dict2:

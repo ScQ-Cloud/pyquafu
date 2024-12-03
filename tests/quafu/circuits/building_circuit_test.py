@@ -1,7 +1,20 @@
 import math
 
 import numpy as np
-from quafu.elements.element_gates import *
+from quafu.elements.element_gates import (
+    CRYGate,
+    CRZGate,
+    CXGate,
+    HGate,
+    PhaseGate,
+    RXGate,
+    RXXGate,
+    RYGate,
+    RYYGate,
+    RZZGate,
+    U3Gate,
+    XGate,
+)
 from quafu.elements.parameters import Parameter
 
 from quafu import QuantumCircuit, simulate
@@ -117,7 +130,7 @@ class TestBuildingCircuit:
         from quafu.simulators.simulator import SVSimulator
 
         backend = SVSimulator()
-        sv1 = backend.run(q)["statevector"]
+        backend.run(q)["statevector"]
         q.unwrap().draw_circuit()
 
         # multi-wrapper

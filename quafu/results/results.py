@@ -1,18 +1,32 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Measurement result."""
 import copy
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
+import numpy as np
 
-from ..algorithms.hamiltonian import Hamiltonian
-from ..utils.basis import *
+from ..utils.basis import measure_obs
 
 
-class Result(object):
+# pylint: disable=too-few-public-methods
+class Result:
     """Basis class for quantum results"""
 
-    pass
 
-
+# pylint: disable=too-many-instance-attributes
 class ExecResult(Result):
     """
     Class that save the execute results returned from backend.
@@ -36,7 +50,9 @@ class ExecResult(Result):
         self.taskid = input_dict["task_id"]
         self.taskname = input_dict["task_name"]
         self.transpiled_openqasm = input_dict["openqasm"]
-        from ..circuits.quantum_circuit import QuantumCircuit
+        from ..circuits.quantum_circuit import (  # pylint: disable=import-outside-toplevel
+            QuantumCircuit,
+        )
 
         self.transpiled_circuit = QuantumCircuit(0)
         self.transpiled_circuit.from_openqasm(self.transpiled_openqasm)
@@ -44,7 +60,7 @@ class ExecResult(Result):
 
         self.measures = self.transpiled_circuit.measures
         self.task_status = status_map[input_dict["status"]]
-        self.res = eval(input_dict["res"])
+        self.res = eval(input_dict["res"])  # noqa:SCS101  # pylint: disable=eval-used,avoid-eval-exec
         self.counts = OrderedDict(sorted(self.res.items(), key=lambda s: s[0]))
 
         self.logicalq_res = {}
@@ -113,8 +129,8 @@ class SimuResult(Result):
     def get_statevector(self):
         try:
             return self["statevector"]
-        except KeyError:
-            raise KeyError("no statevector saved from %s simulator" % self["simulator"])
+        except KeyError as exc:
+            raise KeyError(f"no statevector saved from {self['simulator']} simulator") from exc
 
     @property
     def probabilities(self):
@@ -133,7 +149,8 @@ class SimuResult(Result):
         values_tmp = list(self["measures"].values())
         values = np.argsort(values_tmp)
 
-        from ..simulators.default_simulator import permutebits, ptrace
+        # pylint: disable=import-outside-toplevel
+        from quafu.simulators.default_simulator import permutebits, ptrace
 
         psi = permutebits(psi, range(num)[::-1])
         if measures:
@@ -152,7 +169,6 @@ class SimuResult(Result):
         """
         Plot the probabilites of measured qubits
         """
-        import matplotlib.pyplot as plt
 
         if from_counts:
             counts = self._meta_data["counts"]
@@ -204,12 +220,14 @@ class SimuResult(Result):
         if len(measures) == 0:
             measures = list(range(num))
             values = list(range(num))
-        from ..simulators.default_simulator import permutebits, ptrace
+        from quafu.simulators.default_simulator import (  # pylint: disable=import-outside-toplevel
+            permutebits,
+            ptrace,
+        )
 
         psi = permutebits(psi, range(num)[::-1])
         rho = ptrace(psi, measures, diag=False)
-        rho = permutebits(rho, values)
-        return rho
+        return permutebits(rho, values)
 
 
 # TODO:These should merge to paulis
@@ -217,10 +235,10 @@ def intersec(a, b):
     inter = []
     aind = []
     bind = []
-    for i in range(len(a)):
-        for j in range(len(b)):
-            if a[i] == b[j]:
-                inter.append(a[i])
+    for i, a_i in enumerate(a):
+        for j, b_j in enumerate(b):
+            if a_i == b_j:
+                inter.append(a_i)
                 aind.append(i)
                 bind.append(j)
 
@@ -228,14 +246,14 @@ def intersec(a, b):
 
 
 def diff(a, b):
-    diff = []
+    diff_list = []
     aind = []
-    for i in range(len(a)):
-        if a[i] not in b:
-            diff.append(a[i])
+    for i, a_i in enumerate(a):
+        if a_i not in b:
+            diff_list.append(a_i)
             aind.append(i)
 
-    return diff, aind
+    return diff_list, aind
 
 
 def merge_measure(obslist):
@@ -248,15 +266,11 @@ def merge_measure(obslist):
             targ_basis.append(len(measure_basis) - 1)
         else:
             added = 0
-            for mi in range(len(measure_basis)):
-                measure_base = measure_basis[mi]
+            for mi, measure_base in enumerate(measure_basis):
                 interset, intobsi, intbasei = intersec(obs[1], measure_base[1])
                 diffset, diffobsi = diff(obs[1], measure_base[1])
-                if not len(interset) == 0:
-                    if all(
-                        np.array(list(obs[0]))[intobsi]
-                        == np.array(list(measure_base[0]))[intbasei]
-                    ):
+                if len(interset) != 0:
+                    if all(np.array(list(obs[0]))[intobsi] == np.array(list(measure_base[0]))[intbasei]):
                         measure_base[0] += "".join(np.array(list(obs[0]))[diffobsi])
                         measure_base[1].extend(diffset)
                         targ_basis.append(mi)

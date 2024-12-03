@@ -11,8 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Interface provider."""
 
 
+# pylint: disable=too-few-public-methods
 class InterfaceProvider:
     _init = False
     _providers = {}
@@ -20,6 +22,7 @@ class InterfaceProvider:
     @classmethod
     def get(cls, name: str):
         if not cls._init:
+            # pylint: disable=import-outside-toplevel
             from .interface.torch import TorchTransformer
 
             cls._providers["torch"] = TorchTransformer

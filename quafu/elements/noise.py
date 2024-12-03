@@ -1,4 +1,19 @@
+# (C) Copyright 2024 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Noise channel module."""
 import copy
+from typing import List, Union
 
 import numpy as np
 
@@ -8,7 +23,9 @@ from .quantum_gate import QuantumGate
 
 
 class KrausChannel(Instruction):
-    def __init__(self, name, pos: int, gatelist: list[QuantumGate] = []):
+    def __init__(self, name, pos: int, gatelist: Union[None, List[QuantumGate]] = None):
+        if gatelist is None:
+            gatelist = []
         self._name = name
         self._pos = [pos]
         self.gatelist = gatelist
@@ -43,21 +60,21 @@ class KrausChannel(Instruction):
     @property
     def symbol(self):
         if len(self.paras) > 0:
-            symbol = (
-                "%s(" % self.name
-                + ",".join(["%.3f" % para for para in self.paras])
-                + ")"
-            )
-            return symbol
-        else:
-            return "%s" % self.name
+            return f"{self.name}({','.join([f'{para:.3f}' for para in self.paras])})"
+        return f"{self.name}"
 
     def __repr__(self):
         return self.symbol
 
 
 class UnitaryChannel(KrausChannel):
-    def __init__(self, name, pos: int, gatelist: list[QuantumGate] = [], probs=[]):
+    def __init__(
+        self, name, pos: int, gatelist: Union[None, List[QuantumGate]] = None, probs: Union[None, List[float]] = None
+    ):
+        if gatelist is None:
+            gatelist = []
+        if probs is None:
+            probs = []
         super().__init__(name, pos, gatelist)
         self.probs = probs
 
@@ -128,9 +145,7 @@ class Decoherence(KrausChannel):
         self.pos = [pos]
         self.paras = [t, T1, T2]
         kmat0 = np.array([[1.0, 0.0], [0.0, np.exp(-t / T2)]], dtype=complex)
-        kmat1 = np.array(
-            [[0.0, np.sqrt(1 - np.exp(-t / T1))], [0.0, 0.0]], dtype=complex
-        )
+        kmat1 = np.array([[0.0, np.sqrt(1 - np.exp(-t / T1))], [0.0, 0.0]], dtype=complex)
         kmat2 = np.array(
             [[1.0, 0.0], [0.0, np.sqrt(np.exp(-t / T1) - np.exp(-2 * t / T2))]],
             dtype=complex,

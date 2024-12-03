@@ -16,7 +16,6 @@ import heapq
 import sys
 from typing import List
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from quafu.algorithms import Estimator, Hamiltonian, QAOAAnsatz
@@ -37,27 +36,17 @@ class TestQAOA:
         """
 
         # Get top # correct_answers probabilities and find indexes
-        num_answers = len(correct_answers)
         eval_answers = heapq.nlargest(2, range(len(probs)), key=probs.__getitem__)
 
         # Transform to binary string
         num_bit = len(correct_answers[0])
-        eval_answers = sorted(
-            [bin(eans)[2:].rjust(num_bit, "0") for eans in eval_answers]
-        )
+        eval_answers = sorted([bin(eans)[2:].rjust(num_bit, "0") for eans in eval_answers])
 
         assert eval_answers == sorted(correct_answers)
 
     def test_ansatz_construction(self):
         num_layers = 2
         print("The test for ansatz.")
-
-        # test the zero qubit evolution
-        # hamiltonian__ = Hamiltonian.from_pauli_list(
-        #     [("IIIII", 1), ("IIIII", 1), ("IIIII", 1), ("IIIII", 1)]
-        # )
-        # ansatz__ = QAOAAnsatz(hamiltonian__, num_layers=num_layers)
-        # ansatz__.draw_circuit()
 
         def one_qubits_evolution(pauli):
             h = Hamiltonian.from_pauli_list(
@@ -68,7 +57,7 @@ class TestQAOA:
                     (f"{pauli}4", 1),
                 ]
             )
-            ansatz = QAOAAnsatz(h, 5, num_layers=num_layers)
+            QAOAAnsatz(h, 5, num_layers=num_layers)
 
         for p in "XYZ":
             one_qubits_evolution(p)
@@ -83,7 +72,7 @@ class TestQAOA:
                     (f"{pauli0}0 {pauli1}4", 1),
                 ]
             )
-            ansatz = QAOAAnsatz(h, 5, num_layers=num_layers)
+            QAOAAnsatz(h, 5, num_layers=num_layers)
 
         two_q_paulis = ["XX", "XY", "XZ", "YX", "YY", "YZ", "ZX", "ZY", "ZZ"]
 
@@ -101,12 +90,8 @@ class TestQAOA:
         )
         ansatz_multi = QAOAAnsatz(hamiltonian_multi, 5, num_layers=num_layers)
         ansatz_multi.draw_circuit()
-        # ansatz_multi.plot_circuit(title='MULTI QUBITS')
-        # plt.show()
 
-    @pytest.mark.skipif(
-        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
-    )
+    @pytest.mark.skipif(sys.platform == "darwin", reason="Avoid error on MacOS arm arch.")
     def test_run(self):
         """
         A simple graph with 5 nodes and connected as below
@@ -120,29 +105,17 @@ class TestQAOA:
         num_layers = 2
         print("The test for ansatz.")
 
-        # test the zero qubit evolution
-        # hamiltonian__ = Hamiltonian.from_pauli_list(
-        #     [("IIIII", 1), ("IIIII", 1), ("IIIII", 1), ("IIIII", 1)]
-        # )
-        # ansatz__ = QAOAAnsatz(hamiltonian__, num_layers=num_layers)
-        # ansatz__.draw_circuit()
-
-        hamiltonian = Hamiltonian.from_pauli_list(
-            [("Z0 Z1", 1), ("Z0 Z2", 1), ("Z0 Z3", 1), ("Z0 Z4", 1)]
-        )
+        hamiltonian = Hamiltonian.from_pauli_list([("Z0 Z1", 1), ("Z0 Z2", 1), ("Z0 Z3", 1), ("Z0 Z4", 1)])
 
         ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
-        # ref_mat = np.load("data/qaoa_hamiltonian.npy")
         assert np.array_equal(ref_mat, hamiltonian.get_matrix(5).toarray())
         ansatz = QAOAAnsatz(hamiltonian, 5, num_layers=num_layers)
         ansatz.draw_circuit()
 
         def cost_func(params, ham, estimator: Estimator):
-            cost = estimator.run(ham, params)
-            return cost
+            return estimator.run(ham, params)
 
         est = Estimator(ansatz)
-        # params = 2 * np.pi * np.random.rand(num_layers * 2)
         params = 2 * np.pi * np.random.rand(ansatz.num_parameters)
         res = minimize(cost_func, params, args=(hamiltonian, est), method="COBYLA")
         print(res)
@@ -155,9 +128,7 @@ class TestQAOA:
 
 
 class TestVQE:
-    @pytest.mark.skipif(
-        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
-    )
+    @pytest.mark.skipif(sys.platform == "darwin", reason="Avoid error on MacOS arm arch.")
     def test_run(self):
         """A sample VQE algorithm"""
 
@@ -171,8 +142,7 @@ class TestVQE:
         ansatz = AlterLayeredAnsatz(num_qubits, num_layers)
 
         def cost_func(params, ham, estimator: Estimator):
-            cost = estimator.run(ham, params)
-            return cost
+            return estimator.run(ham, params)
 
         est = Estimator(ansatz)
         num_params = ansatz.num_parameters

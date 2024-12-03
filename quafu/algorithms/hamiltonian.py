@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""Hamiltonian module."""
 from typing import Iterable
 
 import numpy as np
@@ -44,10 +44,8 @@ class PauliOp:
         repstr = ""
         if self.coeff != 1.0:
             repstr = str(self.coeff) + "*"
-        for i in range(len(self.pos)):
-            repstr += self.paulistr[i]
-            repstr += str(self.pos[i])
-            repstr += "*"
+        for i, j in enumerate(self.pos):
+            repstr += f"{self.paulistr[i]}{j}*"
         return repstr[:-1]
 
     def __str__(self):
@@ -145,10 +143,10 @@ def intersec(a, b):
     inter = []
     aind = []
     bind = []
-    for i in range(len(a)):
-        for j in range(len(b)):
-            if a[i] == b[j]:
-                inter.append(a[i])
+    for i, a_i in enumerate(a):
+        for j, b_j in enumerate(b):
+            if a_i == b_j:
+                inter.append(a_i)
                 aind.append(i)
                 bind.append(j)
 
@@ -156,14 +154,14 @@ def intersec(a, b):
 
 
 def diff(a, b):
-    diff = []
+    diff_bit = []
     aind = []
-    for i in range(len(a)):
-        if a[i] not in b:
-            diff.append(a[i])
+    for i, a_i in enumerate(a):
+        if a_i not in b:
+            diff_bit.append(a_i)
             aind.append(i)
 
-    return diff, aind
+    return diff_bit, aind
 
 
 def merge_paulis(obslist):
@@ -175,18 +173,12 @@ def merge_paulis(obslist):
             targ_basis.append(len(measure_basis) - 1)
         else:
             added = 0
-            for mi in range(len(measure_basis)):
-                measure_base = measure_basis[mi]
+            for mi, measure_base in enumerate(measure_basis):
                 interset, intobsi, intbasei = intersec(obs.pos, measure_base.pos)
                 diffset, diffobsi = diff(obs.pos, measure_base.pos)
-                if not len(interset) == 0:
-                    if all(
-                        np.array(list(obs.paulistr))[intobsi]
-                        == np.array(list(measure_base.paulistr))[intbasei]
-                    ):
-                        measure_base.paulistr += "".join(
-                            np.array(list(obs.paulistr))[diffobsi]
-                        )
+                if len(interset) != 0:
+                    if all(np.array(list(obs.paulistr))[intobsi] == np.array(list(measure_base.paulistr))[intbasei]):
+                        measure_base.paulistr += "".join(np.array(list(obs.paulistr))[diffobsi])
                         measure_base.pos.extend(diffset)
                         targ_basis.append(mi)
                         added = 1

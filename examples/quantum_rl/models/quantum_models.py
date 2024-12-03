@@ -1,9 +1,8 @@
 import cirq
-import models.quantum_genotypes as genotypes
 import numpy as np
 import tensorflow as tf
 import tensorflow_quantum as tfq
-from models.quantum_operations import *
+from models.quantum_operations import OPS
 
 
 def generate_circuit(qubits, genotype, newtheta=None, newlamda=None, state=None):
@@ -13,16 +12,16 @@ def generate_circuit(qubits, genotype, newtheta=None, newlamda=None, state=None)
     op_entangle, pos_entangle = zip(*genotype.entangle)
     op_measure, pos_measure = zip(*genotype.measure)
 
-    dict = {}
+    dict_data = {}
     for name, pos in zip(op_vpqc, pos_vpqc):
-        dict[pos] = name
+        dict_data[pos] = name
     for name, pos in zip(op_dpqc, pos_dpqc):
-        dict[pos] = name
+        dict_data[pos] = name
     for name, pos in zip(op_entangle, pos_entangle):
-        dict[pos] = name
+        dict_data[pos] = name
     for name, pos in zip(op_measure, pos_measure):
-        dict[pos] = name
-    length = len(dict)
+        dict_data[pos] = name
+    length = len(dict_data)
 
     circuit = cirq.Circuit()
     params = []
@@ -30,20 +29,20 @@ def generate_circuit(qubits, genotype, newtheta=None, newlamda=None, state=None)
     p_count = 0
     i_count = 0
     for i in range(length):
-        if dict[i] == "variationalPQC":
-            cir, pa = OPS[dict[i]](qubits, p_count, newtheta)
+        if dict_data[i] == "variationalPQC":
+            cir, pa = OPS[dict_data[i]](qubits, p_count, newtheta)
             circuit += cir
             params += pa
             p_count += 1
-        elif dict[i] == "dataencodingPQC":
-            cir, inp = OPS[dict[i]](qubits, i, i_count, newlamda, state)
+        elif dict_data[i] == "dataencodingPQC":
+            cir, inp = OPS[dict_data[i]](qubits, i, i_count, newlamda, state)
             circuit += cir
             inputs += inp
             i_count += 1
-        elif dict[i] == "entanglement":
-            cir = OPS[dict[i]](qubits)
+        elif dict_data[i] == "entanglement":
+            cir = OPS[dict_data[i]](qubits)
             circuit += cir
-        elif dict[i] == "measurement":
+        elif dict_data[i] == "measurement":
             pass
         else:
             raise NameError("Unknown quantum genotype operation")
@@ -79,9 +78,7 @@ def get_model_circuit_params(qubits, genotype, model):
 class NSGANetPQC(tf.keras.layers.Layer):
     """Define NSGANet PQC based on keras layer"""
 
-    def __init__(
-        self, qubits, genotype, observables, activation="linear", name="nsganet_PQC"
-    ):
+    def __init__(self, qubits, genotype, observables, activation="linear", name="nsganet_PQC"):
         super(NSGANetPQC, self).__init__(name=name)
         self.n_qubits = len(qubits)
         _, pos_dpqc = zip(*genotype.dpqc)
@@ -97,9 +94,7 @@ class NSGANetPQC(tf.keras.layers.Layer):
         )
 
         lmbd_init = tf.ones(shape=(self.n_qubits * self.n_layers,))
-        self.lmbd = tf.Variable(
-            initial_value=lmbd_init, dtype="float32", trainable=True, name="lambdas"
-        )
+        self.lmbd = tf.Variable(initial_value=lmbd_init, dtype="float32", trainable=True, name="lambdas")
 
         # Define explicit symbol order.
         symbols = [str(symb) for symb in theta_symbols + input_symbols]
@@ -156,9 +151,7 @@ class Alternating(tf.keras.layers.Layer):
 
 def generate_model_policy(qubits, genotype, n_actions, beta, observables, env):
     """Generate a Keras model for a NSGANet PQC policy."""
-    input_tensor = tf.keras.Input(
-        shape=(len(qubits),), dtype=tf.dtypes.float32, name="input"
-    )
+    input_tensor = tf.keras.Input(shape=(len(qubits),), dtype=tf.dtypes.float32, name="input")
     nsganet_pqc = NSGANetPQC(qubits, genotype, observables)([input_tensor])
     process = tf.keras.Sequential(
         [
@@ -169,6 +162,4 @@ def generate_model_policy(qubits, genotype, n_actions, beta, observables, env):
         name="observables-policy",
     )
     policy = process(nsganet_pqc)
-    model = tf.keras.Model(inputs=[input_tensor], outputs=policy)
-
-    return model
+    return tf.keras.Model(inputs=[input_tensor], outputs=policy)

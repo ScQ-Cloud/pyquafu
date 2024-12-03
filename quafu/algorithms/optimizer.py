@@ -1,6 +1,21 @@
+# (C) Copyright 2024 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Optimizer."""
 import numpy as np
 
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 def adam(
     func,
     x,
@@ -21,9 +36,7 @@ def adam(
 
     traj = []
     if verbose:
-        print(
-            (" " * 5).join(["step".ljust(10), "loss".ljust(10), "grad_norm".ljust(10)])
-        )
+        print((" " * 5).join(["step".ljust(10), "loss".ljust(10), "grad_norm".ljust(10)]))
 
     grads_norm = 0.0
     for j in range(maxiter):
@@ -32,9 +45,9 @@ def adam(
             print(
                 (" " * 5).join(
                     [
-                        ("%d" % j).ljust(10),
-                        ("%.5f" % traj[j]).ljust(10),
-                        ("%.5f" % grads_norm).ljust(10),
+                        f"{j}".ljust(10),
+                        f"{traj[j]:.5f}".ljust(10),
+                        f"{grads_norm:.5f}".ljust(10),
                     ]
                 )
             )
@@ -54,11 +67,12 @@ def adam(
     return x, traj[-1], traj
 
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 def spsa_grad(func, x, k, args=(), spsa_iter=10, c=0.1, gamma=0.101):
     dim = len(x)
     ck = c / (k) ** gamma
     gx = 0.0
-    for i in range(spsa_iter):
+    for _ in range(spsa_iter):
         Delta = 2 * np.round(np.random.rand(dim)) - 1
         x1 = x + ck * Delta
         x2 = x - ck * Delta
@@ -69,6 +83,7 @@ def spsa_grad(func, x, k, args=(), spsa_iter=10, c=0.1, gamma=0.101):
     return gx
 
 
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 def spsa(
     func,
     x,
@@ -89,9 +104,7 @@ def spsa(
     A: <=10% of max_iter"""
     traj = [func(x, *args)]
     if verbose:
-        print(
-            (" " * 5).join(["step".ljust(10), "loss".ljust(10), "grad_norm".ljust(10)])
-        )
+        print((" " * 5).join(["step".ljust(10), "loss".ljust(10), "grad_norm".ljust(10)]))
 
     grads_norm = 0.0
     for k in range(max_iter):
@@ -99,9 +112,9 @@ def spsa(
             print(
                 (" " * 5).join(
                     [
-                        ("%d" % k).ljust(10),
-                        ("%.5f" % traj[k]).ljust(10),
-                        ("%.5f" % grads_norm).ljust(10),
+                        f"{k}".ljust(10),
+                        f"{traj[k]:.5f}".ljust(10),
+                        f"{grads_norm:.5f}".ljust(10),
                     ]
                 )
             )

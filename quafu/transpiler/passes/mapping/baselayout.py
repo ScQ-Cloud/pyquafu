@@ -43,9 +43,7 @@ class Layout:
         self.v2p = {k: k for k in range(virtual_qubits)}
         self.p2v = {k: k for k in range(virtual_qubits)}
 
-    def generate_random_layout(
-        self, virtual_qubits: int = None, physical_qubits: int = None
-    ):
+    def generate_random_layout(self, virtual_qubits: int = None, physical_qubits: int = None):
         """
         Args:
             virtual_qubits (int): the number of virtual qubits in a circuit
