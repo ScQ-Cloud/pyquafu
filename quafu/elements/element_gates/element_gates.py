@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+# pylint: disable=signature-differs
 
 """ Actual classes of quantum gates.
 
@@ -154,7 +155,7 @@ class SYGate(QuantumGate):
         self.pos = [pos]
 
     def to_qasm(self, with_para):
-        return "ry(pi/2) q[%d]" % (self.pos[0])
+        return f"ry(pi/2) q[{self.pos[0]}]"
 
 
 @QuantumGate.register()
@@ -190,7 +191,7 @@ class WGate(QuantumGate):
 
     def to_qasm(self, with_para):
         q = self.pos[0]
-        return "rz(-pi/4) q[%d];\nrx(pi) q[%d];\nrz(pi/4) q[%d]" % (q, q, q)
+        return f"rz(-pi/4) q[{q}];\nrx(pi) q[{q}];\nrz(pi/4) q[{q}]"
 
 
 @QuantumGate.register()
@@ -204,7 +205,7 @@ class SWGate(QuantumGate):
 
     def to_qasm(self, with_para):
         q = self.pos[0]
-        return "rz(-pi/4) q[%d];\nrx(pi/2) q[%d];\nrz(pi/4) q[%d]" % (q, q, q)
+        return f"rz(-pi/4) q[{q}];\nrx(pi/2) q[{q}];\nrz(pi/4) q[{q}]"
 
 
 @QuantumGate.register()
@@ -218,7 +219,7 @@ class SWdgGate(QuantumGate):
 
     def to_qasm(self, with_para):
         q = self.pos[0]
-        return "rz(-pi/4) q[%d];\nrx(-pi/2) q[%d];\nrz(pi/4) q[%d]" % (q, q, q)
+        return f"rz(-pi/4) q[{q}];\nrx(-pi/2) q[{q}];\nrz(pi/4) q[{q}]"
 
 
 # # # # # # # # # # # # # Rotations # # # # # # # # # # # # #
@@ -240,20 +241,10 @@ class RZGate(QuantumGate):
         super().__init__("RZ", [pos], [theta], wrap_para(mat.rz_mat))
 
 
-# @QuantumGate.register()
-# class U2(QuantumGate):
-#     def __init__(self, pos: int, phi: float, _lambda: float):
-#         super().__init__("U2", [pos], [phi, _lambda], u2matrix(phi, _lambda))
-
-
 @QuantumGate.register()
 class U3Gate(QuantumGate):
-    def __init__(
-        self, pos: int, theta: ParameterType, phi: ParameterType, _lambda: ParameterType
-    ):
-        super().__init__(
-            "U3", [pos], [theta, phi, _lambda], matrix=wrap_para(mat.u3matrix)
-        )
+    def __init__(self, pos: int, theta: ParameterType, phi: ParameterType, _lambda: ParameterType):
+        super().__init__("U3", [pos], [theta, phi, _lambda], matrix=wrap_para(mat.u3matrix))
 
 
 @QuantumGate.register(name="p")
@@ -347,7 +338,7 @@ class CSGate(ControlledGate):
         self.pos = self.ctrls + self.targs
 
     def to_qasm(self, with_para):
-        return "cp(pi/2) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
+        return "cp(pi/2) " + f"q[{self.pos[0]}],q[{self.pos[1]}]"
 
 
 @QuantumGate.register()
@@ -365,7 +356,7 @@ class CTGate(ControlledGate):
         self.pos = self.ctrls + self.targs
 
     def to_qasm(self, with_para):
-        return "cp(pi/4) " + "q[%d],q[%d]" % (self.pos[0], self.pos[1])
+        return "cp(pi/4) " + f"q[{self.pos[0]}],q[{self.pos[1]}]"
 
 
 # # # # # # # # # # # # # Ctrl-Rotation # # # # # # # # # # # # #

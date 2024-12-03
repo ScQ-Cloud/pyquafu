@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""Quantum register module."""
 from collections import OrderedDict
 
 
@@ -33,7 +33,7 @@ class Qubit:
         self._depth = 0  # present depth
 
     def __repr__(self):
-        return self.reg_name + "_%s" % self.pos
+        return f"{self.reg_name}_{self.pos}"
 
     def load_physical_info(self, *args, **kwargs):
         raise NotImplementedError
@@ -45,10 +45,10 @@ class Qubit:
     def add_depth(self, num: int = 1):
         self._depth += num
 
-    def move_pos(self, new_pos):
-        old_pos = 0 + self.pos
+    def move_pos(self, new_pos) -> int:
+        old_pos = self.pos
         self.pos = new_pos
-        return old_pos
+        return old_pos  # noqa:R504
 
 
 class QuantumRegister:
@@ -58,18 +58,15 @@ class QuantumRegister:
 
     def __init__(self, num: int = 0, name: str = None):
         self.name = name
-        self.qubits = OrderedDict(
-            {i: Qubit(logic_pos=i, reg_name=name) for i in range(num)}
-        )
+        self.qubits = OrderedDict({i: Qubit(logic_pos=i, reg_name=name) for i in range(num)})
 
     def __getitem__(self, item):
         if item < len(self.qubits):
             return self.qubits[item]
-        else:
-            raise IndexError("Index out of range:", item)
+        raise IndexError("Index out of range:", item)
 
     def __iter__(self):
-        self._i = 0
+        self._i = 0  # pylint: disable=attribute-defined-outside-init
         return self
 
     def __next__(self):
@@ -77,8 +74,7 @@ class QuantumRegister:
             x = self._i
             self._i += 1
             return self.qubits[x]
-        else:
-            raise StopIteration
+        raise StopIteration
 
     def __len__(self):
         return len(self.qubits)

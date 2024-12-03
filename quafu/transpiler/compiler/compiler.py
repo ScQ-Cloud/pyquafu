@@ -17,7 +17,6 @@ from typing import Union
 
 from quafu.dagcircuits.circuit_dag import dag_to_circuit
 from quafu.dagcircuits.dag_circuit import DAGCircuit
-from quafu.transpiler.passes.basepass import BasePass
 from quafu.transpiler.passes.datadict import DataDict
 from quafu.transpiler.passflow.passflow import PassFlow
 
@@ -37,7 +36,7 @@ class Compiler:
     def set_model(self, new_model):
         self.model = new_model
 
-    def compile(self, circuit: Union[QuantumCircuit, DAGCircuit]):
+    def compile(self, circuit: Union[QuantumCircuit, DAGCircuit]):  # noqa:A003
         # give the parameters of the original circuit only once,be careful!
         self.model.datadict["variables"] = circuit.variables
 

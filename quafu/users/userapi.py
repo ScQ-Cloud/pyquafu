@@ -22,7 +22,7 @@ from ..utils.client_wrapper import ClientWrapper
 from ..utils.platform import get_homedir
 
 
-class User(object):
+class User:
     url = "https://quafu.baqis.ac.cn/"
     backends_api = "qbackend/get_backends/"
     chip_api = "qbackend/scq_get_chip_info/"
@@ -31,9 +31,7 @@ class User(object):
     exec_recall_api = "qbackend/scq_task_recall/"
     backend_type = "quafu"
 
-    def __init__(
-        self, api_token: Optional[str] = None, token_dir: Optional[str] = None
-    ):
+    def __init__(self, api_token: Optional[str] = None, token_dir: Optional[str] = None):
         """
         Initialize user account and load backend information.
 
@@ -58,14 +56,13 @@ class User(object):
     def list_configurable_attributes(cls):
         """Return all attributes that are configuratble in configuration file"""
         # get all configurable attributes
-        attributes = [
+        return [
             attr
             for attr in list(cls.__dict__.keys())
             if not attr.startswith("__")
             and not callable(getattr(cls, attr))
             and not isinstance(getattr(cls, attr), property)
         ]
-        return attributes
 
     @property
     def api_token(self):
@@ -81,7 +78,6 @@ class User(object):
         Save the api-token of your Quafu account.
         """
         if apitoken is not None:
-
             warnings.warn(
                 "The argument 'apitoken' in this function will be deprecated "
                 "in the future, please set api token by providing 'api_token' "
@@ -96,10 +92,10 @@ class User(object):
         if os.path.exists(file_path):
             # if the configuration file exists
             # only update api token
-            with open(file_path, "r") as f:
+            with open(file_path, "r") as f:  # pylint: disable=unspecified-encoding
                 try:
                     data = json.load(f)
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-exception-caught
                     warnings.warn(f"Jsonfy api file failed due to {type(e)}:{e}. overriding...")
                     data = {"url": self.url}
             data["token"] = self.api_token
@@ -110,7 +106,7 @@ class User(object):
             if not os.path.exists(file_dir):
                 os.mkdir(file_dir)
 
-        with open(file_path, "w") as f:
+        with open(file_path, "w") as f:  # noqa:SCS109 # pylint: disable=unspecified-encoding
             json.dump(data, f)
 
     def _load_account(self):
@@ -123,7 +119,7 @@ class User(object):
 
         if not os.path.exists(file_dir):
             raise UserError("Please first save api token using `User.save_apitoken()`")
-        with open(file_dir, "r") as f:
+        with open(file_dir, "r") as f:  # pylint: disable=unspecified-encoding
             try:
                 data = json.load(f)
                 token = data["token"]
@@ -155,12 +151,12 @@ class User(object):
         """
         Get available backends
         """
-        from quafu.backends.backends import Backend
+        from quafu.backends.backends import (  # pylint: disable=import-outside-toplevel
+            Backend,
+        )
 
         backends_info = self._get_backends_info()
-        self._available_backends = {
-            info["system_name"]: Backend(info) for info in backends_info
-        }
+        self._available_backends = {info["system_name"]: Backend(info) for info in backends_info}
 
         if print_info:
             print("\t ".join(["system_name".ljust(10), "qubits".ljust(5), "status"]))

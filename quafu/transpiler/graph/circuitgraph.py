@@ -40,25 +40,20 @@ def circuit_to_graph(circuit: QuantumCircuit):
         if gate.name not in [Barrier.name, Measure.name]:
             if isinstance(gate.pos, list) and len(gate.pos) >= 2:
                 index = sorted(gate.pos)
-                for i in range(len(index)):
+                for i, e in enumerate(index):
                     for j in range(i + 1, len(index)):
-                        temp[index[i]][index[j]] = temp[index[i]][index[j]] + 1
-            # else:
-            #     index = gate.pos
-            #     temp[index][index] = temp[index][index] + 1
+                        temp[e][index[j]] = temp[e][index[j]] + 1
     graph = nx.Graph(temp)
-    graph = relabel_graph(graph)
-    return graph
+    return relabel_graph(graph)
 
 
 def draw_graph(g):
     """Draw weighted graph"""
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt  # pylint: disable=import-outside-toplevel
 
     label_name = list(list(g.edges(data=True))[0][2].keys())[0]
     labels = nx.get_edge_attributes(g, label_name)
     pos = nx.spring_layout(g)
-    # pos = nx.circular_layout(g)
     nx.draw_networkx(
         g,
         pos=pos,
@@ -69,7 +64,7 @@ def draw_graph(g):
         width=1,
         font_size=10,
     )
-    if isinstance(g, nx.MultiDiGraph) or isinstance(g, nx.MultiGraph):
+    if isinstance(g, (nx.MultiDiGraph, nx.MultiGraph)):
         pass
     else:
         nx.draw_networkx_edge_labels(g, pos=pos, edge_labels=labels)

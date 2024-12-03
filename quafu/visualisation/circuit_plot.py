@@ -28,9 +28,6 @@ from matplotlib.path import Path
 from matplotlib.text import Text
 from quafu.elements import ControlledGate, Instruction
 
-# this line for developers only
-# from quafu.circuits.quantum_circuit import QuantumCircuit
-
 line_args = {}
 box_args = {}
 
@@ -82,6 +79,7 @@ mc_gate_names = ["mcx", "mcy", "mcz"]
 operation_names = ["barrier", "delay"]
 
 
+# pylint: disable=too-few-public-methods,too-many-instance-attributes
 class CircuitPlotManager:
     """
     A class to manage the plotting of quantum circuits.
@@ -140,32 +138,32 @@ class CircuitPlotManager:
         # step1: process gates/instructions
         self.dorders = np.zeros(qc.num, dtype=int)
         for gate in qc.gates:
-            assert isinstance(gate, Instruction)
+            if not isinstance(gate, Instruction):
+                raise TypeError("Gate is not of type Instruction")
             self._process_ins(gate)
 
         self.depth = np.max(self.dorders) + 1
 
-        for q, c in qc.measures.items():
+        for q, _ in qc.measures.items():
             self._proc_measure(self.depth - 1, q)
 
         # step2: initialize bit-label
         self.q_label = {y: r"$|q_{%d}\rangle$" % i for i, y in self.used_qbit_y.items()}
-        self.c_label = {
-            self.used_qbit_y[iq]: r"c_{%d}" % ic for iq, ic in qc.measures.items()
-        }
+        self.c_label = {self.used_qbit_y[iq]: r"c_{%d}" % ic for iq, ic in qc.measures.items()}
 
         # step3: figure coordination
         self.xs = np.arange(-3 / 2, self.depth + 3 / 2)
         self.ys = np.arange(-2, self.used_qbit_num + 1 / 2)
 
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def __call__(
         self,
+        *args,
         title=None,
         init_labels=None,
         end_labels=None,
         save_path: str = None,
         show: bool = False,
-        *args,
         **kwargs,
     ):
         """
@@ -179,10 +177,6 @@ class CircuitPlotManager:
 
         More customization will be supported in the future.(TODO)
         """
-        # Not supported by patch collections?
-        # if 'xkcd' in kwargs:
-        #     import random
-        #     plt.gca().xkcd(randomness=random.randint(0, 1000))
         if title is not None:
             title = Text(
                 (self.xs[0] + self.xs[-1]) / 2,
@@ -219,9 +213,8 @@ class CircuitPlotManager:
 
     def _process_ins(self, ins: Instruction, append: bool = True):
         name = ins.name.lower()
-        assert name in Instruction.ins_classes, (
-            "Name: %s not registered, if this should occur, please report a bug." % name
-        )
+        if name not in Instruction.ins_classes:
+            raise ValueError(f"Name: {name} not registered, if this should occur, please report a bug.")
 
         _which = slice(np.min(ins.pos), np.max(ins.pos) + 1)
         depth = np.max(self.dorders[_which])
@@ -247,8 +240,7 @@ class CircuitPlotManager:
             self._delay(depth, ins.pos, ins.duration, ins.unit)
         else:
             raise NotImplementedError(
-                f"Gate {name} is not supported yet.\n"
-                f"If this should occur, please report a bug."
+                f"Gate {name} is not supported yet.\n" f"If this should occur, please report a bug."
             )
         if append:
             self.dorders[_which] = depth + 1
@@ -262,7 +254,7 @@ class CircuitPlotManager:
         """
         plot horizontal circuit wires
         """
-        for pos, y in self.used_qbit_y.items():
+        for _, y in self.used_qbit_y.items():
             x0 = self.xs[0] + 1
             x1 = self.xs[-1] - 1
             self._h_wire_points.append([[x0, y], [x1, y]])
@@ -290,7 +282,7 @@ class CircuitPlotManager:
             labels = self.c_label
 
         for i, label in labels.items():
-            label = r"$%s$" % label
+            label = f"${label}$"
             txt = Text(
                 self.xs[-1] - 3 / 4,
                 i,
@@ -305,7 +297,9 @@ class CircuitPlotManager:
     def _gate_bbox(self, x, y, fc: str):
         """Single qubit gate box"""
         a = self._a
-        from matplotlib.patches import FancyBboxPatch
+        from matplotlib.patches import (  # pylint: disable=import-outside-toplevel
+            FancyBboxPatch,
+        )
 
         bbox = FancyBboxPatch(
             (-a / 2 + x, -a / 2 + y),
@@ -319,7 +313,7 @@ class CircuitPlotManager:
 
     def _gate_label(self, x, y, s):
         if not s:
-            return None
+            return
         _dy = 0.05
         text = Text(
             x,
@@ -336,7 +330,7 @@ class CircuitPlotManager:
     def _para_label(self, x, y, para_txt):
         """label parameters"""
         if not para_txt:
-            return None
+            return
         _dx = 0
         text = Text(
             x + _dx,
@@ -350,7 +344,9 @@ class CircuitPlotManager:
         self._text_list.append(text)
 
     def _measure_label(self, x, y):
-        from matplotlib.patches import FancyArrow
+        from matplotlib.patches import (  # pylint: disable=import-outside-toplevel
+            FancyArrow,
+        )
 
         a = self._a
         r = 1.1 * a
@@ -392,8 +388,6 @@ class CircuitPlotManager:
         self._mea_arc_patches.append(arc)
         self._mea_point_patches += [center_bkg, arrow, center]
 
-    #########################################################################
-    # region # # # # processing-functions: decompose ins into graphical elements # # #
     def _proc_su2(self, id_name, depth, pos, paras):
         if id_name in ["x", "y", "z", "h", "id", "s", "t", "p", "w"]:
             fc = "#EE7057"
@@ -429,7 +423,7 @@ class CircuitPlotManager:
     def _delay(self, depth, pos, paras, unit):
         fc = BLUE
 
-        para_txt = "%d%s" % (paras, unit)
+        para_txt = f"{paras:.0f}{unit}"
 
         x = depth
         y = self.used_qbit_y[pos]
@@ -453,7 +447,7 @@ class CircuitPlotManager:
         # target part
         name = ins.name.lower()
         if ins.ct_nums == (1, 1, 2) or name in mc_gate_names:
-            tar_name = ins._targ_name.lower()[-1]
+            tar_name = ins._targ_name.lower()[-1]  # pylint: disable=protected-access
             pos = ins.targs if isinstance(ins.targs, int) else ins.targs[0]
             x = self.used_qbit_y[pos]
             if tar_name == "x":
@@ -465,11 +459,12 @@ class CircuitPlotManager:
         elif name == "ccx":
             self._not_points.append((depth, self.used_qbit_y[ins.targs[0]]))
         else:
-            from quafu.elements.element_gates import ControlledU
+            from quafu.elements.quantum_gate import (  # pylint: disable=import-outside-toplevel
+                ControlledU,
+            )
 
-            assert isinstance(
-                ins, ControlledU
-            ), f"unknown gate: {name}, {ins.__class__.__name__}"
+            if not isinstance(ins, ControlledU):
+                raise ValueError(f"unknown gate: {name}, {ins.__class__.__name__}")
             self._process_ins(ins, append=False)
 
     def _proc_swap(self, depth, pos, iswap: bool = False):
@@ -498,12 +493,6 @@ class CircuitPlotManager:
         x = depth
         self._gate_bbox(x, y, fc)
         self._measure_label(x, y)
-
-        # TODO: decide whether to draw double wire for measurement
-        # y = pos + 0.02
-        # x0 = depth
-        # x1 = self.depth - 1 / 2
-        # self._h_wire_points.append([[x0, y], [x1, y]])
 
     # endregion
     #########################################################################
@@ -595,9 +584,7 @@ class CircuitPlotManager:
         # iswap-cirlces
         i_circles = []
         for x, y in self._iswap_points:
-            circle = Circle(
-                (x, y), radius=2 ** (1 / 2) * r, lw=3, ec="#3B82F6", fill=False
-            )
+            circle = Circle((x, y), radius=2 ** (1 / 2) * r, lw=3, ec="#3B82F6", fill=False)
             i_circles.append(circle)
         collection = PatchCollection(
             i_circles,
@@ -608,9 +595,7 @@ class CircuitPlotManager:
 
     def _render_measure(self):
         stroke = pe.withStroke(linewidth=4, foreground="white")
-        arcs = PatchCollection(
-            self._mea_arc_patches, match_original=True, capstyle="round", zorder=4
-        )
+        arcs = PatchCollection(self._mea_arc_patches, match_original=True, capstyle="round", zorder=4)
         arcs.set_path_effects([stroke])
 
         plt.gca().add_collection(arcs)
@@ -624,9 +609,7 @@ class CircuitPlotManager:
         plt.gca().add_collection(pointers)
 
     def _render_barrier(self):
-        barrier = PolyCollection(
-            self._barrier_points, closed=True, fc="lightgray", hatch="///", zorder=4
-        )
+        barrier = PolyCollection(self._barrier_points, closed=True, fc="lightgray", hatch="///", zorder=4)
         plt.gca().add_collection(barrier)
 
     def _render_txt(self):

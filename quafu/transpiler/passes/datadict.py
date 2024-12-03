@@ -21,7 +21,7 @@ class DataDict(dict):
     """A default dictionary-like object"""
 
     def __init__(self, *args, **kwargs):
-        super(DataDict, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self["coupling_list"]: List = None
         self["initial_layout"]: Layout = None

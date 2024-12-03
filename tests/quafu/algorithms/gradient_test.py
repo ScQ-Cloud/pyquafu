@@ -25,9 +25,7 @@ from quafu.elements import Parameter
 
 # TODO: remove this test after releasing 0.4.1 as it is not necessary
 class TestParamShift:
-    @pytest.mark.skipif(
-        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
-    )
+    @pytest.mark.skipif(sys.platform == "darwin", reason="Avoid error on MacOS arm arch.")
     def test_call(self):
         """
         This test simply ensures that the legacy implementation of parameter shift produces

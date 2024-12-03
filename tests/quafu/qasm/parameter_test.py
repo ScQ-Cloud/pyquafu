@@ -32,9 +32,7 @@ class TestParser:
                     self.compare_parameter(gate1.paras[j], gate2.paras[j])
 
     def compare_parameter(self, param1, param2):
-        if isinstance(param1, ParameterExpression) or isinstance(
-            param2, ParameterExpression
-        ):
+        if isinstance(param1, ParameterExpression) or isinstance(param2, ParameterExpression):
             assert isinstance(param2, ParameterExpression)
             assert isinstance(param1, ParameterExpression)
             assert param1.latex == param2.latex

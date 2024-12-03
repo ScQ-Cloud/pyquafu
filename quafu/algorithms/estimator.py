@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Pre-build wrapper to calculate expectation value"""
+"""Pre-build wrapper to calculate expectation value."""
 import copy
 import time
 from typing import List, Optional
@@ -37,13 +37,7 @@ def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
 class Estimator:
     """Estimate expectation for quantum circuits and observables"""
 
-    def __init__(
-        self,
-        circ: QuantumCircuit,
-        backend: str = "sim",
-        task: Optional[Task] = None,
-        **task_options
-    ) -> None:
+    def __init__(self, circ: QuantumCircuit, backend: str = "sim", task: Optional[Task] = None, **task_options) -> None:
         """
         Args:
             circ: quantum circuit.
@@ -65,9 +59,7 @@ class Estimator:
         # Caching expectation calculation results
         self._exp_cache = {}
 
-    def _run_real_machine(
-        self, observables: Hamiltonian, cache_key: Optional[str] = None
-    ):
+    def _run_real_machine(self, observables: Hamiltonian, cache_key: Optional[str] = None):
         """
         Execute the circuit with observable expectation measurement task.
         Args:
@@ -103,53 +95,47 @@ class Estimator:
             res = self._measure_obs(self._circ)
             return res, []
 
+        for obs in obslist:
+            for p in obs[1]:
+                if p not in measures:
+                    raise CircuitError(f"Qubit {p} in observer {obs[0]} is not measured.")
+
+        measure_basis, targlist = merge_measure(obslist)
+        print("Job start, need measured in ", measure_basis)
+
+        exec_res = []
+        if cache_key is not None and cache_key in self._exp_cache:
+            # try to retrieve exe results from cache
+            exec_res = self._exp_cache[cache_key]
         else:
-            for obs in obslist:
-                for p in obs[1]:
-                    if p not in measures:
-                        raise CircuitError(
-                            "Qubit %d in observer %s is not measured." % (p, obs[0])
-                        )
+            # send tasks to cloud platform
+            lst_task_id = []
+            for measure_base in measure_basis:
+                res = self._measure_obs(self._circ, measure_base=measure_base)
+                self._circ.gates = copy.deepcopy(inputs)
+                lst_task_id.append(res.taskid)
 
-            measure_basis, targlist = merge_measure(obslist)
-            print("Job start, need measured in ", measure_basis)
+            for tid in lst_task_id:
+                # retrieve task results
+                while True:
+                    res = self._task.retrieve(tid)
+                    if res.task_status == "Completed":
+                        exec_res.append(res)
+                        break
+                    time.sleep(0.2)
 
-            exec_res = []
-            if cache_key is not None and cache_key in self._exp_cache:
-                # try to retrieve exe results from cache
-                exec_res = self._exp_cache[cache_key]
-            else:
-                # send tasks to cloud platform
-                lst_task_id = []
-                for measure_base in measure_basis:
-                    res = self._measure_obs(self._circ, measure_base=measure_base)
-                    self._circ.gates = copy.deepcopy(inputs)
-                    lst_task_id.append(res.taskid)
+            if cache_key is not None:
+                # put into cache
+                self._exp_cache[cache_key] = exec_res
 
-                for tid in lst_task_id:
-                    # retrieve task results
-                    while True:
-                        res = self._task.retrieve(tid)
-                        if res.task_status == "Completed":
-                            exec_res.append(res)
-                            break
-                        time.sleep(0.2)
-
-                if cache_key is not None:
-                    # put into cache
-                    self._exp_cache[cache_key] = exec_res
-
-            measure_results = []
-            for obi in range(len(obslist)):
-                obs = obslist[obi]
-                rpos = [measures.index(p) for p in obs[1]]
-                measure_results.append(exec_res[targlist[obi]].calculate_obs(rpos))
+        measure_results = []
+        for obi, obs in enumerate(obslist):
+            rpos = [measures.index(p) for p in obs[1]]
+            measure_results.append(exec_res[targlist[obi]].calculate_obs(rpos))
 
         return sum(measure_results)
 
-    def _measure_obs(
-        self, qc: QuantumCircuit, measure_base: Optional[List] = None
-    ) -> ExecResult:
+    def _measure_obs(self, qc: QuantumCircuit, measure_base: Optional[List] = None) -> ExecResult:
         """Single run for measurement task.
 
         Args:
@@ -177,11 +163,6 @@ class Estimator:
 
     def _run_simulation(self, observables: Hamiltonian):
         """Run using quafu simulator"""
-        # sim_state = simulate(self._circ).get_statevector()
-        # expectation = np.matmul(
-        #     np.matmul(sim_state.conj().T, observables.get_matrix()), sim_state
-        # ).real
-        # return expectation
         return execute_circuit(self._circ, observables)
 
     def clear_cache(self):
@@ -205,14 +186,9 @@ class Estimator:
         Returns:
             Expectation value
         """
-        res = None
         if params is not None:
             self._circ._update_params(params)
 
         if self._backend == "sim":
-            res = self._run_simulation(observables)
-        else:
-            # currently cache only work for real machine (cloud systems)
-            res = self._run_real_machine(observables, cache_key=cache_key)
-
-        return res
+            return self._run_simulation(observables)
+        return self._run_real_machine(observables, cache_key=cache_key)

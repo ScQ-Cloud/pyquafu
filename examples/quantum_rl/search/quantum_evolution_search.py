@@ -5,25 +5,21 @@ import os
 import sys
 
 sys.path.insert(0, " ")
-import time
-from functools import reduce
+import time  # noqa: E402
+from functools import reduce  # noqa: E402
 
-import cirq
-import numpy as np
-from misc.utils import create_exp_dir
-from pymoo.optimize import minimize
-from pymop.problem import Problem
-from search import nsganet as engine
-from search import quantum_encoding, quantum_train_search
+import cirq  # noqa: E402
+import numpy as np  # noqa: E402
+from misc.utils import create_exp_dir  # noqa: E402
+from pymoo.optimize import minimize  # noqa: E402
+from pymop.problem import Problem  # noqa: E402
+from search import nsganet as engine  # noqa: E402
+from search import quantum_encoding, quantum_train_search  # noqa: E402
 
 parser = argparse.ArgumentParser("Multi-objetive Genetic Algorithm for quantum NAS")
 parser.add_argument("--save", type=str, default="quantumGA", help="experiment name")
-parser.add_argument(
-    "--n_var", type=int, default=30, help="the maximum length of architecture"
-)
-parser.add_argument(
-    "--pop_size", type=int, default=10, help="population size of networks"
-)
+parser.add_argument("--n_var", type=int, default=30, help="the maximum length of architecture")
+parser.add_argument("--pop_size", type=int, default=10, help="population size of networks")
 parser.add_argument("--n_gens", type=int, default=10, help="number of generation")
 parser.add_argument(
     "--n_offspring",
@@ -130,7 +126,6 @@ class NAS(Problem):
 def do_every_generations(algorithm):
     """Store statistic information of every generation."""
     gen = algorithm.n_gen
-    pop_var = algorithm.pop.get("X")
     pop_obj = algorithm.pop.get("F")
 
     # report generation info to files
@@ -179,18 +174,14 @@ def main(qubits, n_actions, observables):
     )
 
     # configure the nsga-net method
-    method = engine.nsganet(
-        pop_size=args.pop_size, n_offsprings=args.n_offspring, eliminate_duplicates=True
-    )
+    method = engine.nsganet(pop_size=args.pop_size, n_offsprings=args.n_offspring, eliminate_duplicates=True)
 
-    res = minimize(
+    return minimize(
         problem,
         method,
         callback=do_every_generations,
         termination=("n_gen", args.n_gens),
     )
-
-    return
 
 
 if __name__ == "__main__":

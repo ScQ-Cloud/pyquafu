@@ -27,13 +27,7 @@ class Model:
         _layout (List[int]): Layout of the quantum system.
     """
 
-    # def __init__(self, backend: Backend, layout: Optional[Layout] = None):
-    #     self._backend = backend
-    #     self._layout = layout
-
-    def __init__(
-        self, backend: Backend, layout: Dict = None, datadict: DataDict = None
-    ):
+    def __init__(self, backend: Backend, layout: Dict = None, datadict: DataDict = None):
         self._backend = backend
         self._layout = {"initial_layout": None, "final_layout": None}
         self.set_layout(layout)
@@ -42,10 +36,6 @@ class Model:
     def get_backend(self) -> Backend:
         """Return the backend of the model."""
         return self._backend
-
-    # def set_layout(self, layout: List[int]):
-    #     """Set a new layout for the quantum system."""
-    #     self._layout = layout
 
     def set_layout(self, new_layout: Dict):
         """Set a new layout for the quantum system."""

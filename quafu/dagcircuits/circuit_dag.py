@@ -11,15 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""DAG Circuit module."""
 import copy
 from typing import Any, List
 
 import networkx as nx
 import numpy as np
-from IPython.display import SVG, Image
-
-# import pygraphviz as pgv
+from IPython.display import SVG, Image  # pylint: disable=import-error
 from networkx.drawing.nx_pydot import write_dot
 from quafu.dagcircuits.dag_circuit import (  # dag_circuit.py in the same folder as circuit_dag.py now
     DAGCircuit,
@@ -27,12 +25,47 @@ from quafu.dagcircuits.dag_circuit import (  # dag_circuit.py in the same folder
 from quafu.dagcircuits.instruction_node import (  # instruction_node.py in the same folder as circuit_dag.py now
     InstructionNode,
 )
-from quafu.elements import Barrier, Delay, XYResonance
-from quafu.elements.element_gates import *
-from quafu.elements.element_gates.clifford import *
-from quafu.elements.element_gates.pauli import *
 
 from quafu import QuantumCircuit
+
+from ..elements import Barrier, Delay, XYResonance
+from ..elements.element_gates import (
+    CPGate,
+    CSGate,
+    CTGate,
+    CXGate,
+    CYGate,
+    CZGate,
+    FredkinGate,
+    HGate,
+    IdGate,
+    ISwapGate,
+    MCXGate,
+    MCYGate,
+    MCZGate,
+    PhaseGate,
+    RXGate,
+    RXXGate,
+    RYGate,
+    RYYGate,
+    RZGate,
+    RZZGate,
+    SdgGate,
+    SGate,
+    SwapGate,
+    SWGate,
+    SXdgGate,
+    SXGate,
+    SYdgGate,
+    SYGate,
+    TdgGate,
+    TGate,
+    ToffoliGate,
+    WGate,
+    XGate,
+    YGate,
+    ZGate,
+)
 
 
 # transform a gate in quantumcircuit of quafu(not include measure_gate),
@@ -50,9 +83,6 @@ def gate_to_node(input_gate, specific_label):
         node: a node in the graph, with specific label. A node is a InstructionNode object.
 
     """
-
-    import copy
-
     gate = copy.deepcopy(input_gate)  # avoid modifying the original gate
     if not isinstance(gate.pos, list):  # if gate.pos is not a list, make it a list
         gate.pos = [gate.pos]
@@ -62,16 +92,10 @@ def gate_to_node(input_gate, specific_label):
     gate.duration = getattr(gate, "duration", None) or None
     gate.unit = getattr(gate, "unit", None) or None
 
-    if gate.paras and not isinstance(
-        gate.paras, list
-    ):  # if paras is True and not a list, make it a list
+    if gate.paras and not isinstance(gate.paras, list):  # if paras is True and not a list, make it a list
         gate.paras = [gate.paras]
 
-    # hashable_gate = InstructionNode(gate.name, gate.pos, gate.paras,gate.matrix,gate.duration,gate.unit, label=i)
-    hashable_gate = InstructionNode(
-        gate.name, gate.pos, gate.paras, gate.duration, gate.unit, label=specific_label
-    )
-    return hashable_gate
+    return InstructionNode(gate.name, gate.pos, gate.paras, gate.duration, gate.unit, label=specific_label)
 
 
 # Building a DAG Graph using DAGCircuit from a QuantumCircuit
@@ -107,18 +131,12 @@ def circuit_to_dag(circuit: QuantumCircuit, measure_flag=True):
     # A dictionary to store the last use of any qubit
     qubit_last_use = {}
 
-    # g = nx.MultiDiGraph()  # two nodes can have multiple edges
-    # g = nx.DiGraph()   # two nodes can only have one edge
     g = DAGCircuit()  # two nodes can only have one edge
 
     # Add the start node
-    # g.add_node(-1,{"color": "green"})
     g.add_nodes_from([(-1, {"color": "green"})])
 
     # deepcopy the circuit to avoid modifying the original circuit
-    # gates = copy.deepcopy(circuit.gates) # need to import copy
-    # change to: gate = copy.deepcopy(input_gate) in gate_to_node()
-
     for gate in circuit.gates:
         # transform gate to node
         hashable_gate = gate_to_node(gate, specific_label=i)
@@ -138,9 +156,7 @@ def circuit_to_dag(circuit: QuantumCircuit, measure_flag=True):
     if measure_flag:
         # Add measure_gate node
         measure_pos = copy.deepcopy(circuit.measures)  # circuit.measures is a dict
-        measure_gate = InstructionNode(
-            "measure", measure_pos, None, None, None, label="m"
-        )
+        measure_gate = InstructionNode("measure", measure_pos, None, None, None, label="m")
         g.add_node(measure_gate, color="blue")
         # Add edges from qubit_last_use[qubit] to measure_gate
         for qubit in measure_gate.pos:
@@ -152,11 +168,10 @@ def circuit_to_dag(circuit: QuantumCircuit, measure_flag=True):
             qubit_last_use[qubit] = measure_gate
 
     # Add the end node
-    # g.add_node(float('inf'),{"color": "red"})
     g.add_nodes_from([(float("inf"), {"color": "red"})])
 
-    for qubit in qubit_last_use:
-        g.add_edge(qubit_last_use[qubit], float("inf"), label=f"q{qubit}", color="red")
+    for qubit, gate in qubit_last_use.items():
+        g.add_edge(gate, float("inf"), label=f"q{qubit}", color="red")
 
     # update  qubits_used, cbits_used, num_instruction_nodes
     g.update_qubits_used()
@@ -167,7 +182,7 @@ def circuit_to_dag(circuit: QuantumCircuit, measure_flag=True):
     return g
 
 
-# transform gate in dag nodes  to gate in circuit which can be added to circuit
+# transform gate in dag nodes to gate in circuit which can be added to circuit
 gate_classes = {
     "x": XGate,
     "y": YGate,
@@ -241,8 +256,6 @@ def node_to_gate(node_in_dag):
             return qcircuit
 
     """
-    import copy
-
     gate_in_dag = copy.deepcopy(node_in_dag)
 
     gate_name = gate_in_dag.name.lower()
@@ -269,7 +282,6 @@ def node_to_gate(node_in_dag):
         control_qubits = gate_in_dag.pos[:-1]
         target_qubit = gate_in_dag.pos[-1]
         return gate_class(control_qubits, target_qubit)
-    # print('gate_in_dag', gate_in_dag)
     return gate_class(*args)
 
 
@@ -306,16 +318,7 @@ def dag_to_circuit(dep_graph, n: int):
     """
 
     qcircuit = QuantumCircuit(n)
-    # print('222222222222222dep_graph', dep_graph.edges())
-    # print('is_directed_acyclic_graph', nx.is_directed_acyclic_graph(dep_graph))
-    # list_nodes = list(nx.topological_sort(dep_graph))
-    # print('list_nodes', list_nodes)
-    # print('dagcircuit is dag?',dep_graph.is_dag())
-    # show_dag(dep_graph)
     for gate in list(nx.topological_sort(dep_graph)):
-        # for gate in list_nodes:
-        #     print('gate',gate)
-
         if gate not in [-1, float("inf")]:
             # measure gate to do
             if gate.name == "measure":
@@ -363,6 +366,7 @@ def draw_dag(dep_g, output_format="png"):
 
 
     """
+    # pylint: disable=import-outside-toplevel, import-error
     import pygraphviz
 
     write_dot(dep_g, "dag.dot")
@@ -372,40 +376,25 @@ def draw_dag(dep_g, output_format="png"):
     if output_format == "png":
         G.draw("dag.png")
         return Image(filename="dag.png")
-    elif output_format == "svg":
+    if output_format == "svg":
         G.draw("dag.svg")
         return SVG(filename="dag.svg")
-    else:
-        raise ValueError("Unsupported output format: choose either 'png' or 'svg'")
+    raise ValueError("Unsupported output format: choose either 'png' or 'svg'")
 
 
 def nodelist_to_dag(op_nodes: List[Any]) -> DAGCircuit:
-    # Starting Label Index
-    i = 0
-
     # A dictionary to store the last use of any qubit
     qubit_last_use = {}
 
-    # g = nx.MultiDiGraph()  # two nodes can have multiple edges
-    # g = nx.DiGraph()   # two nodes can only have one edge
     g = DAGCircuit()
 
     # Add the start node
-    # g.add_node(-1,{"color": "green"})
     g.add_nodes_from([(-1, {"color": "green"})])
-
-    # deepcopy the circuit to avoid modifying the original circuit
-    # gates = copy.deepcopy(circuit.gates) # need to import copy
-    # change to: gate = copy.deepcopy(input_gate) in gate_to_node()
 
     for op_node in op_nodes:
         # transform gate to node
         hashable_gate = copy.deepcopy(op_node)
         g.add_node(hashable_gate, color="blue")
-
-        # # my add
-        # if len(hashable_gate.pos) == 1 and hashable_gate.paras is None:
-        #     hashable_gate.paras = 6.283185307179586
 
         # Add edges based on qubit_last_use; update last use
         for qubit in hashable_gate.pos:
@@ -417,11 +406,10 @@ def nodelist_to_dag(op_nodes: List[Any]) -> DAGCircuit:
             qubit_last_use[qubit] = hashable_gate
 
     # Add the end node
-    # g.add_node(float('inf'),{"color": "red"})
     g.add_nodes_from([(float("inf"), {"color": "red"})])
 
-    for qubit in qubit_last_use:
-        g.add_edge(qubit_last_use[qubit], float("inf"), label=f"q{qubit}", color="red")
+    for qubit, gate in qubit_last_use.items():
+        g.add_edge(gate, float("inf"), label=f"q{qubit}", color="red")
 
     # update the  qubits_used, cbits_used, num_instruction_nodes
     g.qubits_used = g.update_qubits_used()
@@ -446,11 +434,7 @@ def nodelist_qubit_mapping_dict(nodes_list):
 
     mapping_pos = list(range(len(nodes_list_qubits_used)))
     # mapping, get a dict
-    nodes_qubit_mapping_dict = dict(
-        zip(sorted(list(nodes_list_qubits_used)), mapping_pos)
-    )
-
-    return nodes_qubit_mapping_dict
+    return dict(zip(sorted(nodes_list_qubits_used), mapping_pos))
 
 
 def nodelist_qubit_mapping_dict_reverse(nodes_list):
@@ -458,15 +442,12 @@ def nodelist_qubit_mapping_dict_reverse(nodes_list):
     Args:
         nodes_list: a list of nodes
     Returns:
-        nodes_qubit_mapping_dict_reverse: a dict about keys are the new qubits and values are the qubits used by the nodes
+        nodes_qubit_mapping_dict_reverse: a dict about keys are the new qubits and values
+        are the qubits used by the nodes
     """
     nodes_qubit_mapping_dict = nodelist_qubit_mapping_dict(nodes_list)
     # reverse mapping, get a dict
-    nodes_qubit_mapping_dict_reverse = {
-        value: key for key, value in nodes_qubit_mapping_dict.items()
-    }
-
-    return nodes_qubit_mapping_dict_reverse
+    return {value: key for key, value in nodes_qubit_mapping_dict.items()}
 
 
 # a function to map nodes_list
@@ -477,9 +458,9 @@ def nodes_list_mapping(nodes_list, nodes_qubit_mapping_dict):
         nodes_qubit_mapping_dict: the dict of the mapping qubits
 
     return:
-        nodes_list_mapping: the nodes_list after mapping qubits
+        nodes_list_mapping_res: the nodes_list after mapping qubits
     """
-    nodes_list_mapping = []
+    nodes_list_mapping_res = []
     for node in nodes_list:
         node_new = copy.deepcopy(node)
         if hasattr(node, "pos") and node.pos is not None:
@@ -489,11 +470,9 @@ def nodes_list_mapping(nodes_list, nodes_qubit_mapping_dict):
                 node_new.pos = {}
                 # the values of the dict are void, so we need to copy the values from the original dict
                 for qubit in node.pos:
-                    node_new.pos[nodes_qubit_mapping_dict[qubit]] = copy.deepcopy(
-                        node.pos[qubit]
-                    )
-        nodes_list_mapping.append(node_new)
-    return nodes_list_mapping
+                    node_new.pos[nodes_qubit_mapping_dict[qubit]] = copy.deepcopy(node.pos[qubit])
+        nodes_list_mapping_res.append(node_new)
+    return nodes_list_mapping_res
 
 
 def copy_dag(dag: DAGCircuit):
@@ -518,15 +497,15 @@ def show_dag(dag: DAGCircuit) -> None:
     :param dag:DAGCircuit
     :return:
     """
+    # pylint: disable=import-outside-toplevel
     import matplotlib.pyplot as plt
-    from PIL import Image
+    from PIL import Image as PILImage
 
     draw_dag(dag)
-    im = Image.open("dag.png")
+    im = PILImage.open("dag.png")
 
     # Convert to array and plot.
     data = np.array(im)
-    # print("data.shape",data.shape)
     original_width, original_height = data.shape[1], data.shape[0]
     # Calculate the scaling ratio so that the maximum size does not exceed 2^16.
     max_size = 2**16

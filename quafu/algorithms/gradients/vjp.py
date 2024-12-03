@@ -94,10 +94,7 @@ def jacobian(
         # Same circuit, i.e., measurement results with the same parameters may be reused
         cache_key_prefix = str(i)
         grad_list = [
-            np.array(
-                calc_grad(obs, params_input[i, :].tolist(), cache_key=cache_key_prefix)
-            )
-            for obs in obs_list
+            np.array(calc_grad(obs, params_input[i, :].tolist(), cache_key=cache_key_prefix)) for obs in obs_list
         ]
         output[i, :, :] = np.stack(grad_list)
     estimator.clear_cache()
@@ -105,7 +102,8 @@ def jacobian(
 
 
 def compute_vjp(jac: np.ndarray, dy: np.ndarray):
-    r"""compute vector-jacobian product
+    r"""
+    Compute vector-jacobian product.
 
     Args:
         jac (np.ndarray): jac with shape (batch_size, num_outputs, num_params)
@@ -118,9 +116,9 @@ def compute_vjp(jac: np.ndarray, dy: np.ndarray):
 
         .. math::
             \begin{bmatrix}
-	    \frac{\partial y_1}{\partial x_1} & \cdots & \frac{\partial y_1}{x_n} \\
-	    \vdots & \ddots & \vdots \\
-	    \frac{\partial y_m}{\partial x_1} & \cdots & \frac{\partial y_m}{x_n}
+        \frac{\partial y_1}{\partial x_1} & \cdots & \frac{\partial y_1}{x_n} \\
+        \vdots & \ddots & \vdots \\
+        \frac{\partial y_m}{\partial x_1} & \cdots & \frac{\partial y_m}{x_n}
             \end{bmatrix}
 
         `dy` is actually the vjp of dependent node
@@ -131,11 +129,9 @@ def compute_vjp(jac: np.ndarray, dy: np.ndarray):
 
         .. math:: \[ \frac{partial o}{partial x_1} \dots \frac{partial o}{partial x_n} \]
     """
-    batch_size, num_outputs, num_params = jac.shape
+    batch_size, num_outputs, _ = jac.shape
     assert dy.shape[0] == batch_size and dy.shape[1] == num_outputs
 
     # Compute vector-Jacobian product using Einstein summation convention
     #   the scripts simply mean 'jac-dims,dy-dims->vjp-dims'; so num_outputs is summed over
-    vjp = np.einsum("ijk,ij->ik", jac, dy)
-
-    return vjp
+    return np.einsum("ijk,ij->ik", jac, dy)

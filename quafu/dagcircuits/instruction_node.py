@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""Instruction Node."""
 import dataclasses
 from typing import Any, Dict, List, Union
 
@@ -26,7 +26,8 @@ class InstructionNode:
     name : Any
         The name of the gate.
     pos : Union[List[Any], Dict[Any, Any]]
-        The position of the gate in the circuit. If the gate is a measurement gate, it is a dictionary with qubit indices as keys and classical bit indices as values.
+        The position of the gate in the circuit. If the gate is a measurement gate, it is a dictionary with qubit
+            indices as keys and classical bit indices as values.
     paras : List[Any]
         The parameters of the gate.
     duration : int
@@ -49,7 +50,6 @@ class InstructionNode:
     name: Any  # gate.name
     pos: Union[List[Any], Dict[Any, Any]]  # gate.pos |  Dict[Any,Any] for measure
     paras: List[Any]  # gate.paras
-    # matrix:List[Any]   # for gate in [QuantumGate]
     duration: int  # for gate in [Delay,XYResonance] in quafu
     unit: str  # for gate in [Delay,XYResonance] in quafu
     label: Union[str, int]
@@ -66,25 +66,20 @@ class InstructionNode:
 
         if self.paras is None:
             return f"{self.label}{{{self.name}({args})}}"
-        else:
-            # if self.paras not a list, then make it a list  of str of .3f float
-            if not isinstance(self.paras, list):
-                if isinstance(self.paras, float):
-                    formatted_paras = [f"{self.paras:.3f}"]
-                else:
-                    formatted_paras = [str(self.paras)]
+        if not isinstance(self.paras, list):
+            if isinstance(self.paras, float):
+                formatted_paras = [f"{self.paras:.3f}"]
             else:
-                if all(isinstance(p, float) for p in self.paras):
-                    formatted_paras = [f"{p:.3f}" for p in self.paras]
-                else:
-                    # for p in self.paras:
-                    #        print(p, type(p))
-                    formatted_paras = [str(p) for p in self.paras]
-                    # print(formatted_paras)
+                formatted_paras = [str(self.paras)]
+        else:
+            if all(isinstance(p, float) for p in self.paras):
+                formatted_paras = [f"{p:.3f}" for p in self.paras]
+            else:
+                formatted_paras = [str(p) for p in self.paras]
 
-            formatted_paras_str = ",".join(formatted_paras)
+        formatted_paras_str = ",".join(formatted_paras)
 
-            return f"{self.label}{{{self.name}({args})}}({formatted_paras_str})"
+        return f"{self.label}{{{self.name}({args})}}({formatted_paras_str})"
 
     def __repr__(self):
         return str(self)

@@ -85,6 +85,7 @@ class QuafuTaskDatabase:
         cursor.close()
 
     # region data manipulation
+    # pylint: disable=too-few-public-methods,too-many-positional-arguments,too-many-arguments
     def insert_task(
         self,
         task_id,
@@ -124,21 +125,21 @@ class QuafuTaskDatabase:
         cursor.execute("SELECT * FROM tasks")
         tasks = cursor.fetchall()
         cursor.close()
-        return tasks
+        return tasks  # noqa: 504
 
     def find_by_status(self, status):
         cursor = self.conn.cursor()
         cursor.execute("SELECT * FROM tasks WHERE status=?", (status,))
         tasks = cursor.fetchall()
         cursor.close()
-        return tasks
+        return tasks  # noqa: 504
 
     def find_by_priority(self, priority):
         cursor = self.conn.cursor()
         cursor.execute("SELECT * FROM tasks WHERE priority=?", (priority,))
         tasks = cursor.fetchall()
         cursor.close()
-        return tasks
+        return tasks  # noqa: 504
 
     def find_by_group(self, group_name):
         cursor = self.conn.cursor()
@@ -148,7 +149,7 @@ class QuafuTaskDatabase:
             cursor.execute("SELECT * FROM tasks WHERE group_name=?", (group_name,))
         tasks = cursor.fetchall()
         cursor.close()
-        return tasks
+        return tasks  # noqa: 504
 
     def find_by_name(self, task_name):
         cursor = self.conn.cursor()
@@ -158,7 +159,7 @@ class QuafuTaskDatabase:
             cursor.execute("SELECT * FROM tasks WHERE task_name=?", (task_name,))
         tasks = cursor.fetchall()
         cursor.close()
-        return tasks
+        return tasks  # noqa: 504
 
     def find_by_time(self, start_time, end_time):
         """
@@ -171,6 +172,6 @@ class QuafuTaskDatabase:
         )
         tasks = cursor.fetchall()
         cursor.close()
-        return tasks
+        return tasks  # noqa: 504
 
     # endregion

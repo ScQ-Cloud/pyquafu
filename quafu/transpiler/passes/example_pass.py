@@ -76,7 +76,7 @@ class TestPass(BasePass):
             print(f"{context} - No model is set.")
         print("-" * 100)
 
-    def run(self, circ_dag: Union[QuantumCircuit, DAGCircuit]):
+    def run(self, circ_dag: Union[QuantumCircuit, DAGCircuit]):  # pylint: disable=arguments-renamed
         """
         Run the TestPass on a DAGCircuit.
 
@@ -94,9 +94,7 @@ class TestPass(BasePass):
             dag = copy_dag(circ_dag)
             circuit = dag_to_circuit(circ_dag, circ_dag.circuit_qubits)
         else:
-            raise TypeError(
-                "Error: TestPass only supports QuantumCircuit or DAGCircuit."
-            )
+            raise TypeError("Error: TestPass only supports QuantumCircuit or DAGCircuit.")
 
         # Traverse the DAG and print all gates
         print("Traversing the DAG and printing all the meaningful node gates:")
@@ -120,4 +118,4 @@ class TestPass(BasePass):
             print("Model name  has been changed.")
             self.print_model_info("After changing model")
 
-        return circuit
+        return circuit  # noqa: R504

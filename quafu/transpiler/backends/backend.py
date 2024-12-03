@@ -38,6 +38,7 @@ class Backend:
         _properties (dict): A dictionary containing all the properties of the backend.
     """
 
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(
         self,
         name: str = "backend",
@@ -46,8 +47,8 @@ class Backend:
         qubits_info: List[Dict] = None,
         coupling_list: List[Union[int, tuple]] = None,
         coupling_graph: CouplingGraph = None,
-        avg_T1: Optional[float] = None,
-        avg_T2: Optional[float] = None,
+        avg_t1: Optional[float] = None,
+        avg_t2: Optional[float] = None,
         avg_fidelity: Optional[float] = None,
         basis_gates: Optional[List[str]] = None,
         pulse: bool = False,
@@ -75,8 +76,8 @@ class Backend:
             "qubits_info": qubits_info,
             "coupling_list": coupling_list,
             "coupling_graph": coupling_graph,
-            "avg_T1": avg_T1,
-            "avg_T2": avg_T2,
+            "avg_t1": avg_t1,
+            "avg_t2": avg_t2,
             "avg_fidelity": avg_fidelity,
             "basis_gates": basis_gates,
             "pulse": pulse,
@@ -98,7 +99,10 @@ class Backend:
             self._properties[property_name] = value
 
     def __repr__(self):
-        return f"<Backend(name={self.get_property('name')}, type={self.get_property('backend_type')}, qubits_num={self.get_property('qubits_num')})>"
+        return (
+            f"<Backend(name={self.get_property('name')}, "
+            f"type={self.get_property('backend_type')}, qubits_num={self.get_property('qubits_num')})>"
+        )
 
     def supports_pulse(self):
         """Check if the backend supports pulse level operations."""

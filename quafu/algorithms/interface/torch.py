@@ -11,18 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""quafu PyTorch quantum layer"""
-
+# pylint: disable=abstract-method
+"""Quafu PyTorch quantum layer."""
 from typing import Optional
 
 import numpy as np
 import torch
-from quafu.algorithms.ansatz import QuantumNeuralNetwork
-from quafu.algorithms.estimator import Estimator
 from torch import nn
 
-from quafu import QuantumCircuit
-
+from ...circuits import QuantumCircuit
+from ..ansatz import QuantumNeuralNetwork
+from ..estimator import Estimator
 from ..gradients import compute_vjp, jacobian, run_circ
 
 
@@ -34,13 +33,14 @@ class TorchTransformer:
         return torch.randn(*shape, requires_grad=True, dtype=torch.double)
 
     # TODO(zhaoyilun): docstrings
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     @staticmethod
     def execute(
         circ: QuantumCircuit,
         parameters: torch.Tensor,
         run_fn=run_circ,
         grad_fn=None,
-        method="internal",
+        method="internal",  # pylint: disable=unused-argument
         estimator: Optional[Estimator] = None,
     ):
         """execute.
@@ -65,7 +65,7 @@ class ExecuteCircuits(torch.autograd.Function):
     """Parameters are input from previous layers"""
 
     @staticmethod
-    def forward(ctx, parameters, kwargs):
+    def forward(ctx, parameters, kwargs):  # pylint: disable=arguments-differ
         ctx.run_fn = kwargs["run_fn"]
         ctx.circ = kwargs["circ"]
         ctx.estimator = kwargs["estimator"]
@@ -80,7 +80,7 @@ class ExecuteCircuits(torch.autograd.Function):
         return outputs
 
     @staticmethod
-    def backward(ctx, grad_out):
+    def backward(ctx, grad_out):  # pylint: disable=arguments-differ
         (parameters,) = ctx.saved_tensors
         jac = jacobian(ctx.circ, parameters.numpy(), estimator=ctx.estimator)
         vjp = compute_vjp(jac, grad_out.numpy())
