@@ -11,11 +11,89 @@ on:
         types: [submitted, edited]
     workflow_dispatch:
 
-
-
 jobs:
-    build_wheels:
-        name: Build python wheels
+    single_platform_build:
+        name: Build python wheel on linux
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'pull_request' && github.base_ref == 'master'
+        strategy:
+            matrix:
+                os-arch: [manylinux_x86_64]
+                python-version: ['3.10']
+                include:
+                -   os-arch: manylinux_x86_64
+                    os: ubuntu-20.04
+        runs-on: ${{ matrix.os }}
+
+        env:
+            PYTHON: ${{ matrix.python-version }}
+            TWINE_USERNAME: __token__
+
+        steps:
+        -   uses: actions/checkout@v3
+
+        # Install dependencies including ccache and g++-10
+        -   name: Install dependencies
+            run: |
+                sudo apt-get update
+                sudo apt-get install -y software-properties-common
+                sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+                sudo apt-get update
+                sudo apt-get install -y ccache gcc-10 g++-10
+
+        # Set up Python
+        -   uses: actions/setup-python@v3
+            with:
+                python-version: ${{ matrix.python-version }}
+
+        # Set ccache and compiler environment variables
+        -   name: Configure ccache and g++-10
+            run: |
+                export CC="ccache gcc-10"
+                export CXX="ccache g++-10"
+                export CCACHE_DIR=~/.ccache
+                ccache -z  # Zero statistics before the build
+            shell: bash
+
+        # Restore ccache cache
+        -   uses: actions/cache@v3
+            id: ccache-cache
+            with:
+                path: ~/.ccache
+                key: ccache-${{ runner.os }}-${{ hashFiles('src/**/*.hpp', 'src/**/*.cpp', 'src/**/*.h', 'src/**/*.cuh') }}
+                restore-keys: |
+                    ccache-${{ runner.os }}-
+
+        # Install Python dependencies
+        -   name: Install Python dependencies
+            run: python -m pip install pybind11 scikit-build build twine pytest
+
+        # Build wheels
+        -   name: Build wheels using python build
+            run: |
+                export CC="ccache gcc-10"
+                export CXX="ccache g++-10"
+                python -m build --wheel
+            shell: bash
+
+        # Display ccache statistics
+        -   name: Display ccache statistics
+            run: ccache -s
+
+        # Upload compiled artifacts to pre-release
+        -   uses: ncipollo/release-action@v1
+            if: github.event_name == 'push'
+            with:
+                artifacts: dist/*.whl
+                allowUpdates: true
+                tag: pre-release
+                draft: true
+                prerelease: true
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+
+    all_platform_build_and_publish_package:
+        name: Build python wheels on all platforms
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         strategy:
             matrix:
                 os-arch: [manylinux_x86_64, win_amd64, macosx_x86_64, macosx_arm64]
@@ -40,31 +118,36 @@ jobs:
         steps:
         -   uses: actions/checkout@v3
 
-      # Used to host cibuildwheel
+
+
+        # Set up Python
         -   uses: actions/setup-python@v3
             with:
                 python-version: ${{ matrix.python-version }}
 
-        -   name: Install dependence
+        # Set ccache environment variables
+        -   name: Configure ccache
+            run: |
+                export CC="ccache gcc"
+                export CXX="ccache g++"
+                export CCACHE_DIR=~/.ccache
+                ccache -z  # Zero statistics before the build
+            shell: bash
+
+        # Install Python dependencies
+        -   name: Install Python dependencies
             run: python -m pip install pybind11 cibuildwheel scikit-build twine pytest
 
+        # Build wheels
         -   name: Build wheels
             run: python -m cibuildwheel --output-dir dist
+            shell: bash
 
+
+        # Publish package
         -   name: Publish package
             run: python -m twine upload dist/*.whl
             if: ${{ contains(github.ref, '/tags/') }}
             env:
                 TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
                 TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-
-        # Used to update whl in latest draft
-        -   uses: ncipollo/release-action@v1
-            if: github.event_name == 'push'
-            with:
-                artifacts: dist/*.whl
-                allowUpdates: true
-                tag: pre-release
-                draft: true
-                prerelease: true
-                token: ${{ secrets.GITHUB_TOKEN }}
