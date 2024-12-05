@@ -14,8 +14,51 @@ on:
 
 
 jobs:
+    single_platform_build:
+        name: Build python wheel on linux
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'pull_request' && github.base_ref == 'master'
+        strategy:
+            matrix:
+                os-arch: [manylinux_x86_64]
+                python-version: ['3.10']
+                cibw-python: [cp38, cp39, cp310, cp311]
+                include:
+                -   os-arch: manylinux_x86_64
+                    os: ubuntu-20.04
+        runs-on: ${{ matrix.os }}
+
+        env:
+            CIBW_BUILD: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
+            PYTHON: ${{ matrix.python-version }}
+            TWINE_USERNAME: __token__
+
+        steps:
+        -   uses: actions/checkout@v3
+
+      # Used to host cibuildwheel
+        -   uses: actions/setup-python@v3
+            with:
+                python-version: ${{ matrix.python-version }}
+
+        -   name: Install dependence
+            run: python -m pip install pybind11 cibuildwheel scikit-build twine pytest
+
+        -   name: Build wheels
+            run: python -m cibuildwheel --output-dir dist
+
+        # Used to update whl in latest draft
+        -   uses: ncipollo/release-action@v1
+            if: github.event_name == 'push'
+            with:
+                artifacts: dist/*.whl
+                allowUpdates: true
+                tag: pre-release
+                draft: true
+                prerelease: true
+                token: ${{ secrets.GITHUB_TOKEN }}
     build_wheels:
         name: Build python wheels
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         strategy:
             matrix:
                 os-arch: [manylinux_x86_64, win_amd64, macosx_x86_64, macosx_arm64]
@@ -57,14 +100,3 @@ jobs:
             env:
                 TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
                 TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-
-        # Used to update whl in latest draft
-        -   uses: ncipollo/release-action@v1
-            if: github.event_name == 'push'
-            with:
-                artifacts: dist/*.whl
-                allowUpdates: true
-                tag: pre-release
-                draft: true
-                prerelease: true
-                token: ${{ secrets.GITHUB_TOKEN }}
