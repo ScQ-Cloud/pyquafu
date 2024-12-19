@@ -65,7 +65,7 @@ circuit = (qft(range(3)) + BarrierGate(True)).measure_all()
 circuit.svg()  # circuit.svg('light')
 ```
 
-![circuit_svg](./docs/cir)
+![circuit_svg](./docs/circuit_svg.png)
 
 ### Train quantum neural network
 
