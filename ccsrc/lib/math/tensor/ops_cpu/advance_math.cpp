@@ -181,7 +181,7 @@ Tensor Gather(const std::vector<Tensor>& tensors) {
     auto out = init(tot_len, dtype);
     size_t idx = 0;
     for (auto& t : tensors) {
-        mindquantum::safe_copy(reinterpret_cast<uint8_t*>(out.data) + idx, bit_size(t.dtype) * t.dim, t.data,
+        quafu::safe_copy(reinterpret_cast<uint8_t*>(out.data) + idx, bit_size(t.dtype) * t.dim, t.data,
                                bit_size(t.dtype) * t.dim);
         idx += bit_size(t.dtype) * t.dim;
     }

@@ -1,7 +1,7 @@
-mindquantum.utils.ket_string
+quafu.utils.ket_string
 =============================
 
-.. py:function:: mindquantum.utils.ket_string(state, tol=1e-7)
+.. py:function:: quafu.utils.ket_string(state, tol=1e-7)
 
     获取量子态的ket格式。
 

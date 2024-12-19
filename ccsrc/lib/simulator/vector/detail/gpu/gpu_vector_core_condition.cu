@@ -24,7 +24,7 @@
 #include "thrust/functional.h"
 #include "thrust/inner_product.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 
 template <typename derived_, typename calc_type_>
 template <index_t mask, index_t condi, class binary_op>
@@ -155,4 +155,4 @@ auto GPUVectorPolicyBase<derived_, calc_type_>::ConditionalCollect(const qs_data
 template struct GPUVectorPolicyBase<GPUVectorPolicyFloat, float>;
 template struct GPUVectorPolicyBase<GPUVectorPolicyDouble, double>;
 
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

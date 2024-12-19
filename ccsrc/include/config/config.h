@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_CONFIG_HPP
-#define MQ_CONFIG_CONFIG_HPP
+#ifndef QUAFU_CONFIG_CONFIG_HPP
+#define QUAFU_CONFIG_CONFIG_HPP
 
 #include "config/cmake_config.h"
 #ifdef __CUDACC__
@@ -32,66 +32,66 @@
 
 #ifdef __has_cpp_attribute
 #    if __has_cpp_attribute(nodiscard)
-#        define MQ_NODISCARD [[nodiscard]]
+#        define QUAFU_NODISCARD [[nodiscard]]
 #    endif  // __has_cpp_attribute(nodiscard)
 #endif      // __has_cpp_attribute
 
-#ifndef MQ_NODISCARD
-#    define MQ_NODISCARD
-#endif  // MQ_NODISCARD
+#ifndef QUAFU_NODISCARD
+#    define QUAFU_NODISCARD
+#endif  // QUAFU_NODISCARD
 
 /*!
- * \def MQ_NODISCARD
+ * \def QUAFU_NODISCARD
  * Add the [[nodiscard]] attribute to a function if supported by the compiler
  */
 
 // -------------------------------------
 
 #ifndef _MSC_VER
-#    define MQ_ALIGN(x) __attribute__((aligned(x)))
+#    define QUAFU_ALIGN(x) __attribute__((aligned(x)))
 #else
-#    define MQ_ALIGN(x)
+#    define QUAFU_ALIGN(x)
 #endif  // !_MSC_VER
 
 /*!
- * \def MQ_ALIGN(x)
+ * \def QUAFU_ALIGN(x)
  * Align a C++ struct/class to a specific size.
  */
 
 // =============================================================================
 
-#ifndef MQ_IS_CLANG_VERSION_LESS
-#    define MQ_IS_CLANG_VERSION_LESS(major, minor)                                                                     \
-        (defined __clang__) && (MQ_CLANG_MAJOR < (major)) && (MQ_CLANG_MINOR < (minor))
-#    define MQ_IS_CLANG_VERSION_LESS_EQUAL(major, minor)                                                               \
-        (defined __clang__) && (MQ_CLANG_MAJOR <= (major)) && (MQ_CLANG_MINOR <= (minor))
-#endif  // MQ_IS_CLANG_VERSION_LESS
+#ifndef QUAFU_IS_CLANG_VERSION_LESS
+#    define QUAFU_IS_CLANG_VERSION_LESS(major, minor)                                                                  \
+        (defined __clang__) && (QUAFU_CLANG_MAJOR < (major)) && (QUAFU_CLANG_MINOR < (minor))
+#    define QUAFU_IS_CLANG_VERSION_LESS_EQUAL(major, minor)                                                            \
+        (defined __clang__) && (QUAFU_CLANG_MAJOR <= (major)) && (QUAFU_CLANG_MINOR <= (minor))
+#endif  // QUAFU_IS_CLANG_VERSION_LESS
 
 /*!
- * \def MQ_IS_CLANG_VERSION_LESS(major, minor)
+ * \def QUAFU_IS_CLANG_VERSION_LESS(major, minor)
  * True if the compiler is Clang and if its version is strictly less than <major>.<minor>
  */
 /*!
- * \def MQ_IS_CLANG_VERSION_LESS_EQUAL(major, minor)
+ * \def QUAFU_IS_CLANG_VERSION_LESS_EQUAL(major, minor)
  * True if the compiler is Clang and if its version is less than or equal to <major>.<minor>
  */
 
 // -------------------------------------
 
-#if !defined(MQ_CONFIG_NO_COUNTER) && !defined(MQ_CONFIG_COUNTER)
-#    define MQ_CONFIG_COUNTER
-#endif  // !MQ_CONFIG_NO_COUNTER && !MQ_CONFIG_COUNTER
+#if !defined(QUAFU_CONFIG_NO_COUNTER) && !defined(QUAFU_CONFIG_COUNTER)
+#    define QUAFU_CONFIG_COUNTER
+#endif  // !QUAFU_CONFIG_NO_COUNTER && !QUAFU_CONFIG_COUNTER
 
-#define MQ_UNIQUE_NAME_LINE2_(name, line) name##line
-#define MQ_UNIQUE_NAME_LINE_(name, line)  MQ_UNIQUE_NAME_LINE2_(name, line)
-#ifdef MQ_CONFIG_COUNTER
-#    define MQ_UNIQUE_NAME(name) MQ_UNIQUE_NAME_LINE_(name, __COUNTER__)
+#define QUAFU_UNIQUE_NAME_LINE2_(name, line) name##line
+#define QUAFU_UNIQUE_NAME_LINE_(name, line)  QUAFU_UNIQUE_NAME_LINE2_(name, line)
+#ifdef QUAFU_CONFIG_COUNTER
+#    define QUAFU_UNIQUE_NAME(name) QUAFU_UNIQUE_NAME_LINE_(name, __COUNTER__)
 #else
-#    define MQ_UNIQUE_NAME(name) MQ_UNIQUE_NAME_LINE_(name, __LINE__)
+#    define QUAFU_UNIQUE_NAME(name) QUAFU_UNIQUE_NAME_LINE_(name, __LINE__)
 #endif
 
 /*!
- * \def MQ_UNIQUE_NAME(name)
+ * \def QUAFU_UNIQUE_NAME(name)
  * Define a unique and valid C++ identifier.
  *
  * This is either based on \c __COUNTER__ if supported or in \c __LINE__ otherwise.
@@ -99,4 +99,4 @@
 
 // =============================================================================
 
-#endif /* MQ_CONFIG_CONFIG_HPP */
+#endif /* QUAFU_CONFIG_CONFIG_HPP */

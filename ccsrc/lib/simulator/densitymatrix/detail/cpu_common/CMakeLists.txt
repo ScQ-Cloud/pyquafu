@@ -19,7 +19,7 @@
 # lint_cmake: -whitespace/indent
 
 target_sources(
-  mqsim_densitymatrix_cpu
+  quafusim_densitymatrix_cpu
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/cpu_densitymatrix_core_policy.cpp
           ${CMAKE_CURRENT_LIST_DIR}/cpu_densitymatrix_core_channel.cpp
           ${CMAKE_CURRENT_LIST_DIR}/cpu_densitymatrix_core_condition.cpp

@@ -1,7 +1,7 @@
-mindquantum.device.QubitsTopology
+quafu.device.QubitsTopology
 =================================
 
-.. py:class:: mindquantum.device.QubitsTopology(qubits: typing.List[QubitNode])
+.. py:class:: quafu.device.QubitsTopology(qubits: typing.List[QubitNode])
 
     量子比特在硬件设备上的拓扑结构图。
 

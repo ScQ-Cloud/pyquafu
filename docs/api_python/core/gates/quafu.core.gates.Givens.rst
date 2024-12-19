@@ -1,7 +1,7 @@
-mindquantum.core.gates.Givens
+quafu.core.gates.Givens
 =================================
 
-.. py:class:: mindquantum.core.gates.Givens(pr)
+.. py:class:: quafu.core.gates.Givens(pr)
 
     Givens 门。更多用法，请参见 :class:`~.core.gates.RX`。
 

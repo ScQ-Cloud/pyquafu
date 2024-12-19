@@ -1,7 +1,7 @@
-mindquantum.core.gates.FSim
+quafu.core.gates.FSim
 ============================
 
-.. py:class:: mindquantum.core.gates.FSim(theta: ParameterResolver, phi: ParameterResolver)
+.. py:class:: quafu.core.gates.FSim(theta: ParameterResolver, phi: ParameterResolver)
 
     FSim 门表示费米子模拟门。FSim 门的矩阵形式为：
 

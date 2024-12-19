@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.QAIA
+quafu.algorithm.qaia.QAIA
 ===============================
 
-.. py:class:: mindquantum.algorithm.qaia.QAIA(J, h=None, x=None, n_iter=1000, batch_size=1)
+.. py:class:: quafu.algorithm.qaia.QAIA(J, h=None, x=None, n_iter=1000, batch_size=1)
 
     量子退火启发式算法基类。
 

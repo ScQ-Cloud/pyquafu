@@ -1,12 +1,12 @@
-mindquantum.core
+quafu.core
 ================
 
-.. automodule:: mindquantum.core
+.. automodule:: quafu.core
 
 .. autosummary::
    :toctree: core
 
-   mindquantum.core.gates
-   mindquantum.core.circuit
-   mindquantum.core.operators
-   mindquantum.core.parameterresolver
+   quafu.core.gates
+   quafu.core.circuit
+   quafu.core.operators
+   quafu.core.parameterresolver

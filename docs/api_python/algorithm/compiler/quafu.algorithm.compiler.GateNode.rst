@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.GateNode
+quafu.algorithm.compiler.GateNode
 =======================================
 
-.. py:class:: mindquantum.algorithm.compiler.GateNode(gate: gates.BasicGate)
+.. py:class:: quafu.algorithm.compiler.GateNode(gate: gates.BasicGate)
 
     DAG 图中作为量子门的节点。
 

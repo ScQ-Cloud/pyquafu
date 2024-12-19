@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_TRAITS_HPP
-#define MQ_CONFIG_TRAITS_HPP
+#ifndef QUAFU_CONFIG_TRAITS_HPP
+#define QUAFU_CONFIG_TRAITS_HPP
 
 #include <complex>
 #include <tuple>
@@ -24,7 +24,7 @@
 #include "config/config.h"
 #include "details/cxx20_compatibility.h"
 
-namespace mindquantum::traits {
+namespace quafu::traits {
 template <typename T, typename U>
 inline constexpr auto is_same_decay_v = std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
 
@@ -129,8 +129,8 @@ template <typename...>
 inline constexpr auto is_unique = std::true_type{};
 
 template <typename T, typename... Ts>
-inline constexpr auto is_unique<T, Ts...> = std::bool_constant<
-    std::conjunction_v<std::negation<std::is_same<T, Ts>>...> && is_unique<Ts...>>{};
+inline constexpr auto is_unique<T, Ts...>
+    = std::bool_constant<std::conjunction_v<std::negation<std::is_same<T, Ts>>...> && is_unique<Ts...>>{};
 
 // ---------------------------------
 
@@ -142,6 +142,6 @@ template <typename T, typename... Us>
 inline constexpr auto tuple_contains<T, std::tuple<Us...>> = std::disjunction_v<std::is_same<T, Us>...>;
 
 // =============================================================================
-}  // namespace mindquantum::traits
+}  // namespace quafu::traits
 
-#endif /* MQ_CONFIG_TRAITS_HPP */
+#endif /* QUAFU_CONFIG_TRAITS_HPP */

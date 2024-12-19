@@ -1,7 +1,7 @@
-mindquantum.core.gates.QuantumGate
+quafu.core.gates.QuantumGate
 ==================================
 
-.. py:class:: mindquantum.core.gates.QuantumGate(name, n_qubits, obj_qubits=None, ctrl_qubits=None)
+.. py:class:: quafu.core.gates.QuantumGate(name, n_qubits, obj_qubits=None, ctrl_qubits=None)
 
     非参数化的门。
 

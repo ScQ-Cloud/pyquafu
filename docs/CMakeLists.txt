@@ -22,20 +22,20 @@ find_package(Sphinx REQUIRED)
 
 # ==============================================================================
 
-set(_mindquantum_public_headers)
+set(_quafu_public_headers)
 get_property(_doc_targets GLOBAL PROPERTY _doc_targets)
 
 foreach(tgt ${_doc_targets})
   get_target_property(_header_list ${tgt} INTERFACE_SOURCES)
   if(_header_list)
-    list(APPEND _mindquantum_public_headers ${_header_list})
+    list(APPEND _quafu_public_headers ${_header_list})
   endif()
 endforeach()
 
 # ------------------------------------------------------------------------------
 
-set(_mindquantum_rest_doc_files)
-file(GLOB_RECURSE _mindquantum_rest_doc_files "${CMAKE_CURRENT_LIST_DIR}/*.rst" "${CMAKE_CURRENT_LIST_DIR}/*.md")
+set(_quafu_rest_doc_files)
+file(GLOB_RECURSE _quafu_rest_doc_files "${CMAKE_CURRENT_LIST_DIR}/*.rst" "${CMAKE_CURRENT_LIST_DIR}/*.md")
 
 # ==============================================================================
 # Doxygen
@@ -61,7 +61,7 @@ file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR})
 
 add_custom_command(
   OUTPUT ${DOXYGEN_INDEX_FILE}
-  DEPENDS ${_mindquantum_public_headers}
+  DEPENDS ${_quafu_public_headers}
   COMMAND $<TARGET_FILE:Doxygen::doxygen> ${DOXYFILE_OUT}
   MAIN_DEPENDENCY ${DOXYFILE_OUT}
   ${DOXYFILE_IN}
@@ -89,10 +89,10 @@ add_custom_command(
   COMMAND
     $<TARGET_FILE:Python::Interpreter> ${Sphinx_EXECUTABLE} -b html
     # Tell Breathe where to find the Doxygen output
-    -Dbreathe_projects.mindquantum=${DOXYGEN_OUTPUT_DIR}/xml ${SPHINX_SOURCE} ${SPHINX_BUILD}
+    -Dbreathe_projects.quafu=${DOXYGEN_OUTPUT_DIR}/xml ${SPHINX_SOURCE} ${SPHINX_BUILD}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   DEPENDS # Other docs files you want to track should go here (or in some variable)
-          ${_mindquantum_rest_doc_files} ${DOXYGEN_INDEX_FILE}
+          ${_quafu_rest_doc_files} ${DOXYGEN_INDEX_FILE}
   MAIN_DEPENDENCY ${SPHINX_SOURCE}/conf.py
   COMMENT "Generating documentation with Sphinx")
 
@@ -122,4 +122,4 @@ add_custom_target(
 
 # NB: the SPHINX_BUILD directory will get populated by sphinx-build if (ever) called
 file(MAKE_DIRECTORY ${SPHINX_BUILD})
-install(DIRECTORY ${SPHINX_BUILD} DESTINATION ${MQ_INSTALL_DOCDIR})
+install(DIRECTORY ${SPHINX_BUILD} DESTINATION ${QUAFU_INSTALL_DOCDIR})

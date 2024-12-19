@@ -1,7 +1,7 @@
-mindquantum.core.operators.normal_ordered
+quafu.core.operators.normal_ordered
 ==========================================
 
-.. py:function:: mindquantum.core.operators.normal_ordered(fermion_operator)
+.. py:function:: quafu.core.operators.normal_ordered(fermion_operator)
 
     计算并返回FermionOperator的规范顺序。
     根据惯例，规范顺序意味着项从最高模式索引（左侧）到最低（右侧）排序。

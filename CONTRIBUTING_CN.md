@@ -1,6 +1,6 @@
 # MindSpore Quantum贡献指南
 
-[View English](https://gitee.com/mindspore/mindquantum/blob/master/CONTRIBUTING.md)
+[View English](https://gitee.com/mindspore/quafu/blob/master/CONTRIBUTING.md)
 
 - [MindSpore Quantum贡献指南](#mindspore-quantum贡献指南)
     - [贡献者许可协议](#贡献者许可协议)
@@ -54,10 +54,10 @@ MindSpore是一种适用于端边云场景的新型开源深度学习训练/推�
 
 #### pip安装
 
-- 安装MindQuantum
+- 安装quafu
 
 ```bash
-pip install mindquantum
+pip install quafu
 ```
 
 #### 源码安装
@@ -66,54 +66,54 @@ pip install mindquantum
 
     ```bash
     cd ~
-    git clone https://gitee.com/mindspore/mindquantum.git
+    git clone https://gitee.com/mindspore/quafu.git
     ```
 
-2. 编译MindQuantum
+2. 编译quafu
 
     **Linux系统**下请确保安装好CMake >= 3.18.3，然后运行如下命令：
 
     ```bash
-    cd ~/mindquantum
+    cd ~/quafu
     bash build.sh --gitee
     ```
 
     这里 `--gitee` 让脚本从gitee代码托管平台下载第三方依赖。如果需要编译GPU版本，请先安装好 CUDA 11.x，和对应的显卡驱动，然后使用`--gpu`参数，执行如下编译指令：
 
     ```bash
-    cd ~/mindquantum
+    cd ~/quafu
     bash build.sh --gitee --gpu
     ```
 
     **Windows系统**下请确保安装好MinGW-W64和CMake >= 3.18.3，然后运行如下命令：
 
     ```bash
-    cd ~/mindquantum
+    cd ~/quafu
     build.bat /Gitee
     ```
 
     **Mac系统**下请确保安装好openmp和CMake >= 3.18.3，然后运行如下命令：
 
     ```bash
-    cd ~/mindquantum
+    cd ~/quafu
     bash build.sh --gitee
     ```
 
 3. 安装编译好的whl包
 
-    进入output目录，通过`pip`命令安装编译好的mindquantum的whl包。
+    进入output目录，通过`pip`命令安装编译好的quafu的whl包。
 
 #### 验证是否成功安装
 
-执行如下命令，如果没有报错`No module named 'mindquantum'`，则说明安装成功。
+执行如下命令，如果没有报错`No module named 'quafu'`，则说明安装成功。
 
 ```bash
-python -c 'import mindquantum'
+python -c 'import quafu'
 ```
 
 ### 编译
 
-MindQuantum提供**编译出包**和**本地编译**两种方法
+quafu提供**编译出包**和**本地编译**两种方法
 
 1.编译出包，如果用户需要适配不同的系统环境、python版本，则可以将源码编译成wheel包，再安装，详细流程可参考上文[源码安装](# 源码安装)。
 
@@ -123,15 +123,15 @@ MindQuantum提供**编译出包**和**本地编译**两种方法
 
 ```bash
 cd ~
-git clone https://gitee.com/mindspore/mindquantum.git
+git clone https://gitee.com/mindspore/quafu.git
 ```
 
 - **Linux**系统，依赖于CMake >= 3.18.3，本地编译。
 
-  `--gitee`参数是指定脚本从gitee代码托管平台下载第三方依赖；`export`命令是添加mindquantum源码路径到PYTHONPATH环境变量里。
+  `--gitee`参数是指定脚本从gitee代码托管平台下载第三方依赖；`export`命令是添加quafu源码路径到PYTHONPATH环境变量里。
 
   ```bash
-  cd ~/mindquantum
+  cd ~/quafu
 
   bash build_locally.sh --gitee
   export PYTHONPATH=`pwd`$PYTHONPATH
@@ -140,7 +140,7 @@ git clone https://gitee.com/mindspore/mindquantum.git
 - **Windows**系统，依赖于MinGW-W64和CMake >= 3.18.3，本地编译。
 
   ```bash
-  cd ~/mindquantum
+  cd ~/quafu
   build_locally.bat /Gitee -G 'MinGW Makefiles'
   set PYTHONPATH=%cd%;%PYTHONPATH%
   ```
@@ -148,7 +148,7 @@ git clone https://gitee.com/mindspore/mindquantum.git
 - **Mac**系统，依赖于openmp和CMake >= 3.18.3，本地编译。
 
   ```bash
-  cd ~/mindquantum
+  cd ~/quafu
   bash build_locally.sh --gitee
   export PYTHONPATH=`pwd`$PYTHONPATH
   ```
@@ -158,7 +158,7 @@ git clone https://gitee.com/mindspore/mindquantum.git
 
       1.Linux和MacOS安装
 
-      1.1Linux/Ubuntu/Centos系统和MacOS系统会自带`gcc`，版本满足编译MindQuantum。
+      1.1Linux/Ubuntu/Centos系统和MacOS系统会自带`gcc`，版本满足编译quafu。
 
       1.2使用命令安装gcc
 
@@ -215,23 +215,23 @@ git clone https://gitee.com/mindspore/mindquantum.git
 
 ### 开发
 
-mindquantum主要使用C++和python进行开发，核心计算单元使用C/C++实现，上层接口及周边模块使用Python实现
+quafu主要使用C++和python进行开发，核心计算单元使用C/C++实现，上层接口及周边模块使用Python实现
 
 开发流程主要分成2类，开发新功能，修复缺陷bug：
 
-- 开发新功能，进入MindQuantum的issue页面，提交issue，编写新功能描述、类别、实现方法等。与MindQuantum开发团队交流，确认该功能是否必要。本地着手实现，编写代码，实现功能，编写相应的测试用例，相应的说明文档。提交PR，待代码通过审查后合入主分支，新功能开发完毕。
+- 开发新功能，进入quafu的issue页面，提交issue，编写新功能描述、类别、实现方法等。与quafu开发团队交流，确认该功能是否必要。本地着手实现，编写代码，实现功能，编写相应的测试用例，相应的说明文档。提交PR，待代码通过审查后合入主分支，新功能开发完毕。
 
-- 修复缺陷bug，进入MindQuantum的issue页面，阅读未关闭的issue，认领issue解决问题。或者平时使用MindQuantum遇到bug，欢迎提交issue，帮助完善MindQuantum功能模块。
+- 修复缺陷bug，进入quafu的issue页面，阅读未关闭的issue，认领issue解决问题。或者平时使用quafu遇到bug，欢迎提交issue，帮助完善quafu功能模块。
 
 ## 快速入门
 
-- 在[Gitee](https://gitee.com/mindspore/mindquantum)上fork mindquantum代码仓。
-- 参见[README_CN.md](https://gitee.com/mindspore/mindquantum/blob/master/README_CN.md)了解项目信息和构建说明。
+- 在[Gitee](https://gitee.com/mindspore/quafu)上fork quafu代码仓。
+- 参见[README_CN.md](https://gitee.com/mindspore/quafu/blob/master/README_CN.md)了解项目信息和构建说明。
 - 初体验-搭建参数化量子线路
-  使用 `mindquantum`搭建包括H门、RX门和RY门的量子线路，并得到量子态
+  使用 `quafu`搭建包括H门、RX门和RY门的量子线路，并得到量子态
 
 ```python
-from mindquantum import *
+from quafu import *
 import numpy as np
 
 encoder = Circuit().h(0).rx({'a0': 2}, 0).ry('a1', 1)
@@ -256,43 +256,43 @@ q1: ──┨ RY(a1) ┠───────────
 
 ## 代码结构
 
-- [`ccsrc`](https://api.gitee.com/mindspore/mindquantum/tree/master/ccsrc) 核心运算模块，使用C/C++实现
-- [`cmake`](https://api.gitee.com/mindspore/mindquantum/tree/master/cmake) cmake编译配置信息
-- [`docs`](https://api.gitee.com/mindspore/mindquantum/tree/master/docs) MindQuantum API文档
-- [`mindquantum`](https://api.gitee.com/mindspore/mindquantum/tree/master/mindquantum) MindQuantum量子计算模块，使用Python实现
-    - [`mindquantum.dtype`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.dtype.html#module-mindquantum.dtype) MindQuantum 数据类型模拟。
-    - [`mindquantum.core`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.core.html#module-mindquantum.core) MindQuantum的核心特性(eDSL)。
-        - [`gata`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/core/mindquantum.core.gates.html) 量子门模块，提供不同的量子门。
-        - [`circuit`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/core/mindquantum.core.circuit.html) 量子线路模块，可以轻松地搭建出符合要求的量子线路，包括参数化量子线路。
-        - [`operators`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/core/mindquantum.core.operators.html) MindQuantum 算子库
-        - [`parameterresolver`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/core/mindquantum.core.parameterresolver.html) 参数解析器模块，用于声明使用到的参数。
-    - [`mindquantum.simulator`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.simulator.html#module-mindquantum.simulator) 模拟量子系统演化的量子模拟器。
-    - [`mindquantum.framework`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.framework.html#module-mindquantum.framework) 量子神经网络算子和cell。
-    - [`mindquantum.algorithm`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.algorithm.html#module-mindquantum.algorithm) 量子算法。
-        - [`compiler`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.compiler.html) 量子线路编译模块
-        - [`library`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.library.html) 常用算法模块
-        - [`nisq`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.nisq.html) NISQ算法
-        - [`error_mitigation`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.error_mitigation.html) 误差缓解模块
-        - [`mapping`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.mapping.html) 比特映射模块
-    - [`mindquantum.device`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.device.html#module-mindquantum.device) MindQuantum 硬件模块。
-    - [`mindquantum.io`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.io.html#module-mindquantum.io) MindQuantum的输入/输出模块。
-    - [`mindquantum.engine`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.engine.html#module-mindquantum.engine) MindQuantum引擎模块。
-    - [`mindquantum.utils`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.utils.html#module-mindquantum.utils) 实用工具。
-- [`mindquantum_config`](https://api.gitee.com/mindspore/mindquantum/tree/master/mindquantum_config) 项目配置信息
-- [`scripts`](https://api.gitee.com/mindspore/mindquantum/tree/master/scripts) 编译依赖工具更新脚本
-- [`tests`](https://api.gitee.com/mindspore/mindquantum/tree/master/tests) MindQuantum 单元测试，基于Pytest，使用Python编写
-- [`third_party`](https://api.gitee.com/mindspore/mindquantum/tree/master/third_party) MindQuantum编译依赖的第三方开源包
-- [`tutorials`](https://api.gitee.com/mindspore/mindquantum/tree/master/tutorials) MindQuantum 教程教案，使用jupyter可以直接运行，在[mindspore官方文档](https://mindspore.cn/mindquantum/docs/zh-CN/master/index.html)可阅读。
+- [`ccsrc`](https://api.gitee.com/mindspore/quafu/tree/master/ccsrc) 核心运算模块，使用C/C++实现
+- [`cmake`](https://api.gitee.com/mindspore/quafu/tree/master/cmake) cmake编译配置信息
+- [`docs`](https://api.gitee.com/mindspore/quafu/tree/master/docs) quafu API文档
+- [`quafu`](https://api.gitee.com/mindspore/quafu/tree/master/quafu) quafu量子计算模块，使用Python实现
+    - [`quafu.dtype`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.dtype.html#module-quafu.dtype) quafu 数据类型模拟。
+    - [`quafu.core`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.core.html#module-quafu.core) quafu的核心特性(eDSL)。
+        - [`gata`](https://www.mindspore.cn/quafu/docs/zh-CN/master/core/quafu.core.gates.html) 量子门模块，提供不同的量子门。
+        - [`circuit`](https://www.mindspore.cn/quafu/docs/zh-CN/master/core/quafu.core.circuit.html) 量子线路模块，可以轻松地搭建出符合要求的量子线路，包括参数化量子线路。
+        - [`operators`](https://www.mindspore.cn/quafu/docs/zh-CN/master/core/quafu.core.operators.html) quafu 算子库
+        - [`parameterresolver`](https://www.mindspore.cn/quafu/docs/zh-CN/master/core/quafu.core.parameterresolver.html) 参数解析器模块，用于声明使用到的参数。
+    - [`quafu.simulator`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.simulator.html#module-quafu.simulator) 模拟量子系统演化的量子模拟器。
+    - [`quafu.framework`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.framework.html#module-quafu.framework) 量子神经网络算子和cell。
+    - [`quafu.algorithm`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.algorithm.html#module-quafu.algorithm) 量子算法。
+        - [`compiler`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.compiler.html) 量子线路编译模块
+        - [`library`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.library.html) 常用算法模块
+        - [`nisq`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.nisq.html) NISQ算法
+        - [`error_mitigation`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.error_mitigation.html) 误差缓解模块
+        - [`mapping`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.mapping.html) 比特映射模块
+    - [`quafu.device`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.device.html#module-quafu.device) quafu 硬件模块。
+    - [`quafu.io`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.io.html#module-quafu.io) quafu的输入/输出模块。
+    - [`quafu.engine`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.engine.html#module-quafu.engine) quafu引擎模块。
+    - [`quafu.utils`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.utils.html#module-quafu.utils) 实用工具。
+- [`quafu_config`](https://api.gitee.com/mindspore/quafu/tree/master/quafu_config) 项目配置信息
+- [`scripts`](https://api.gitee.com/mindspore/quafu/tree/master/scripts) 编译依赖工具更新脚本
+- [`tests`](https://api.gitee.com/mindspore/quafu/tree/master/tests) quafu 单元测试，基于Pytest，使用Python编写
+- [`third_party`](https://api.gitee.com/mindspore/quafu/tree/master/third_party) quafu编译依赖的第三方开源包
+- [`tutorials`](https://api.gitee.com/mindspore/quafu/tree/master/tutorials) quafu 教程教案，使用jupyter可以直接运行，在[mindspore官方文档](https://mindspore.cn/quafu/docs/zh-CN/master/index.html)可阅读。
 
 ## 单元测试
 
-mindquantum基于pytest编写单元测试用例，建议开发者在实现一个新的功能、模块后，编写对应的单元测试用例，保证功能正常
+quafu基于pytest编写单元测试用例，建议开发者在实现一个新的功能、模块后，编写对应的单元测试用例，保证功能正常
 
 ## 编写文档
 
-编写文档的说明指南，MindQuantum 有两种主要类型的文档：
+编写文档的说明指南，quafu 有两种主要类型的文档：
 
-- 面向用户的文档：这些是用户在[MindSpore Quantum网站](https://mindspore.cn/mindquantum/docs/zh-CN/master/index.html)上看到的文档，包括线路构建，模拟器，算法实现等教程教案，有助于快速入手并应用MindQuantum，也有利于学习量子计算算法。
+- 面向用户的文档：这些是用户在[MindSpore Quantum网站](https://mindspore.cn/quafu/docs/zh-CN/master/index.html)上看到的文档，包括线路构建，模拟器，算法实现等教程教案，有助于快速入手并应用quafu，也有利于学习量子计算算法。
 - 面向开发人员的文档：面向开发人员的文档分布在代码库`MindQuanntum/docs`中。如果有兴趣添加新的开发人员文档，请阅读wiki 上的此页面，了解最佳实践，并在编写代码后及时书写注释，API是通过抽取代码中的注释信息整理而成。
 
 ## 贡献流程
@@ -331,7 +331,7 @@ mindquantum基于pytest编写单元测试用例，建议开发者在实现一个
   ```shell
   # 在Gitee上
 
-  git clone https://gitee.com/{insert_your_forked_repo}/mindquantum.git
+  git clone https://gitee.com/{insert_your_forked_repo}/quafu.git
   ```
 
 - 本地开发代码。
@@ -400,7 +400,7 @@ git push origin {新分支名称}
 
 ### 提交PR
 
-- 在[Gitee](https://api.gitee.com/mindspore/mindquantum/issues)上通过issue提出您的想法。
+- 在[Gitee](https://api.gitee.com/mindspore/quafu/issues)上通过issue提出您的想法。
 
 - 如果是需要大量设计细节的新功能，还应提交设计方案。
 

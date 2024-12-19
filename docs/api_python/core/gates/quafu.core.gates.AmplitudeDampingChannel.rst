@@ -1,8 +1,8 @@
 
-mindquantum.core.gates.AmplitudeDampingChannel
+quafu.core.gates.AmplitudeDampingChannel
 ===============================================
 
-.. py:class:: mindquantum.core.gates.AmplitudeDampingChannel(gamma: float, **kwargs)
+.. py:class:: quafu.core.gates.AmplitudeDampingChannel(gamma: float, **kwargs)
 
     振幅阻尼信道。可以表示量子比特由于能量耗散导致的错误。
 

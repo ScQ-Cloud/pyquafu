@@ -25,7 +25,7 @@
 #include "math/longbits/longbits.h"
 #include "ops/basic_gate.h"
 #include "ops/gate_id.h"
-namespace mindquantum::stabilizer {
+namespace quafu::stabilizer {
 using stab_circ_t = VT<std::shared_ptr<BasicGate>>;
 
 class StabilizerTableau {
@@ -80,5 +80,5 @@ class StabilizerTableau {
 };
 
 stab_circ_t CliffordCircDagger(const stab_circ_t& circ);
-}  // namespace mindquantum::stabilizer
+}  // namespace quafu::stabilizer
 #endif

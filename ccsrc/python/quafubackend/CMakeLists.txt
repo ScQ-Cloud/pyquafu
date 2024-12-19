@@ -18,14 +18,14 @@
 
 # lint_cmake: -whitespace/indent,-whitespace/extra
 
-add_library(mqbackend_python_interface INTERFACE)
-target_include_directories(mqbackend_python_interface INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-                                                                $<INSTALL_INTERFACE:${MQ_INSTALL_INCLUDEDIR}>)
-append_to_property(mq_install_targets GLOBAL mqbackend_python_interface)
+add_library(quafubackend_python_interface INTERFACE)
+target_include_directories(quafubackend_python_interface INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                                                                $<INSTALL_INTERFACE:${QUAFU_INSTALL_INCLUDEDIR}>)
+append_to_property(quafu_install_targets GLOBAL quafubackend_python_interface)
 
 # ------------------------------------------------------------------------------
 
-install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/python DESTINATION ${MQ_INSTALL_INCLUDEDIR})
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/python DESTINATION ${QUAFU_INSTALL_INCLUDEDIR})
 
 # ==============================================================================
 
@@ -46,24 +46,24 @@ if(_lto_workaround)
 endif()
 
 pybind11_add_module(
-  mqbackend MODULE
+  quafubackend MODULE
   OUTPUT_HINT
-    "${MQ_PYTHON_PACKAGE_NAME}" ${CMAKE_CURRENT_LIST_DIR}/lib/binding.cc ${CMAKE_CURRENT_LIST_DIR}/lib/logging.cpp
+    "${QUAFU_PYTHON_PACKAGE_NAME}" ${CMAKE_CURRENT_LIST_DIR}/lib/binding.cc ${CMAKE_CURRENT_LIST_DIR}/lib/logging.cpp
                                 ${CMAKE_CURRENT_LIST_DIR}/lib/build_env.cpp)
 
 if(_lto_workaround)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 endif()
 
-target_include_directories(mqbackend PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
+target_include_directories(quafubackend PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
 
-force_at_least_cxx17_workaround(mqbackend)
-target_link_libraries(mqbackend PUBLIC ${MQ_OPENMP_TARGET} mq_base mq_python_core mqbackend_python_interface
-                                       mq_python_device)
+force_at_least_cxx17_workaround(quafubackend)
+target_link_libraries(quafubackend PUBLIC ${QUAFU_OPENMP_TARGET} quafu_base quafu_python_core quafubackend_python_interface
+                                       quafu_python_device)
 
 # ------------------------------------------------------------------------------
 
-get_target_property(_mqbackend_output_dir mqbackend LIBRARY_OUTPUT_DIRECTORY)
-if(NOT _mqbackend_output_dir)
-  set(_mqbackend_output_dir "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+get_target_property(_quafubackend_output_dir quafubackend LIBRARY_OUTPUT_DIRECTORY)
+if(NOT _quafubackend_output_dir)
+  set(_quafubackend_output_dir "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 endif()

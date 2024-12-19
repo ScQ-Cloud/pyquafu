@@ -20,7 +20,7 @@
 #include <numeric>
 #include <stdexcept>
 
-namespace mindquantum::mapping {
+namespace quafu::mapping {
 // =============================================================================
 
 QubitNode::QubitNode(qbit_t id, std::string color, double poi_x, double poi_y, const std::set<qbit_t>& neighbour)
@@ -260,4 +260,4 @@ int GridQubits::NRow() {
 int GridQubits::NCol() {
     return this->n_col;
 }
-}  // namespace mindquantum::mapping
+}  // namespace quafu::mapping

@@ -1,7 +1,7 @@
-mindquantum.core.gates.Rzz
+quafu.core.gates.Rzz
 ===============================
 
-.. py:class:: mindquantum.core.gates.Rzz(pr)
+.. py:class:: quafu.core.gates.Rzz(pr)
 
     Rzz 门。更多用法，请参见 :class:`~.core.gates.RX`。
 

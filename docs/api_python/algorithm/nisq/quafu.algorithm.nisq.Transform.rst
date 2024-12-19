@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.Transform
+quafu.algorithm.nisq.Transform
 =====================================
 
-.. py:class:: mindquantum.algorithm.nisq.Transform(operator, n_qubits=None)
+.. py:class:: quafu.algorithm.nisq.Transform(operator, n_qubits=None)
 
     将费米子或者玻色子进行转化的模块。
     `jordan_wigner` , `parity` , `bravyi_kitaev` , `bravyi_kitaev_tree` , `bravyi_kitaev_superfast` 将会把 `FermionOperator` 转换为 `QubitOperator`。 `reversed_jordan_wigner` 将会把 `QubitOperator` 转换为 `FermionOperator` 。

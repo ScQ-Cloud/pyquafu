@@ -1,10 +1,10 @@
-mindquantum.device
+quafu.device
 ==================
 
-.. py:module:: mindquantum.device
+.. py:module:: quafu.device
 
 
-MindQuantum 硬件模块。
+quafu 硬件模块。
 
 Class
 -----
@@ -14,7 +14,7 @@ Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.device.QubitNode
-    mindquantum.device.QubitsTopology
-    mindquantum.device.GridQubits
-    mindquantum.device.LinearQubits
+    quafu.device.QubitNode
+    quafu.device.QubitsTopology
+    quafu.device.GridQubits
+    quafu.device.LinearQubits

@@ -58,9 +58,9 @@ function(pybind11_add_module target)
 
   # Do we need to apply a workaround to compile using the correct pybind11? (see mindspore_ci.cmake for more
   # information)
-  if(_mq_pybind11_prepend_to_link_libraries)
+  if(_quafu_pybind11_prepend_to_link_libraries)
     get_target_property(_link_libraries ${target} LINK_LIBRARIES)
-    list(PREPEND _link_libraries "${_mq_pybind11_prepend_to_link_libraries}")
+    list(PREPEND _link_libraries "${_quafu_pybind11_prepend_to_link_libraries}")
     list(REMOVE_DUPLICATES _link_libraries)
     set_target_properties(${target} PROPERTIES LINK_LIBRARIES "${_link_libraries}")
   endif()
@@ -68,7 +68,7 @@ function(pybind11_add_module target)
   append_to_property(_doc_targets GLOBAL ${target})
   append_to_property(_python_targets GLOBAL ${target})
 
-  set(_install_lib_dir "${MQ_INSTALL_PYTHONDIR}")
+  set(_install_lib_dir "${QUAFU_INSTALL_PYTHONDIR}")
   if(PAM_OUTPUT_HINT)
     set_output_directory_auto(${target} "${PAM_OUTPUT_HINT}")
     set(_install_lib_dir "${_install_lib_dir}/${PAM_OUTPUT_HINT}")
@@ -77,10 +77,10 @@ function(pybind11_add_module target)
   if(NOT IS_PYTHON_BUILD)
     install(
       TARGETS ${target}
-      EXPORT mindquantumPythonTargets
+      EXPORT quafuPythonTargets
       ARCHIVE DESTINATION ${_install_lib_dir}
       LIBRARY DESTINATION ${_install_lib_dir}
-      RUNTIME DESTINATION ${MQ_INSTALL_BINDIR})
+      RUNTIME DESTINATION ${QUAFU_INSTALL_BINDIR})
   endif()
 endfunction()
 
@@ -103,8 +103,8 @@ function(add_test_executable target)
   # NB: these will never be installed so need RPATH if we want to run them
   set_target_properties(${target} PROPERTIES BUILD_WITH_INSTALL_RPATH FALSE SKIP_BUILD_RPATH FALSE)
   target_include_directories(${target} PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/tests>
-                                               $<INSTALL_INTERFACE:${MQ_INSTALL_INCLUDEDIR}/include/tests>)
-  target_link_libraries(${target} PRIVATE Catch2::Catch2 mindquantum_catch2_main mindquantum_catch2_utils
+                                               $<INSTALL_INTERFACE:${QUAFU_INSTALL_INCLUDEDIR}/include/tests>)
+  target_link_libraries(${target} PRIVATE Catch2::Catch2 quafu_catch2_main quafu_catch2_utils
                                           ${${target}_LIBS})
   catch_discover_tests(${target})
   target_compile_definitions(${target} PRIVATE ${${target}_DEFINES})

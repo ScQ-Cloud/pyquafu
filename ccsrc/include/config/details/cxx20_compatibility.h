@@ -24,12 +24,12 @@
 #    endif
 #endif
 
-#if MQ_HAS_CONCEPTS
+#if QUAFU_HAS_CONCEPTS
 #    include <concepts>
 #endif
 
 namespace std {
-#if MQ_HAS_CONCEPTS && !MQ_HAS_CONCEPT_LIBRARY && !(defined(_MSC_VER) && __cpp_lib_concepts == 201907L)
+#if QUAFU_HAS_CONCEPTS && !QUAFU_HAS_CONCEPT_LIBRARY && !(defined(_MSC_VER) && __cpp_lib_concepts == 201907L)
 // clang-format off
 template <class T>
 concept integral = is_integral_v<T>;
@@ -45,10 +45,10 @@ template <class Derived, class Base>
 concept derived_from = is_base_of_v<Base, Derived> && is_convertible_v<const volatile Derived*,
                                                                                  const volatile Base*>;
 
-#if !MQ_HAS_CONCEPT_DESTRUCTIBLE
+#if !QUAFU_HAS_CONCEPT_DESTRUCTIBLE
 template <class T>
 concept destructible = is_nothrow_destructible_v<T>;
-#endif /* !MQ_HAS_CONCEPT_DESTRUCTIBLE */
+#endif /* !QUAFU_HAS_CONCEPT_DESTRUCTIBLE */
 
 template <class T, class... Args>
 concept constructible_from = destructible<T>&& is_constructible_v<T, Args...>;
@@ -75,9 +75,9 @@ concept copy_constructible = move_constructible<T>&& constructible_from<T, T&>&&
         convertible_to<const T, T>;
 
 // clang-format on
-#endif  // MQ_HAS_CONCEPTS && !MQ_HAS_CONCEPT_LIBRARY
+#endif  // QUAFU_HAS_CONCEPTS && !QUAFU_HAS_CONCEPT_LIBRARY
 
-#if !MQ_HAS_REMOVE_CVREF_T
+#if !QUAFU_HAS_REMOVE_CVREF_T
 template <class T>
 struct remove_cvref {
     using type = remove_cv_t<remove_reference_t<T>>;
@@ -85,14 +85,14 @@ struct remove_cvref {
 
 template <class T>
 using remove_cvref_t = typename remove_cvref<T>::type;
-#endif  // !MQ_HAS_REMOVE_CVREF_T
+#endif  // !QUAFU_HAS_REMOVE_CVREF_T
 
-#if !MQ_HAS_STD_LAUNDER
+#if !QUAFU_HAS_STD_LAUNDER
 template <typename T>
 constexpr T* launder(T* t) noexcept {
     return t;
 }
-#endif  // !MQ_HAS_STD_LAUNDER
+#endif  // !QUAFU_HAS_STD_LAUNDER
 
 }  // namespace std
 

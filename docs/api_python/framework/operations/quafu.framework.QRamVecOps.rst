@@ -1,7 +1,7 @@
-mindquantum.framework.QRamVecOps
+quafu.framework.QRamVecOps
 ================================
 
-.. py:class:: mindquantum.framework.QRamVecOps(hams, circ, sim, n_thread=None)
+.. py:class:: quafu.framework.QRamVecOps(hams, circ, sim, n_thread=None)
 
     QRam 算子，该算子可以直接将经典数据编码为全振幅量子态。此算子只能在 `PYNATIVE_MODE` 下执行。
 

@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.CFC
+quafu.algorithm.qaia.CFC
 ==============================
 
-.. py:class:: mindquantum.algorithm.qaia.CFC(J, h=None, x=None, n_iter=1000, batch_size=1, dt=0.1)
+.. py:class:: quafu.algorithm.qaia.CFC(J, h=None, x=None, n_iter=1000, batch_size=1, dt=0.1)
 
     混沌振幅反馈算法。
 

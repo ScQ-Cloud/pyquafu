@@ -1,7 +1,7 @@
-mindquantum.core.operators.PolynomialTensor
+quafu.core.operators.PolynomialTensor
 ============================================
 
-.. py:class:: mindquantum.core.operators.PolynomialTensor(n_body_tensors=None)
+.. py:class:: quafu.core.operators.PolynomialTensor(n_body_tensors=None)
 
     以张量形式存储费米梯算子系数的类。
     例如，在粒子数守恒的分子哈密顿量（4级多项式）中，只有三种项，即常数项、

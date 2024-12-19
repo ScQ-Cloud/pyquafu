@@ -1,7 +1,7 @@
-mindquantum.core.operators.Projector
+quafu.core.operators.Projector
 =====================================
 
-.. py:class:: mindquantum.core.operators.Projector(proj)
+.. py:class:: quafu.core.operators.Projector(proj)
 
     投影算子。
 

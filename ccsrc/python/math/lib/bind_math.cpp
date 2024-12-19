@@ -29,7 +29,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "math/operators/fermion_operator_view.h"
 #include "math/operators/qubit_operator_view.h"
 #include "math/operators/sparsing.h"
@@ -64,7 +64,7 @@ using namespace pybind11::literals;  // NOLINT(build/namespaces_literals)
         .def(std::complex<float>() op py::self)                                                                        \
         .def(std::complex<double>() op py::self)
 
-namespace mindquantum::python {
+namespace quafu::python {
 void BindTensor(py::module &module) {  // NOLINT(runtime/references)
     py::class_<tensor::Tensor, std::shared_ptr<tensor::Tensor>>(module, "Tensor", py::buffer_protocol())
         .def(py::init<>())
@@ -183,9 +183,9 @@ void BindPR(py::module &module) {  // NOLINT(runtime/references)
         .def("update", &pr_t::Update);
 }
 struct IdxArrayWrapper {
-    mindquantum::index_t *data = nullptr;
-    mindquantum::index_t dim;
-    IdxArrayWrapper(mindquantum::index_t *data, mindquantum::index_t dim) : data(data), dim(dim) {
+    quafu::index_t *data = nullptr;
+    quafu::index_t dim;
+    IdxArrayWrapper(quafu::index_t *data, quafu::index_t dim) : data(data), dim(dim) {
     }
     IdxArrayWrapper() = default;
 };
@@ -195,15 +195,15 @@ void BindCsrMatrix(py::module &module) {  // NOLINT(runtime/references)
     py::class_<IdxArrayWrapper, std::shared_ptr<IdxArrayWrapper>>(module, "idx_array_wrapper", py::buffer_protocol())
         .def(py::init<>())
         .def_buffer([](IdxArrayWrapper &t) -> py::buffer_info {
-            auto format = py::format_descriptor<mindquantum::index_t>::format();
+            auto format = py::format_descriptor<quafu::index_t>::format();
             // clang-format off
             return py::buffer_info(
                 t.data,
-                sizeof(mindquantum::index_t),
+                sizeof(quafu::index_t),
                 format,
                 1,
                 {t.dim, },
-                {sizeof(mindquantum::index_t)});
+                {sizeof(quafu::index_t)});
             // clang-format on
         });
     py::class_<csr_t, std::shared_ptr<csr_t>>(module, "csr_matrix")
@@ -337,44 +337,40 @@ void BindTransform(py::module &module) {  // NOLINT(runtime/references)
     module.def("ternary_tree", &operators::transform::ternary_tree, "ops"_a, "n_qubits"_a);
     module.def("bravyi_kitaev_superfast", &operators::transform::bravyi_kitaev_superfast, "ops"_a);
 }
-}  // namespace mindquantum::python
+}  // namespace quafu::python
 #undef BIND_TENSOR_OPS
 #undef BIND_TENSOR_OPS_REV
 
 PYBIND11_MODULE(_math, m) {
-    m.doc() = "MindQuantum Math module.";
+    m.doc() = "quafu Math module.";
     auto dtype_id = py::enum_<tensor::TDtype>(m, "dtype")
                         .value("complex64", tensor::TDtype::Complex64)
                         .value("complex128", tensor::TDtype::Complex128)
                         .value("float32", tensor::TDtype::Float32)
                         .value("float64", tensor::TDtype::Float64);
     dtype_id.attr("__repr__") = pybind11::cpp_function(
-        [](const tensor::TDtype &dtype) -> pybind11::str { return "mindquantum." + tensor::dtype_to_string(dtype); },
+        [](const tensor::TDtype &dtype) -> pybind11::str { return "quafu." + tensor::dtype_to_string(dtype); },
         pybind11::name("name"), pybind11::is_method(dtype_id));
     dtype_id.attr("__str__") = pybind11::cpp_function(
-        [](const tensor::TDtype &dtype) -> pybind11::str { return "mindquantum." + tensor::dtype_to_string(dtype); },
+        [](const tensor::TDtype &dtype) -> pybind11::str { return "quafu." + tensor::dtype_to_string(dtype); },
         pybind11::name("name"), pybind11::is_method(dtype_id));
     auto device_id
         = py::enum_<tensor::TDevice>(m, "device").value("CPU", tensor::TDevice::CPU).value("GPU", tensor::TDevice::GPU);
     device_id.attr("__repr__") = pybind11::cpp_function(
-        [](const tensor::TDevice &device) -> pybind11::str {
-            return "mindquantum." + tensor::device_to_string(device);
-        },
+        [](const tensor::TDevice &device) -> pybind11::str { return "quafu." + tensor::device_to_string(device); },
         pybind11::name("name"), pybind11::is_method(device_id));
     device_id.attr("__str__") = pybind11::cpp_function(
-        [](const tensor::TDevice &device) -> pybind11::str {
-            return "mindquantum." + tensor::device_to_string(device);
-        },
+        [](const tensor::TDevice &device) -> pybind11::str { return "quafu." + tensor::device_to_string(device); },
         pybind11::name("name"), pybind11::is_method(device_id));
 
-    py::module tensor_module = m.def_submodule("tensor", "MindQuantum Tensor module.");
-    mindquantum::python::BindTensor(tensor_module);
-    mindquantum::python::BindCsrMatrix(tensor_module);
+    py::module tensor_module = m.def_submodule("tensor", "quafu Tensor module.");
+    quafu::python::BindTensor(tensor_module);
+    quafu::python::BindCsrMatrix(tensor_module);
 
-    py::module pr_module = m.def_submodule("pr", "MindQuantum ParameterResolver module.");
-    mindquantum::python::BindPR(pr_module);
+    py::module pr_module = m.def_submodule("pr", "quafu ParameterResolver module.");
+    quafu::python::BindPR(pr_module);
 
-    py::module ops_module = m.def_submodule("ops", "MindQuantum Operators module.");
-    mindquantum::python::BindQubitOperator(ops_module);
-    mindquantum::python::BindTransform(ops_module);
+    py::module ops_module = m.def_submodule("ops", "quafu Operators module.");
+    quafu::python::BindQubitOperator(ops_module);
+    quafu::python::BindTransform(ops_module);
 }

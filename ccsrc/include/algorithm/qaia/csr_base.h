@@ -17,9 +17,9 @@
 #ifndef CSR_BASE_H
 #define CSR_BASE_H
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 
-namespace mindquantum::sparse {
+namespace quafu::sparse {
 template <typename T>
 struct CsrBase {
     int dim_;
@@ -35,6 +35,6 @@ struct CsrBase {
         : dim_(dim), nnz_(nnz), indptr_(indptr), indices_(indices), data_(data) {
     }
 };
-}  // namespace mindquantum::sparse
+}  // namespace quafu::sparse
 
 #endif

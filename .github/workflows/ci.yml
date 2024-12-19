@@ -93,7 +93,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: >-
             ${{ matrix.runs-on }}-python-${{ matrix.python }}-third-party-libs-${{ hashFiles('third_party/**') }}
             -${{ secrets.cache_ver }}
@@ -132,7 +132,7 @@ jobs:
           echo $PYTHONPATH
           pip install -r requirements_test.txt
           pip install pytest
-          python3 -c "import mindquantum as mq;print(mq.qft(range(3)))"
+          python3 -c "import quafu as quafu;print(quafu.qft(range(3)))"
           pytest tests/st -rs
 
   # ============================================================================
@@ -194,7 +194,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: macos-${{ matrix.xcode }}-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Configure
@@ -220,7 +220,7 @@ jobs:
           echo $PYTHONPATH
           pip install -r requirements_test.txt
           pip install pytest
-          python3 -c "import mindquantum as mq;print(mq.qft(range(3)))"
+          python3 -c "import quafu as quafu;print(quafu.qft(range(3)))"
           pytest tests/st -rs
 
   # ============================================================================
@@ -245,7 +245,7 @@ jobs:
 
       - name: Get history and tags for SCM versioning to work
         run: |
-          git config --global --add safe.directory /__w/mindquantum/mindquantum
+          git config --global --add safe.directory /__w/quafu/quafu
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
@@ -288,7 +288,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: gcc-${{ matrix.gcc }}-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Configure
@@ -369,7 +369,7 @@ jobs:
           echo $PYTHONPATH
           pip install -r requirements_test.txt
           pip install pytest
-          python3 -c "import mindquantum as mq;print(mq.qft(range(3)))"
+          python3 -c "import quafu as quafu;print(quafu.qft(range(3)))"
           pytest tests/st -rs
 
   # ============================================================================
@@ -410,7 +410,7 @@ jobs:
         run: |
           ls -alth
           # pwd
-          # git config --global --add safe.directory /__w/mindquantum/mindquantum
+          # git config --global --add safe.directory /__w/quafu/quafu
           # git fetch --prune --unshallow
           # git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
@@ -453,7 +453,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: clang-${{ matrix.clang }}-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Configure (Clang)
@@ -540,7 +540,7 @@ jobs:
           echo $PYTHONPATH
           pip install -r requirements_test.txt
           pip install pytest
-          python3 -c "import mindquantum as mq;print(mq.qft(range(3)))"
+          python3 -c "import quafu as quafu;print(quafu.qft(range(3)))"
           pytest tests/st -rs
 
   # ============================================================================
@@ -600,7 +600,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: msvc-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Configure
@@ -688,7 +688,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: clang-cl-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Configure
@@ -753,7 +753,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: mingw64-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Set up MinGW64
@@ -911,7 +911,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: msys2-${{ matrix.msystem }}-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Configure
@@ -1011,7 +1011,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: cuda-${{ matrix.cuda }}-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Configure
@@ -1038,7 +1038,7 @@ jobs:
           echo $PYTHONPATH
           pip install -r requirements_test.txt
           pip install pytest
-          python3 -c "import mindquantum as mq;print(mq.qft(range(3)))"
+          python3 -c "import quafu as quafu;print(quafu.qft(range(3)))"
           pytest tests/st -rs
 
   # ============================================================================
@@ -1104,7 +1104,7 @@ jobs:
         if: env.ACT != 'true'
         uses: actions/cache@v3
         with:
-          path: build/.mqlibs
+          path: build/.quafulibs
           key: nvhpc-${{ matrix.nvhpc }}-third-party-libs-${{ hashFiles('third_party/**') }}-${{ secrets.cache_ver }}
 
       - name: Configure

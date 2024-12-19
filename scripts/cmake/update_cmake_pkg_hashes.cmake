@@ -61,8 +61,8 @@ endfunction()
 
 # ==============================================================================
 
-# Monkeypatch the `mindquantum_add_pkg` macro to extract version information
-function(mindquantum_add_pkg pkg_name)
+# Monkeypatch the `quafu_add_pkg` macro to extract version information
+function(quafu_add_pkg pkg_name)
   set(options)
   set(oneValueArgs GIT_REPOSITORY GIT_TAG URL VER)
   set(multiValueArgs)

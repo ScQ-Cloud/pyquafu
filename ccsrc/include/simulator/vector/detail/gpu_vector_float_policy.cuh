@@ -17,7 +17,7 @@
 #define INCLUDE_VECTOR_DETAIL_GPU_VECTOR_FLOAT_POLICY_HPP
 #include "simulator/vector/detail/gpu_vector_policy.cuh"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 struct GPUVectorPolicyFloat : public GPUVectorPolicyBase<GPUVectorPolicyFloat, float> {};
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 #endif

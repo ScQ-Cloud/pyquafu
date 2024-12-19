@@ -1,7 +1,7 @@
-mindquantum.core.gates.UnivMathGate
+quafu.core.gates.UnivMathGate
 ====================================
 
-.. py:class:: mindquantum.core.gates.UnivMathGate(name, matrix_value)
+.. py:class:: quafu.core.gates.UnivMathGate(name, matrix_value)
 
     通用数学门。
 

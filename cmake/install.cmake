@@ -18,76 +18,76 @@
 
 include(CMakePackageConfigHelpers)
 
-set(_namespace mindquantum::)
+set(_namespace quafu::)
 
-get_property(mq_install_targets GLOBAL PROPERTY mq_install_targets)
-list(REMOVE_DUPLICATES mq_install_targets)
+get_property(quafu_install_targets GLOBAL PROPERTY quafu_install_targets)
+list(REMOVE_DUPLICATES quafu_install_targets)
 
 # ==============================================================================
 
-set(MQ_INSTALL_IN_BUILD_DIR TRUE)
+set(QUAFU_INSTALL_IN_BUILD_DIR TRUE)
 configure_package_config_file(
-  ${CMAKE_CURRENT_LIST_DIR}/mindquantumConfig.cmake.in ${PROJECT_BINARY_DIR}/mindquantumConfig.cmake
+  ${CMAKE_CURRENT_LIST_DIR}/quafuConfig.cmake.in ${PROJECT_BINARY_DIR}/quafuConfig.cmake
   INSTALL_DESTINATION ${PROJECT_BINARY_DIR}
   INSTALL_PREFIX ${PROJECT_BINARY_DIR})
 
 # --------------------------------------
 
-set(MQ_INSTALL_IN_BUILD_DIR FALSE)
+set(QUAFU_INSTALL_IN_BUILD_DIR FALSE)
 configure_package_config_file(
-  ${CMAKE_CURRENT_LIST_DIR}/mindquantumConfig.cmake.in ${PROJECT_BINARY_DIR}/config_for_install/mindquantumConfig.cmake
-  INSTALL_DESTINATION ${MQ_INSTALL_CMAKEDIR})
+  ${CMAKE_CURRENT_LIST_DIR}/quafuConfig.cmake.in ${PROJECT_BINARY_DIR}/config_for_install/quafuConfig.cmake
+  INSTALL_DESTINATION ${QUAFU_INSTALL_CMAKEDIR})
 
 write_basic_package_version_file(
-  ${PROJECT_BINARY_DIR}/mindquantumConfigVersion.cmake
+  ${PROJECT_BINARY_DIR}/quafuConfigVersion.cmake
   COMPATIBILITY SameMajorVersion
-  VERSION ${MQ_VERSION})
+  VERSION ${QUAFU_VERSION})
 
-install(FILES ${PROJECT_BINARY_DIR}/config_for_install/mindquantumConfig.cmake
-              ${PROJECT_BINARY_DIR}/mindquantumConfigVersion.cmake DESTINATION ${MQ_INSTALL_CMAKEDIR})
+install(FILES ${PROJECT_BINARY_DIR}/config_for_install/quafuConfig.cmake
+              ${PROJECT_BINARY_DIR}/quafuConfigVersion.cmake DESTINATION ${QUAFU_INSTALL_CMAKEDIR})
 
 # ==============================================================================
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/cmake/Modules ${PROJECT_SOURCE_DIR}/cmake/commands
-        DESTINATION ${MQ_INSTALL_CMAKEDIR})
-install(FILES "${CMAKE_CURRENT_LIST_DIR}/packages.cmake" DESTINATION ${MQ_INSTALL_CMAKEDIR})
+        DESTINATION ${QUAFU_INSTALL_CMAKEDIR})
+install(FILES "${CMAKE_CURRENT_LIST_DIR}/packages.cmake" DESTINATION ${QUAFU_INSTALL_CMAKEDIR})
 
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/cmake/NVCXX DESTINATION ${MQ_INSTALL_CMAKEDIR}/Modules)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/cmake/NVCXX DESTINATION ${QUAFU_INSTALL_CMAKEDIR}/Modules)
 
 # ------------------------------------------------------------------------------
 
 install(
-  TARGETS ${mq_install_targets}
-  EXPORT mindquantumTargets
-  PRIVATE_HEADER DESTINATION ${MQ_INSTALL_INCLUDEDIR}
-  PUBLIC_HEADER DESTINATION ${MQ_INSTALL_INCLUDEDIR}
-  ARCHIVE DESTINATION ${MQ_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${MQ_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${MQ_INSTALL_BINDIR})
+  TARGETS ${quafu_install_targets}
+  EXPORT quafuTargets
+  PRIVATE_HEADER DESTINATION ${QUAFU_INSTALL_INCLUDEDIR}
+  PUBLIC_HEADER DESTINATION ${QUAFU_INSTALL_INCLUDEDIR}
+  ARCHIVE DESTINATION ${QUAFU_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${QUAFU_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${QUAFU_INSTALL_BINDIR})
 
 install(
-  EXPORT mindquantumTargets
+  EXPORT quafuTargets
   NAMESPACE ${_namespace}
-  DESTINATION ${MQ_INSTALL_CMAKEDIR})
+  DESTINATION ${QUAFU_INSTALL_CMAKEDIR})
 
 # NB: if called from setup.py, we do not need to care about installing the Python related targets, as this will be taken
 # care of by Python directly.
 if(NOT IS_PYTHON_BUILD)
   install(
-    EXPORT mindquantumPythonTargets
+    EXPORT quafuPythonTargets
     NAMESPACE ${_namespace}
-    DESTINATION ${MQ_INSTALL_CMAKEDIR})
+    DESTINATION ${QUAFU_INSTALL_CMAKEDIR})
 
   export(
-    EXPORT mindquantumPythonTargets
+    EXPORT quafuPythonTargets
     NAMESPACE ${_namespace}
-    FILE mindquantumPythonTargets.cmake)
+    FILE quafuPythonTargets.cmake)
 endif()
 
 # ==============================================================================
 
 export(
-  EXPORT mindquantumTargets
+  EXPORT quafuTargets
   NAMESPACE ${_namespace}
-  FILE mindquantumTargets.cmake)
-export(PACKAGE mindquantum)
+  FILE quafuTargets.cmake)
+export(PACKAGE quafu)

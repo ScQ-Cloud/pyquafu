@@ -1,7 +1,7 @@
-mindquantum.core.gates.MeasureResult
+quafu.core.gates.MeasureResult
 ======================================
 
-.. py:class:: mindquantum.core.gates.MeasureResult
+.. py:class:: quafu.core.gates.MeasureResult
 
     测量结果容器。
 

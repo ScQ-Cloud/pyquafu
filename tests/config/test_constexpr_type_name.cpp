@@ -20,7 +20,7 @@
 
 // =============================================================================
 
-namespace mindquantum {
+namespace quafu {
 class A {};
 struct B {};
 class C : public A {};
@@ -31,32 +31,32 @@ class D {};
 template <typename U>
 struct E {};
 }  // namespace sub
-}  // namespace mindquantum
+}  // namespace quafu
 
 // =============================================================================
 
 using namespace std::literals::string_view_literals;
-using mindquantum::get_type_name;
+using quafu::get_type_name;
 
 // -----------------------------------------------------------------------------
 
-namespace sub = mindquantum::sub;
+namespace sub = quafu::sub;
 
 static_assert(get_type_name<void>() == "void"sv);
 static_assert(get_type_name<bool>() == "bool"sv);
 static_assert(get_type_name<char>() == "char"sv);
 static_assert(get_type_name<int>() == "int"sv);
-static_assert(get_type_name<mindquantum::A>() == "mindquantum::A"sv);
-static_assert(get_type_name<mindquantum::B>() == "mindquantum::B"sv);
-static_assert(get_type_name<mindquantum::C>() == "mindquantum::C"sv);
-static_assert(get_type_name<sub::D<double>>() == "mindquantum::sub::D<double>"sv);
+static_assert(get_type_name<quafu::A>() == "quafu::A"sv);
+static_assert(get_type_name<quafu::B>() == "quafu::B"sv);
+static_assert(get_type_name<quafu::C>() == "quafu::C"sv);
+static_assert(get_type_name<sub::D<double>>() == "quafu::sub::D<double>"sv);
 
-#if (defined __clang__) && (MQ_CLANG_MAJOR > 10)
-static_assert(get_type_name<sub::E<sub::D<int>>>() == "mindquantum::sub::E<mindquantum::sub::D<int>>"sv);
+#if (defined __clang__) && (QUAFU_CLANG_MAJOR > 10)
+static_assert(get_type_name<sub::E<sub::D<int>>>() == "quafu::sub::E<quafu::sub::D<int>>"sv);
 #elif (defined _MSC_VER) && !(defined __clang__)  // NOLINT(whitespace/parens)
-static_assert(get_type_name<sub::E<sub::D<int>>>() == "mindquantum::sub::E<class mindquantum::sub::D<int> >"sv);
+static_assert(get_type_name<sub::E<sub::D<int>>>() == "quafu::sub::E<class quafu::sub::D<int> >"sv);
 #else
-static_assert(get_type_name<sub::E<sub::D<int>>>() == "mindquantum::sub::E<mindquantum::sub::D<int> >"sv);
+static_assert(get_type_name<sub::E<sub::D<int>>>() == "quafu::sub::E<quafu::sub::D<int> >"sv);
 #endif
 
 // =============================================================================

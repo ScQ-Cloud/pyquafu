@@ -1,7 +1,7 @@
-mindquantum.core.gates.GlobalPhase
+quafu.core.gates.GlobalPhase
 ===================================
 
-.. py:class:: mindquantum.core.gates.GlobalPhase(pr)
+.. py:class:: quafu.core.gates.GlobalPhase(pr)
 
     全局相位门。更多用法，请参见 :class:`~.core.gates.RX`.
 

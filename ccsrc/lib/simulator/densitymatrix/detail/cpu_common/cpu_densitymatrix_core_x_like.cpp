@@ -26,7 +26,7 @@
 #endif
 #include "simulator/densitymatrix/detail/cpu_densitymatrix_policy.h"
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 // X like operator
 // ========================================================================================================
 
@@ -128,4 +128,4 @@ template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyAvxDouble, doub
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmFloat, float>;
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail

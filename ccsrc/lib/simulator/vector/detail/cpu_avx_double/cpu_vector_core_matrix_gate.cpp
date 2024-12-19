@@ -19,7 +19,7 @@
 #include "simulator/utils.h"
 #include "simulator/vector/detail/cpu_vector_avx_double_policy.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 void CPUVectorPolicyAvxDouble::ApplySingleQubitMatrix(const qs_data_p_t& src_out, qs_data_p_t* des_p, qbit_t obj_qubit,
                                                       const qbits_t& ctrls,
                                                       const std::vector<std::vector<py_qs_data_t>>& m, index_t dim) {
@@ -67,4 +67,4 @@ void CPUVectorPolicyAvxDouble::ApplySingleQubitMatrix(const qs_data_p_t& src_out
         CPUVectorPolicyAvxDouble::FreeState(&src);
     }
 }
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

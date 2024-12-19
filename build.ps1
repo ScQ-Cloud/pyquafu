@@ -64,11 +64,11 @@ $PARAMETERLIST = (Get-Command -Name ".\$PROGRAM").Parameters
 # Test for MindSpore CI
 $_IS_MINDSPORE_CI = $false
 if ("$Env:JENKINS_URL" -Match 'https?://build.mindspore.cn' -And [bool]$Env:CI -And $Env:CI -eq 1) {
-    Write-Output "Detected MindSpore/MindQuantum CI"
+    Write-Output "Detected MindSpore/quafu CI"
     $_IS_MINDSPORE_CI = $true
 }
 if ([bool]$Env:DEVCLOUD_CI -And $Env:DEVCLOUD_CI -eq 1) {
-    Write-Output "Detected MindSpore/MindQuantum CI"
+    Write-Output "Detected MindSpore/quafu CI"
     $_IS_MINDSPORE_CI = $true
 }
 
@@ -103,11 +103,11 @@ if ($_IS_MINDSPORE_CI ) {
 function Help-Header {
     Write-Output 'Build binary Python wheel for MindQunantum'
     Write-Output ''
-    Write-Output 'This is mainly relevant for developers that want to deploy MindQuantum '
+    Write-Output 'This is mainly relevant for developers that want to deploy quafu '
     Write-Output 'on machines other than their own.'
     Write-Output ''
-    Write-Output 'This script will create a Python virtualenv in the MindQuantum root'
-    Write-Output 'directory and then build a binary Python wheel of MindQuantum.'
+    Write-Output 'This script will create a Python virtualenv in the quafu root'
+    Write-Output 'directory and then build a binary Python wheel of quafu.'
 }
 
 function Extra-Help {
@@ -317,10 +317,10 @@ if ($_build_dir_was_set) {
 }
 
 if ($force_local_pkgs) {
-    $build_args += '--var', 'MQ_FORCE_LOCAL_PKGS', 'all'
+    $build_args += '--var', 'QUAFU_FORCE_LOCAL_PKGS', 'all'
 }
 elseif ([bool]"$local_pkgs") {
-    $build_args += '--var', 'MQ_FORCE_LOCAL_PKGS', "`"$local_pkgs`""
+    $build_args += '--var', 'QUAFU_FORCE_LOCAL_PKGS', "`"$local_pkgs`""
 }
 
 # --------------------------------------
@@ -411,10 +411,10 @@ if ($_build_dir_was_set) {
 }
 
 if ($delocate_wheel) {
-    $Env:MQ_DELOCATE_WHEEL = 1
+    $Env:QUAFU_DELOCATE_WHEEL = 1
 
     if ([bool]$platform_name) {
-        $Env:MQ_DELOCATE_WHEEL_PLAT = "$platform_name"
+        $Env:QUAFU_DELOCATE_WHEEL_PLAT = "$platform_name"
     }
 
     if ([bool]$_build_dir_was_set -Or [bool]$fast_build) {
@@ -424,27 +424,27 @@ if ($delocate_wheel) {
         $build_dir_for_env = $fast_build_dir
     }
     else {
-        $build_dir_for_env = (&"$PYTHON" -m mindquantum_config --tempdir)
+        $build_dir_for_env = (&"$PYTHON" -m quafu_config --tempdir)
     }
 
     if ($_IS_MINDSPORE_CI) {
-        $Env:MQ_LIB_PATHS = "$ROOTDIR/ld_library_paths.txt"
+        $Env:QUAFU_LIB_PATHS = "$ROOTDIR/ld_library_paths.txt"
     }
     else {
-        $Env:MQ_LIB_PATHS = "$build_dir_for_env/ld_library_paths.txt"
+        $Env:QUAFU_LIB_PATHS = "$build_dir_for_env/ld_library_paths.txt"
     }
-    $Env:MQ_BUILD_DIR = "$build_dir_for_env"
+    $Env:QUAFU_BUILD_DIR = "$build_dir_for_env"
 
-    Write-Debug "MQ_LIB_PATHS = $Env:MQ_LIB_PATHS"
-    Write-Debug "MQ_BUILD_DIR = $Env:MQ_BUILD_DIR"
+    Write-Debug "QUAFU_LIB_PATHS = $Env:QUAFU_LIB_PATHS"
+    Write-Debug "QUAFU_BUILD_DIR = $Env:QUAFU_BUILD_DIR"
 }
 else {
-    $Env:MQ_DELOCATE_WHEEL = 0
+    $Env:QUAFU_DELOCATE_WHEEL = 0
 }
 
 Call-Cmd "$PYTHON" -m build @build_args @fixed_args
-$Env:MQ_LIB_PATHS = ''
-$Env:MQ_BUILD_DIR = ''
+$Env:QUAFU_LIB_PATHS = ''
+$Env:QUAFU_BUILD_DIR = ''
 if ($LastExitCode -ne 0) {
     exit $LastExitCode
 }
@@ -459,7 +459,7 @@ Call-Cmd New-Item -Path "'$output_path'" -ItemType "directory"
 
 Call-Cmd Move-Item -Path "'$ROOTDIR\dist\*.whl'" -Destination "$output_path"
 
-Call-Cmd Write-Output "------Successfully created mindquantum package------"
+Call-Cmd Write-Output "------Successfully created quafu package------"
 
 # ==============================================================================
 
@@ -474,11 +474,11 @@ Build MindQunantum locally (in-source build)
 
 This is mainly relevant for developers that do not want to always have to reinstall the Python package
 
-This script will create a Python virtualenv in the MindQuantum root directory and then build all the C++ Python
-modules and place the generated libraries in their right locations within the MindQuantum folder hierarchy so Python
+This script will create a Python virtualenv in the quafu root directory and then build all the C++ Python
+modules and place the generated libraries in their right locations within the quafu folder hierarchy so Python
 knows how to find them.
 
-A pth-file will be created in the virtualenv site-packages directory so that the MindQuantum root folder will be added
+A pth-file will be created in the virtualenv site-packages directory so that the quafu root folder will be added
 to the Python PATH without the need to modify PYTHONPATH.
 
 .PARAMETER Analyzer

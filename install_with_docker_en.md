@@ -1,19 +1,19 @@
-# MindQuantum Docker Installation GUide
+# quafu Docker Installation GUide
 
 <!-- TOC --->
 
-- [Installing MindQuantum by Docker](#installing-mindquantum-by-docker)
+- [Installing quafu by Docker](#installing-quafu-by-docker)
     - [Obtaining the MindSpore Image](#obtaining-the-mindSpore-image)
     - [Running the MindSpore Image](#running-the-mindspore-image)
     - [MindSpore Installation Verification](#mindspore-installation-verification)
-    - [Installing MindQuantum Inside a Docker Container](#installing-mindquantum-inside-a-docker-container)
-    - [MindQuantum Installation Verification](#mindquantum-installation-verification)
+    - [Installing quafu Inside a Docker Container](#installing-quafu-inside-a-docker-container)
+    - [quafu Installation Verification](#quafu-installation-verification)
 
 <!-- TOC --->
 
-## Installing MindQuantum by Docker
+## Installing quafu by Docker
 
-This document describes how to use Docker to quickly install MindQuantum. First, you need to install MindSpore through Docker. The process is introduced on [MindSpore's official website](https://www.mindspore.cn/install/en). This part will be repeated below.
+This document describes how to use Docker to quickly install quafu. First, you need to install MindSpore through Docker. The process is introduced on [MindSpore's official website](https://www.mindspore.cn/install/en). This part will be repeated below.
 
 ### Obtaining the MindSpore Image
 
@@ -71,7 +71,7 @@ When the code runs successfully, it will output:
 
 At this point, you have successfully installed the MindSpore CPU version by Docker.
 
-### Installing MindQuantum Inside a Docker Container
+### Installing quafu Inside a Docker Container
 
 1. Enter the Docker container.
 
@@ -86,19 +86,19 @@ At this point, you have successfully installed the MindSpore CPU version by Dock
     **Install by compiling:**
 
     ```shell
-    git clone https://gitee.com/mindspore/mindquantum.git
-    cd ~/mindquantum
+    git clone https://gitee.com/mindspore/quafu.git
+    cd ~/quafu
     python setup.py install --user
     ```
 
     **Install by pip:**
 
     ```shell
-    pip install https://hiq.huaweicloud.com/download/mindquantum/newest/linux/mindquantum-master-cp37-cp37m-linux_x86_64.whl -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install https://hiq.huaweicloud.com/download/quafu/newest/linux/quafu-master-cp37-cp37m-linux_x86_64.whl -i https://pypi.tuna.tsinghua.edu.cn/simple
     ```
 
-### MindQuantum Installation Verification
+### quafu Installation Verification
 
 ```bash
-python -c 'import mindquantum'
+python -c 'import quafu'
 ```

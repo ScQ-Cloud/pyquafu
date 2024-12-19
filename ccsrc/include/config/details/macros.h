@@ -20,12 +20,12 @@
 // =============================================================================
 
 // NB: _Pragma(...) is a C++11 addition and should be widely supported
-#define MQ_DO_PRAGMA(x) _Pragma(#x)
+#define QUAFU_DO_PRAGMA(x) _Pragma(#x)
 
 // =============================================================================
 
 #ifdef __clang__
-#    define CLANG_DIAG_PRAGMA(x) MQ_DO_PRAGMA(GCC diagnostic x)
+#    define CLANG_DIAG_PRAGMA(x) QUAFU_DO_PRAGMA(GCC diagnostic x)
 #    define CLANG_DIAG_OFF(x)                                                                                          \
         CLANG_DIAG_PRAGMA(push)                                                                                        \
         CLANG_DIAG_PRAGMA(ignored x)
@@ -38,7 +38,7 @@
 // =============================================================================
 
 #if (defined __GNUC__) && !(defined __clang__)
-#    define GCC_DIAG_PRAGMA(x) MQ_DO_PRAGMA(GCC diagnostic x)
+#    define GCC_DIAG_PRAGMA(x) QUAFU_DO_PRAGMA(GCC diagnostic x)
 #    define GCC_DIAG_OFF(x)                                                                                            \
         GCC_DIAG_PRAGMA(push)                                                                                          \
         GCC_DIAG_PRAGMA(ignored x)
@@ -51,8 +51,8 @@
 // =============================================================================
 
 #ifdef _MSC_VER
-#    define MSVC_DIAG_OFF(x) MQ_DO_PRAGMA(warning(push)) MQ_DO_PRAGMA(warning(disable : warningNumber))
-#    define MSVC_DIAG_ON(x)  MQ_DO_PRAGMA(warning(pop))
+#    define MSVC_DIAG_OFF(x) QUAFU_DO_PRAGMA(warning(push)) QUAFU_DO_PRAGMA(warning(disable : warningNumber))
+#    define MSVC_DIAG_ON(x)  QUAFU_DO_PRAGMA(warning(pop))
 #else
 #    define MSVC_DIAG_OFF(x)
 #    define MSVC_DIAG_ON(x)

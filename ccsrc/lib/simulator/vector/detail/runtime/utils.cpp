@@ -16,7 +16,7 @@
 
 #include "simulator/vector/runtime/utils.h"
 
-namespace mindquantum::sim::rt {
+namespace quafu::sim::rt {
 std::tuple<bool, Index> convert_int(const std::string &s, int64_t limit, bool raise_error) {
     char *p = nullptr;
     Index converted = strtol(s.c_str(), &p, 10);
@@ -47,4 +47,4 @@ std::tuple<bool, double> convert_double(const std::string &s, bool raise_error) 
     }
     return {true, converted};
 }
-}  // namespace mindquantum::sim::rt
+}  // namespace quafu::sim::rt

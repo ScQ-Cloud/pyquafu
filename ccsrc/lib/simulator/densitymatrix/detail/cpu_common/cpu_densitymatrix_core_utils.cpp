@@ -26,7 +26,7 @@
 #endif
 #include "simulator/densitymatrix/detail/cpu_densitymatrix_policy.h"
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 template <typename derived_, typename calc_type_>
 void CPUDensityMatrixPolicyBase<derived_, calc_type_>::SwapValue(qs_data_p_t qs, index_t x0, index_t y0, index_t x1,
                                                                  index_t y1, qs_data_t coeff) {
@@ -48,4 +48,4 @@ template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyAvxDouble, doub
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmFloat, float>;
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail

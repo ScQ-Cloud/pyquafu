@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.KroneckerSeqCompiler
+quafu.algorithm.compiler.KroneckerSeqCompiler
 ===================================================
 
-.. py:class:: mindquantum.algorithm.compiler.KroneckerSeqCompiler(compilers: typing.List[BasicCompilerRule], rule_name="KroneckerSeqCompiler", log_level=0)
+.. py:class:: quafu.algorithm.compiler.KroneckerSeqCompiler(compilers: typing.List[BasicCompilerRule], rule_name="KroneckerSeqCompiler", log_level=0)
 
     正交化编译规则。
 

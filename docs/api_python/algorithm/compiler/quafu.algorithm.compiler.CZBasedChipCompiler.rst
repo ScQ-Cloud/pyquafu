@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.CZBasedChipCompiler
+quafu.algorithm.compiler.CZBasedChipCompiler
 ==================================================
 
-.. py:class:: mindquantum.algorithm.compiler.CZBasedChipCompiler(log_level=0)
+.. py:class:: quafu.algorithm.compiler.CZBasedChipCompiler(log_level=0)
 
     适用于支持 `cz` 量子门的量子芯片的编译规则。
 

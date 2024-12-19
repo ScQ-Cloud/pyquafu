@@ -1,7 +1,7 @@
-mindquantum.framework.MQN2EncoderOnlyOps
+quafu.framework.QUAFUN2EncoderOnlyOps
 ========================================
 
-.. py:class:: mindquantum.framework.MQN2EncoderOnlyOps(expectation_with_grad)
+.. py:class:: quafu.framework.QUAFUN2EncoderOnlyOps(expectation_with_grad)
 
     仅包含encoder线路的量子线路演化算子，算子返回参数化量子线路（PQC）演化出的量子态上哈密顿量期望绝对值的平方。此算子只能在 `PYNATIVE_MODE` 下执行。
 

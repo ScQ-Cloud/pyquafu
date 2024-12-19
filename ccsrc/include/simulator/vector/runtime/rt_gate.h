@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MQ_SIM_VECTOR_RT_GATE
-#define MQ_SIM_VECTOR_RT_GATE
+#ifndef QUAFU_SIM_VECTOR_RT_GATE
+#define QUAFU_SIM_VECTOR_RT_GATE
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -24,7 +24,7 @@
 #include "ops/basic_gate.h"
 #include "ops/gate_id.h"
 
-namespace mindquantum::sim::rt {
+namespace quafu::sim::rt {
 struct Gate {
     GateID gate = GateID::null;
     qbits_t objs;
@@ -129,5 +129,5 @@ struct Gate {
         }
     }
 };
-}  // namespace mindquantum::sim::rt
+}  // namespace quafu::sim::rt
 #endif

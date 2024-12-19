@@ -20,9 +20,9 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 
-namespace mindquantum::logging {
+namespace quafu::logging {
 void set_log_file(const std::string& filename) {
     spdlog::set_default_logger(spdlog::basic_logger_mt("default_log", filename));
-    MQ_INFO("Setting log file to {}", filename);
+    QUAFU_INFO("Setting log file to {}", filename);
 }
-}  // namespace mindquantum::logging
+}  // namespace quafu::logging

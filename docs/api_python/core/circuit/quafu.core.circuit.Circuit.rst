@@ -1,7 +1,7 @@
-mindquantum.core.circuit.Circuit
+quafu.core.circuit.Circuit
 =================================
 
-.. py:class:: mindquantum.core.circuit.Circuit(gates=None)
+.. py:class:: quafu.core.circuit.Circuit(gates=None)
 
     量子线路模块。
     量子线路包含一个或多个量子门，可以在量子模拟器中进行计算。可以通过添加量子门或另一电路的方式容易地构建量子线路。
@@ -97,35 +97,35 @@ mindquantum.core.circuit.Circuit
     .. py:method:: from_hiqasm(hiqasm_str: str)
         :staticmethod:
 
-        将 HiQASM 字符串的量子线路或者 HiQASM 文件转化为 MindQuantum 中的量子线路。
+        将 HiQASM 字符串的量子线路或者 HiQASM 文件转化为 quafu 中的量子线路。
 
         参数：
             - **hiqasm_str** (str) - HiQASM 中的字符串格式量子线路或者 HiQASM 的文件名。
 
         返回：
-            :class:`~.core.circuit.Circuit`，从HiQASM转换而来的MindQuantum量子线路。
+            :class:`~.core.circuit.Circuit`，从HiQASM转换而来的quafu量子线路。
 
     .. py:method:: from_openqasm(openqasm_str: str)
         :staticmethod:
 
-        将 OpenQASM 字符串的量子线路或者 OpenQASM 文件转化为 MindQuantum 中的量子线路。
+        将 OpenQASM 字符串的量子线路或者 OpenQASM 文件转化为 quafu 中的量子线路。
 
         参数：
             - **openqasm_str** (str) - OpenQASM 中的字符串格式量子线路或者 OpenQASM 的文件名。
 
         返回：
-            :class:`~.core.circuit.Circuit`，从OpenQASM转换而来的MindQuantum量子线路。
+            :class:`~.core.circuit.Circuit`，从OpenQASM转换而来的quafu量子线路。
 
     .. py:method:: from_qcis(qcis_str: str)
         :staticmethod:
 
-        将 QCIS 字符串的量子线路或者 QCIS 文件转化为 MindQuantum 中的量子线路。
+        将 QCIS 字符串的量子线路或者 QCIS 文件转化为 quafu 中的量子线路。
 
         参数：
             - **qcis_str** (str) - QCIS 中的字符串格式量子线路或者 QCIS 的文件名。
 
         返回：
-            :class:`~.core.circuit.Circuit`，从 QCIS 转换而来的 MindQuantum 量子线路。
+            :class:`~.core.circuit.Circuit`，从 QCIS 转换而来的 quafu 量子线路。
 
     .. py:method:: fsim(theta, phi, obj_qubits, ctrl_qubits=None)
 
@@ -144,16 +144,16 @@ mindquantum.core.circuit.Circuit
         参数：
             - **hermitian** (bool) - 是否获取线路cpp object的hermitian版本。默认值： ``False`` 。
 
-    .. py:method:: get_qs(backend='mqvector', pr=None, ket=False, seed=None, dtype=None)
+    .. py:method:: get_qs(backend='quafuvector', pr=None, ket=False, seed=None, dtype=None)
 
         获取线路的最终量子态。
 
         参数：
-            - **backend** (str) - 使用的后端。默认值： ``'mqvector'``。
+            - **backend** (str) - 使用的后端。默认值： ``'quafuvector'``。
             - **pr** (Union[numbers.Number, ParameterResolver, dict, numpy.ndarray]) - 线路的参数，线路含参数时提供。默认值： ``None``。
             - **ket** (str) - 是否以ket格式返回量子态。默认值： ``False``。
             - **seed** (int) - 模拟器的随机种子。默认值： ``None``。
-            - **dtype** (mindquantum.dtype) - 模拟器的数据类型。默认值： ``None``。
+            - **dtype** (quafu.dtype) - 模拟器的数据类型。默认值： ``None``。
 
     .. py:method:: givens(para, obj_qubits, ctrl_qubits=None)
 
@@ -225,16 +225,16 @@ mindquantum.core.circuit.Circuit
             - **obj_qubits** (Union[int, list[int]]) - `ISWAP` 门的目标量子比特。
             - **ctrl_qubits** (Union[int, list[int]]) - `ISWAP` 门的控制量子比特。默认值： ``None``。
 
-    .. py:method:: matrix(pr=None, big_end=False, backend='mqvector', seed=None, dtype=None)
+    .. py:method:: matrix(pr=None, big_end=False, backend='quafuvector', seed=None, dtype=None)
 
         获取线路的矩阵表示。
 
         参数：
             - **pr** (ParameterResolver, dict, numpy.ndarray, list, numbers.Number) - 含参量子线路的参数。默认值： ``None``。
             - **big_end** (bool) - 低索引量子比特是否放置在末尾。默认值： ``False``。
-            - **backend** (str) - 进行模拟的后端。默认值： ``'mqvector'``。
+            - **backend** (str) - 进行模拟的后端。默认值： ``'quafuvector'``。
             - **seed** (int) - 生成线路矩阵的随机数，如果线路包含噪声信道。
-            - **dtype** (mindquantum.dtype) - 模拟器的数据类型。默认值： ``None``。
+            - **dtype** (quafu.dtype) - 模拟器的数据类型。默认值： ``None``。
 
         返回：
             numpy.ndarray，线路的二维复矩阵。
@@ -473,7 +473,7 @@ mindquantum.core.circuit.Circuit
 
     .. py:method:: to_hiqasm(file_name: Optional[str] = None, version: str = '0.1')
 
-        将 MindQuantum 中的量子线路转化为 HiQASM 字符串或者文件。
+        将 quafu 中的量子线路转化为 HiQASM 字符串或者文件。
 
         参数：
             - **file_name** (str) - 保存成 HiQASM 文件的文件名。默认值： ``None``。
@@ -484,7 +484,7 @@ mindquantum.core.circuit.Circuit
 
     .. py:method:: to_openqasm(file_name: Optional[str] = None, version: str = '2.0')
 
-        将 MindQuantum 中的量子线路转化为 OpenQASM 字符串或者文件。
+        将 quafu 中的量子线路转化为 OpenQASM 字符串或者文件。
 
         参数：
             - **file_name** (str) - 保存成 OpenQASM 文件的文件名。默认值： ``None``。
@@ -495,7 +495,7 @@ mindquantum.core.circuit.Circuit
 
     .. py:method:: to_qcis(file_name: Optional[str] = None,  parametric: bool = True)
 
-        将 MindQuantum 中的量子线路转化为 QCIS 字符串或者文件。
+        将 quafu 中的量子线路转化为 QCIS 字符串或者文件。
 
         参数：
             - **file_name** (str) - 保存成 QCIS 文件的文件名。默认值： ``None``。
@@ -524,7 +524,7 @@ mindquantum.core.circuit.Circuit
             - **maps_obj** (Union[int, list[int]]) - 执行该量子门的目标量子比特。
             - **maps_ctrl** (Union[int, list[int]]) - 执行该量子门的控制量子比特。默认值： ``None``。
 
-    .. py:method:: with_noise(noise_gate=mq_gates.AmplitudeDampingChannel(0.001), also_ctrl=False)
+    .. py:method:: with_noise(noise_gate=quafu_gates.AmplitudeDampingChannel(0.001), also_ctrl=False)
 
         在每个量子门后面添加一个噪声信道。
 

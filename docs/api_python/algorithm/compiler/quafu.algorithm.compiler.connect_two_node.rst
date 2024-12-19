@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.connect_two_node
+quafu.algorithm.compiler.connect_two_node
 ===============================================
 
-.. py:function:: mindquantum.algorithm.compiler.connect_two_node(father_node: DAGNode, child_node: DAGNode, local_index: int)
+.. py:function:: quafu.algorithm.compiler.connect_two_node(father_node: DAGNode, child_node: DAGNode, local_index: int)
 
     通过局域的腿编号，将两个节点连接起来。
 

@@ -19,7 +19,7 @@
 
 #include "simulator/stabilizer/stabilizer.h"
 
-namespace mindquantum::stabilizer {
+namespace quafu::stabilizer {
 std::pair<size_t, size_t> DetermineClass(size_t i);
 void EvoClass1(StabilizerTableau* stab, size_t idx);
 void EvoClass2(StabilizerTableau* stab, size_t idx);
@@ -28,5 +28,5 @@ void EvoClass4(StabilizerTableau* stab, size_t idx);
 StabilizerTableau QueryDoubleQubitsCliffordElem(size_t idx);
 StabilizerTableau QuerySingleQubitCliffordElem(size_t idx);
 void Verification();
-}  // namespace mindquantum::stabilizer
+}  // namespace quafu::stabilizer
 #endif

@@ -1,7 +1,7 @@
-mindquantum.algorithm.library.qjpeg
+quafu.algorithm.library.qjpeg
 ===================================
 
-.. py:function:: mindquantum.algorithm.library.qjpeg(n_qubits: int, m_qubits: int)
+.. py:function:: quafu.algorithm.library.qjpeg(n_qubits: int, m_qubits: int)
 
     基于QJEPG算法实现对量子图像的压缩。
 

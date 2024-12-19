@@ -21,7 +21,7 @@ add_subdirectory(core)
 # ==============================================================================
 
 add_subdirectory(algorithm)
-add_subdirectory(mqbackend)
+add_subdirectory(quafubackend)
 add_subdirectory(simulator)
 add_subdirectory(device)
 add_subdirectory(math)

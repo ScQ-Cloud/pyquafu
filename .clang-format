@@ -1,5 +1,4 @@
 ---
-
 BasedOnStyle: Google
 AccessModifierOffset: -3
 AlignConsecutiveMacros: true
@@ -42,7 +41,7 @@ IncludeCategories:
   #    9. Any local config header
   #   10. Local headers
   #   11. Catch2 headers
-  - Regex: '[<"](catch2/([A-Za-z0-9.\/\-_])+)[>"]'  # Make sure Catch2 is included last
+  - Regex: '[<"](catch2/([A-Za-z0-9.\/\-_])+)[>"]' # Make sure Catch2 is included last
     Priority: 110
   - Regex: '[<"]tweedledum/([A-Za-z0-9.\/\-_])+[>"]'
     Priority: 60
@@ -97,5 +96,13 @@ TypenameMacros: []
 Standard: Latest
 TabWidth: 4
 UseTab: Never
-WhitespaceSensitiveMacros: ['CLANG_DIAG_ON', 'CLANG_DIAG_OFF', 'GCC_DIAG_ON', 'GCC_DIAG_OFF', 'MSVC_DIAG_ON',
-                            'MSVC_DIAG_OFF', 'MQ_DO_PRAGMA']
+WhitespaceSensitiveMacros:
+  [
+    "CLANG_DIAG_ON",
+    "CLANG_DIAG_OFF",
+    "GCC_DIAG_ON",
+    "GCC_DIAG_OFF",
+    "MSVC_DIAG_ON",
+    "MSVC_DIAG_OFF",
+    "QUAFU_DO_PRAGMA",
+  ]

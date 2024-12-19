@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MQ_CORE_NUMBER_WRAPPER_HPP_
-#define MQ_CORE_NUMBER_WRAPPER_HPP_
+#ifndef QUAFU_CORE_NUMBER_WRAPPER_HPP_
+#define QUAFU_CORE_NUMBER_WRAPPER_HPP_
 
 #include <memory>
 #include <stdexcept>
@@ -27,7 +27,7 @@
 #include "math/tensor/ops_cpu/memory_operator.h"
 #include "math/tensor/tensor.h"
 #include "math/tensor/traits.h"
-namespace mindquantum {
+namespace quafu {
 struct NumbaMatFunWrapper {
     using mat_t = void (*)(double, std::complex<double>*);
     NumbaMatFunWrapper() = default;
@@ -72,5 +72,5 @@ struct NumbaTwoParamMatFunWrapper {
     int dim;
     tensor::TDtype dtype = tensor::TDtype::Complex128;
 };
-}  // namespace mindquantum
+}  // namespace quafu
 #endif

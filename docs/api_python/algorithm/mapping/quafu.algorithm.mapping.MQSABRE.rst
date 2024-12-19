@@ -1,9 +1,9 @@
-mindquantum.algorithm.mapping.MQSABRE
+quafu.algorithm.mapping.QUAFUSABRE
 =====================================
 
-.. py:class:: mindquantum.algorithm.mapping.MQSABRE(circuit: Circuit, topology: QubitsTopology, cnoterrorandlength: List[Tuple[Tuple[int, int], List[float]]])
+.. py:class:: quafu.algorithm.mapping.QUAFUSABRE(circuit: Circuit, topology: QubitsTopology, cnoterrorandlength: List[Tuple[Tuple[int, int], List[float]]])
 
-    用于比特映射的 MQSABRE 算法。
+    用于比特映射的 QUAFUSABRE 算法。
 
     该比特映射算法会考虑量子芯片上的 cnot 门的错误率和执行时间。
 

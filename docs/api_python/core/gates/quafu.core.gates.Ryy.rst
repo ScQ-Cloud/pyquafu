@@ -1,7 +1,7 @@
-mindquantum.core.gates.Ryy
+quafu.core.gates.Ryy
 ===============================
 
-.. py:class:: mindquantum.core.gates.Ryy(pr)
+.. py:class:: quafu.core.gates.Ryy(pr)
 
     Ryy 门。更多用法，请参见 :class:`~.core.gates.RX`。
 

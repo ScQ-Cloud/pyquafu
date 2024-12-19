@@ -24,7 +24,7 @@
 #include "thrust/device_vector.h"
 #include "thrust/functional.h"
 #include "thrust/inner_product.h"
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename derived_, typename calc_type_>
 void GPUVectorPolicyBase<derived_, calc_type_>::ApplyNQubitsMatrix(const qs_data_p_t& src_out, qs_data_p_t* des_p,
                                                                    const qbits_t& objs, const qbits_t& ctrls,
@@ -258,4 +258,4 @@ void GPUVectorPolicyBase<derived_, calc_type_>::ApplyMatrixGate(const qs_data_p_
 template struct GPUVectorPolicyBase<GPUVectorPolicyFloat, float>;
 template struct GPUVectorPolicyBase<GPUVectorPolicyDouble, double>;
 
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

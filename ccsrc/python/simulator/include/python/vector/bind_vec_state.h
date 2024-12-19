@@ -46,7 +46,7 @@
 template <typename sim_t>
 auto BindSim(pybind11::module& module, const std::string_view& name) {  // NOLINT
     using namespace pybind11::literals;                                 // NOLINT
-    using qbit_t = mindquantum::qbit_t;
+    using qbit_t = quafu::qbit_t;
     using calc_type = typename sim_t::calc_type;
     using circuit_t = typename sim_t::circuit_t;
 
@@ -65,14 +65,14 @@ auto BindSim(pybind11::module& module, const std::string_view& name) {  // NOLIN
         .def("sampling_measure_ending_without_noise", &sim_t::SamplingMeasurementEndingWithoutNoise)
         .def("get_circuit_matrix", &sim_t::GetCircuitMatrix)
         .def("get_expectation",
-             pybind11::overload_cast<const mindquantum::Hamiltonian<calc_type>&, const circuit_t&, const circuit_t&,
+             pybind11::overload_cast<const quafu::Hamiltonian<calc_type>&, const circuit_t&, const circuit_t&,
                                      const typename sim_t::derived_t&, const parameter::ParameterResolver&>(
                  &sim_t::GetExpectation, pybind11::const_))
         .def("get_expectation",
-             pybind11::overload_cast<const mindquantum::Hamiltonian<calc_type>&, const circuit_t&, const circuit_t&,
+             pybind11::overload_cast<const quafu::Hamiltonian<calc_type>&, const circuit_t&, const circuit_t&,
                                      const parameter::ParameterResolver&>(&sim_t::GetExpectation, pybind11::const_))
         .def("get_expectation",
-             pybind11::overload_cast<const mindquantum::Hamiltonian<calc_type>&, const circuit_t&,
+             pybind11::overload_cast<const quafu::Hamiltonian<calc_type>&, const circuit_t&,
                                      const parameter::ParameterResolver&>(&sim_t::GetExpectation, pybind11::const_))
         .def("qram_expectation_with_grad", &sim_t::QramExpectationWithGrad)
         .def("get_expectation_with_grad_multi_multi", &sim_t::GetExpectationWithGradMultiMulti)
@@ -85,7 +85,7 @@ auto BindSim(pybind11::module& module, const std::string_view& name) {  // NOLIN
 template <typename sim_t>
 auto BindBlas(pybind11::module& module) {  // NOLINT
     using qs_policy_t = typename sim_t::qs_policy_t;
-    module.def("inner_product", mindquantum::sim::vector::detail::BLAS<qs_policy_t>::InnerProduct);
+    module.def("inner_product", quafu::sim::vector::detail::BLAS<qs_policy_t>::InnerProduct);
 }
 
 #endif

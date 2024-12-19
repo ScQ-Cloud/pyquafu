@@ -1,7 +1,7 @@
-mindquantum.core.circuit.GateSelector
+quafu.core.circuit.GateSelector
 =====================================
 
-.. py:class:: mindquantum.core.circuit.GateSelector(gate: str)
+.. py:class:: quafu.core.circuit.GateSelector(gate: str)
 
     挑选量子门来添加噪声信道。
 

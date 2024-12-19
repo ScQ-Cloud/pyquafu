@@ -1,14 +1,14 @@
-mindquantum.core.parameterresolver.ParameterResolver
+quafu.core.parameterresolver.ParameterResolver
 ====================================================
 
-.. py:class:: mindquantum.core.parameterresolver.ParameterResolver(data=None, const=None, dtype=None, internal=False)
+.. py:class:: quafu.core.parameterresolver.ParameterResolver(data=None, const=None, dtype=None, internal=False)
 
     ParameterResolver可以设置参数化量子门或参数化量子线路的参数。
 
     参数：
         - **data** (Union[dict, numbers.Number, str, ParameterResolver]) - 初始参数名称及其值。如果数据是dict，则键将是参数名称，值将是参数值。如果数据是数字，则此数字将是此参数解析器的常量值。如果数据是字符串，则此字符串将是系数为1的唯一参数。默认值： ``None``。
         - **const** (number.Number) - 此参数解析器的常量部分。默认值： ``None``。
-        - **dtype** (mindquantum.dtype) - 改参数解析器的数据类型。默认： ``None``。
+        - **dtype** (quafu.dtype) - 改参数解析器的数据类型。默认： ``None``。
         - **internal** (bool) - 第一个参数是否时参数解析器的c++对象。默认： ``False``。
 
     .. py:method:: ansatz_parameters
@@ -49,7 +49,7 @@ mindquantum.core.parameterresolver.ParameterResolver
         将参数解析器转变为其他数据类型。
 
         参数：
-            - **dtype** (mindquantum.dtype) - 参数解析器的新的数据类型。
+            - **dtype** (quafu.dtype) - 参数解析器的新的数据类型。
 
     .. py:method:: combination(other: typing.Union[typing.Dict[str, numbers.Number], "ParameterResolver"])
 
@@ -86,7 +86,7 @@ mindquantum.core.parameterresolver.ParameterResolver
         将参数解析器转储到JSON（JavaScript对象表示法）。
 
         .. note::
-            由于float32类型的数据不能够序列化，因此 ``mindquantum.float32`` 和 ``mindquantum.complex64`` 类型的参数解析器也不能够被序列化。
+            由于float32类型的数据不能够序列化，因此 ``quafu.float32`` 和 ``quafu.complex64`` 类型的参数解析器也不能够被序列化。
 
         参数：
             - **indent** (int) - 打印JSON数据时的缩进级别，利用缩进会使打印效果更加美观。默认值： ``4``。

@@ -16,21 +16,21 @@
 
 # lint_cmake: -whitespace/indent
 
-add_library(mq_base STATIC)
-set_target_properties(mq_base PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-target_compile_features(mq_base PUBLIC $<IF:$<COMPILE_FEATURES:cxx_std_20>,cxx_std_20,cxx_std_17>)
-append_to_property(mq_install_targets GLOBAL mq_base)
-force_at_least_cxx17_workaround(mq_base)
+add_library(quafu_base STATIC)
+set_target_properties(quafu_base PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+target_compile_features(quafu_base PUBLIC $<IF:$<COMPILE_FEATURES:cxx_std_20>,cxx_std_20,cxx_std_17>)
+append_to_property(quafu_install_targets GLOBAL quafu_base)
+force_at_least_cxx17_workaround(quafu_base)
 target_link_libraries(
-  mq_base
-  PUBLIC ${MQ_OPENMP_TARGET}
+  quafu_base
+  PUBLIC ${QUAFU_OPENMP_TARGET}
          cxx20_compat
          cmake_config
-         mq_math
-         mindquantum::fmt
-         mindquantum::json
-         mindquantum_setup
-         $<$<BOOL:${ENABLE_LOGGING}>:mindquantum::spdlog>)
+         quafu_math
+         quafu::fmt
+         quafu::json
+         quafu_setup
+         $<$<BOOL:${ENABLE_LOGGING}>:quafu::spdlog>)
 
 # ==============================================================================
 

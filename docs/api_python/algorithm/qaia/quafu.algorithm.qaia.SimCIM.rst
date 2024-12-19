@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.SimCIM
+quafu.algorithm.qaia.SimCIM
 =================================
 
-.. py:class:: mindquantum.algorithm.qaia.SimCIM(J, h=None, x=None, n_iter=1000, batch_size=1, dt=0.01, momentum=0.9, sigma=0.03, pt=6.5)
+.. py:class:: quafu.algorithm.qaia.SimCIM(J, h=None, x=None, n_iter=1000, batch_size=1, dt=0.01, momentum=0.9, sigma=0.03, pt=6.5)
 
     模拟相干伊辛机算法。
 

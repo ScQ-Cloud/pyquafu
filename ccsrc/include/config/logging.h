@@ -14,52 +14,52 @@
  * limitations under the License.
  */
 
-#ifndef MQ_LOGGING_HPP
-#define MQ_LOGGING_HPP
+#ifndef QUAFU_LOGGING_HPP
+#define QUAFU_LOGGING_HPP
 
 #ifdef ENABLE_LOGGING
 #    include <string>
 
 // NB: setting this to WARN will disable at compile time any log calls lower than that
-#    if !(defined MQ_LOG_ACTIVE_LEVEL) && (defined SPDLOG_ACTIVE_LEVEL)
-#        define MQ_LOG_ACTIVE_LEVEL SPDLOG_ACTIVE_LEVEL
-#    endif  // !MQ_LOG_ACTIVE_LEVEL && SPDLOG_ACTIVE_LEVEL
-#    if !(defined SPDLOG_ACTIVE_LEVEL) && (defined MQ_LOG_ACTIVE_LEVEL)
-#        define SPDLOG_ACTIVE_LEVEL MQ_LOG_ACTIVE_LEVEL
-#    endif  // !SPDLOG_ACTIVE_LEVEL && MQ_LOG_ACTIVE_LEVEL
+#    if !(defined QUAFU_LOG_ACTIVE_LEVEL) && (defined SPDLOG_ACTIVE_LEVEL)
+#        define QUAFU_LOG_ACTIVE_LEVEL SPDLOG_ACTIVE_LEVEL
+#    endif  // !QUAFU_LOG_ACTIVE_LEVEL && SPDLOG_ACTIVE_LEVEL
+#    if !(defined SPDLOG_ACTIVE_LEVEL) && (defined QUAFU_LOG_ACTIVE_LEVEL)
+#        define SPDLOG_ACTIVE_LEVEL QUAFU_LOG_ACTIVE_LEVEL
+#    endif  // !SPDLOG_ACTIVE_LEVEL && QUAFU_LOG_ACTIVE_LEVEL
 
-#    if !(defined SPDLOG_ACTIVE_LEVEL) && !(defined MQ_LOG_ACTIVE_LEVEL)
-#        define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_WARN
-#        define MQ_LOG_ACTIVE_LEVEL SPDLOG_LEVEL_WARN
-#    endif  // !SPDLOG_ACTIVE_LEVEL && !MQ_LOG_ACTIVE_LEVEL
+#    if !(defined SPDLOG_ACTIVE_LEVEL) && !(defined QUAFU_LOG_ACTIVE_LEVEL)
+#        define SPDLOG_ACTIVE_LEVEL    SPDLOG_LEVEL_WARN
+#        define QUAFU_LOG_ACTIVE_LEVEL SPDLOG_LEVEL_WARN
+#    endif  // !SPDLOG_ACTIVE_LEVEL && !QUAFU_LOG_ACTIVE_LEVEL
 
 #    include <spdlog/spdlog.h>
 
-namespace mindquantum::logging {
+namespace quafu::logging {
 void set_log_file(const std::string& filename);
-}  // namespace mindquantum::logging
+}  // namespace quafu::logging
 
-#    define MQ_TRACE(...)                SPDLOG_TRACE(__VA_ARGS__)
-#    define MQ_LOGGER_TRACE(logger, ...) SPDLOG_LOGGER_TRACE(logger, __VA_ARGS__)
-#    define MQ_DEBUG(...)                SPDLOG_DEBUG(__VA_ARGS__)
-#    define MQ_LOGGER_DEBUG(logger, ...) SPDLOG_LOGGER_DEBUG(logger, __VA_ARGS__)
-#    define MQ_ERROR(...)                SPDLOG_ERROR(__VA_ARGS__)
-#    define MQ_LOGGER_ERROR(logger, ...) SPDLOG_LOGGER_ERROR(logger, __VA_ARGS__)
-#    define MQ_INFO(...)                 SPDLOG_INFO(__VA_ARGS__)
-#    define MQ_LOGGER_INFO(logger, ...)  SPDLOG_LOGGER_INFO(logger, __VA_ARGS__)
-#    define MQ_WARN(...)                 SPDLOG_WARN(__VA_ARGS__)
-#    define MQ_LOGGER_WARN(logger, ...)  SPDLOG_LOGGER_WARN(logger, __VA_ARGS__)
+#    define QUAFU_TRACE(...)                SPDLOG_TRACE(__VA_ARGS__)
+#    define QUAFU_LOGGER_TRACE(logger, ...) SPDLOG_LOGGER_TRACE(logger, __VA_ARGS__)
+#    define QUAFU_DEBUG(...)                SPDLOG_DEBUG(__VA_ARGS__)
+#    define QUAFU_LOGGER_DEBUG(logger, ...) SPDLOG_LOGGER_DEBUG(logger, __VA_ARGS__)
+#    define QUAFU_ERROR(...)                SPDLOG_ERROR(__VA_ARGS__)
+#    define QUAFU_LOGGER_ERROR(logger, ...) SPDLOG_LOGGER_ERROR(logger, __VA_ARGS__)
+#    define QUAFU_INFO(...)                 SPDLOG_INFO(__VA_ARGS__)
+#    define QUAFU_LOGGER_INFO(logger, ...)  SPDLOG_LOGGER_INFO(logger, __VA_ARGS__)
+#    define QUAFU_WARN(...)                 SPDLOG_WARN(__VA_ARGS__)
+#    define QUAFU_LOGGER_WARN(logger, ...)  SPDLOG_LOGGER_WARN(logger, __VA_ARGS__)
 #else
-#    define MQ_TRACE(...)                static_cast<void>(0)
-#    define MQ_LOGGER_TRACE(logger, ...) static_cast<void>(0)
-#    define MQ_DEBUG(...)                static_cast<void>(0)
-#    define MQ_LOGGER_DEBUG(logger, ...) static_cast<void>(0)
-#    define MQ_ERROR(...)                static_cast<void>(0)
-#    define MQ_LOGGER_ERROR(logger, ...) static_cast<void>(0)
-#    define MQ_INFO(...)                 static_cast<void>(0)
-#    define MQ_LOGGER_INFO(logger, ...)  static_cast<void>(0)
-#    define MQ_WARN(...)                 static_cast<void>(0)
-#    define MQ_LOGGER_WARN(logger, ...)  static_cast<void>(0)
+#    define QUAFU_TRACE(...)                static_cast<void>(0)
+#    define QUAFU_LOGGER_TRACE(logger, ...) static_cast<void>(0)
+#    define QUAFU_DEBUG(...)                static_cast<void>(0)
+#    define QUAFU_LOGGER_DEBUG(logger, ...) static_cast<void>(0)
+#    define QUAFU_ERROR(...)                static_cast<void>(0)
+#    define QUAFU_LOGGER_ERROR(logger, ...) static_cast<void>(0)
+#    define QUAFU_INFO(...)                 static_cast<void>(0)
+#    define QUAFU_LOGGER_INFO(logger, ...)  static_cast<void>(0)
+#    define QUAFU_WARN(...)                 static_cast<void>(0)
+#    define QUAFU_LOGGER_WARN(logger, ...)  static_cast<void>(0)
 #endif  // ENABLE_LOGGING
 
-#endif /* MQ_LOGGING_HPP */
+#endif /* QUAFU_LOGGING_HPP */

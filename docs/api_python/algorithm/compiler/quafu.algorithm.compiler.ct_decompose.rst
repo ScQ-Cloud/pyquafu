@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.ct_decompose
+quafu.algorithm.compiler.ct_decompose
 ===========================================
 
-.. py:function:: mindquantum.algorithm.compiler.ct_decompose(gate: gates.TGate)
+.. py:function:: quafu.algorithm.compiler.ct_decompose(gate: gates.TGate)
 
     分解一个受控的 :class:`~.core.gates.TGate` 门。
 

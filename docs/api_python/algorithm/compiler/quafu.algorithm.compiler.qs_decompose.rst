@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.qs_decompose
+quafu.algorithm.compiler.qs_decompose
 ===========================================
 
-.. py:function:: mindquantum.algorithm.compiler.qs_decompose(gate: QuantumGate, with_barrier: bool = False)
+.. py:function:: quafu.algorithm.compiler.qs_decompose(gate: QuantumGate, with_barrier: bool = False)
 
     任意维幺正量子门的矩阵的香农分解。
 

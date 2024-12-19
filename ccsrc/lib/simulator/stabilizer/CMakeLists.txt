@@ -16,7 +16,7 @@
 #
 # ==============================================================================
 
-target_sources(mqsim_stabilizer PRIVATE
+target_sources(quafusim_stabilizer PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/query_element.cpp
     ${CMAKE_CURRENT_LIST_DIR}/stabilizer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/random_benchmarking.cpp

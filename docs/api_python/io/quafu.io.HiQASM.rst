@@ -1,7 +1,7 @@
-mindquantum.io.HiQASM
+quafu.io.HiQASM
 ======================
 
-.. py:class:: mindquantum.io.HiQASM()
+.. py:class:: quafu.io.HiQASM()
 
     将线路转换为HiQASM格式。
 

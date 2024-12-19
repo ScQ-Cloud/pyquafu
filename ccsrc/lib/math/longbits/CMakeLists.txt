@@ -17,4 +17,4 @@
 # ==============================================================================
 # lint_cmake: -whitespace/indent
 
-target_sources(mq_math PRIVATE ${CMAKE_CURRENT_LIST_DIR}/longbits.cpp)
+target_sources(quafu_math PRIVATE ${CMAKE_CURRENT_LIST_DIR}/longbits.cpp)

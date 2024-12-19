@@ -1,10 +1,10 @@
 ﻿.. role:: hidden
     :class: hidden-section
 
-.. currentmodule:: mindquantum.algorithm.nisq
+.. currentmodule:: quafu.algorithm.nisq
 
 
-mindquantum.algorithm.nisq.Ansatz17
+quafu.algorithm.nisq.Ansatz17
 ===================================
 
 .. autoclass:: Ansatz17

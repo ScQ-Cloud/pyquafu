@@ -1,8 +1,8 @@
-mindquantum.framework
+quafu.framework
 =====================
 
 
-.. py:module:: mindquantum.framework
+.. py:module:: quafu.framework
 
 
 量子神经网络算子和cell。
@@ -15,13 +15,13 @@ Operators
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.framework.MQOps
-    mindquantum.framework.MQN2Ops
-    mindquantum.framework.MQAnsatzOnlyOps
-    mindquantum.framework.MQN2AnsatzOnlyOps
-    mindquantum.framework.MQEncoderOnlyOps
-    mindquantum.framework.MQN2EncoderOnlyOps
-    mindquantum.framework.QRamVecOps
+    quafu.framework.QUAFUOps
+    quafu.framework.QUAFUN2Ops
+    quafu.framework.QUAFUAnsatzOnlyOps
+    quafu.framework.QUAFUN2AnsatzOnlyOps
+    quafu.framework.QUAFUEncoderOnlyOps
+    quafu.framework.QUAFUN2EncoderOnlyOps
+    quafu.framework.QRamVecOps
 
 Layer
 -----
@@ -31,8 +31,8 @@ Layer
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.framework.MQAnsatzOnlyLayer
-    mindquantum.framework.MQN2AnsatzOnlyLayer
-    mindquantum.framework.MQLayer
-    mindquantum.framework.MQN2Layer
-    mindquantum.framework.QRamVecLayer
+    quafu.framework.QUAFUAnsatzOnlyLayer
+    quafu.framework.QUAFUN2AnsatzOnlyLayer
+    quafu.framework.QUAFULayer
+    quafu.framework.QUAFUN2Layer
+    quafu.framework.QRamVecLayer

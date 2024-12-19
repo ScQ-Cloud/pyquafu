@@ -1,7 +1,7 @@
-mindquantum.core.gates.ParameterGate
+quafu.core.gates.ParameterGate
 =====================================
 
-.. py:class:: mindquantum.core.gates.ParameterGate(pr: ParameterResolver, name, n_qubits, *args, obj_qubits=None, ctrl_qubits=None, **kwargs)
+.. py:class:: quafu.core.gates.ParameterGate(pr: ParameterResolver, name, n_qubits, *args, obj_qubits=None, ctrl_qubits=None, **kwargs)
 
     参数化的门。
 

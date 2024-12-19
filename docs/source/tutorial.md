@@ -5,7 +5,7 @@
 The below example shows how to build a parameterized quantum circuit.
 
 ```python
-from mindquantum import *
+from quafu import *
 import numpy as np
 
 encoder = Circuit().h(0).rx({'a0': 2}, 0).ry('a1', 1)
@@ -36,13 +36,13 @@ circuit = (qft(range(3)) + BarrierGate(True)).measure_all()
 circuit.svg()
 ```
 
-<img src="https://gitee.com/mindspore/mindquantum/raw/master/docs/circuit_svg.png" alt="Circuit SVG" width="600"/>
+<img src="https://gitee.com/mindspore/quafu/raw/master/docs/circuit_svg.png" alt="Circuit SVG" width="600"/>
 
 ## Train quantum neural network
 
 ```python
 ansatz = CPN(encoder.hermitian(), {'a0': 'b0', 'a1': 'b1'})
-sim = Simulator('mqvector', 2)
+sim = Simulator('quafuvector', 2)
 ham = Hamiltonian(-QubitOperator('Z0 Z1'))
 grad_ops = sim.get_expectation_with_grad(
     ham,
@@ -52,7 +52,7 @@ grad_ops = sim.get_expectation_with_grad(
 import mindspore as ms
 
 ms.set_context(mode=ms.PYNATIVE_MODE, device_target='CPU')
-net = MQLayer(grad_ops)
+net = QUAFULayer(grad_ops)
 encoder_data = ms.Tensor(np.array([[np.pi / 2, np.pi / 2]]))
 opti = ms.nn.Adam(net.trainable_params(), learning_rate=0.1)
 train_net = ms.nn.TrainOneStepCell(net, opti)
@@ -71,10 +71,10 @@ The trained parameters are,
 
 1. Basic usage
 
-    - [Variational Quantum Circuit](https://mindspore.cn/mindquantum/docs/en/master/parameterized_quantum_circuit.html)
+    - [Variational Quantum Circuit](https://mindspore.cn/quafu/docs/en/master/parameterized_quantum_circuit.html)
 
 2. Variational quantum algorithm
 
-    - [Quantum Approximate Optimization Algorithm](https://mindspore.cn/mindquantum/docs/en/master/quantum_approximate_optimization_algorithm.html)
-    - [The Application of Quantum Neural Network in NLP](https://mindspore.cn/mindquantum/docs/en/master/qnn_for_nlp.html)
-    - [VQE Application in Quantum Chemistry Computing](https://mindspore.cn/mindquantum/docs/en/master/vqe_for_quantum_chemistry.html)
+    - [Quantum Approximate Optimization Algorithm](https://mindspore.cn/quafu/docs/en/master/quantum_approximate_optimization_algorithm.html)
+    - [The Application of Quantum Neural Network in NLP](https://mindspore.cn/quafu/docs/en/master/qnn_for_nlp.html)
+    - [VQE Application in Quantum Chemistry Computing](https://mindspore.cn/quafu/docs/en/master/vqe_for_quantum_chemistry.html)

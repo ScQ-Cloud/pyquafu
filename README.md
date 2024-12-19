@@ -25,7 +25,7 @@
 
 ## What is pyquafu
 
-pyquafu is forked from [MindQuantum](https://gitee.com/mindspore/mindquantum/). Based on MindQuantum, pyquafu can run quantum algorithm directly on the quantum cloud developed by Beijing Academy of Quantum Information Sciences.
+pyquafu is forked from [MindQuantum](https://gitee.com/mindspore/quafu/). Based on MindQuantum, pyquafu can run quantum algorithm directly on the quantum cloud developed by Beijing Academy of Quantum Information Sciences.
 
 ## First experience
 

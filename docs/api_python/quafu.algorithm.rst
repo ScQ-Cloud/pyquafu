@@ -1,7 +1,7 @@
-mindquantum.algorithm
+quafu.algorithm
 =====================
 
-.. py:module:: mindquantum.algorithm
+.. py:module:: quafu.algorithm
 
 
 量子算法。
@@ -9,9 +9,9 @@ mindquantum.algorithm
 .. mscnautosummary::
     :toctree: algorithm
 
-    mindquantum.algorithm.compiler
-    mindquantum.algorithm.library
-    mindquantum.algorithm.nisq
-    mindquantum.algorithm.error_mitigation
-    mindquantum.algorithm.mapping
-    mindquantum.algorithm.qaia
+    quafu.algorithm.compiler
+    quafu.algorithm.library
+    quafu.algorithm.nisq
+    quafu.algorithm.error_mitigation
+    quafu.algorithm.mapping
+    quafu.algorithm.qaia

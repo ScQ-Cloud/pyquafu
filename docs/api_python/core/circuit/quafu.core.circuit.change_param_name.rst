@@ -1,7 +1,7 @@
-mindquantum.core.circuit.change_param_name
+quafu.core.circuit.change_param_name
 ===========================================
 
-.. py:function:: mindquantum.core.circuit.change_param_name(circuit_fn, name_map)
+.. py:function:: quafu.core.circuit.change_param_name(circuit_fn, name_map)
 
     更改含参量子线路或含参量子算子（可以生成含参量子线路的函数）里的参数名称。
 

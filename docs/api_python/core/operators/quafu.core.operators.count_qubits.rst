@@ -1,7 +1,7 @@
-mindquantum.core.operators.count_qubits
+quafu.core.operators.count_qubits
 ========================================
 
-.. py:function:: mindquantum.core.operators.count_qubits(operator)
+.. py:function:: quafu.core.operators.count_qubits(operator)
 
     计算未使用的量子比特被删除之前的量子比特数目。
 

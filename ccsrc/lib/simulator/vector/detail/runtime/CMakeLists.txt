@@ -18,5 +18,5 @@
 
 # lint_cmake: -whitespace/indent
 
-target_sources(mqrt PRIVATE ${CMAKE_CURRENT_LIST_DIR}/cmd.cpp ${CMAKE_CURRENT_LIST_DIR}/mqrt.cpp
+target_sources(quafurt PRIVATE ${CMAKE_CURRENT_LIST_DIR}/cmd.cpp ${CMAKE_CURRENT_LIST_DIR}/quafurt.cpp
                             ${CMAKE_CURRENT_LIST_DIR}/utils.cpp)

@@ -1,7 +1,7 @@
-mindquantum.core.gates.gene_univ_two_params_gate
+quafu.core.gates.gene_univ_two_params_gate
 ====================================================
 
-.. py:function:: mindquantum.core.gates.gene_univ_two_params_gate(name, matrix_generator, diff_matrix_generator_1, diff_matrix_generator_2)
+.. py:function:: quafu.core.gates.gene_univ_two_params_gate(name, matrix_generator, diff_matrix_generator_1, diff_matrix_generator_2)
 
     基于双参数幺正矩阵生成自定义参数化门。
 

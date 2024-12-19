@@ -1,7 +1,7 @@
-mindquantum.device.GridQubits
+quafu.device.GridQubits
 =============================
 
-.. py:class:: mindquantum.device.GridQubits(n_row: int, n_col: int)
+.. py:class:: quafu.device.GridQubits(n_row: int, n_col: int)
 
     格点形式的量子比特拓扑结构。
 

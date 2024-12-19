@@ -15,7 +15,7 @@
 Python
 ======
 
-.. automodule:: mindquantum
+.. automodule:: quafu
    :members:
    :special-members: __init__
    :imported-members:

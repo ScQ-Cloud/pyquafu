@@ -26,7 +26,7 @@
 #    include "simulator/vector/detail/cpu_vector_arm_float_policy.h"
 #endif
 #include "simulator/vector/detail/cpu_vector_policy.h"
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename derived_, typename calc_type_>
 template <class binary_op>
 void CPUVectorPolicyBase<derived_, calc_type_>::ConditionalBinary(const qs_data_p_t& src, qs_data_p_t* des_p,
@@ -136,20 +136,20 @@ auto CPUVectorPolicyBase<derived_, calc_type_>::ConditionalCollect(const qs_data
     }
     if (abs) {
         THRESHOLD_OMP(
-            MQ_DO_PRAGMA(omp parallel for schedule(static) reduction(+: res_real)), dim, DimTh,
+            QUAFU_DO_PRAGMA(omp parallel for schedule(static) reduction(+: res_real)), dim, DimTh,
                          for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) {
-                             if ((i & mask) == condi) {
-                                 res_real += qs[i].real() * qs[i].real() + qs[i].imag() * qs[i].imag();
-                             }
+            if ((i & mask) == condi) {
+                res_real += qs[i].real() * qs[i].real() + qs[i].imag() * qs[i].imag();
+            }
                          });
     } else {
         THRESHOLD_OMP(
-            MQ_DO_PRAGMA(omp parallel for schedule(static) reduction(+: res_real, res_imag)), dim, DimTh,
+            QUAFU_DO_PRAGMA(omp parallel for schedule(static) reduction(+: res_real, res_imag)), dim, DimTh,
                          for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) {
-                             if ((i & mask) == condi) {
-                                 res_real += qs[i].real();
-                                 res_imag += qs[i].imag();
-                             }
+            if ((i & mask) == condi) {
+                res_real += qs[i].real();
+                res_imag += qs[i].imag();
+            }
                          });
     }
     return qs_data_t(res_real, res_imag);
@@ -162,4 +162,4 @@ template struct CPUVectorPolicyBase<CPUVectorPolicyAvxDouble, double>;
 template struct CPUVectorPolicyBase<CPUVectorPolicyArmFloat, float>;
 template struct CPUVectorPolicyBase<CPUVectorPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

@@ -36,7 +36,7 @@
 #include <utility>
 #include <vector>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "math/pr/parameter_resolver.h"
 #include "math/tensor/traits.h"
 #include "ops/basic_gate.h"
@@ -45,7 +45,7 @@
 #include "simulator/timer.h"
 #include "simulator/utils.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename qs_policy_t_>
 struct BLAS;
 template <typename sim_t>
@@ -271,7 +271,7 @@ struct VectorStateAdjoint {
         return psi_l->ExpectDiffGate(psi_l->qs, psi_r->qs, g, pr, psi_l->dim);
     }
 };
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 
 #include "simulator/vector/vector_state.tpp"  // NOLINT
 

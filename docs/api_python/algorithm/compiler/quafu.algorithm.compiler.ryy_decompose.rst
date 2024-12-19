@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.ryy_decompose
+quafu.algorithm.compiler.ryy_decompose
 ============================================
 
-.. py:function:: mindquantum.algorithm.compiler.ryy_decompose(gate: gates.Ryy)
+.. py:function:: quafu.algorithm.compiler.ryy_decompose(gate: gates.Ryy)
 
     分解一个的 :class:`~.core.gates.Ryy` 门。
 

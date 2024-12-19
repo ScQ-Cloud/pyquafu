@@ -20,9 +20,9 @@
 #include <cassert>
 #include <vector>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 
-namespace mindquantum::sim {
+namespace quafu::sim {
 index_t QIndexToMask(qbits_t objs);
 PauliMask GenPauliMask(const std::vector<PauliWord>& pws);
 struct SingleQubitGateMask {
@@ -56,6 +56,6 @@ struct DoubleQubitGateMask {
         (des) = (((ori) & (obj_rev_low_mask)) << 1) + ((ori) & (obj_low_mask));                                        \
         (des) = (((des) & (obj_rev_high_mask)) << 1) + ((des) & (obj_high_mask));                                      \
     } while (0)
-}  // namespace mindquantum::sim
+}  // namespace quafu::sim
 
 #endif

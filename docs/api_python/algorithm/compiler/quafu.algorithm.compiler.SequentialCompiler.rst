@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.SequentialCompiler
+quafu.algorithm.compiler.SequentialCompiler
 =================================================
 
-.. py:class:: mindquantum.algorithm.compiler.SequentialCompiler(compilers: typing.List[BasicCompilerRule], rule_name="SequentialCompiler", log_level=0)
+.. py:class:: quafu.algorithm.compiler.SequentialCompiler(compilers: typing.List[BasicCompilerRule], rule_name="SequentialCompiler", log_level=0)
 
     序列化编译规则。
 

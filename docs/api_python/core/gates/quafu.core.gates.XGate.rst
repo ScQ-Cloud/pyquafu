@@ -1,7 +1,7 @@
-mindquantum.core.gates.XGate
+quafu.core.gates.XGate
 ===============================
 
-.. py:class:: mindquantum.core.gates.XGate
+.. py:class:: quafu.core.gates.XGate
 
     泡利X门。矩阵为：
 

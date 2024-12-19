@@ -1,7 +1,7 @@
-mindquantum.core.circuit.ChannelAdderBase
+quafu.core.circuit.ChannelAdderBase
 =========================================
 
-.. py:class:: mindquantum.core.circuit.ChannelAdderBase(add_after=True)
+.. py:class:: quafu.core.circuit.ChannelAdderBase(add_after=True)
 
     在量子门前面或者后面添加信道。
 

@@ -22,7 +22,7 @@ PROGRAM=$(basename "${BASH_SOURCE[0]:-$0}")
 # Test for MindSpore CI
 _IS_MINDSPORE_CI=0
 if [[ "${JENKINS_URL:-0}" =~ https?://build.mindspore.cn && ! "${CI:-0}" =~ ^(false|0)$ ]]; then
-    echo "Detected MindSpore/MindQuantum CI"
+    echo "Detected MindSpore/quafu CI"
     # shellcheck disable=SC2034
     _IS_MINDSPORE_CI=1
 fi
@@ -42,13 +42,13 @@ function help_header() {
     echo 'This is mainly relevant for developers that do not want to always '
     echo 'have to reinstall the Python package'
     echo ''
-    echo 'This script will create a Python virtualenv in the MindQuantum root'
+    echo 'This script will create a Python virtualenv in the quafu root'
     echo 'directory and then build all the C++ Python modules and place the'
-    echo 'generated libraries in their right locations within the MindQuantum'
+    echo 'generated libraries in their right locations within the quafu'
     echo 'folder hierarchy so Python knows how to find them.'
     echo ''
     echo 'A pth-file will be created in the virtualenv site-packages directory'
-    echo 'so that the MindQuantum root folder will be added to the Python PATH'
+    echo 'so that the quafu root folder will be added to the Python PATH'
     echo 'without the need to modify PYTHONPATH.'
 }
 
@@ -56,7 +56,7 @@ function extra_help() {
     echo 'Extra options:'
     echo '  --clean              Run make clean before building'
     echo '  -c,--configure       Force running the CMake configure step'
-    echo '  --configure-only     Stop after the CMake configure and generation steps (ie. before building MindQuantum)'
+    echo '  --configure-only     Stop after the CMake configure and generation steps (ie. before building quafu)'
     echo '  --doc,--docs         Setup the Python virtualenv for building the documentation and ask CMake to build the'
     echo '                       documentation'
     echo '  --install            Build the ´install´ target'
@@ -129,7 +129,7 @@ fi
 if [ "$dry_run" -ne 1 ]; then
     # Make sure the root directory is in the virtualenv PATH
     site_pkg_dir=$("$PYTHON" -c 'import site; print(site.getsitepackages()[0])')
-    pth_file="$site_pkg_dir/mindquantum_local.pth"
+    pth_file="$site_pkg_dir/quafu_local.pth"
 
     if [ ! -e "$pth_file" ]; then
         echo "Creating pth-file in $pth_file"
@@ -211,9 +211,9 @@ fi
 
 local_pkgs_str=$(join_by , "${local_pkgs[@]}")
 if [[ "$force_local_pkgs" -eq 1 ]]; then
-    cmake_args+=(-DMQ_FORCE_LOCAL_PKGS=all)
+    cmake_args+=(-DQUAFU_FORCE_LOCAL_PKGS=all)
 elif [ -n "$local_pkgs_str" ]; then
-    cmake_args+=(-DMQ_FORCE_LOCAL_PKGS="$local_pkgs_str")
+    cmake_args+=(-DQUAFU_FORCE_LOCAL_PKGS="$local_pkgs_str")
 fi
 
 if [ "$n_jobs" -ne -1 ]; then

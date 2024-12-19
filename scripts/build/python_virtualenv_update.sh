@@ -72,7 +72,7 @@ if [[ "${created_venv:-0}" -eq 1 || "${do_update_venv:-0}" -eq 1 ]]; then
         elif [ "${only_install_pytest:-0}" -eq 1 ]; then
             pkgs+=( pytest pytest-cov pytest-mock mock )
         else
-            tmp_file=$(mktemp req_mq_XXX)
+            tmp_file=$(mktemp req_quafu_XXX)
 
             pushd "$ROOTDIR" > /dev/null || exit 1
             "$PYTHON" setup.py gen_reqfile --include-extras=test --output "$tmp_file"

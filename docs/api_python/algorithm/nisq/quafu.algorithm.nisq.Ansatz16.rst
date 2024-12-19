@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.Ansatz16
+quafu.algorithm.nisq.Ansatz16
 ===================================
 
-.. py:class:: mindquantum.algorithm.nisq.Ansatz16(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
+.. py:class:: quafu.algorithm.nisq.Ansatz16(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
 
     Arxiv 论文中所提及的量子线路16。
 

@@ -21,42 +21,42 @@ include_guard()
 include(debug_print)
 
 # ~~~
-# Set some variables within the MindQuantum's installed configuration file.
+# Set some variables within the quafu's installed configuration file.
 #
-# mq_set(<var>
+# quafu_set(<var>
 #         <value>)
 #
-# If a specified variable already exists, save its value and then restore it later by using mq_auto_unset.
+# If a specified variable already exists, save its value and then restore it later by using quafu_auto_unset.
 # ~~~
-macro(mq_set var value)
-  list(APPEND _mq_variables ${var})
+macro(quafu_set var value)
+  list(APPEND _quafu_variables ${var})
   if(DEFINED ${var})
-    debug_print(STATUS "DEBUG: mq_set: ${var} defined, saving value to ${var}_old (${${var}})")
+    debug_print(STATUS "DEBUG: quafu_set: ${var} defined, saving value to ${var}_old (${${var}})")
     set(${var}_old ${${var}})
   endif()
   if(NOT "${value}" STREQUAL "")
-    debug_print(STATUS "DEBUG: mq_set: ${var} defined to ${value}")
+    debug_print(STATUS "DEBUG: quafu_set: ${var} defined to ${value}")
     set(${var} "${value}")
   endif()
 endmacro()
 
 # ~~~
-# Automatically unset any changes made by all previous calls to mq_set_variable()
+# Automatically unset any changes made by all previous calls to quafu_set_variable()
 #
-# mq_unset_auto()
+# quafu_unset_auto()
 # ~~~
-macro(mq_unset_auto)
-  foreach(_var ${_mq_variables})
+macro(quafu_unset_auto)
+  foreach(_var ${_quafu_variables})
     if(DEFINED ${_var})
-      debug_print(STATUS "DEBUG: mq_unset_auto: unsetting ${_var}")
+      debug_print(STATUS "DEBUG: quafu_unset_auto: unsetting ${_var}")
       unset(${_var})
     endif()
     if(DEFINED ${_var}_old)
-      debug_print(STATUS "DEBUG: mq_unset_auto: ${_var}_old defined, restoring value of ${_var} (${${_var}_old})")
+      debug_print(STATUS "DEBUG: quafu_unset_auto: ${_var}_old defined, restoring value of ${_var} (${${_var}_old})")
       set(${_var} ${${_var}_old})
       unset(${_var}_old)
     endif()
   endforeach()
   unset(_var) # NB: not required anymore for CMake >= 3.21 (see CMP0124)
-  unset(_mq_variables)
+  unset(_quafu_variables)
 endmacro()

@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.crxx_decompose
+quafu.algorithm.compiler.crxx_decompose
 =============================================
 
-.. py:function:: mindquantum.algorithm.compiler.crxx_decompose(gate: gates.Rxx)
+.. py:function:: quafu.algorithm.compiler.crxx_decompose(gate: gates.Rxx)
 
     分解一个受控的 :class:`~.core.gates.Rxx` 门。
 

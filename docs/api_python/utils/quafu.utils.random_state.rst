@@ -1,7 +1,7 @@
-mindquantum.utils.random_state
+quafu.utils.random_state
 ===============================
 
-.. py:function:: mindquantum.utils.random_state(shapes, norm_axis=0, comp=True, seed=None)
+.. py:function:: quafu.utils.random_state(shapes, norm_axis=0, comp=True, seed=None)
 
     生成某个随机的量子态。
 

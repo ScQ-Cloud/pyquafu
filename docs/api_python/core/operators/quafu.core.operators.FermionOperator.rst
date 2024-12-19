@@ -1,7 +1,7 @@
-mindquantum.core.operators.FermionOperator
+quafu.core.operators.FermionOperator
 ===========================================
 
-.. py:class:: mindquantum.core.operators.FermionOperator(terms: typing.Union[str, "FermionOperator"] = None, coefficient: PRConvertible = 1.0, internal: bool = False)
+.. py:class:: quafu.core.operators.FermionOperator(terms: typing.Union[str, "FermionOperator"] = None, coefficient: PRConvertible = 1.0, internal: bool = False)
 
     费米子算子，如FermionOperator('9 4^ 3 3^')表示 :math:`a_9 a_4^\dagger a_3 a_3^\dagger`。
     这些是描述费米子系统的基本运算符，如分子系统。
@@ -20,7 +20,7 @@ mindquantum.core.operators.FermionOperator
             将一个复数类型的FermionOperator转化为实数类型将会忽略系数的虚数部分。
 
         参数：
-            - **dtype** (mindquantum.dtype) - 费米子算符的新类型。
+            - **dtype** (quafu.dtype) - 费米子算符的新类型。
 
         返回：
             FermionOperator，给定类型的费米子算符。
@@ -72,13 +72,13 @@ mindquantum.core.operators.FermionOperator
     .. py:method:: from_openfermion(of_ops)
         :staticmethod:
 
-        将openfermion格式的费米子运算符转换为mindquantum格式。
+        将openfermion格式的费米子运算符转换为quafu格式。
 
         参数：
             - **of_ops** (openfermion.FermionOperator) - openfermion中的费米子算符。
 
         返回：
-            FermionOperator，mindquantum中的费米子算符。
+            FermionOperator，quafu中的费米子算符。
 
     .. py:method:: get_coeff(term)
 

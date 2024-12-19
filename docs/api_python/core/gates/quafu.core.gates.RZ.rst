@@ -1,7 +1,7 @@
-mindquantum.core.gates.RZ
+quafu.core.gates.RZ
 ===============================
 
-.. py:class:: mindquantum.core.gates.RZ(pr)
+.. py:class:: quafu.core.gates.RZ(pr)
 
     围绕z轴的旋转门。更多用法，请参见 :class:`~.core.gates.RX`。
 

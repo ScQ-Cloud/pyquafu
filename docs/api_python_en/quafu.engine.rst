@@ -1,5 +1,5 @@
-mindquantum.engine
+quafu.engine
 ==================
 
-.. automodule:: mindquantum.engine
+.. automodule:: quafu.engine
     :members:

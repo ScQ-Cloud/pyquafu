@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.ASWAP
+quafu.algorithm.nisq.ASWAP
 ================================
 
-.. py:class:: mindquantum.algorithm.nisq.ASWAP(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
+.. py:class:: quafu.algorithm.nisq.ASWAP(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
 
     类 SWAP 门形式的硬件友好型线路
 

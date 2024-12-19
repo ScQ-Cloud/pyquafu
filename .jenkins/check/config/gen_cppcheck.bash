@@ -27,13 +27,13 @@ while read -r line; do
         # -> for ms-pipeline it should be sufficient to remove the trailing `*`
         warn_id="${BASH_REMATCH[1]}"
         file_location="${BASH_REMATCH[2]}/"  # NB: BASH_REMATCH[2] is the folder without the trailing '/*'
-        file_location_print=$(printf '"%s"' "mindquantum/$file_location")
+        file_location_print=$(printf '"%s"' "quafu/$file_location")
         printf '%-90s  "%s"\n' "$file_location_print" "$warn_id"
     elif [[ "$line" =~ ([a-zA-Z_]+):(.*) ]]; then
         # Match lines like this: 'XXXX:path/to/file'
         warn_id="${BASH_REMATCH[1]}"
         file_location="${BASH_REMATCH[2]}"
-        file_location_print=$(printf '"%s"' "mindquantum/$file_location")
+        file_location_print=$(printf '"%s"' "quafu/$file_location")
         printf '%-90s  "%s"\n' "$file_location_print" "$warn_id"
     elif [[ "$line" =~ ([^:]+) ]]; then
         # Match lines like this: 'XXXX' (ie. only naked CppCheck warning)

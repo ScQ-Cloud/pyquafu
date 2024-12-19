@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.Ansatz3
+quafu.algorithm.nisq.Ansatz3
 ==================================
 
-.. py:class:: mindquantum.algorithm.nisq.Ansatz3(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
+.. py:class:: quafu.algorithm.nisq.Ansatz3(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
 
     Arxiv 论文中所提及的量子线路3。
 

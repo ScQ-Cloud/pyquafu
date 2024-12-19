@@ -1,7 +1,7 @@
-mindquantum.core.gates.SXGate
+quafu.core.gates.SXGate
 ===============================
 
-.. py:class:: mindquantum.core.gates.SXGate
+.. py:class:: quafu.core.gates.SXGate
 
     SX门。矩阵为：
 

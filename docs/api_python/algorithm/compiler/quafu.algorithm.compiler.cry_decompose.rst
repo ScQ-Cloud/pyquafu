@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.cry_decompose
+quafu.algorithm.compiler.cry_decompose
 ============================================
 
-.. py:function:: mindquantum.algorithm.compiler.cry_decompose(gate: gates.RY)
+.. py:function:: quafu.algorithm.compiler.cry_decompose(gate: gates.RY)
 
     分解一个受控的 :class:`~.core.gates.RY` 门。
 

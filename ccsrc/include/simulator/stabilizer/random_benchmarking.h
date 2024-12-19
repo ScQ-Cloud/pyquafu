@@ -17,8 +17,8 @@
 #define SIMULATOR_STABILIZER_RANDOM_BENCHMARKING_H_
 #include "simulator/stabilizer/query_element.h"
 #include "simulator/stabilizer/stabilizer.h"
-namespace mindquantum::stabilizer {
+namespace quafu::stabilizer {
 VT<StabilizerTableau> SingleQubitRBCircuit(size_t len, int seed);
 VT<StabilizerTableau> DoubleQubitsRBCircuit(size_t len, int seed);
-}  // namespace mindquantum::stabilizer
+}  // namespace quafu::stabilizer
 #endif

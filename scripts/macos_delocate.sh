@@ -57,7 +57,7 @@ unzip -q -d "$tmp_dir" "$wheel_filename"
 # Update XXX_LIBRARY_PATH
 
 lib_dir_list=()
-for dir in "$tmp_dir/mindquantum/lib/mindquantum/third_party/"*; do
+for dir in "$tmp_dir/quafu/lib/quafu/third_party/"*; do
     dir="$dir/lib"
     if [ -d "$dir" ]; then
         echo "  prepending to $LD_PATH_VAR: $dir"

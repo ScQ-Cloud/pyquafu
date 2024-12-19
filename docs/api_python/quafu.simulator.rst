@@ -1,7 +1,7 @@
-mindquantum.simulator
+quafu.simulator
 =====================
 
-.. py:module:: mindquantum.simulator
+.. py:module:: quafu.simulator
 
 
 模拟量子系统演化的量子模拟器。
@@ -14,9 +14,9 @@ Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.simulator.GradOpsWrapper
-    mindquantum.simulator.Simulator
-    mindquantum.simulator.NoiseBackend
+    quafu.simulator.GradOpsWrapper
+    quafu.simulator.Simulator
+    quafu.simulator.NoiseBackend
 
 Function
 ---------
@@ -26,9 +26,9 @@ Function
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.simulator.fidelity
-    mindquantum.simulator.get_supported_simulator
-    mindquantum.simulator.inner_product
-    mindquantum.simulator.get_stabilizer_string
-    mindquantum.simulator.get_tableau_string
-    mindquantum.simulator.decompose_stabilizer
+    quafu.simulator.fidelity
+    quafu.simulator.get_supported_simulator
+    quafu.simulator.inner_product
+    quafu.simulator.get_stabilizer_string
+    quafu.simulator.get_tableau_string
+    quafu.simulator.decompose_stabilizer

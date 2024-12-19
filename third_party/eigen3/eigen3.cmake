@@ -39,10 +39,10 @@ if(MSVC)
   list(APPEND CMAKE_OPTION -DCMAKE_CXX_STANDARD=11 -DEIGEN_COMPILER_SUPPORT_CPP11=ON)
 endif()
 
-mindquantum_add_pkg(
+quafu_add_pkg(
   Eigen3
   VER ${VER}
   URL ${REQ_URL}
   MD5 ${MD5}
   CMAKE_OPTION ${CMAKE_OPTION}
-  TARGET_ALIAS mindquantum::eigen Eigen3::Eigen)
+  TARGET_ALIAS quafu::eigen Eigen3::Eigen)

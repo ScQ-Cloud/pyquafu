@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.ccx_decompose
+quafu.algorithm.compiler.ccx_decompose
 ============================================
 
-.. py:function:: mindquantum.algorithm.compiler.ccx_decompose(gate: gates.XGate)
+.. py:function:: quafu.algorithm.compiler.ccx_decompose(gate: gates.XGate)
 
     分解一个 `toffoli` 门。
 

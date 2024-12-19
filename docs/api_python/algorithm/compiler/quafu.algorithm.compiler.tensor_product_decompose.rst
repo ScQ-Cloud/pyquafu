@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.tensor_product_decompose
+quafu.algorithm.compiler.tensor_product_decompose
 =======================================================
 
-.. py:function:: mindquantum.algorithm.compiler.tensor_product_decompose(gate: QuantumGate, return_u3: bool = True)
+.. py:function:: quafu.algorithm.compiler.tensor_product_decompose(gate: QuantumGate, return_u3: bool = True)
 
     量比特量子门的张量直积分解。
 

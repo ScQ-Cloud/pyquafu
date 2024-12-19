@@ -1,7 +1,7 @@
-mindquantum.core.operators.QubitOperator
+quafu.core.operators.QubitOperator
 =========================================
 
-.. py:class:: mindquantum.core.operators.QubitOperator(terms: typing.Union[str, "QubitOperator"] = None, coefficient: PRConvertible = 1.0, internal: bool = False)
+.. py:class:: quafu.core.operators.QubitOperator(terms: typing.Union[str, "QubitOperator"] = None, coefficient: PRConvertible = 1.0, internal: bool = False)
 
     作用于量子比特的项的总和，例如 0.5 * 'X1 X5' + 0.3 * 'Z1 Z2'。
     项是一个作用于n个量子比特的运算符，可以表示为：coefficient * local_operator[0] x ... x local_operator[n-1]，其中x是张量乘积。
@@ -25,7 +25,7 @@ mindquantum.core.operators.QubitOperator
             将一个复数类型的QubitOperator转化为实数类型将会忽略系数的虚数部分。
 
         参数：
-            - **dtype** (mindquantum.dtype) - 玻色子算符的新类型。
+            - **dtype** (quafu.dtype) - 玻色子算符的新类型。
 
         返回：
             QubitOperator，给定类型的玻色子算符。
@@ -76,13 +76,13 @@ mindquantum.core.operators.QubitOperator
     .. py:method:: from_openfermion(of_ops)
         :staticmethod:
 
-        将openfermion格式的玻色子算符转换为mindquantum格式。
+        将openfermion格式的玻色子算符转换为quafu格式。
 
         参数：
             - **of_ops** (openfermion.QubitOperator) - openfermion框架中的玻色子算符。
 
         返回：
-            QubitOperator，mindquantum框架中的玻色子算符。
+            QubitOperator，quafu框架中的玻色子算符。
 
     .. py:method:: get_coeff(term)
 

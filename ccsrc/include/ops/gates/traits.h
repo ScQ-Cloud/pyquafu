@@ -22,7 +22,7 @@
 
 #include "config/type_traits.h"
 
-namespace mindquantum::traits {
+namespace quafu::traits {
 template <typename scalar_t, bool is_real, typename = void>
 struct is_compatible_scalar : std::false_type {};
 
@@ -51,6 +51,6 @@ static_assert(is_compatible_scalar_v<float, false>);
 static_assert(is_compatible_scalar_v<double, false>);
 static_assert(is_compatible_scalar_v<std::complex<float>, false>);
 static_assert(is_compatible_scalar_v<std::complex<double>, false>);
-}  // namespace mindquantum::traits
+}  // namespace quafu::traits
 
 #endif /* OPS_GATES_TRAITS_HPP */

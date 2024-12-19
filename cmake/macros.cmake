@@ -68,24 +68,24 @@ include(is_language_enabled)
 # ------------------------------------------------------------------------------
 
 # ~~~
-# Setup a language for use with MindQuantum
+# Setup a language for use with quafu
 #
 # setup_language(<lang>)
 #
-# This function creates 3 targets that are used throughout MindQuantum in order to store compiler and linker flags:
+# This function creates 3 targets that are used throughout quafu in order to store compiler and linker flags:
 #   - <lang>_try_compile
 #   - <lang>_try_compile_flagcheck
-#   - <lang>_mindquantum
+#   - <lang>_quafu
 #
 # The first two are used in try_compile() calls while the last one should contain the definite list of compiler and
-# linker options that MindQuantum requires for all targets.
+# linker options that quafu requires for all targets.
 # ~~~
 function(setup_language lang)
   add_library(${lang}_try_compile_flagcheck INTERFACE)
   add_library(${lang}_try_compile INTERFACE)
-  add_library(${lang}_mindquantum INTERFACE)
+  add_library(${lang}_quafu INTERFACE)
 
-  append_to_property(mq_install_targets GLOBAL ${lang}_mindquantum)
+  append_to_property(quafu_install_targets GLOBAL ${lang}_quafu)
 endfunction()
 
 # ------------------------------------------------------------------------------
@@ -93,19 +93,19 @@ endfunction()
 # ~~~
 # Append a list of compile definitions to some of the language specific targets (see setup_language())
 #
-# mq_add_compile_definitions([TRYCOMPILE, TRYCOMPILE_FLAGCHECK]
+# quafu_add_compile_definitions([TRYCOMPILE, TRYCOMPILE_FLAGCHECK]
 #                           <definition>, [<definitions>, ...])
 #
-# Always modify the <LANG>_mindquantum target. If any of TRYCOMPILE, TRYCOMPILE_FLAGCHECK is also specified, then modify
+# Always modify the <LANG>_quafu target. If any of TRYCOMPILE, TRYCOMPILE_FLAGCHECK is also specified, then modify
 # the corresponding target.
 # ~~~
-function(mq_add_compile_definitions)
+function(quafu_add_compile_definitions)
   cmake_parse_arguments(PARSE_ARGV 0 MACD "TRYCOMPILE;TRYCOMPILE_FLAGCHECK" "" "")
 
   foreach(lang C CXX CUDA NVCXX DPCXX)
     is_language_enabled(${lang} _enabled)
     if(_enabled)
-      target_compile_definitions(${lang}_mindquantum
+      target_compile_definitions(${lang}_quafu
                                  INTERFACE "$<$<COMPILE_LANGUAGE:${lang}>:${MACD_UNPARSED_ARGUMENTS}>")
       if(MACD_TRYCOMPILE)
         target_compile_definitions(${lang}_try_compile
@@ -179,7 +179,7 @@ endfunction()
 # ==============================================================================
 
 # ~~~
-# Macro used to disable CUDA support in MindQuantum
+# Macro used to disable CUDA support in quafu
 #
 # disable_cuda([<msg>])
 # ~~~
@@ -309,8 +309,8 @@ function(apply_patches)
     # NB: All these shenanigans with file(CONFIGURE ...) are just to make sure that we get a file with LF line
     # endings...
     get_filename_component(_patch_file_name ${_patch_file} NAME)
-    set(_lf_patch_file ${PROJECT_BINARY_DIR}/_mq_patch/lf_${_patch_file_name})
-    set(_crlf_patch_file ${PROJECT_BINARY_DIR}/_mq_patch/crlf_${_patch_file_name})
+    set(_lf_patch_file ${PROJECT_BINARY_DIR}/_quafu_patch/lf_${_patch_file_name})
+    set(_crlf_patch_file ${PROJECT_BINARY_DIR}/_quafu_patch/crlf_${_patch_file_name})
     file(READ "${_patch_file}" _content)
     # NB: escape patches that have @XXX@ since those would be replaced by the call to file(CONFIGURE)
     set(_at @)
@@ -340,8 +340,8 @@ function(apply_patches)
 
     file(MD5 "${_lf_patch_file}" _lf_md5)
     file(MD5 "${_crlf_patch_file}" _crlf_md5)
-    set(_lf_patch_lock_file "${AP_WORKING_DIRECTORY}/mq_applied_patch_${_lf_md5}")
-    set(_crlf_patch_lock_file "${AP_WORKING_DIRECTORY}/mq_applied_patch_${_crlf_md5}")
+    set(_lf_patch_lock_file "${AP_WORKING_DIRECTORY}/quafu_applied_patch_${_lf_md5}")
+    set(_crlf_patch_lock_file "${AP_WORKING_DIRECTORY}/quafu_applied_patch_${_crlf_md5}")
 
     if(NOT EXISTS "${_lf_patch_lock_file}" AND NOT EXISTS "${_crlf_patch_lock_file}")
       message(STATUS "Applying patch ${_patch_file}")
@@ -533,7 +533,7 @@ endfunction()
 # test_compile_option(<name>
 #                     LANGS <lang1> [<lang2>...]
 #                     FLAGS <flags1> [<flags2>...]
-#                     [FLAGCHECK, NO_MQ_TARGET, NO_TRYCOMPILE_TARGET, NO_TRYCOMPILE_FLAGCHECK_TARGET]
+#                     [FLAGCHECK, NO_QUAFU_TARGET, NO_TRYCOMPILE_TARGET, NO_TRYCOMPILE_FLAGCHECK_TARGET]
 #                     [GENEX <genex>]
 #                     [LINKER_FLAGS <flag>]
 #                     [CMAKE_OPTION <option>])
@@ -543,7 +543,7 @@ endfunction()
 # compiler. If a flag is valid, it will be added to the language-specific targets (unless a corresponding negating flag
 # was specified):
 #  - <name>_<LANG> (created if does not exist already)
-#  - <LANG>_mindquantum
+#  - <LANG>_quafu
 #  - <LANG>_try_compile
 #  - <LANG>_try_compile_flagcheck (only if FLACHECK is passed as argument
 #
@@ -557,7 +557,7 @@ endfunction()
 # ~~~
 function(test_compile_option name)
   # cmake-lint: disable=R0912,R0915,C0103
-  cmake_parse_arguments(PARSE_ARGV 1 TCO "FLAGCHECK;NO_MQ_TARGET;NO_TRYCOMPILE_TARGET;NO_TRYCOMPILE_FLAGCHECK_TARGET"
+  cmake_parse_arguments(PARSE_ARGV 1 TCO "FLAGCHECK;NO_QUAFU_TARGET;NO_TRYCOMPILE_TARGET;NO_TRYCOMPILE_FLAGCHECK_TARGET"
                         "CMAKE_OPTION;GENEX;LINKER_FLAGS" "LANGS;FLAGS")
 
   if(NOT TCO_LANGS)
@@ -611,8 +611,8 @@ function(test_compile_option name)
         set(_has_flags TRUE)
 
         target_compile_options(${name}_${lang} INTERFACE "$<${_genex}:${_${lang}_flags}>")
-        if(NOT TCO_NO_MQ_TARGET)
-          target_compile_options(${lang}_mindquantum INTERFACE "$<${_genex}:${_${lang}_flags}>")
+        if(NOT TCO_NO_QUAFU_TARGET)
+          target_compile_options(${lang}_quafu INTERFACE "$<${_genex}:${_${lang}_flags}>")
         endif()
         if(NOT TCO_NO_TRYCOMPILE_TARGET)
           target_compile_options(${lang}_try_compile INTERFACE ${_${lang}_flags})
@@ -695,7 +695,7 @@ endfunction()
 # test_linker_option(<name>
 #                    LANGS <lang1> [<lang2>...]
 #                    FLAGS <flags1> [<flags2>...]
-#                    [VERBATIM, NO_MQ_TARGET]
+#                    [VERBATIM, NO_QUAFU_TARGET]
 #                    [GENEX <genex>]
 #                    [CMAKE_OPTION <option>])
 #
@@ -704,7 +704,7 @@ endfunction()
 # linker. If a flag is valid, it will be added to the language-specific targets (unless a corresponding negating flag
 # was specified):
 #  - <name>_<LANG> (created if does not exist already)
-#  - <LANG>_mindquantum
+#  - <LANG>_quafu
 #  - <LANG>_try_compile
 #  - <LANG>_try_compile_flagcheck (only if FLACHECK is passed as argument
 #
@@ -719,7 +719,7 @@ endfunction()
 # NB: This function calls check_link_flags() internally.
 # ~~~
 function(test_linker_option name)
-  cmake_parse_arguments(PARSE_ARGV 1 TLO "VERBATIM;NO_MQ_TARGET" "CMAKE_OPTION;GENEX" "LANGS;FLAGS")
+  cmake_parse_arguments(PARSE_ARGV 1 TLO "VERBATIM;NO_QUAFU_TARGET" "CMAKE_OPTION;GENEX" "LANGS;FLAGS")
 
   if(NOT TLO_LANGS)
     message(FATAL_ERROR "Missing LANGS argument")
@@ -767,8 +767,8 @@ function(test_linker_option name)
         set(_has_flags TRUE)
 
         target_link_options(${name}_${lang} INTERFACE "$<${_genex}:${_${lang}_flags}>")
-        if(NOT TCO_NO_MQ_TARGET)
-          target_link_options(${lang}_mindquantum INTERFACE "$<${_genex}:${_${lang}_flags}>")
+        if(NOT TCO_NO_QUAFU_TARGET)
+          target_link_options(${lang}_quafu INTERFACE "$<${_genex}:${_${lang}_flags}>")
         endif()
       endif()
     endif()

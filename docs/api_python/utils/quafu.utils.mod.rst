@@ -1,7 +1,7 @@
-mindquantum.utils.mod
+quafu.utils.mod
 ======================
 
-.. py:function:: mindquantum.utils.mod(vec_in, axis=0)
+.. py:function:: quafu.utils.mod(vec_in, axis=0)
 
     计算输入向量的模。
 

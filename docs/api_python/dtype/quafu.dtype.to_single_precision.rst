@@ -1,9 +1,9 @@
-mindquantum.dtype.to_single_precision
+quafu.dtype.to_single_precision
 =====================================
 
-.. py:function:: mindquantum.dtype.to_single_precision(dtype)
+.. py:function:: quafu.dtype.to_single_precision(dtype)
 
     将一个类型转化为单精度类型。
 
     参数：
-        - **dtype** (mindquantum.dtype) - MindQuantum 支持的类型。
+        - **dtype** (quafu.dtype) - quafu 支持的类型。

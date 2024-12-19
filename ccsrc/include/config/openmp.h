@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_OPENMP_HPP
-#define MQ_CONFIG_OPENMP_HPP
+#ifndef QUAFU_CONFIG_OPENMP_HPP
+#define QUAFU_CONFIG_OPENMP_HPP
 
 #include <cstdint>
 
@@ -27,4 +27,4 @@ using idx_t = uint64_t;
 #endif  // _MSC_VER
 }  // namespace omp
 
-#endif /* MQ_CONFIG_OPENMP_HPP */
+#endif /* QUAFU_CONFIG_OPENMP_HPP */

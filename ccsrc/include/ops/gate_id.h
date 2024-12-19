@@ -14,60 +14,60 @@
  * limitations under the License.
  */
 
-#ifndef MQ_GATE_ID
-#define MQ_GATE_ID
+#ifndef QUAFU_GATE_ID
+#define QUAFU_GATE_ID
 
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
-namespace mindquantum {
+namespace quafu {
 enum class GateID : uint8_t {
     null,
-    I,            //
-    X,            //
-    Y,            //
-    Z,            //
-    RX,           //
-    RY,           //
-    RZ,           //
-    Rxx,          //
-    Ryy,          //
-    Rzz,          //
-    Rxy,          //
-    Rxz,          //
-    Ryz,          //
-    Givens,       //
-    Rn,           //
-    H,            //
-    SWAP,         //
-    ISWAP,        //
-    SWAPalpha,    //
-    T,            //
-    S,            //
-    SX,           //
-    SXdag,        //
-    Tdag,         //
-    Sdag,         //
-    CNOT,         //
-    CZ,           //
-    GP,           //
-    PauliString,  //
-    RPS,          // Rot-PauliString
-    PS,           //
-    U3,           //
-    FSim,         //
-    M,            //
-    PL,           // Pauli channel
-    GPL,          // Groupued Pauli channel
-    DEP,          // depolarizing channel
-    AD,           // amplitude damping channel
-    PD,           // phase damping channel
-    KRAUS,        // Kraus channel
-    TR,           // thermal relaxation channel
-    CUSTOM,       //
-    CUSTOM_TWO_PARAM,//
-    HOLDER,       // for extended gate id.
+    I,                 //
+    X,                 //
+    Y,                 //
+    Z,                 //
+    RX,                //
+    RY,                //
+    RZ,                //
+    Rxx,               //
+    Ryy,               //
+    Rzz,               //
+    Rxy,               //
+    Rxz,               //
+    Ryz,               //
+    Givens,            //
+    Rn,                //
+    H,                 //
+    SWAP,              //
+    ISWAP,             //
+    SWAPalpha,         //
+    T,                 //
+    S,                 //
+    SX,                //
+    SXdag,             //
+    Tdag,              //
+    Sdag,              //
+    CNOT,              //
+    CZ,                //
+    GP,                //
+    PauliString,       //
+    RPS,               // Rot-PauliString
+    PS,                //
+    U3,                //
+    FSim,              //
+    M,                 //
+    PL,                // Pauli channel
+    GPL,               // Groupued Pauli channel
+    DEP,               // depolarizing channel
+    AD,                // amplitude damping channel
+    PD,                // phase damping channel
+    KRAUS,             // Kraus channel
+    TR,                // thermal relaxation channel
+    CUSTOM,            //
+    CUSTOM_TWO_PARAM,  //
+    HOLDER,            // for extended gate id.
 };
 
 // NOLINTNEXTLINE(*avoid-c-arrays,readability-identifier-length)
@@ -114,125 +114,125 @@ NLOHMANN_JSON_SERIALIZE_ENUM(GateID, {{GateID::I, "I"},
                                       {GateID::CUSTOM_TWO_PARAM, "CUSTOM_TWO_PARAM"},  // 添加对应的序列化支持
                                       {GateID::PauliString, "PauliString"},
                                       {GateID::RPS, "RotPauliString"}});
-}  // namespace mindquantum
+}  // namespace quafu
 template <typename char_t>
-struct fmt::formatter<mindquantum::GateID, char_t> {
+struct fmt::formatter<quafu::GateID, char_t> {
     FMT_CONSTEXPR auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {  // NOLINT(runtime/references)
         return ctx.begin();
     }
     template <typename format_context_t>
-    auto format_one(const mindquantum::GateID& value, format_context_t& ctx) const  // NOLINT(runtime/references)
+    auto format_one(const quafu::GateID& value, format_context_t& ctx) const  // NOLINT(runtime/references)
         -> decltype(ctx.out()) {
         switch (value) {
-            case mindquantum::GateID::Givens:
+            case quafu::GateID::Givens:
                 return fmt::format_to(ctx.out(), "Givens");
-            case mindquantum::GateID::GP:
+            case quafu::GateID::GP:
                 return fmt::format_to(ctx.out(), "GP");
-            case mindquantum::GateID::PS:
+            case quafu::GateID::PS:
                 return fmt::format_to(ctx.out(), "PS");
-            case mindquantum::GateID::U3:
+            case quafu::GateID::U3:
                 return fmt::format_to(ctx.out(), "U3");
-            case mindquantum::GateID::FSim:
+            case quafu::GateID::FSim:
                 return fmt::format_to(ctx.out(), "FSim");
-            case mindquantum::GateID::M:
+            case quafu::GateID::M:
                 return fmt::format_to(ctx.out(), "M");
-            case mindquantum::GateID::CUSTOM:
+            case quafu::GateID::CUSTOM:
                 return fmt::format_to(ctx.out(), "CUSTOM");
-            case mindquantum::GateID::CUSTOM_TWO_PARAM:
+            case quafu::GateID::CUSTOM_TWO_PARAM:
                 return fmt::format_to(ctx.out(), "CUSTOM_TWO_PARAM");
-            case mindquantum::GateID::SWAPalpha:
+            case quafu::GateID::SWAPalpha:
                 return fmt::format_to(ctx.out(), "SWAPalpha");
-            case mindquantum::GateID::PauliString:
+            case quafu::GateID::PauliString:
                 return fmt::format_to(ctx.out(), "PauliString");
-            case mindquantum::GateID::RPS:
+            case quafu::GateID::RPS:
                 return fmt::format_to(ctx.out(), "RotPauliString");
             default:
-                return fmt::format_to(ctx.out(), "Invalid <mindquantum::GateID>");
+                return fmt::format_to(ctx.out(), "Invalid <quafu::GateID>");
         }
     }
     template <typename format_context_t>
-    auto format_two(const mindquantum::GateID& value, format_context_t& ctx) const  // NOLINT(runtime/references)
+    auto format_two(const quafu::GateID& value, format_context_t& ctx) const  // NOLINT(runtime/references)
         -> decltype(ctx.out()) {
         switch (value) {
-            case mindquantum::GateID::PL:
+            case quafu::GateID::PL:
                 return fmt::format_to(ctx.out(), "PL");
-            case mindquantum::GateID::GPL:
+            case quafu::GateID::GPL:
                 return fmt::format_to(ctx.out(), "GPL");
-            case mindquantum::GateID::DEP:
+            case quafu::GateID::DEP:
                 return fmt::format_to(ctx.out(), "DEP");
-            case mindquantum::GateID::AD:
+            case quafu::GateID::AD:
                 return fmt::format_to(ctx.out(), "AD");
-            case mindquantum::GateID::PD:
+            case quafu::GateID::PD:
                 return fmt::format_to(ctx.out(), "PD");
-            case mindquantum::GateID::KRAUS:
+            case quafu::GateID::KRAUS:
                 return fmt::format_to(ctx.out(), "KRAUS");
-            case mindquantum::GateID::TR:
+            case quafu::GateID::TR:
                 return fmt::format_to(ctx.out(), "TR");
             default:
                 return format_one(value, ctx);
         }
     }
     template <typename format_context_t>
-    auto format_three(const mindquantum::GateID& value, format_context_t& ctx) const  // NOLINT(runtime/references)
+    auto format_three(const quafu::GateID& value, format_context_t& ctx) const  // NOLINT(runtime/references)
         -> decltype(ctx.out()) {
         switch (value) {
-            case mindquantum::GateID::RX:
+            case quafu::GateID::RX:
                 return fmt::format_to(ctx.out(), "RX");
-            case mindquantum::GateID::RY:
+            case quafu::GateID::RY:
                 return fmt::format_to(ctx.out(), "RY");
-            case mindquantum::GateID::RZ:
+            case quafu::GateID::RZ:
                 return fmt::format_to(ctx.out(), "RZ");
-            case mindquantum::GateID::Rxx:
+            case quafu::GateID::Rxx:
                 return fmt::format_to(ctx.out(), "Rxx");
-            case mindquantum::GateID::Ryy:
+            case quafu::GateID::Ryy:
                 return fmt::format_to(ctx.out(), "Ryy");
-            case mindquantum::GateID::Rzz:
+            case quafu::GateID::Rzz:
                 return fmt::format_to(ctx.out(), "Rzz");
-            case mindquantum::GateID::Rxy:
+            case quafu::GateID::Rxy:
                 return fmt::format_to(ctx.out(), "Rxy");
-            case mindquantum::GateID::Rxz:
+            case quafu::GateID::Rxz:
                 return fmt::format_to(ctx.out(), "Rxz");
-            case mindquantum::GateID::Ryz:
+            case quafu::GateID::Ryz:
                 return fmt::format_to(ctx.out(), "Ryz");
-            case mindquantum::GateID::Rn:
+            case quafu::GateID::Rn:
                 return fmt::format_to(ctx.out(), "Rn");
             default:
                 return format_two(value, ctx);
         }
     }
     template <typename format_context_t>
-    auto format(const mindquantum::GateID& value, format_context_t& ctx) const  // NOLINT(runtime/references)
+    auto format(const quafu::GateID& value, format_context_t& ctx) const  // NOLINT(runtime/references)
         -> decltype(ctx.out()) {
         switch (value) {
-            case mindquantum::GateID::I:
+            case quafu::GateID::I:
                 return fmt::format_to(ctx.out(), "I");
-            case mindquantum::GateID::X:
+            case quafu::GateID::X:
                 return fmt::format_to(ctx.out(), "X");
-            case mindquantum::GateID::Y:
+            case quafu::GateID::Y:
                 return fmt::format_to(ctx.out(), "Y");
-            case mindquantum::GateID::Z:
+            case quafu::GateID::Z:
                 return fmt::format_to(ctx.out(), "Z");
-            case mindquantum::GateID::H:
+            case quafu::GateID::H:
                 return fmt::format_to(ctx.out(), "H");
-            case mindquantum::GateID::SWAP:
+            case quafu::GateID::SWAP:
                 return fmt::format_to(ctx.out(), "SWAP");
-            case mindquantum::GateID::ISWAP:
+            case quafu::GateID::ISWAP:
                 return fmt::format_to(ctx.out(), "ISWAP");
-            case mindquantum::GateID::T:
+            case quafu::GateID::T:
                 return fmt::format_to(ctx.out(), "T");
-            case mindquantum::GateID::S:
+            case quafu::GateID::S:
                 return fmt::format_to(ctx.out(), "S");
-            case mindquantum::GateID::SX:
+            case quafu::GateID::SX:
                 return fmt::format_to(ctx.out(), "SX");
-            case mindquantum::GateID::Tdag:
+            case quafu::GateID::Tdag:
                 return fmt::format_to(ctx.out(), "Tdag");
-            case mindquantum::GateID::SXdag:
+            case quafu::GateID::SXdag:
                 return fmt::format_to(ctx.out(), "SXdag");
-            case mindquantum::GateID::Sdag:
+            case quafu::GateID::Sdag:
                 return fmt::format_to(ctx.out(), "Sdag");
-            case mindquantum::GateID::CNOT:
+            case quafu::GateID::CNOT:
                 return fmt::format_to(ctx.out(), "CNOT");
-            case mindquantum::GateID::CZ:
+            case quafu::GateID::CZ:
                 return fmt::format_to(ctx.out(), "CZ");
             default:
                 return format_three(value, ctx);

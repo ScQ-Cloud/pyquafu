@@ -35,11 +35,11 @@
 #include "config/constexpr_type_name.h"
 #include "config/format/std_complex.h"
 #include "config/type_traits.h"
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;  // NOLINT(build/namespaces_literals)
-using mindquantum::Index;
+using quafu::Index;
 
 template <int SB, typename T, bool H>
 void sb_update(const py::object& csr, const py::array_t<double>& x, const py::array_t<double>& h, int B, float xi,
@@ -59,7 +59,7 @@ void sb_update(const py::object& csr, const py::array_t<double>& x, const py::ar
     int nrows = shape[0].cast<int>();
     int ncols = shape[1].cast<int>();
     int N = nrows;
-    mindquantum::sparse::CsrBase<double> csr_matrix(N, nnz, raw_indptr, raw_indices, raw_data);
+    quafu::sparse::CsrBase<double> csr_matrix(N, nnz, raw_indptr, raw_indices, raw_data);
 
     double* raw_x = static_cast<double*>(x.request().ptr);
     int x_size = x.size();
@@ -68,16 +68,16 @@ void sb_update(const py::object& csr, const py::array_t<double>& x, const py::ar
                                  + "), but got length " + std::to_string(x_size));
     }
 
-    mindquantum::algorithm::qaia::detail::Para paras(B, xi, delta, dt, n_iter);
+    quafu::algorithm::qaia::detail::Para paras(B, xi, delta, dt, n_iter);
 
     double* raw_h = static_cast<double*>(h.request().ptr);
     int h_size = h.size();
 
-    mindquantum::algorithm::qaia::detail::SBUpdater<SB, T, H>::update(csr_matrix, raw_x, paras, raw_h, h_size);
+    quafu::algorithm::qaia::detail::SBUpdater<SB, T, H>::update(csr_matrix, raw_x, paras, raw_h, h_size);
 }
 
 PYBIND11_MODULE(_qaia_sb, module) {
-    module.def("cuda_init", mindquantum::algorithm::qaia::detail::SBBase::cublas_warmup, "warmup cuBLAS");
+    module.def("cuda_init", quafu::algorithm::qaia::detail::SBBase::cublas_warmup, "warmup cuBLAS");
     module.def("bsb_update_h_int8", &sb_update<0, int8_t, true>, "BSB update func(int8_t) with h");
     module.def("bsb_update_h_half", &sb_update<0, half, true>, "BSB update func(half) with h");
     module.def("dsb_update_h_int8", &sb_update<1, int8_t, true>, "DSB update func(int8_t) with h");

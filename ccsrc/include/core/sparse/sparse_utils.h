@@ -21,7 +21,7 @@
 
 #include "core/utils.h"
 
-namespace mindquantum {
+namespace quafu {
 namespace sparse {
 template <typename T>
 void csr_plus_csr(Index dim, const Index *a_indptr, const Index *aj, const T *ad, const Index *b_indptr,
@@ -90,5 +90,5 @@ void csr_plus_csr(Index dim, const Index *a_indptr, const Index *aj, const T *ad
     }
 }
 }  // namespace sparse
-}  // namespace mindquantum
+}  // namespace quafu
 #endif  // MINDQUANTUM_SPARSE_SPARSE_UTILS_H_

@@ -1,7 +1,7 @@
-mindquantum.utils.TwoLoopsProgress
+quafu.utils.TwoLoopsProgress
 ==================================
 
-.. py:class:: mindquantum.utils.TwoLoopsProgress(n_outer_loop: int, n_inner_loop: int, outer_loop_name: str = 'Epoch', inner_loop_name: str = 'Batch')
+.. py:class:: quafu.utils.TwoLoopsProgress(n_outer_loop: int, n_inner_loop: int, outer_loop_name: str = 'Epoch', inner_loop_name: str = 'Batch')
 
     一个用于展示拥有两层循环任务的进度的进度条。
 

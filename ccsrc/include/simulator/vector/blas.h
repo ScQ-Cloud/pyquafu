@@ -19,7 +19,7 @@
 #include <cassert>
 
 #include "simulator/vector/vector_state.h"
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename qs_policy_t_>
 struct BLAS {
     using qs_policy_t = qs_policy_t_;
@@ -30,5 +30,5 @@ struct BLAS {
         return qs_policy_t::Vdot(bra.qs, ket.qs, bra.dim);
     }
 };
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 #endif

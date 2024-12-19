@@ -21,8 +21,8 @@
 cmake_minimum_required(VERSION 3.20) # mainly because of NVHPC support
 
 # ==============================================================================
-# Create the MindQuantum project
-project(MindQuantum LANGUAGES C CXX)
+# Create the quafu project
+project(quafu LANGUAGES C CXX)
 
 message(STATUS "Running using CMake ${CMAKE_VERSION}")
 
@@ -47,15 +47,15 @@ include(cmake_configuration)
 
 include(GNUInstallDirs)
 set(CMAKE_INSTALL_LIBDIR "lib")
-set(MQ_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}")
-set(MQ_INSTALL_SBINDIR "${CMAKE_INSTALL_SBINDIR}")
-set(MQ_INSTALL_SYSCONFDIR "${CMAKE_INSTALL_SYSCONFDIR}")
-set(MQ_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/mindquantum")
-set(MQ_INSTALL_DATADIR "${CMAKE_INSTALL_DATADIR}/mindquantum")
-set(MQ_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/mindquantum")
-set(MQ_INSTALL_DOCDIR "${CMAKE_INSTALL_DATADIR}/doc/mindquantum")
-set(MQ_INSTALL_CMAKEDIR "${MQ_INSTALL_DATADIR}/cmake")
-set(MQ_INSTALL_3RDPARTYDIR "${MQ_INSTALL_LIBDIR}/third_party")
+set(QUAFU_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}")
+set(QUAFU_INSTALL_SBINDIR "${CMAKE_INSTALL_SBINDIR}")
+set(QUAFU_INSTALL_SYSCONFDIR "${CMAKE_INSTALL_SYSCONFDIR}")
+set(QUAFU_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/quafu")
+set(QUAFU_INSTALL_DATADIR "${CMAKE_INSTALL_DATADIR}/quafu")
+set(QUAFU_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/quafu")
+set(QUAFU_INSTALL_DOCDIR "${CMAKE_INSTALL_DATADIR}/doc/quafu")
+set(QUAFU_INSTALL_CMAKEDIR "${QUAFU_INSTALL_DATADIR}/cmake")
+set(QUAFU_INSTALL_3RDPARTYDIR "${QUAFU_INSTALL_LIBDIR}/third_party")
 
 # add_compile_options(-Wall -Wextra -Wfloat-equal)
 
@@ -69,7 +69,7 @@ foreach(
   DOCDIR
   CMAKEDIR
   3RDPARTYDIR)
-  GNUInstallDirs_get_absolute_install_dir(MQ_INSTALL_FULL_${_type} MQ_INSTALL_${_type} ${_type})
+  GNUInstallDirs_get_absolute_install_dir(QUAFU_INSTALL_FULL_${_type} QUAFU_INSTALL_${_type} ${_type})
 endforeach()
 
 # ==============================================================================
@@ -94,20 +94,20 @@ include(compiler_flags)
 include(linker_flags)
 
 is_language_enabled(C, _c_enabled)
-add_library(mindquantum_setup INTERFACE)
-target_link_libraries(mindquantum_setup INTERFACE CXX_mindquantum $<$<BOOL:${_c_enabled}>:C_mindquantum>)
-append_to_property(mq_install_targets GLOBAL mindquantum_setup)
+add_library(quafu_setup INTERFACE)
+target_link_libraries(quafu_setup INTERFACE CXX_quafu $<$<BOOL:${_c_enabled}>:C_quafu>)
+append_to_property(quafu_install_targets GLOBAL quafu_setup)
 
 if(ENABLE_CMAKE_DEBUG)
   message(STATUS "Content of language specific targets:")
   list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
-  set(_targets CXX_mindquantum)
+  set(_targets CXX_quafu)
   if(_c_enabled)
-    list(APPEND _targets C_mindquantum)
+    list(APPEND _targets C_quafu)
   endif()
   if(ENABLE_CUDA)
-    list(APPEND _targets CUDA_mindquantum)
+    list(APPEND _targets CUDA_quafu)
   endif()
 
   include(CMakePrintHelpers)
@@ -190,6 +190,6 @@ list(POP_FRONT CMAKE_MODULE_PATH)
 list(POP_FRONT CMAKE_MODULE_PATH)
 list(POP_FRONT CMAKE_MODULE_PATH)
 
-if(_mq_added_nvcxx_module_path)
+if(_quafu_added_nvcxx_module_path)
   list(POP_FRONT CMAKE_MODULE_PATH)
 endif()

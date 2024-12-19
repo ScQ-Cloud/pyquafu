@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.cs_decompose
+quafu.algorithm.compiler.cs_decompose
 ===========================================
 
-.. py:function:: mindquantum.algorithm.compiler.cs_decompose(gate: gates.SGate)
+.. py:function:: quafu.algorithm.compiler.cs_decompose(gate: gates.SGate)
 
     分解一个受控的 :class:`~.core.gates.SGate` 门。
 

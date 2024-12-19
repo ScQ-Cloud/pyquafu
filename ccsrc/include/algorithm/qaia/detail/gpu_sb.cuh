@@ -20,32 +20,32 @@
 #include "algorithm/qaia/csr_base.h"
 #include "algorithm/qaia/detail/para.h"
 
-namespace mindquantum::algorithm::qaia::detail {
+namespace quafu::algorithm::qaia::detail {
 
 struct SBBase {
-    static void dSB_update_int8(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras);
+    static void dSB_update_int8(quafu::sparse::CsrBase<double> csr, double* x, Para paras);
 
-    static void bSB_update_int8(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras);
+    static void bSB_update_int8(quafu::sparse::CsrBase<double> csr, double* x, Para paras);
 
-    static void bSB_update_fp16(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras);
+    static void bSB_update_fp16(quafu::sparse::CsrBase<double> csr, double* x, Para paras);
 
-    static void dSB_update_fp16(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras);
+    static void dSB_update_fp16(quafu::sparse::CsrBase<double> csr, double* x, Para paras);
 
-    static void dSB_update_h_int8(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras, double* h,
+    static void dSB_update_h_int8(quafu::sparse::CsrBase<double> csr, double* x, Para paras, double* h,
                                   int h_size);
 
-    static void bSB_update_h_int8(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras, double* h,
+    static void bSB_update_h_int8(quafu::sparse::CsrBase<double> csr, double* x, Para paras, double* h,
                                   int h_size);
 
-    static void bSB_update_h_fp16(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras, double* h,
+    static void bSB_update_h_fp16(quafu::sparse::CsrBase<double> csr, double* x, Para paras, double* h,
                                   int h_size);
 
-    static void dSB_update_h_fp16(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras, double* h,
+    static void dSB_update_h_fp16(quafu::sparse::CsrBase<double> csr, double* x, Para paras, double* h,
                                   int h_size);
 
     static void cublas_warmup(int N, int B);
 };
 
-}  // namespace mindquantum::algorithm::qaia::detail
+}  // namespace quafu::algorithm::qaia::detail
 
 #endif

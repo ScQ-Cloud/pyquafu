@@ -21,7 +21,7 @@
 
 #include <fmt/core.h>
 
-namespace mindquantum {
+namespace quafu {
 #define REG_OPERATOR(op_eq, op)                                                                                        \
     void LongBits::operator op_eq(const LongBits& other) {                                                             \
         if (other.n_bits != this->n_bits) {                                                                            \
@@ -120,4 +120,4 @@ bool LongBits::Any(size_t start) {
     return Any(start, n_bits);
 }
 #undef REG_OPERATOR
-}  // namespace mindquantum
+}  // namespace quafu

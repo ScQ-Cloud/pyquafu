@@ -1,5 +1,4 @@
 ---
-
 markup:
   first_comment_is_literal: true
 format:
@@ -60,7 +59,7 @@ parse:
       pargs:
         flags:
           - CONFIGURE
-          - '@ONLY'
+          - "@ONLY"
       kwargs:
         OUTPUT: 1
         CONTENT: 1
@@ -100,7 +99,7 @@ parse:
         RESULT_VARIABLE: 1
         TIMEOUT: 1
         WORKING_DIRECTORY: 1
-    mindquantum_add_pkg:
+    quafu_add_pkg:
       pargs:
         nargs: 1
         flags:
@@ -141,13 +140,13 @@ parse:
         PRE_CONFIGURE_COMMAND: +
         SYSTEM_EXTRA_DEFINES: +
         TARGET_ALIAS: +
-    mq_add_compile_definitions:
+    quafu_add_compile_definitions:
       pargs:
         nargs: +
         flags:
           - TRYCOMPILE
           - TRYCOMPILE_FLAGCHECK
-    mq_link_libraries:
+    quafu_link_libraries:
       pargs:
         nargs: +
         flags:
@@ -165,7 +164,7 @@ parse:
         nargs: 1+
         flags:
           - FLAGCHECK
-          - NO_MQ_TARGET
+          - NO_QUAFU_TARGET
           - NO_TRYCOMPILE_FLAGCHECK_TARGET
           - NO_TRYCOMPILE_TARGET
       kwargs:
@@ -178,7 +177,7 @@ parse:
       pargs:
         nargs: 1+
         flags:
-          - NO_MQ_TARGET
+          - NO_QUAFU_TARGET
           - VERBATIM
       kwargs:
         LANGS: +
@@ -199,4 +198,4 @@ lint:
   local_var_pattern: _?([a-z][a-z0-9_]+|[A-Z][A-Z0-9_]+)
   global_var_pattern: _?([a-z][a-z0-9_]+|[A-Z][A-Z0-9_]+)
   internal_var_pattern: _?([a-z][a-z0-9_]+|[A-Z][A-Z0-9_]+)
-  macro_pattern: '[0-9a-z_]+'
+  macro_pattern: "[0-9a-z_]+"

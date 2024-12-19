@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.SimpleNeighborCanceler
+quafu.algorithm.compiler.SimpleNeighborCanceler
 =====================================================
 
-.. py:class:: mindquantum.algorithm.compiler.SimpleNeighborCanceler()
+.. py:class:: quafu.algorithm.compiler.SimpleNeighborCanceler()
 
     如果可能，该编译规则会融合临近的量子门。
 

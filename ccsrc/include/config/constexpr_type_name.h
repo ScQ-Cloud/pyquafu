@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_CONSTEXPR_TYPE_NAME
-#define MQ_CONFIG_CONSTEXPR_TYPE_NAME
+#ifndef QUAFU_CONFIG_CONSTEXPR_TYPE_NAME
+#define QUAFU_CONFIG_CONSTEXPR_TYPE_NAME
 
 #include <algorithm>
 #include <string_view>
@@ -38,7 +38,7 @@
  *     be reported as 'class A' or 'struct B'.
  */
 
-namespace mindquantum {
+namespace quafu {
 template <typename T>
 constexpr std::string_view get_type_name();
 
@@ -94,8 +94,8 @@ constexpr std::string_view get_type_name() {
     constexpr auto type_name_length = wrapped_name.length() - real_prefix_length - suffix_length;
     return wrapped_name.substr(real_prefix_length, type_name_length);
 }
-}  // namespace mindquantum
+}  // namespace quafu
 
 // =============================================================================
 
-#endif /* MQ_CONFIG_CONSTEXPR_TYPE_NAME */
+#endif /* QUAFU_CONFIG_CONSTEXPR_TYPE_NAME */

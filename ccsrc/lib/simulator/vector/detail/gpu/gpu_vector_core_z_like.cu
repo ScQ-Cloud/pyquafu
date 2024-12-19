@@ -24,7 +24,7 @@
 #include "thrust/functional.h"
 #include "thrust/inner_product.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename derived_, typename calc_type_>
 void GPUVectorPolicyBase<derived_, calc_type_>::ApplyZLike(qs_data_p_t* qs_p, const qbits_t& objs, const qbits_t& ctrls,
                                                            qs_data_t val, index_t dim) {
@@ -154,4 +154,4 @@ void GPUVectorPolicyBase<derived_, calc_type_>::ApplyILike(qs_data_p_t* qs_p, co
 template struct GPUVectorPolicyBase<GPUVectorPolicyFloat, float>;
 template struct GPUVectorPolicyBase<GPUVectorPolicyDouble, double>;
 
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

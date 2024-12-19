@@ -301,7 +301,7 @@ if %ERRORLEVEL% NEQ 0 exit /B %ERRORLEVEL%
 if NOT !dry_run! == 1 (
    rem Make sure the root directory is in the virtualenv PATH
    for /F %%i in ('!PYTHON! -c "import site; print(site.getsitepackages()[0])"') do set site_pkg_dir=%%i
-   set pth_file=!site_pkg_dir!\mindquantum_local.pth
+   set pth_file=!site_pkg_dir!\quafu_local.pth
 
    if NOT exist !pth_file! (
       echo Creating pth-file in !pth_file!
@@ -355,9 +355,9 @@ if !cmake_make_silent! == 1 (
 )
 
 if !force_local_pkgs! == 1 (
-  set cmake_args=!cmake_args! -DMQ_FORCE_LOCAL_PKGS=all
+  set cmake_args=!cmake_args! -DQUAFU_FORCE_LOCAL_PKGS=all
 ) else (
-  if NOT "!local_pkgs!" == "" set cmake_args=!cmake_args! -DMQ_FORCE_LOCAL_PKGS=!local_pkgs!
+  if NOT "!local_pkgs!" == "" set cmake_args=!cmake_args! -DQUAFU_FORCE_LOCAL_PKGS=!local_pkgs!
 )
 
 if NOT "!prefix_dir!" == "" set cmake_args=!cmake_args! -DCMAKE_INSTALL_PREFIX:FILEPATH=!prefix_dir!
@@ -507,13 +507,13 @@ exit /B 0
   echo This is mainly relevant for developers that do not want to always
   echo have to reinstall the Python package
   echo:
-  echo This script will create a Python virtualenv in the MindQuantum root
+  echo This script will create a Python virtualenv in the quafu root
   echo directory and then build all the C++ Python modules and place the
-  echo generated libraries in their right locations within the MindQuantum
+  echo generated libraries in their right locations within the quafu
   echo folder hierarchy so Python knows how to find them.
   echo:
   echo A pth-file will be created in the virtualenv site-packages directory
-  echo so that the MindQuantum root folder will be added to the Python PATH
+  echo so that the quafu root folder will be added to the Python PATH
   echo without the need to modify PYTHONPATH.
   echo:
   echo Usage:
@@ -532,7 +532,7 @@ exit /B 0
   echo   /CleanBuildDir      Delete build directory before building
   echo   /CleanCache         Re-run CMake with a clean CMake cache
   echo   /CleanVenv          Delete Python virtualenv before building
-  echo   /ConfigureOnly      Stop after the CMake configure and generation steps (ie. before building MindQuantum)
+  echo   /ConfigureOnly      Stop after the CMake configure and generation steps (ie. before building quafu)
   echo   /Debug              Build in debug mode
   echo   /DebugCMake         Enable debugging mode for CMake configuration step
   echo   /Doc, /Docs         Setup the Python virtualenv for building the documentation and ask CMake to build the

@@ -49,8 +49,8 @@ set(CMAKE_OPTION
 if(MSVC)
   set(spdlog_CXXFLAGS "/Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /D_CRT_SECURE_NO_WARNINGS /DWIN32_LEAN_AND_MEAN")
   if(ENABLE_ITERATOR_DEBUG)
-    set(spdlog_CFLAGS "/D_ITERATOR_DEBUG_LEVEL=${MQ_ITERATOR_DEBUG}")
-    set(spdlog_CXXFLAGS "${spdlog_CXXFLAGS} /D_ITERATOR_DEBUG_LEVEL=${MQ_ITERATOR_DEBUG}")
+    set(spdlog_CFLAGS "/D_ITERATOR_DEBUG_LEVEL=${QUAFU_ITERATOR_DEBUG}")
+    set(spdlog_CXXFLAGS "${spdlog_CXXFLAGS} /D_ITERATOR_DEBUG_LEVEL=${QUAFU_ITERATOR_DEBUG}")
   endif()
 
   if(CMAKE_MT)
@@ -64,11 +64,11 @@ else()
   list(APPEND CMAKE_OPTION -DSPDLOG_FMT_EXTERNAL=ON)
 endif()
 
-mindquantum_add_pkg(
+quafu_add_pkg(
   spdlog
   VER ${VER}
   FORCE_EXACT_VERSION
   URL ${REQ_URL}
   MD5 ${MD5}
   CMAKE_OPTION ${CMAKE_OPTION}
-  TARGET_ALIAS mindquantum::spdlog spdlog::spdlog)
+  TARGET_ALIAS quafu::spdlog spdlog::spdlog)

@@ -1,7 +1,7 @@
-mindquantum.device
+quafu.device
 ==================
 
-.. automodule:: mindquantum.device
+.. automodule:: quafu.device
 
 Class
 -----
@@ -11,7 +11,7 @@ Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.device.QubitNode
-    mindquantum.device.QubitsTopology
-    mindquantum.device.GridQubits
-    mindquantum.device.LinearQubits
+    quafu.device.QubitNode
+    quafu.device.QubitsTopology
+    quafu.device.GridQubits
+    quafu.device.LinearQubits

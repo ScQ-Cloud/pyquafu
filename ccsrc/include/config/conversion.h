@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_CONVERSION_HPP
-#define MQ_CONFIG_CONVERSION_HPP
+#ifndef QUAFU_CONFIG_CONVERSION_HPP
+#define QUAFU_CONFIG_CONVERSION_HPP
 
-namespace mindquantum::traits {
+namespace quafu::traits {
 //! Helper class to convert some variable into some pre-defined type if required
 template <typename type_t>
 struct conversion_helper {
@@ -34,6 +34,6 @@ struct conversion_helper {
         return static_cast<type_t>(value);
     }
 };
-}  // namespace mindquantum::traits
+}  // namespace quafu::traits
 
-#endif /* MQ_CONFIG_CONVERSION_HPP */
+#endif /* QUAFU_CONFIG_CONVERSION_HPP */

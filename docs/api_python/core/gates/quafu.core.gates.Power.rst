@@ -1,7 +1,7 @@
-mindquantum.core.gates.Power
+quafu.core.gates.Power
 ===============================
 
-.. py:class:: mindquantum.core.gates.Power(gate, exponent=0.5)
+.. py:class:: quafu.core.gates.Power(gate, exponent=0.5)
 
     作用在非参数化门上的指数运算符。
 

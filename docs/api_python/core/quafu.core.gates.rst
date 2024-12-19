@@ -1,7 +1,7 @@
-mindquantum.core.gates
+quafu.core.gates
 ======================
 
-.. py:module:: mindquantum.core.gates
+.. py:module:: quafu.core.gates
 
 
 量子门模块，提供不同的量子门。
@@ -14,11 +14,11 @@ mindquantum.core.gates
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.gates.BasicGate
-    mindquantum.core.gates.NoneParameterGate
-    mindquantum.core.gates.ParameterGate
-    mindquantum.core.gates.QuantumGate
-    mindquantum.core.gates.NoiseGate
+    quafu.core.gates.BasicGate
+    quafu.core.gates.NoneParameterGate
+    quafu.core.gates.ParameterGate
+    quafu.core.gates.QuantumGate
+    quafu.core.gates.NoiseGate
 
 通用量子门
 -------------
@@ -28,36 +28,36 @@ mindquantum.core.gates
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.gates.CNOTGate
-    mindquantum.core.gates.FSim
-    mindquantum.core.gates.GlobalPhase
-    mindquantum.core.gates.HGate
-    mindquantum.core.gates.IGate
-    mindquantum.core.gates.ISWAPGate
-    mindquantum.core.gates.Measure
-    mindquantum.core.gates.PhaseShift
-    mindquantum.core.gates.Rn
-    mindquantum.core.gates.RX
-    mindquantum.core.gates.Rxx
-    mindquantum.core.gates.Rxy
-    mindquantum.core.gates.Rxz
-    mindquantum.core.gates.RY
-    mindquantum.core.gates.Ryy
-    mindquantum.core.gates.Ryz
-    mindquantum.core.gates.RZ
-    mindquantum.core.gates.Rzz
-    mindquantum.core.gates.RotPauliString
-    mindquantum.core.gates.SGate
-    mindquantum.core.gates.SWAPalpha
-    mindquantum.core.gates.SWAPGate
-    mindquantum.core.gates.SXGate
-    mindquantum.core.gates.TGate
-    mindquantum.core.gates.U3
-    mindquantum.core.gates.XGate
-    mindquantum.core.gates.YGate
-    mindquantum.core.gates.ZGate
-    mindquantum.core.gates.GroupedPauli
-    mindquantum.core.gates.Givens
+    quafu.core.gates.CNOTGate
+    quafu.core.gates.FSim
+    quafu.core.gates.GlobalPhase
+    quafu.core.gates.HGate
+    quafu.core.gates.IGate
+    quafu.core.gates.ISWAPGate
+    quafu.core.gates.Measure
+    quafu.core.gates.PhaseShift
+    quafu.core.gates.Rn
+    quafu.core.gates.RX
+    quafu.core.gates.Rxx
+    quafu.core.gates.Rxy
+    quafu.core.gates.Rxz
+    quafu.core.gates.RY
+    quafu.core.gates.Ryy
+    quafu.core.gates.Ryz
+    quafu.core.gates.RZ
+    quafu.core.gates.Rzz
+    quafu.core.gates.RotPauliString
+    quafu.core.gates.SGate
+    quafu.core.gates.SWAPalpha
+    quafu.core.gates.SWAPGate
+    quafu.core.gates.SXGate
+    quafu.core.gates.TGate
+    quafu.core.gates.U3
+    quafu.core.gates.XGate
+    quafu.core.gates.YGate
+    quafu.core.gates.ZGate
+    quafu.core.gates.GroupedPauli
+    quafu.core.gates.Givens
 
 功能量子门
 -------------
@@ -67,10 +67,10 @@ mindquantum.core.gates
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.gates.UnivMathGate
-    mindquantum.core.gates.gene_univ_parameterized_gate
-    mindquantum.core.gates.gene_univ_two_params_gate
-    mindquantum.core.gates.BarrierGate
+    quafu.core.gates.UnivMathGate
+    quafu.core.gates.gene_univ_parameterized_gate
+    quafu.core.gates.gene_univ_two_params_gate
+    quafu.core.gates.BarrierGate
 
 预实例化门
 ----------
@@ -83,27 +83,27 @@ mindquantum.core.gates
 
    * - functional
      - gates
-   * - mindquantum.core.gates.CNOT
+   * - quafu.core.gates.CNOT
      - :class:`~.core.gates.CNOTGate`
-   * - mindquantum.core.gates.I
+   * - quafu.core.gates.I
      - :class:`~.core.gates.IGate`
-   * - mindquantum.core.gates.ISWAP
+   * - quafu.core.gates.ISWAP
      - :class:`~.core.gates.ISWAPGate`
-   * - mindquantum.core.gates.H
+   * - quafu.core.gates.H
      - :class:`~.core.gates.HGate`
-   * - mindquantum.core.gates.S
+   * - quafu.core.gates.S
      - :class:`~.core.gates.PhaseShift` (numpy.pi/2)
-   * - mindquantum.core.gates.SWAP
+   * - quafu.core.gates.SWAP
      - :class:`~.core.gates.SWAPGate`
-   * - mindquantum.core.gates.SX
+   * - quafu.core.gates.SX
      - :class:`~.core.gates.SXGate`
-   * - mindquantum.core.gates.T
+   * - quafu.core.gates.T
      - :class:`~.core.gates.PhaseShift` (numpy.pi/4)
-   * - mindquantum.core.gates.X
+   * - quafu.core.gates.X
      - :class:`~.core.gates.XGate`
-   * - mindquantum.core.gates.Y
+   * - quafu.core.gates.Y
      - :class:`~.core.gates.YGate`
-   * - mindquantum.core.gates.Z
+   * - quafu.core.gates.Z
      - :class:`~.core.gates.ZGate`
 
 量子信道
@@ -114,16 +114,16 @@ mindquantum.core.gates
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.gates.AmplitudeDampingChannel
-    mindquantum.core.gates.BitFlipChannel
-    mindquantum.core.gates.BitPhaseFlipChannel
-    mindquantum.core.gates.DepolarizingChannel
-    mindquantum.core.gates.KrausChannel
-    mindquantum.core.gates.PauliChannel
-    mindquantum.core.gates.GroupedPauliChannel
-    mindquantum.core.gates.PhaseDampingChannel
-    mindquantum.core.gates.PhaseFlipChannel
-    mindquantum.core.gates.ThermalRelaxationChannel
+    quafu.core.gates.AmplitudeDampingChannel
+    quafu.core.gates.BitFlipChannel
+    quafu.core.gates.BitPhaseFlipChannel
+    quafu.core.gates.DepolarizingChannel
+    quafu.core.gates.KrausChannel
+    quafu.core.gates.PauliChannel
+    quafu.core.gates.GroupedPauliChannel
+    quafu.core.gates.PhaseDampingChannel
+    quafu.core.gates.PhaseFlipChannel
+    quafu.core.gates.ThermalRelaxationChannel
 
 功能类
 -------------
@@ -133,5 +133,5 @@ mindquantum.core.gates
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.gates.MeasureResult
-    mindquantum.core.gates.Power
+    quafu.core.gates.MeasureResult
+    quafu.core.gates.Power

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_FORMAT_COMPLEX_HPP
-#define MQ_FORMAT_COMPLEX_HPP
+#ifndef QUAFU_FORMAT_COMPLEX_HPP
+#define QUAFU_FORMAT_COMPLEX_HPP
 
 #include <complex>
 
@@ -74,4 +74,4 @@ struct nlohmann::adl_serializer<std::complex<T>> {
     }
 };
 
-#endif /* MQ_FORMAT_COMPLEX_HPP */
+#endif /* QUAFU_FORMAT_COMPLEX_HPP */

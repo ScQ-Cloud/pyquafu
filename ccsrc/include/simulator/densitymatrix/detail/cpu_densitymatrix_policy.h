@@ -25,7 +25,7 @@
 
 #include "config/openmp.h"
 #include "config/type_promotion.h"
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/utils.h"
 #include "math/tensor/ops_cpu/utils.h"
 #include "ops/hamiltonian.h"
@@ -38,7 +38,7 @@
 #define SelfMultiply(qs, x, y, data)                                                                                   \
     (((x) >= (y)) ? ((qs)[IdxMap((x), (y))] *= (data)) : ((qs)[IdxMap((y), (x))] *= std::conj((data))))
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 struct CPUDensityMatrixPolicyAvxFloat;
 struct CPUDensityMatrixPolicyAvxDouble;
 
@@ -290,6 +290,6 @@ struct CastTo {
         return des;
     }
 };
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail
 
 #endif

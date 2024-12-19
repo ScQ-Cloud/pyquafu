@@ -40,8 +40,8 @@
 namespace py = pybind11;
 using namespace pybind11::literals;  // NOLINT(build/namespaces_literals)
 
-namespace mm = mindquantum::mapping;
-namespace mindquantum::python {
+namespace mm = quafu::mapping;
+namespace quafu::python {
 void BindTopology(py::module &module) {  // NOLINT(runtime/references)
     auto qnode_module
         = py::class_<mm::QubitNode, std::shared_ptr<mm::QubitNode>>(module, "QubitNode")
@@ -118,25 +118,25 @@ void BindTopology(py::module &module) {  // NOLINT(runtime/references)
                              .def("n_row", &mm::GridQubits::NRow, "Get row number.")
                              .def("n_col", &mm::GridQubits::NCol, "Get column number.");
     grid_qubits_m.doc() = "Grid qubit topology.";
-}  // namespace mindquantum::mapping
+}  // namespace quafu::mapping
 
 void BindQubitMapping(py::module &module) {  // NOLINT(runtime/references)
     auto saber_m = py::class_<mm::SABRE, std::shared_ptr<mm::SABRE>>(module, "SABRE")
-                       .def(py::init<const mindquantum::VT<std::shared_ptr<mindquantum::BasicGate>> &,
+                       .def(py::init<const quafu::VT<std::shared_ptr<quafu::BasicGate>> &,
                                      const std::shared_ptr<mm::QubitsTopology> &>(),
                             "Initialize saber method.")
                        .def("solve", &mm::SABRE::Solve, "iter_num"_a, "W"_a, "delta1"_a, "delta2"_a,
                             "Solve qubit mapping problem with saber method.");
     saber_m.doc() = "SABER method to implement qubit mapping task.";
     //------------------------------------------------------------------------------
-    auto ha_saber_m = py::class_<mm::MQ_SABRE, std::shared_ptr<mm::MQ_SABRE>>(module, "MQ_SABRE")
-                          .def(py::init<const mindquantum::VT<std::shared_ptr<mindquantum::BasicGate>> &,
+    auto ha_saber_m = py::class_<mm::QUAFU_SABRE, std::shared_ptr<mm::QUAFU_SABRE>>(module, "QUAFU_SABRE")
+                          .def(py::init<const quafu::VT<std::shared_ptr<quafu::BasicGate>> &,
                                         const std::shared_ptr<mm::QubitsTopology> &,
                                         const std::vector<std::pair<std::pair<int, int>, std::vector<double>>> &>(),
-                               "Initialize mq_saber method.")
-                          .def("solve", &mm::MQ_SABRE::Solve, "W"_a, "alpha1"_a, "alpha2"_a, "alpha3"_a,
+                               "Initialize quafu_saber method.")
+                          .def("solve", &mm::QUAFU_SABRE::Solve, "W"_a, "alpha1"_a, "alpha2"_a, "alpha3"_a,
                                "Solve qubit mapping problem with ha_saber method.");
-    ha_saber_m.doc() = "MQ_SABER method to implement qubit mapping task.";
+    ha_saber_m.doc() = "QUAFU_SABER method to implement qubit mapping task.";
 }
-}  // namespace mindquantum::python
+}  // namespace quafu::python
 #endif

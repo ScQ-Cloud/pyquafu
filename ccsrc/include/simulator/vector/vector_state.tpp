@@ -37,7 +37,7 @@
 #include <type_traits>
 #include <vector>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/utils.h"
 #include "math/pr/parameter_resolver.h"
 #include "math/tensor/matrix.h"
@@ -51,7 +51,7 @@
 #include "simulator/vector/gradient.h"
 #include "simulator/vector/vector_state.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename qs_policy_t_>
 void VectorState<qs_policy_t_>::SetSeed(unsigned new_seed) {
     this->seed = new_seed;
@@ -1384,18 +1384,18 @@ auto VectorState<qs_policy_t_>::ExpectDiffCustomTwoParam(const qs_data_p_t& bra,
         if (param1.data_.size() != param1.no_grad_parameters_.size()) {
             m = custom_gate->GetDiffMatrix1Wrapper()(param1_const, param2_const);
             grad[0] = qs_policy_t::ExpectDiffMatrixGate(bra, ket, custom_gate->GetObjQubits(),
-                                                               custom_gate->GetCtrlQubits(),
-                                                               tensor::ops::cpu::to_vector<py_qs_data_t>(m), dim);
+                                                        custom_gate->GetCtrlQubits(),
+                                                        tensor::ops::cpu::to_vector<py_qs_data_t>(m), dim);
         }
         if (param2.data_.size() != param2.no_grad_parameters_.size()) {
             m = custom_gate->GetDiffMatrix2Wrapper()(param1_const, param2_const);
             grad[1] = qs_policy_t::ExpectDiffMatrixGate(bra, ket, custom_gate->GetObjQubits(),
-                                                               custom_gate->GetCtrlQubits(),
-                                                               tensor::ops::cpu::to_vector<py_qs_data_t>(m), dim);
+                                                        custom_gate->GetCtrlQubits(),
+                                                        tensor::ops::cpu::to_vector<py_qs_data_t>(m), dim);
         }
     }
     return tensor::Matrix(VVT<py_qs_data_t>{grad});
 }
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 
 #endif

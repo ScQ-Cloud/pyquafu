@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "config/openmp.h"
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/utils.h"
 #include "math/pr/parameter_resolver.h"
 #include "simulator/utils.h"
@@ -30,7 +30,7 @@
 #endif
 #include "simulator/densitymatrix/detail/cpu_densitymatrix_policy.h"
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 template <typename derived_, typename calc_type_>
 auto CPUDensityMatrixPolicyBase<derived_, calc_type_>::InitState(index_t dim, bool zero_state) -> qs_data_p_t {
     index_t n_elements = (dim * dim + dim) / 2;
@@ -80,12 +80,10 @@ void CPUDensityMatrixPolicyBase<derived_, calc_type_>::Display(const qs_data_p_t
     } else {
         for (index_t i = 0; i < dim; i++) {
             for (index_t j = 0; j <= i; j++) {
-                std::cout << "(" << qs[IdxMap(i, j)].real() << ", " << qs[IdxMap(i, j)].imag() << ")"
-                          << ",";
+                std::cout << "(" << qs[IdxMap(i, j)].real() << ", " << qs[IdxMap(i, j)].imag() << ")" << ",";
             }
             for (index_t j = i + 1; j < dim; j++) {
-                std::cout << "(" << qs[IdxMap(j, i)].real() << ", " << -qs[IdxMap(j, i)].imag() << ")"
-                          << ",";
+                std::cout << "(" << qs[IdxMap(j, i)].real() << ", " << -qs[IdxMap(j, i)].imag() << ")" << ",";
             }
             std::cout << std::endl;
         }
@@ -200,13 +198,13 @@ auto CPUDensityMatrixPolicyBase<derived_, calc_type_>::Purity(const qs_data_p_t&
     }
     calc_type p = 0;
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for schedule(static) reduction(+: p)), dim, DimTh,
-                     for (omp::idx_t i = 0; i < static_cast<omp::idx_t>((dim * dim + dim) / 2);
-                          i++) { p += 2 * std::norm(qs[i]); })
+        QUAFU_DO_PRAGMA(omp parallel for schedule(static) reduction(+: p)), dim, DimTh,
+                        for (omp::idx_t i = 0; i < static_cast<omp::idx_t>((dim * dim + dim) / 2);
+                             i++) { p += 2 * std::norm(qs[i]); })
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for schedule(static) reduction(+: p)), dim, DimTh,
-                     for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim);
-                          i++) { p += -std::norm(qs[IdxMap(i, i)]); })
+        QUAFU_DO_PRAGMA(omp parallel for schedule(static) reduction(+: p)), dim, DimTh,
+                        for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim);
+                             i++) { p += -std::norm(qs[IdxMap(i, i)]); })
     return p;
 }
 
@@ -492,4 +490,4 @@ template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyAvxDouble, doub
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmFloat, float>;
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail

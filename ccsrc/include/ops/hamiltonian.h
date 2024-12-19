@@ -21,10 +21,10 @@
 #include "core/sparse/algo.h"
 #include "core/utils.h"
 
-namespace mindquantum {
-using mindquantum::sparse::CsrHdMatrix;
-using mindquantum::sparse::SparseHamiltonian;
-using mindquantum::sparse::TransposeCsrHdMatrix;
+namespace quafu {
+using quafu::sparse::CsrHdMatrix;
+using quafu::sparse::SparseHamiltonian;
+using quafu::sparse::TransposeCsrHdMatrix;
 
 template <typename T>
 struct Hamiltonian {
@@ -54,5 +54,5 @@ struct Hamiltonian {
         : n_qubits_(n_qubits), how_to_(FRONTEND), ham_sparse_main_(csr_mat) {
     }
 };
-}  // namespace mindquantum
+}  // namespace quafu
 #endif  // MINDQUANTUM_HAMILTONIAN_HAMILTONIAN_H_

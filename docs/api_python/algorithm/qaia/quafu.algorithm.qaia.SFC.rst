@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.SFC
+quafu.algorithm.qaia.SFC
 ==============================
 
-.. py:class:: mindquantum.algorithm.qaia.SFC(J, h=None, x=None, n_iter=1000, batch_size=1, dt=0.1, k=0.2)
+.. py:class:: quafu.algorithm.qaia.SFC(J, h=None, x=None, n_iter=1000, batch_size=1, dt=0.1, k=0.2)
 
     离散振幅反馈算法。
 

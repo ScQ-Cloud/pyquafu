@@ -1,7 +1,7 @@
-mindquantum.utils
+quafu.utils
 =================
 
-.. py:module:: mindquantum.utils
+.. py:module:: quafu.utils
 
 
 实用工具。
@@ -14,14 +14,14 @@ Function
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.utils.fdopen
-    mindquantum.utils.ket_string
-    mindquantum.utils.mod
-    mindquantum.utils.normalize
-    mindquantum.utils.random_circuit
-    mindquantum.utils.random_state
-    mindquantum.utils.random_hamiltonian
-    mindquantum.utils.random_insert_gates
+    quafu.utils.fdopen
+    quafu.utils.ket_string
+    quafu.utils.mod
+    quafu.utils.normalize
+    quafu.utils.random_circuit
+    quafu.utils.random_state
+    quafu.utils.random_hamiltonian
+    quafu.utils.random_insert_gates
 
 Progress bar
 ------------
@@ -31,5 +31,5 @@ Progress bar
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.utils.SingleLoopProgress
-    mindquantum.utils.TwoLoopsProgress
+    quafu.utils.SingleLoopProgress
+    quafu.utils.TwoLoopsProgress

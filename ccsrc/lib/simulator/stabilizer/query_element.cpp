@@ -17,7 +17,7 @@
 #include <stdexcept>
 
 #include "simulator/stabilizer/stabilizer.h"
-namespace mindquantum::stabilizer {
+namespace quafu::stabilizer {
 std::pair<size_t, size_t> DetermineClass(size_t i) {
     if (i < 576) {
         return {0, i};
@@ -324,4 +324,4 @@ void Verification() {
         }
     }
 }
-}  // namespace mindquantum::stabilizer
+}  // namespace quafu::stabilizer

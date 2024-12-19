@@ -1,7 +1,7 @@
-mindquantum.core.circuit
+quafu.core.circuit
 ========================
 
-.. py:module:: mindquantum.core.circuit
+.. py:module:: quafu.core.circuit
 
 
 量子线路模块，通过有序地组织各种量子门，我们可以轻松地搭建出符合要求的量子线路，包括参数化量子线路。本模块还包含各种预设的量子线路以及对量子线路进行高效操作的模块。
@@ -14,9 +14,9 @@ Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.circuit.Circuit
-    mindquantum.core.circuit.SwapParts
-    mindquantum.core.circuit.UN
+    quafu.core.circuit.Circuit
+    quafu.core.circuit.SwapParts
+    quafu.core.circuit.UN
 
 Function
 ---------------
@@ -26,20 +26,20 @@ Function
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.circuit.add_prefix
-    mindquantum.core.circuit.add_suffix
-    mindquantum.core.circuit.apply
-    mindquantum.core.circuit.as_ansatz
-    mindquantum.core.circuit.as_encoder
-    mindquantum.core.circuit.change_param_name
-    mindquantum.core.circuit.controlled
-    mindquantum.core.circuit.dagger
-    mindquantum.core.circuit.decompose_single_term_time_evolution
-    mindquantum.core.circuit.pauli_word_to_circuits
-    mindquantum.core.circuit.shift
-    mindquantum.core.circuit.qfi
-    mindquantum.core.circuit.partial_psi_partial_psi
-    mindquantum.core.circuit.partial_psi_psi
+    quafu.core.circuit.add_prefix
+    quafu.core.circuit.add_suffix
+    quafu.core.circuit.apply
+    quafu.core.circuit.as_ansatz
+    quafu.core.circuit.as_encoder
+    quafu.core.circuit.change_param_name
+    quafu.core.circuit.controlled
+    quafu.core.circuit.dagger
+    quafu.core.circuit.decompose_single_term_time_evolution
+    quafu.core.circuit.pauli_word_to_circuits
+    quafu.core.circuit.shift
+    quafu.core.circuit.qfi
+    quafu.core.circuit.partial_psi_partial_psi
+    quafu.core.circuit.partial_psi_psi
 
 Channel adder
 -------------
@@ -49,18 +49,18 @@ Channel adder
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.circuit.ChannelAdderBase
-    mindquantum.core.circuit.NoiseChannelAdder
-    mindquantum.core.circuit.MeasureAccepter
-    mindquantum.core.circuit.ReverseAdder
-    mindquantum.core.circuit.NoiseExcluder
-    mindquantum.core.circuit.BitFlipAdder
-    mindquantum.core.circuit.MixerAdder
-    mindquantum.core.circuit.SequentialAdder
-    mindquantum.core.circuit.QubitNumberConstrain
-    mindquantum.core.circuit.QubitIDConstrain
-    mindquantum.core.circuit.GateSelector
-    mindquantum.core.circuit.DepolarizingChannelAdder
+    quafu.core.circuit.ChannelAdderBase
+    quafu.core.circuit.NoiseChannelAdder
+    quafu.core.circuit.MeasureAccepter
+    quafu.core.circuit.ReverseAdder
+    quafu.core.circuit.NoiseExcluder
+    quafu.core.circuit.BitFlipAdder
+    quafu.core.circuit.MixerAdder
+    quafu.core.circuit.SequentialAdder
+    quafu.core.circuit.QubitNumberConstrain
+    quafu.core.circuit.QubitIDConstrain
+    quafu.core.circuit.GateSelector
+    quafu.core.circuit.DepolarizingChannelAdder
 
 functional
 ----------
@@ -73,13 +73,13 @@ functional
 
    * - functional
      - high level circuit operators
-   * - mindquantum.core.circuit.C
+   * - quafu.core.circuit.C
      - :class:`~.core.circuit.controlled`
-   * - mindquantum.core.circuit.D
+   * - quafu.core.circuit.D
      - :class:`~.core.circuit.dagger`
-   * - mindquantum.core.circuit.A
+   * - quafu.core.circuit.A
      - :class:`~.core.circuit.apply`
-   * - mindquantum.core.circuit.AP
+   * - quafu.core.circuit.AP
      - :class:`~.core.circuit.add_prefix`
-   * - mindquantum.core.circuit.CPN
+   * - quafu.core.circuit.CPN
      - :class:`~.core.circuit.change_param_name`

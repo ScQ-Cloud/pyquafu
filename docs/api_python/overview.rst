@@ -4,12 +4,12 @@
 .. mscnautosummary::
     :nosignatures:
 
-    mindquantum.dtype
-    mindquantum.core
-    mindquantum.simulator
-    mindquantum.framework
-    mindquantum.algorithm
-    mindquantum.device
-    mindquantum.io
-    mindquantum.engine
-    mindquantum.utils
+    quafu.dtype
+    quafu.core
+    quafu.simulator
+    quafu.framework
+    quafu.algorithm
+    quafu.device
+    quafu.io
+    quafu.engine
+    quafu.utils

@@ -1,10 +1,10 @@
 ﻿.. role:: hidden
     :class: hidden-section
 
-.. currentmodule:: mindquantum.algorithm.nisq
+.. currentmodule:: quafu.algorithm.nisq
 
 
-mindquantum.algorithm.nisq.PCHeaXYZ2F
+quafu.algorithm.nisq.PCHeaXYZ2F
 =====================================
 
 .. autoclass:: PCHeaXYZ2F

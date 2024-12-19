@@ -17,7 +17,7 @@
 #ifndef PARA_H
 #define PARA_H
 
-namespace mindquantum::algorithm::qaia::detail {
+namespace quafu::algorithm::qaia::detail {
 
 struct Para {
     int B;
@@ -34,6 +34,6 @@ struct Para {
     }
 };
 
-}  // namespace mindquantum::algorithm::qaia::detail
+}  // namespace quafu::algorithm::qaia::detail
 
 #endif

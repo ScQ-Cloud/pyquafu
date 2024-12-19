@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_TYPE_PROMOTION_HPP
-#define MQ_CONFIG_TYPE_PROMOTION_HPP
+#ifndef QUAFU_CONFIG_TYPE_PROMOTION_HPP
+#define QUAFU_CONFIG_TYPE_PROMOTION_HPP
 
 #include <complex>
 #include <type_traits>
@@ -24,7 +24,7 @@
 #include "config/config.h"
 #include "config/type_traits.h"
 
-namespace mindquantum {
+namespace quafu {
 namespace traits {
 template <typename T>
 struct type_promotion;
@@ -47,22 +47,22 @@ struct type_promotion_encapsulated_fp {
 // -------------------------------------
 // float -> double -> long double (if the latter is enabled)
 
-#if MQ_HAS_LONG_DOUBLE
+#if QUAFU_HAS_LONG_DOUBLE
 template <>
 struct type_promotion<long double> {
     using down_cast_t = double;
     using up_cast_t = long double;
 };
-#endif  // MQ_HAS_LONG_DOUBLE
+#endif  // QUAFU_HAS_LONG_DOUBLE
 
 template <>
 struct type_promotion<double> {
     using down_cast_t = float;
-#if MQ_HAS_LONG_DOUBLE
+#if QUAFU_HAS_LONG_DOUBLE
     using up_cast_t = long double;
 #else
     using up_cast_t = double;
-#endif  // MQ_HAS_LONG_DOUBLE
+#endif  // QUAFU_HAS_LONG_DOUBLE
 };
 
 template <>
@@ -138,6 +138,6 @@ struct ComplexCast<src, des, std::enable_if_t<std::is_same_v<typename traits::ty
         return down_cast(value);
     }
 };
-}  // namespace mindquantum
+}  // namespace quafu
 
-#endif /* MQ_CONFIG_TYPE_PROMOTION_HPP */
+#endif /* QUAFU_CONFIG_TYPE_PROMOTION_HPP */

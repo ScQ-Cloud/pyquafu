@@ -24,48 +24,50 @@
 
 // =============================================================================
 
-namespace mq = mindquantum::traits;
+namespace quafu = quafu::traits;
 
 template <typename float_t>
 using cmplx_t = std::complex<float_t>;
 
 template <typename float_t>
-using pr_t = mindquantum::ParameterResolver<float_t>;
+using pr_t = quafu::ParameterResolver<float_t>;
 
 // -----------------------------------------------------------------------------
 // Cases identical to std::common_type
 
-static_assert(std::is_same_v<std::common_type_t<float, float>, mq::common_type_t<float, float>>);
-static_assert(std::is_same_v<std::common_type_t<float, double>, mq::common_type_t<float, double>>);
-static_assert(std::is_same_v<std::common_type_t<double, double>, mq::common_type_t<double, double>>);
+static_assert(std::is_same_v<std::common_type_t<float, float>, quafu::common_type_t<float, float>>);
+static_assert(std::is_same_v<std::common_type_t<float, double>, quafu::common_type_t<float, double>>);
+static_assert(std::is_same_v<std::common_type_t<double, double>, quafu::common_type_t<double, double>>);
 static_assert(std::is_same_v<std::common_type_t<cmplx_t<float>, cmplx_t<float>>,
-                             mq::common_type_t<cmplx_t<float>, cmplx_t<float>>>);
+                             quafu::common_type_t<cmplx_t<float>, cmplx_t<float>>>);
 static_assert(std::is_same_v<std::common_type_t<cmplx_t<double>, cmplx_t<double>>,
-                             mq::common_type_t<cmplx_t<double>, cmplx_t<double>>>);
-static_assert(std::is_same_v<std::common_type_t<float, cmplx_t<float>>, mq::common_type_t<float, cmplx_t<float>>>);
+                             quafu::common_type_t<cmplx_t<double>, cmplx_t<double>>>);
+static_assert(std::is_same_v<std::common_type_t<float, cmplx_t<float>>, quafu::common_type_t<float, cmplx_t<float>>>);
 static_assert(std::is_same_v<std::common_type_t<cmplx_t<float>, cmplx_t<double>>,
-                             mq::common_type_t<cmplx_t<float>, cmplx_t<double>>>);
-static_assert(std::is_same_v<std::common_type_t<double, cmplx_t<double>>, mq::common_type_t<double, cmplx_t<double>>>);
+                             quafu::common_type_t<cmplx_t<float>, cmplx_t<double>>>);
+static_assert(
+    std::is_same_v<std::common_type_t<double, cmplx_t<double>>, quafu::common_type_t<double, cmplx_t<double>>>);
 
 static_assert(std::is_same_v<std::common_type_t<float, double, cmplx_t<double>>,
-                             mq::common_type_t<float, double, cmplx_t<double>>>);
+                             quafu::common_type_t<float, double, cmplx_t<double>>>);
 static_assert(
-    std::is_same_v<std::common_type_t<float, double, int, char>, mq::common_type_t<float, double, int, char>>);
+    std::is_same_v<std::common_type_t<float, double, int, char>, quafu::common_type_t<float, double, int, char>>);
 
 // -----------------------------------------------------------------------------
 // Cases different from std::common_type
 
-static_assert(std::is_same_v<cmplx_t<double>, mq::common_type_t<double, cmplx_t<float>>>);
-static_assert(std::is_same_v<cmplx_t<double>, mq::common_type_t<float, cmplx_t<double>>>);
-static_assert(std::is_same_v<cmplx_t<double>, mq::common_type_t<cmplx_t<float>, int, float, double, cmplx_t<float>>>);
+static_assert(std::is_same_v<cmplx_t<double>, quafu::common_type_t<double, cmplx_t<float>>>);
+static_assert(std::is_same_v<cmplx_t<double>, quafu::common_type_t<float, cmplx_t<double>>>);
+static_assert(
+    std::is_same_v<cmplx_t<double>, quafu::common_type_t<cmplx_t<float>, int, float, double, cmplx_t<float>>>);
 
 // =============================================================================
 
-static_assert(std::is_same_v<pr_t<double>, mq::common_type_t<double, pr_t<float>>>);
-static_assert(std::is_same_v<pr_t<double>, mq::common_type_t<float, pr_t<double>>>);
-static_assert(std::is_same_v<pr_t<double>, mq::common_type_t<pr_t<float>, int, float, double, pr_t<float>>>);
-static_assert(std::is_same_v<pr_t<cmplx_t<float>>, mq::common_type_t<float, cmplx_t<float>, pr_t<float>>>);
-static_assert(std::is_same_v<pr_t<cmplx_t<double>>, mq::common_type_t<cmplx_t<double>, pr_t<float>>>);
+static_assert(std::is_same_v<pr_t<double>, quafu::common_type_t<double, pr_t<float>>>);
+static_assert(std::is_same_v<pr_t<double>, quafu::common_type_t<float, pr_t<double>>>);
+static_assert(std::is_same_v<pr_t<double>, quafu::common_type_t<pr_t<float>, int, float, double, pr_t<float>>>);
+static_assert(std::is_same_v<pr_t<cmplx_t<float>>, quafu::common_type_t<float, cmplx_t<float>, pr_t<float>>>);
+static_assert(std::is_same_v<pr_t<cmplx_t<double>>, quafu::common_type_t<cmplx_t<double>, pr_t<float>>>);
 
 // =============================================================================
 

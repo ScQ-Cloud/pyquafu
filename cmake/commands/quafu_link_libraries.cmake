@@ -25,19 +25,19 @@ include(is_language_enabled)
 # ~~~
 # Add one or more link libraries to some of the language specific targets (see setup_languages())
 #
-# mq_link_libraries([NO_MQ_TARGET, NO_TRYCOMPILE_TARGET, NO_TRYCOMPILE_FLAGCHECK_TARGET]
+# quafu_link_libraries([NO_QUAFU_TARGET, NO_TRYCOMPILE_TARGET, NO_TRYCOMPILE_FLAGCHECK_TARGET]
 #                    <library>, [<library>, ...])
 #
-# Always modify the <LANG>_mindquantum target. If any of TRYCOMPILE, TRYCOMPILE_FLAGCHECK is also specified, then modify
+# Always modify the <LANG>_quafu target. If any of TRYCOMPILE, TRYCOMPILE_FLAGCHECK is also specified, then modify
 # the corresponding target.
 # ~~~
-function(mq_link_libraries)
+function(quafu_link_libraries)
   cmake_parse_arguments(PARSE_ARGV 0 MLL "TRYCOMPILE;TRYCOMPILE_FLAGCHECK" "" "")
 
   foreach(lang C CXX CUDA NVCXX DPCXX)
     is_language_enabled(${lang} _enabled)
     if(_enabled)
-      target_link_libraries(${lang}_mindquantum INTERFACE "$<$<LINK_LANGUAGE:${lang}>:${MLL_UNPARSED_ARGUMENTS}>")
+      target_link_libraries(${lang}_quafu INTERFACE "$<$<LINK_LANGUAGE:${lang}>:${MLL_UNPARSED_ARGUMENTS}>")
       if(MLL_TRYCOMPILE)
         target_link_libraries(${lang}_try_compile INTERFACE "$<$<LINK_LANGUAGE:${lang}>:${MLL_UNPARSED_ARGUMENTS}>")
       endif()

@@ -32,31 +32,31 @@
 
 #include "python/densitymatrix/bind_mat_state.h"
 
-PYBIND11_MODULE(_mq_matrix, module) {
+PYBIND11_MODULE(_quafu_matrix, module) {
 #ifdef __CUDACC__
-    using float_policy_t = mindquantum::sim::densitymatrix::detail::GPUDensityMatrixPolicyFloat;
-    using double_policy_t = mindquantum::sim::densitymatrix::detail::GPUDensityMatrixPolicyDouble;
+    using float_policy_t = quafu::sim::densitymatrix::detail::GPUDensityMatrixPolicyFloat;
+    using double_policy_t = quafu::sim::densitymatrix::detail::GPUDensityMatrixPolicyDouble;
 #elif defined(__x86_64__)
-    using float_policy_t = mindquantum::sim::densitymatrix::detail::CPUDensityMatrixPolicyAvxFloat;
-    using double_policy_t = mindquantum::sim::densitymatrix::detail::CPUDensityMatrixPolicyAvxDouble;
+    using float_policy_t = quafu::sim::densitymatrix::detail::CPUDensityMatrixPolicyAvxFloat;
+    using double_policy_t = quafu::sim::densitymatrix::detail::CPUDensityMatrixPolicyAvxDouble;
 #elif defined(__amd64)
-    using float_policy_t = mindquantum::sim::densitymatrix::detail::CPUDensityMatrixPolicyArmFloat;
-    using double_policy_t = mindquantum::sim::densitymatrix::detail::CPUDensityMatrixPolicyArmDouble;
+    using float_policy_t = quafu::sim::densitymatrix::detail::CPUDensityMatrixPolicyArmFloat;
+    using double_policy_t = quafu::sim::densitymatrix::detail::CPUDensityMatrixPolicyArmDouble;
 #endif  // __CUDACC__
 
-    using float_mat_sim = mindquantum::sim::densitymatrix::detail::DensityMatrixState<float_policy_t>;
-    using double_mat_sim = mindquantum::sim::densitymatrix::detail::DensityMatrixState<double_policy_t>;
+    using float_mat_sim = quafu::sim::densitymatrix::detail::DensityMatrixState<float_policy_t>;
+    using double_mat_sim = quafu::sim::densitymatrix::detail::DensityMatrixState<double_policy_t>;
 
-    module.doc() = "MindQuantum c++ density matrix state simulator.";
+    module.doc() = "quafu c++ density matrix state simulator.";
     pybind11::module float_sim = module.def_submodule("float", "float simulator");
     pybind11::module double_sim = module.def_submodule("double", "double simulator");
 
-    BindSim<float_mat_sim>(float_sim, "mqmatrix")
-        .def("complex128", &float_mat_sim::astype<double_policy_t, mindquantum::sim::densitymatrix::detail::CastTo>)
-        .def("complex64", &float_mat_sim::astype<float_policy_t, mindquantum::sim::densitymatrix::detail::CastTo>)
-        .def("sim_name", [](const float_mat_sim& sim) { return "mqmatrix"; });
-    BindSim<double_mat_sim>(double_sim, "mqmatrix")
-        .def("complex128", &double_mat_sim::astype<double_policy_t, mindquantum::sim::densitymatrix::detail::CastTo>)
-        .def("complex64", &double_mat_sim::astype<float_policy_t, mindquantum::sim::densitymatrix::detail::CastTo>)
-        .def("sim_name", [](const double_mat_sim& sim) { return "mqmatrix"; });
+    BindSim<float_mat_sim>(float_sim, "quafumatrix")
+        .def("complex128", &float_mat_sim::astype<double_policy_t, quafu::sim::densitymatrix::detail::CastTo>)
+        .def("complex64", &float_mat_sim::astype<float_policy_t, quafu::sim::densitymatrix::detail::CastTo>)
+        .def("sim_name", [](const float_mat_sim& sim) { return "quafumatrix"; });
+    BindSim<double_mat_sim>(double_sim, "quafumatrix")
+        .def("complex128", &double_mat_sim::astype<double_policy_t, quafu::sim::densitymatrix::detail::CastTo>)
+        .def("complex64", &double_mat_sim::astype<float_policy_t, quafu::sim::densitymatrix::detail::CastTo>)
+        .def("sim_name", [](const double_mat_sim& sim) { return "quafumatrix"; });
 }

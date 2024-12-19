@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.LQA
+quafu.algorithm.qaia.LQA
 ==============================
 
-.. py:class:: mindquantum.algorithm.qaia.LQA(J, h=None, x=None, n_iter=1000, batch_size=1, gamma=0.1, dt=1.0, momentum=0.99)
+.. py:class:: quafu.algorithm.qaia.LQA(J, h=None, x=None, n_iter=1000, batch_size=1, gamma=0.1, dt=1.0, momentum=0.99)
 
     局域量子退火算法。
 

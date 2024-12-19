@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.UCCAnsatz
+quafu.algorithm.nisq.UCCAnsatz
 =====================================
 
-.. py:class:: mindquantum.algorithm.nisq.UCCAnsatz(n_qubits=None, n_electrons=None, occ_orb=None, vir_orb=None, generalized=False, trotter_step=1)
+.. py:class:: quafu.algorithm.nisq.UCCAnsatz(n_qubits=None, n_electrons=None, occ_orb=None, vir_orb=None, generalized=False, trotter_step=1)
 
     用于分子模拟的幺正耦合簇。
 

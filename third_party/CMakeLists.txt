@@ -49,7 +49,7 @@ endif()
 
 # ==============================================================================
 
-get_property(_pkgs GLOBAL PROPERTY mq_external_packages)
+get_property(_pkgs GLOBAL PROPERTY quafu_external_packages)
 
 set(_external_pkgs_str)
 foreach(_pkg ${_pkgs})
@@ -58,24 +58,24 @@ foreach(_pkg ${_pkgs})
   message(STATUS ${_tmp})
 endforeach()
 
-# get_property(_tmp GLOBAL PROPERTY mq_external_find_packages) string(REPLACE ";" "\n" _tmp "${_tmp}")
+# get_property(_tmp GLOBAL PROPERTY quafu_external_find_packages) string(REPLACE ";" "\n" _tmp "${_tmp}")
 
 # --------------------------------------
 
-set(MQ_3RDPARTY_PREFIX_PATH "\${MQ_PACKAGE_PREFIX_DIR}/${MQ_INSTALL_3RDPARTYDIR}")
-string(CONFIGURE "${_external_pkgs_str}" MQ_FIND_EXTERNAL_PACKAGES)
-configure_file("${CMAKE_CURRENT_LIST_DIR}/cmake/mindquantumTargetsExternal.cmake.in"
-               "${PROJECT_BINARY_DIR}/config_for_install/mindquantumTargetsExternal.cmake" @ONLY)
+set(QUAFU_3RDPARTY_PREFIX_PATH "\${QUAFU_PACKAGE_PREFIX_DIR}/${QUAFU_INSTALL_3RDPARTYDIR}")
+string(CONFIGURE "${_external_pkgs_str}" QUAFU_FIND_EXTERNAL_PACKAGES)
+configure_file("${CMAKE_CURRENT_LIST_DIR}/cmake/quafuTargetsExternal.cmake.in"
+               "${PROJECT_BINARY_DIR}/config_for_install/quafuTargetsExternal.cmake" @ONLY)
 
-install(FILES ${PROJECT_BINARY_DIR}/config_for_install/mindquantumTargetsExternal.cmake
-        DESTINATION ${MQ_INSTALL_CMAKEDIR})
+install(FILES ${PROJECT_BINARY_DIR}/config_for_install/quafuTargetsExternal.cmake
+        DESTINATION ${QUAFU_INSTALL_CMAKEDIR})
 
 # --------------------------------------
 
-set(MQ_3RDPARTY_PREFIX_PATH "${_mq_local_prefix}")
-string(CONFIGURE "${_external_pkgs_str}" MQ_FIND_EXTERNAL_PACKAGES)
-configure_file("${CMAKE_CURRENT_LIST_DIR}/cmake/mindquantumTargetsExternal.cmake.in"
-               "${PROJECT_BINARY_DIR}/mindquantumTargetsExternal.cmake" @ONLY)
+set(QUAFU_3RDPARTY_PREFIX_PATH "${_quafu_local_prefix}")
+string(CONFIGURE "${_external_pkgs_str}" QUAFU_FIND_EXTERNAL_PACKAGES)
+configure_file("${CMAKE_CURRENT_LIST_DIR}/cmake/quafuTargetsExternal.cmake.in"
+               "${PROJECT_BINARY_DIR}/quafuTargetsExternal.cmake" @ONLY)
 
 # ==============================================================================
 

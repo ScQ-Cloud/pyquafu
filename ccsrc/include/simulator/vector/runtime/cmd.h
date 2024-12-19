@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MQ_SIM_VECTOR_CMD
-#define MQ_SIM_VECTOR_CMD
+#ifndef QUAFU_SIM_VECTOR_CMD
+#define QUAFU_SIM_VECTOR_CMD
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -29,8 +29,8 @@
 #include "simulator/vector/runtime/rt_gate.h"
 #include "simulator/vector/runtime/utils.h"
 
-namespace mindquantum::sim::rt {
+namespace quafu::sim::rt {
 int cmd(const std::vector<std::string>& args);
 int cmd_file(const char* filename);
-}  // namespace mindquantum::sim::rt
+}  // namespace quafu::sim::rt
 #endif

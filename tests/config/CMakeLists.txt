@@ -16,7 +16,7 @@
 #
 # ==============================================================================
 
-add_test_executable(test_common_type LIBS include_lib cmake_config mindquantum::json mindquantum::fmt)
+add_test_executable(test_common_type LIBS include_lib cmake_config quafu::json quafu::fmt)
 if(NOT MSVC OR NOT COMPILER_IS_CLANG_CL)
-  add_test_executable(test_constexpr_type_name LIBS include_lib cmake_config mindquantum::fmt)
+  add_test_executable(test_constexpr_type_name LIBS include_lib cmake_config quafu::fmt)
 endif()

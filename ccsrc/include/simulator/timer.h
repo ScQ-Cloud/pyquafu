@@ -26,7 +26,7 @@
 #include <utility>
 #include <vector>
 
-namespace mindquantum::timer {
+namespace quafu::timer {
 using TimePoint = typename std::chrono::steady_clock::time_point;
 
 TimePoint NOW();
@@ -93,6 +93,6 @@ class Timer {
  private:
     std::map<std::string, std::vector<TimePair>> data_{};
 };
-}  // namespace mindquantum::timer
+}  // namespace quafu::timer
 
 #endif

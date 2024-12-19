@@ -82,7 +82,7 @@ Descriptions
 +-------------------------------------+-----------------------------------------------------------------------+
 | ``ENABLE_STACK_PROTECTION``         | Enable stack protection during compilation                            |
 +-------------------------------------+-----------------------------------------------------------------------+
-| ``IN_PLACE_BUILD``                  | Build the C++ MindQuantum libraries in-place                          |
+| ``IN_PLACE_BUILD``                  | Build the C++ quafu libraries in-place                          |
 +-------------------------------------+-----------------------------------------------------------------------+
 | ``IS_PYTHON_BUILD``                 | Whether CMake is called from setup.py                                 |
 +-------------------------------------+-----------------------------------------------------------------------+
@@ -191,7 +191,7 @@ Detailed descriptions
 
 ``CLEAN_3RDPARTY_INSTALL_DIR``
     This will delete any pre-existing installations within the local installation directory (by default
-    ``/path/to/build/.mqlibs``) _except_ the ones that are currently needed based on the hashes of the third-party
+    ``/path/to/build/.quafulibs``) _except_ the ones that are currently needed based on the hashes of the third-party
     libraries.
 
 ``DISABLE_FORTRAN_COMPILER``
@@ -202,7 +202,7 @@ Detailed descriptions
 
 ``ENABLE_ITERATOR_DEBUG``
     If this is turned on, the ``_ITERATOR_DEBUG`` preprocessor macro will be defined to the value of
-    ``MQ_ITERATOR_DEBUG`` (see more documentation below).
+    ``QUAFU_ITERATOR_DEBUG`` (see more documentation below).
 
 ``ENABLE_SANITIZERS``
     This enables a new CMake build types (on top of the usual ``Release, Debug, RelWithDebInfo, MinSizeRel``):
@@ -218,18 +218,18 @@ In addition to the above CMake options, you may pass certain special CMake varia
 build. These are described below in more details.
 
 
-``MQ_FORCE_LOCAL_PKGS``
+``QUAFU_FORCE_LOCAL_PKGS``
     This variable value is case-insensitive. It may be either of:
       - a single string (``all``)
-      - a comma-separated list of CMake package names for one or more of MindQuantum's third-party dependencies
+      - a comma-separated list of CMake package names for one or more of quafu's third-party dependencies
         (e.g. ``gmp,eigen3``)
 
     Any or all packages listed will be compiled locally during the CMake configuration process.
 
-``MQ_ITERATOR_DEBUG``
+``QUAFU_ITERATOR_DEBUG``
     Value to use to define the ``_ITERATOR_DEBUG`` preprocessor macro to. Defaults to ``2``.
 
-``MQ_XXX_FORCE_LOCAL``
-    Setting this to a truthful value for one of MindQuantum's third-party dependencies will result in that/these
+``QUAFU_XXX_FORCE_LOCAL``
+    Setting this to a truthful value for one of quafu's third-party dependencies will result in that/these
     packages to be compiled locally during the CMake configuration process. Note that the package name ``XXX`` must be
     all caps.

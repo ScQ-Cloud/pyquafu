@@ -31,11 +31,11 @@
 #include "algorithm/qaia/detail/para.h"
 #include "algorithm/qaia/detail/tools.cuh"
 
-using mindquantum::Index;
+using quafu::Index;
 
-namespace mindquantum::algorithm::qaia::detail {
+namespace quafu::algorithm::qaia::detail {
 
-void SBBase::dSB_update_int8(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras) {
+void SBBase::dSB_update_int8(quafu::sparse::CsrBase<double> csr, double* x, Para paras) {
     Index* indptr = csr.indptr_;
     Index* indices = csr.indices_;
     double* data = csr.data_;
@@ -100,7 +100,7 @@ void SBBase::dSB_update_int8(mindquantum::sparse::CsrBase<double> csr, double* x
     HANDLE_ERROR(cudaFree(signx));
 }
 
-void SBBase::bSB_update_int8(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras) {
+void SBBase::bSB_update_int8(quafu::sparse::CsrBase<double> csr, double* x, Para paras) {
     Index* indptr = csr.indptr_;
     Index* indices = csr.indices_;
     double* data = csr.data_;
@@ -160,7 +160,7 @@ void SBBase::bSB_update_int8(mindquantum::sparse::CsrBase<double> csr, double* x
     HANDLE_ERROR(cudaFree(tmp));
 }
 
-void SBBase::bSB_update_fp16(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras) {
+void SBBase::bSB_update_fp16(quafu::sparse::CsrBase<double> csr, double* x, Para paras) {
     Index* indptr = csr.indptr_;
     Index* indices = csr.indices_;
     double* data = csr.data_;
@@ -223,7 +223,7 @@ void SBBase::bSB_update_fp16(mindquantum::sparse::CsrBase<double> csr, double* x
     HANDLE_ERROR(cudaFree(tmp));
 }
 
-void SBBase::dSB_update_fp16(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras) {
+void SBBase::dSB_update_fp16(quafu::sparse::CsrBase<double> csr, double* x, Para paras) {
     Index* indptr = csr.indptr_;
     Index* indices = csr.indices_;
     double* data = csr.data_;
@@ -288,7 +288,7 @@ void SBBase::dSB_update_fp16(mindquantum::sparse::CsrBase<double> csr, double* x
     HANDLE_ERROR(cudaFree(signx));
 }
 
-void SBBase::dSB_update_h_int8(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras, double* h, int h_size) {
+void SBBase::dSB_update_h_int8(quafu::sparse::CsrBase<double> csr, double* x, Para paras, double* h, int h_size) {
     Index* indptr = csr.indptr_;
     Index* indices = csr.indices_;
     double* data = csr.data_;
@@ -366,7 +366,7 @@ void SBBase::dSB_update_h_int8(mindquantum::sparse::CsrBase<double> csr, double*
     HANDLE_ERROR(cudaFree(signx));
 }
 
-void SBBase::bSB_update_h_int8(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras, double* h, int h_size) {
+void SBBase::bSB_update_h_int8(quafu::sparse::CsrBase<double> csr, double* x, Para paras, double* h, int h_size) {
     Index* indptr = csr.indptr_;
     Index* indices = csr.indices_;
     double* data = csr.data_;
@@ -441,7 +441,7 @@ void SBBase::bSB_update_h_int8(mindquantum::sparse::CsrBase<double> csr, double*
     HANDLE_ERROR(cudaFree(tmp));
 }
 
-void SBBase::bSB_update_h_fp16(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras, double* h, int h_size) {
+void SBBase::bSB_update_h_fp16(quafu::sparse::CsrBase<double> csr, double* x, Para paras, double* h, int h_size) {
     Index* indptr = csr.indptr_;
     Index* indices = csr.indices_;
     double* data = csr.data_;
@@ -518,7 +518,7 @@ void SBBase::bSB_update_h_fp16(mindquantum::sparse::CsrBase<double> csr, double*
     HANDLE_ERROR(cudaFree(tmp));
 }
 
-void SBBase::dSB_update_h_fp16(mindquantum::sparse::CsrBase<double> csr, double* x, Para paras, double* h, int h_size) {
+void SBBase::dSB_update_h_fp16(quafu::sparse::CsrBase<double> csr, double* x, Para paras, double* h, int h_size) {
     Index* indptr = csr.indptr_;
     Index* indices = csr.indices_;
     double* data = csr.data_;
@@ -617,4 +617,4 @@ void SBBase::cublas_warmup(int N, int B) {
     HANDLE_ERROR(cudaFree(tmp));
 }
 
-}  // namespace mindquantum::algorithm::qaia::detail
+}  // namespace quafu::algorithm::qaia::detail

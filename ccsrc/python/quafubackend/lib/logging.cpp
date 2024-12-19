@@ -45,7 +45,7 @@ void enable_logging(spdlog::level::level_enum level) {
 #ifdef ENABLE_LOGGING
     spdlog::default_logger()->set_level(level);
 #else
-    std::cout << "Cannot enable logging because this version of MindQuantum was not compiled with it!\n";
+    std::cout << "Cannot enable logging because this version of quafu was not compiled with it!\n";
 #endif  // ENABLE_LOGGING
     current_level_ = level;
 }
@@ -54,12 +54,12 @@ void disable_logging() {
 #ifdef ENABLE_LOGGING
     spdlog::default_logger()->set_level(spdlog::level::off);
 #else
-    std::cout << "Cannot disable logging because this version of MindQuantum was not compiled with it!\n";
+    std::cout << "Cannot disable logging because this version of quafu was not compiled with it!\n";
 #endif  // ENABLE_LOGGING
     current_level_ = spdlog::level::off;
 }
 
-namespace mindquantum::python {
+namespace quafu::python {
 void init_logging(pybind11::module& module) {
     using namespace pybind11::literals;
 
@@ -81,4 +81,4 @@ void init_logging(pybind11::module& module) {
     disable_logging();
 #endif  // ENABLE_LOGGING
 }
-}  // namespace mindquantum::python
+}  // namespace quafu::python

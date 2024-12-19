@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "config/openmp.h"
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/utils.h"
 #include "math/pr/parameter_resolver.h"
 #include "simulator/utils.h"
@@ -27,11 +27,11 @@
 #endif
 #include "simulator/densitymatrix/detail/cpu_densitymatrix_policy.h"
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 // Single qubit operator
 // ========================================================================================================
 
-// method is based on 'mq_vector' simulator, extended to densitymatrix
+// method is based on 'quafu_vector' simulator, extended to densitymatrix
 template <typename derived_, typename calc_type_>
 void CPUDensityMatrixPolicyBase<derived_, calc_type_>::ApplySingleQubitMatrix(const qs_data_p_t& src_out,
                                                                               qs_data_p_t* des_p, qbit_t obj_qubit,
@@ -398,4 +398,4 @@ template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyAvxDouble, doub
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmFloat, float>;
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail

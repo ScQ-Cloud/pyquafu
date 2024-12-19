@@ -21,17 +21,17 @@
 Quick start
 ===========
 
-If you are only looking in using MindQuantum on your system, the easiest way of getting started is installing it
+If you are only looking in using quafu on your system, the easiest way of getting started is installing it
 directly from Pypi and use one of the pre-compiled binaries: :ref:`install_from_pypi`.
 
-If you are looking into doing some development with MindQuantum on your local machine, we highly recommend you using one
-of the scripts provided to build MindQuantum locally: :ref:`build_locally_for_devs`. In that case, you might want to
+If you are looking into doing some development with quafu on your local machine, we highly recommend you using one
+of the scripts provided to build quafu locally: :ref:`build_locally_for_devs`. In that case, you might want to
 install some of the required programs and libraries. See one of the sub-sections under :ref:`requirements` for your
 particular system for more information in order to find out how to achieve that. Additionally, if you plan to link some
-libraries you are developping to MindQuantum, have a look at the :ref:`install_locally`. This will guide you into adding
-MindQuantum as a third-party library into your other projects.
+libraries you are developping to quafu, have a look at the :ref:`install_locally`. This will guide you into adding
+quafu as a third-party library into your other projects.
 
-If you plan on distributing the version of MindQuantum you have compiled on your system, we would suggest that you
+If you plan on distributing the version of quafu you have compiled on your system, we would suggest that you
 have a look at :ref:`build_wheels`.
 
 .. _install_from_pypi:
@@ -43,14 +43,14 @@ You can install one of the pre-compiled binary Python packages directly from Pyp
 
 .. code-block:: bash
 
-   python3 -m pip install --user mindquantum
+   python3 -m pip install --user quafu
 
 .. _build_locally_for_devs:
 
 Build locally (for developers)
 ------------------------------
 
-In order to build MindQuantum locally for developping new features or implementing bug fixes for MindQuantum, there are
+In order to build quafu locally for developping new features or implementing bug fixes for quafu, there are
 a few scripts that you can use to properly setup a virtual environment and all the required build tools (such as
 CMake). Currently, there are three local build scripts:
 
@@ -66,12 +66,12 @@ The build scripts mentioned above will perform the following operations in order
 
 1. Setup a Python virtual environment
 2. Update the virtual environment's packages and install some required dependencies (which may include CMake)
-3. Add a PTH-file to the Python virtual environment to make sure that MindQuantum will be detected
+3. Add a PTH-file to the Python virtual environment to make sure that quafu will be detected
 4. Create a build directory and run CMake within it
-5. Compile MindQuantum in-place
+5. Compile quafu in-place
 
 The next time you run the script, unless you specify one of the cleaning options or force a CMake configuration step,
-the script will only re-compile MindQuantum.
+the script will only re-compile quafu.
 
 For reference, here is the output of the help message from the Bash script (NB: might differ from the actual help
 message):
@@ -83,11 +83,11 @@ message):
   This is mainly relevant for developers that do not want to always have to reinstall the Python
   package
 
-  This script will create a Python virtualenv in the MindQuantum root directory and then build
+  This script will create a Python virtualenv in the quafu root directory and then build
   all the C++ Python modules and place the generated libraries in their right locations within
-  the MindQuantum folder hierarchy so Python knows how to find them.
+  the quafu folder hierarchy so Python knows how to find them.
 
-  A pth-file will be created in the virtualenv site-packages directory so that the MindQuantum
+  A pth-file will be created in the virtualenv site-packages directory so that the quafu
   root folder will be added to the Python PATH without the need to modify PYTHONPATH.
 
   Usage:
@@ -98,7 +98,7 @@ message):
     -n                   Dry run; only print commands but do not execute them
 
     -B,--build=[dir]     Specify build directory
-                         Defaults to: /home/user/mindquantum/build
+                         Defaults to: /home/user/quafu/build
     --ccache             If ccache or sccache are found within the PATH, use them with CMake
     --clean-3rdparty     Clean 3rd party installation directory
     --clean-all          Clean everything before building.
@@ -107,7 +107,7 @@ message):
     --clean-cache        Re-run CMake with a clean CMake cache
     --clean-venv         Delete Python virtualenv before building
     --config=[dir]       Path to INI configuration file with default values for the parameters
-                         Defaults to: /home/user/mindquantum/build.conf
+                         Defaults to: /home/user/quafu/build.conf
                          NB: command line arguments always take precedence over configuration
                          file values
     --debug              Build in debug mode
@@ -121,7 +121,7 @@ message):
     --show-libraries     Show all known third-party libraries
     -v, --verbose        Enable verbose output from the Bash scripts
     --venv=[dir]         Path to Python virtual environment
-                         Defaults to: /home/user/mindquantum/venv
+                         Defaults to: /home/user/quafu/venv
     --with-<library>     Build the third-party <library> from source
                          (ignored if --local-pkgs is passed, except for projectq)
     --without-<library>  Do not build the third-party library from source
@@ -147,7 +147,7 @@ message):
     --clean              Run make clean before building
     -c,--configure       Force running the CMake configure step
     --configure-only     Stop after the CMake configure and generation steps
-                         (ie. before building MindQuantum)
+                         (ie. before building quafu)
     --doc,--docs         Setup the Python virtualenv for building the documentation and ask
                          CMake to build the documentation
     --install            Build the ´install´ target
@@ -171,13 +171,13 @@ message):
 Install locally (as a library)
 ------------------------------
 
-If you plan on integrating MindQuantum into your own project as a third-party library, you may want to install it
+If you plan on integrating quafu into your own project as a third-party library, you may want to install it
 locally on your computer. For that you may use the scripts mentioned in Section :ref:`build_locally_for_devs`.
 
-There are essentially three ways you can include MindQuantum as a third-party library:
+There are essentially three ways you can include quafu as a third-party library:
 
-1. As a sub-directory if your project also uses CMake (``add_subdirectory("path/to/mindquantum")``)
-2. Installing MindQuantum as a library somewhere on your system
+1. As a sub-directory if your project also uses CMake (``add_subdirectory("path/to/quafu")``)
+2. Installing quafu as a library somewhere on your system
 3. Using the build directory as a pseudo-installation location (provided your project also uses CMake)
 
 As option 1. is pretty straightforward, we will not provide more explanation here. However, for the other two options,
@@ -187,28 +187,28 @@ Installation on your system
 +++++++++++++++++++++++++++
 
 If you are using the local build scripts, simply add the ``--install`` (or ``-Install`` or ``/Install``) and if
-necessary the ``--prefix`` (or ``-Prefix`` or ``/Prefix``) arguments to your command line to install MindQuantum in your
+necessary the ``--prefix`` (or ``-Prefix`` or ``/Prefix``) arguments to your command line to install quafu in your
 preferred location.
 
 Given an installation ``<prefix>``, building the ``install`` target will result in the relevant files being installed
 into:
 
-``<prefix>/include/mindquantum``
-    All MindQuantum header files
+``<prefix>/include/quafu``
+    All quafu header files
 
-``<prefix>/lib/mindquantum``
-    All MindQuantum libraries (excuding 3rd-party libraries)
+``<prefix>/lib/quafu``
+    All quafu libraries (excuding 3rd-party libraries)
 
-``<prefix>/lib/mindquantum/third_party``
-    All 3rd-party libraries (including their header files). This is actually the content of the ``build/.mqlibs`` folder
+``<prefix>/lib/quafu/third_party``
+    All 3rd-party libraries (including their header files). This is actually the content of the ``build/.quafulibs`` folder
     within the build directory.
 
-``<prefix>/share/cmake/mindquantum/``
-    All CMake installation configuration files. This includes the ``mindquantumConfig.cmake`` file and other helper
+``<prefix>/share/cmake/quafu/``
+    All CMake installation configuration files. This includes the ``quafuConfig.cmake`` file and other helper
     files.
 
-Then, in order to use MindQuantum in some other CMake project, you simply need to add the following statement:
-``find_package(mindquantum CONFIG)``:
+Then, in order to use quafu in some other CMake project, you simply need to add the following statement:
+``find_package(quafu CONFIG)``:
 
 .. code-block:: cmake
 
@@ -217,56 +217,56 @@ Then, in order to use MindQuantum in some other CMake project, you simply need t
 
     # ...
 
-    find_package(mindquantum CONFIG)
+    find_package(quafu CONFIG)
 
     # ...
 
 
-You may need to also define either of ``mindquantum_ROOT`` or ``mindquantum_DIR`` CMake variables in order to help CMake
-locate the MindQuantum installation. For the former, simply defining it to ``<prefix>`` should suffice:
+You may need to also define either of ``quafu_ROOT`` or ``quafu_DIR`` CMake variables in order to help CMake
+locate the quafu installation. For the former, simply defining it to ``<prefix>`` should suffice:
 
 .. code-block:: bash
 
-    cmake ... -Dmindquantum_ROOT=/path/to/mindquantum/install
+    cmake ... -Dquafu_ROOT=/path/to/quafu/install
 
-Instead of defining ``mindquantum_ROOT`` you may alternatively define ``mindquantum_DIR``. In this case, the path must
-be to the directory that contains the ``mindquantumConfig.cmake`` file.
+Instead of defining ``quafu_ROOT`` you may alternatively define ``quafu_DIR``. In this case, the path must
+be to the directory that contains the ``quafuConfig.cmake`` file.
 
 .. code-block:: bash
 
-    cmake ... -Dmindquantum_DIR=/path/to/mindquantum/install/share/mindquantum/cmake
+    cmake ... -Dquafu_DIR=/path/to/quafu/install/share/quafu/cmake
 
 .. note::
 
-    You may defined either of ``mindquantum_DEBUG`` or ``MINDQUANTUM_DEBUG`` to a truthful value to have CMake be more
-    verbose when reading the MindQuantum configuration files.
+    You may defined either of ``quafu_DEBUG`` or ``MINDQUANTUM_DEBUG`` to a truthful value to have CMake be more
+    verbose when reading the quafu configuration files.
 
-If you have MindQuantum installed as a Python package, you can also use the module itself to locate where the CMake
+If you have quafu installed as a Python package, you can also use the module itself to locate where the CMake
 installation config file is located. You may use any of the following commands:
 
 .. code-block:: bash
 
-    > python3 -m mindquantum --cmakedir
-    /usr/local/lib/python3.10/site-packages/mindquantum/share/mindquantum/cmake
+    > python3 -m quafu --cmakedir
+    /usr/local/lib/python3.10/site-packages/quafu/share/quafu/cmake
 
-    > mindquantum-config --cmakedir
-    /usr/local/lib/python3.10/site-packages/mindquantum/share/mindquantum/cmake
+    > quafu-config --cmakedir
+    /usr/local/lib/python3.10/site-packages/quafu/share/quafu/cmake
 
 .. note::
 
     Both of the above commands provide the exact same information. The advantage of the latter over the former is that
-    it does not attempt to load the mindquantum package which may be slower to execute in practice.
+    it does not attempt to load the quafu package which may be slower to execute in practice.
 
 In-build "pseudo"-install
 +++++++++++++++++++++++++
 
-If you do not wish to install MindQuantum on your system, you may use the build directory as a *pseudo-installation*
-location. Simply follow the above instructions and simply set either of ``mindquantum_ROOT`` or ``mindquantum_DIR``
+If you do not wish to install quafu on your system, you may use the build directory as a *pseudo-installation*
+location. Simply follow the above instructions and simply set either of ``quafu_ROOT`` or ``quafu_DIR``
 CMake variables to point to your build directory:
 
 .. code-block:: bash
 
-    cmake ... -Dmindquantum_DIR=/path/to/mindquantum/build
+    cmake ... -Dquafu_DIR=/path/to/quafu/build
 
 
 .. _build_wheels:
@@ -274,7 +274,7 @@ CMake variables to point to your build directory:
 Build binary Python wheels (for distribution)
 ---------------------------------------------
 
-If you plan on compiling MindQuantum on your local machine (or some CI) and would like to distribute the code in binary
+If you plan on compiling quafu on your local machine (or some CI) and would like to distribute the code in binary
 form to other users, we woul dsuggest you take a look at the ``build.sh`` script.
 
 The build script mentioned above will perform the following operations in order:
@@ -290,11 +290,11 @@ It has similar options as the scripts described in :ref:`build_locally_for_devs`
 
   Build binary Python wheel for MindQunantum
 
-  This is mainly relevant for developers that want to deploy MindQuantum on machines other
+  This is mainly relevant for developers that want to deploy quafu on machines other
   than their own.
 
-  This script will create a Python virtualenv in the MindQuantum root directory and then build a
-  binary Python wheel of MindQuantum.
+  This script will create a Python virtualenv in the quafu root directory and then build a
+  binary Python wheel of quafu.
 
   Usage:
     build.sh [options] [-- cmake_options]
@@ -304,7 +304,7 @@ It has similar options as the scripts described in :ref:`build_locally_for_devs`
     -n                   Dry run; only print commands but do not execute them
 
     -B,--build=[dir]     Specify build directory
-                         Defaults to: /home/user/mindquantum/build
+                         Defaults to: /home/user/quafu/build
     --ccache             If ccache or sccache are found within the PATH, use them with CMake
     --clean-3rdparty     Clean 3rd party installation directory
     --clean-all          Clean everything before building.
@@ -313,7 +313,7 @@ It has similar options as the scripts described in :ref:`build_locally_for_devs`
     --clean-cache        Re-run CMake with a clean CMake cache
     --clean-venv         Delete Python virtualenv before building
     --config=[dir]       Path to INI configuration file with default values for the parameters
-                         Defaults to: /home/user/mindquantum/build.conf
+                         Defaults to: /home/user/quafu/build.conf
                          NB: command line arguments always take precedence over configuration
                          file values
     --debug              Build in debug mode
@@ -327,7 +327,7 @@ It has similar options as the scripts described in :ref:`build_locally_for_devs`
     --show-libraries     Show all known third-party libraries
     -v, --verbose        Enable verbose output from the Bash scripts
     --venv=[dir]         Path to Python virtual environment
-                         Defaults to: /home/user/mindquantum/venv
+                         Defaults to: /home/user/quafu/venv
     --with-<library>     Build the third-party <library> from source
                          (ignored if --local-pkgs is passed, except for projectq)
     --without-<library>  Do not build the third-party library from source
@@ -372,7 +372,7 @@ Requirements
    :maxdepth: 2
 
 
-In order to get started with MindQuantum, you will need to have a C++ compiler installed on your system as well as a few
+In order to get started with quafu, you will need to have a C++ compiler installed on your system as well as a few
 libraries and programs:
 
     - Python >= 3.5
@@ -543,7 +543,7 @@ Then install the rest of the required libraries/programs and a C++ compiler usin
 Windows
 -------
 
-On Windows, you may compile MindQuantum using any of the following methods:
+On Windows, you may compile quafu using any of the following methods:
 
 - :ref:`msvc` 2019 or more recent
 - :ref:`msys2` using either MSYS2-MSYS or MSYS2-MINGW64
@@ -563,7 +563,7 @@ Visual Studio
 You may either install Visual Studio 2019 or more recent using the installer provided by Microsoft or use the
 `Chocolatey package manager <https://chocolatey.org/>`_. Note that in some cases, the automatic build of the Boost
 libraries during the CMake call might fail. In that case, we would suggest that you compile and install those libraries
-separately and then attempt building MindQuantum again.
+separately and then attempt building quafu again.
 
 In the following, all the commands are to be run from within a PowerShell window. In some cases, you might need to run
 PowerShell as administrator.

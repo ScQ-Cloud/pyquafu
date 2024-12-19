@@ -1,7 +1,7 @@
-mindquantum.core.circuit.qfi
+quafu.core.circuit.qfi
 =============================
 
-.. py:function:: mindquantum.core.circuit.qfi(circuit: Circuit, backend='mqvector')
+.. py:function:: quafu.core.circuit.qfi(circuit: Circuit, backend='quafuvector')
 
     根据给定参数计算参数化量子线路的量子fisher信息。
     量子fisher信息定义如下：
@@ -26,7 +26,7 @@ mindquantum.core.circuit.qfi
 
     参数：
         - **circuit** (Circuit) - 一个给定的参数化量子线路。
-        - **backend** (str) - 一个受支持的量子模拟器后端。请参考 :class:`~.simulator.Simulator` 的描述。默认值： ``'mqvector'``。
+        - **backend** (str) - 一个受支持的量子模拟器后端。请参考 :class:`~.simulator.Simulator` 的描述。默认值： ``'quafuvector'``。
 
     返回：
         Function，一个函数，该函数输入参数化量子线路的值，返回量子fisher信息。

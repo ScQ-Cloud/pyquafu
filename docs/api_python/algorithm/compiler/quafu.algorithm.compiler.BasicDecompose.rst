@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.BasicDecompose
+quafu.algorithm.compiler.BasicDecompose
 =============================================
 
-.. py:class:: mindquantum.algorithm.compiler.BasicDecompose(prefer_u3=False)
+.. py:class:: quafu.algorithm.compiler.BasicDecompose(prefer_u3=False)
 
     将量子线路编译成简单的量子门。
 

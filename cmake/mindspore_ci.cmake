@@ -16,7 +16,7 @@
 #
 # ==============================================================================
 #
-# This file essentially contains some workarounds for building MindQuantum on the MindSpore CI which may have issues
+# This file essentially contains some workarounds for building quafu on the MindSpore CI which may have issues
 # such as:
 #   - old system pybind11 version (2.5.0)
 #
@@ -135,7 +135,7 @@ int main() {
 endif()
 
 if(NOT compile_pybind11_normally_works AND system_prepend_pybind11_include_works)
-  set(_mq_pybind11_prepend_to_link_libraries
+  set(_quafu_pybind11_prepend_to_link_libraries
       pybind11::headers
       CACHE INTERNAL "")
 elseif(NOT compile_pybind11_normally_works)

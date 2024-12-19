@@ -1,7 +1,7 @@
-mindquantum.core.gates.GroupedPauli
+quafu.core.gates.GroupedPauli
 ===================================
 
-.. py:class:: mindquantum.core.gates.GroupedPauli(pauli_string: str)
+.. py:class:: quafu.core.gates.GroupedPauli(pauli_string: str)
 
     多比特泡利串旋转门。
 

@@ -17,7 +17,7 @@
 #define INCLUDE_VECTOR_DETAIL_CPU_VECTOR_ARM_FLOAT_POLICY_HPP
 #include "simulator/vector/detail/cpu_vector_policy.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 struct CPUVectorPolicyArmFloat : public CPUVectorPolicyBase<CPUVectorPolicyArmFloat, float> {};
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 #endif

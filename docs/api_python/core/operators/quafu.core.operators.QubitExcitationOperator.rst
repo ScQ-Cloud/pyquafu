@@ -1,7 +1,7 @@
-mindquantum.core.operators.QubitExcitationOperator
+quafu.core.operators.QubitExcitationOperator
 ===================================================
 
-.. py:class:: mindquantum.core.operators.QubitExcitationOperator(term=None, coefficient=1.0)
+.. py:class:: quafu.core.operators.QubitExcitationOperator(term=None, coefficient=1.0)
 
     量子比特激发算子定义为： :math:`Q^{\dagger}_{n} = \frac{1}{2} (X_{n} - iY_{n})` 和 :math:`Q_{n} = \frac{1}{2} (X_{n} + iY_{n})` 。
     与费米子激发算子相比，量子比特激发算子是某种“局部化”的，即费米子激发算子 :math:`a^{\dagger}_{7} a_{0}` 涉及到JW变换下从0到7的量子比特，

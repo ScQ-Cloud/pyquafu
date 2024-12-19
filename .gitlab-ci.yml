@@ -2,7 +2,6 @@
 # NB: this is mainly shown for illustration purposes and is not actively maintained.
 
 ---
-
 include: .gitlab/hashes.yml
 
 variables:
@@ -43,11 +42,11 @@ variables:
     ./build_locally.sh --cxx --debug-cmake --test --ccache
     --configure-only -c --clean-3rdparty --prefix=$PWD/install
   - ./build_locally.sh --cxx --debug-cmake --test --ccache
-  - ./build_locally.sh --install  # NB: no need to pass the other parameters
+  - ./build_locally.sh --install # NB: no need to pass the other parameters
 
 .cache_paths:
   paths: &cache_paths
-    - build/.mqlibs
+    - build/.quafulibs
     - cache
     - venv
 
@@ -78,7 +77,6 @@ gcc:
     paths: *cache_paths
   script:
     - *default_script_unix
-
 
 clang:
   image: silkeh/clang:${CLANG}

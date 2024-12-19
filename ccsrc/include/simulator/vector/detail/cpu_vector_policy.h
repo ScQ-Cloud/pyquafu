@@ -26,13 +26,13 @@
 #include <vector>
 
 #include "config/openmp.h"
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/sparse/csrhdmatrix.h"
 #include "core/utils.h"
 #include "math/tensor/ops_cpu/utils.h"
 #include "math/tensor/traits.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 struct CPUVectorPolicyAvxFloat;
 struct CPUVectorPolicyAvxDouble;
 
@@ -227,5 +227,5 @@ struct CastTo {
         }
     }
 };
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 #endif

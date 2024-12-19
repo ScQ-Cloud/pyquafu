@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-namespace mindquantum::mapping {
+namespace quafu::mapping {
 using qbit_t = int64_t;
 template <typename T>
 using VT = std::vector<T>;
@@ -125,6 +125,6 @@ class GridQubits : public QubitsTopology {
     int n_row = 0;
     int n_col = 0;
 };
-}  // namespace mindquantum::mapping
+}  // namespace quafu::mapping
 
 #endif

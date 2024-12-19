@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.DAGCircuit
+quafu.algorithm.compiler.DAGCircuit
 =========================================
 
-.. py:class:: mindquantum.algorithm.compiler.DAGCircuit(circuit: Circuit)
+.. py:class:: quafu.algorithm.compiler.DAGCircuit(circuit: Circuit)
 
     量子线路的有向无环图表示（Directed acyclic graph， DAG）。
 

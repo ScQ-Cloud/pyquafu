@@ -25,7 +25,7 @@
 #    include "simulator/vector/detail/cpu_vector_arm_float_policy.h"
 #endif
 #include "simulator/vector/detail/cpu_vector_policy.h"
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 constexpr int ROT_PAULI_FACTOR = 2;
 template <typename derived_, typename calc_type_>
 void CPUVectorPolicyBase<derived_, calc_type_>::ApplyRxx(qs_data_p_t* qs_p, const qbits_t& objs, const qbits_t& ctrls,
@@ -546,4 +546,4 @@ template struct CPUVectorPolicyBase<CPUVectorPolicyAvxDouble, double>;
 template struct CPUVectorPolicyBase<CPUVectorPolicyArmFloat, float>;
 template struct CPUVectorPolicyBase<CPUVectorPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

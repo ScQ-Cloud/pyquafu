@@ -1,7 +1,7 @@
-mindquantum.algorithm.library.amplitude_encoder
+quafu.algorithm.library.amplitude_encoder
 ================================================
 
-.. py:function:: mindquantum.algorithm.library.amplitude_encoder(x, n_qubits)
+.. py:function:: quafu.algorithm.library.amplitude_encoder(x, n_qubits)
 
     用于振幅编码的量子线路。
 

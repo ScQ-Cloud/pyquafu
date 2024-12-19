@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_CONCEPTS_HPP
-#define MQ_CONFIG_CONCEPTS_HPP
+#ifndef QUAFU_CONFIG_CONCEPTS_HPP
+#define QUAFU_CONFIG_CONCEPTS_HPP
 
 #include <concepts>
 #include <tuple>
@@ -23,7 +23,7 @@
 #include "config/config.h"
 #include "config/type_traits.h"
 
-namespace mindquantum::concepts {
+namespace quafu::concepts {
 template <typename T, typename U>
 concept same_decay_as = std::same_as<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
 
@@ -43,6 +43,6 @@ concept complex_number = std::same_as<std::complex<double>, T>;
 
 template <typename T>
 concept number = real_number<std::remove_cvref_t<T>> || complex_number<std::remove_cvref_t<T>>;
-}  // namespace mindquantum::concepts
+}  // namespace quafu::concepts
 
-#endif /* MQ_CONFIG_CONCEPTS_HPP */
+#endif /* QUAFU_CONFIG_CONCEPTS_HPP */

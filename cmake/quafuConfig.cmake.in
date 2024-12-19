@@ -18,14 +18,14 @@
 
 @PACKAGE_INIT@
 
-if(TARGET mindquantum::mqbackend)
+if(TARGET quafu::quafubackend)
   # Protect against double definitions due to previous call or add_subdirectory()
   return()
 endif()
 
 # ==============================================================================
 
-if(@MQ_INSTALL_IN_BUILD_DIR@) # if(MQ_INSTALL_IN_BUILD_DIR)
+if(@QUAFU_INSTALL_IN_BUILD_DIR@) # if(QUAFU_INSTALL_IN_BUILD_DIR)
   list(PREPEND CMAKE_MODULE_PATH "@PROJECT_SOURCE_DIR@/cmake/commands" "@PROJECT_SOURCE_DIR@/cmake/Modules"
        "@PROJECT_SOURCE_DIR@/cmake" "${CMAKE_CURRENT_LIST_DIR}")
 else()
@@ -35,15 +35,15 @@ endif()
 
 include(to_cmake_path)
 include(find_python_module)
-include(mq_config_macros)
+include(quafu_config_macros)
 
 # ---------------------------------------
 
-mq_set(MQ_PACKAGE_PREFIX_DIR "${PACKAGE_PREFIX_DIR}")
+quafu_set(QUAFU_PACKAGE_PREFIX_DIR "${PACKAGE_PREFIX_DIR}")
 
-mq_set(USE_OPENMP "@USE_OPENMP@")
-mq_set(USE_PARALLEL_STL "@USE_PARALLEL_STL@")
-mq_set(PYTHON_EXECUTABLE "@PYTHON_EXECUTABLE@")
+quafu_set(USE_OPENMP "@USE_OPENMP@")
+quafu_set(USE_PARALLEL_STL "@USE_PARALLEL_STL@")
+quafu_set(PYTHON_EXECUTABLE "@PYTHON_EXECUTABLE@")
 
 # ---------------------------------------
 
@@ -55,25 +55,25 @@ include(packages)
 
 # ==============================================================================
 
-include(mindquantumTargetsExternal)
+include(quafuTargetsExternal)
 
-include(mindquantumTargets)
-if(EXISTS mindquantumPythonTargets)
-  include(mindquantumPythonTargets)
+include(quafuTargets)
+if(EXISTS quafuPythonTargets)
+  include(quafuPythonTargets)
 endif()
 
 # ------------------------------------------------------------------------------
 
-check_required_components(mindquantum)
+check_required_components(quafu)
 
 # ==============================================================================
 
-mq_unset_auto()
+quafu_unset_auto()
 
 list(POP_FRONT CMAKE_MODULE_PATH)
 list(POP_FRONT CMAKE_MODULE_PATH)
 list(POP_FRONT CMAKE_MODULE_PATH)
-if(@MQ_INSTALL_IN_BUILD_DIR@) # if(MQ_INSTALL_IN_BUILD_DIR)
+if(@QUAFU_INSTALL_IN_BUILD_DIR@) # if(QUAFU_INSTALL_IN_BUILD_DIR)
   list(POP_FRONT CMAKE_MODULE_PATH)
 endif()
 

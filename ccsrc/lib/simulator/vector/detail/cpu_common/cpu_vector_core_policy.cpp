@@ -22,7 +22,7 @@
 #include "config/details/macros.h"
 #include "config/openmp.h"
 #include "config/type_promotion.h"
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/utils.h"
 #include "math/pr/parameter_resolver.h"
 #include "simulator/utils.h"
@@ -34,7 +34,7 @@
 #    include "simulator/vector/detail/cpu_vector_arm_float_policy.h"
 #endif
 #include "simulator/vector/detail/cpu_vector_policy.h"
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename derived_, typename calc_type_>
 auto CPUVectorPolicyBase<derived_, calc_type_>::InitState(index_t dim, bool zero_state) -> qs_data_p_t {
     if (dim == 0 || dim > (~static_cast<uint64_t>(0))) {
@@ -101,8 +101,7 @@ auto CPUVectorPolicyBase<derived_, calc_type_>::Copy(const qs_data_p_t& qs, inde
     qs_data_p_t out = nullptr;
     if (qs != nullptr) {
         out = derived::InitState(dim, false);
-        THRESHOLD_OMP_FOR(
-            dim, DimTh, for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) { out[i] = qs[i]; })
+        THRESHOLD_OMP_FOR(dim, DimTh, for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) { out[i] = qs[i]; })
     }
     return out;
 };
@@ -111,8 +110,7 @@ template <typename derived_, typename calc_type_>
 auto CPUVectorPolicyBase<derived_, calc_type_>::GetQS(const qs_data_p_t& qs, index_t dim) -> VT<py_qs_data_t> {
     VT<py_qs_data_t> out(dim);
     if (qs != nullptr) {
-        THRESHOLD_OMP_FOR(
-            dim, DimTh, for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) { out[i] = qs[i]; })
+        THRESHOLD_OMP_FOR(dim, DimTh, for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) { out[i] = qs[i]; })
     } else {
         out[0] = 1.0;
     }
@@ -128,14 +126,13 @@ void CPUVectorPolicyBase<derived_, calc_type_>::SetQS(qs_data_p_t* qs_p, const V
     if (qs == nullptr) {
         qs = derived::InitState(dim, false);
     }
-    THRESHOLD_OMP_FOR(
-        dim, DimTh, for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) { qs[i] = qs_out[i]; })
+    THRESHOLD_OMP_FOR(dim, DimTh, for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) { qs[i] = qs_out[i]; })
 }
 
 template <typename derived_, typename calc_type_>
 auto CPUVectorPolicyBase<derived_, calc_type_>::ApplyTerms(qs_data_p_t* qs_p,
-                                                           const std::vector<PauliTerm<calc_type>>& ham, index_t dim)
-    -> qs_data_p_t {
+                                                           const std::vector<PauliTerm<calc_type>>& ham,
+                                                           index_t dim) -> qs_data_p_t {
     auto& qs = (*qs_p);
     if (qs == nullptr) {
         qs = derived::InitState(dim);
@@ -235,7 +232,7 @@ auto CPUVectorPolicyBase<derived_, calc_type_>::ExpectationOfTerms(const qs_data
         calc_type res_real = 0, res_imag = 0;
         // clang-format off
         THRESHOLD_OMP(
-            MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
+            QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
                 for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) {
                     auto j = (i ^ mask_f);
                     if (i <= j) {
@@ -269,18 +266,18 @@ auto CPUVectorPolicyBase<derived_, calc_type>::GroundStateOfZZs(const std::map<i
     calc_type result = std::numeric_limits<calc_type>::max();
     auto dim = static_cast<uint64_t>(1) << n_qubits;
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for reduction(min:result) schedule(static)), dim, DimTh,
-                     for (omp::idx_t i = 0; i < (static_cast<uint64_t>(1) << n_qubits); i++) {
-                         calc_type ith_energy = 0;
-                         for (auto& [mask, coeff] : masks_value) {
-                             if (CountOne(i & mask) & 1) {
-                                 ith_energy -= coeff;
-                             } else {
-                                 ith_energy += coeff;
-                             }
-                         }
-                         result = std::min(result, ith_energy);
-                     });
+        QUAFU_DO_PRAGMA(omp parallel for reduction(min:result) schedule(static)), dim, DimTh,
+                        for (omp::idx_t i = 0; i < (static_cast<uint64_t>(1) << n_qubits); i++) {
+                            calc_type ith_energy = 0;
+                            for (auto& [mask, coeff] : masks_value) {
+                                if (CountOne(i & mask) & 1) {
+                                    ith_energy -= coeff;
+                                } else {
+                                    ith_energy += coeff;
+                                }
+                            }
+                            result = std::min(result, ith_energy);
+                        });
     return result;
 }
 
@@ -341,4 +338,4 @@ template struct CPUVectorPolicyBase<CPUVectorPolicyAvxDouble, double>;
 template struct CPUVectorPolicyBase<CPUVectorPolicyArmFloat, float>;
 template struct CPUVectorPolicyBase<CPUVectorPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

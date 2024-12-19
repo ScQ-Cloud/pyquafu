@@ -1,5 +1,5 @@
 @echo off
-@title mindquantum_build
+@title quafu_build
 
 @rem Copyright 2020 Huawei Technologies Co., Ltd
 @rem
@@ -49,7 +49,7 @@ set _IS_MINDSPORE_CI=0
 goto :CI_DONE
 
 :CI_TRUE
-echo Detected MindSpore/MindQuantum CI
+echo Detected MindSpore/quafu CI
 set _IS_MINDSPORE_CI=1
 
 :CI_DONE
@@ -398,10 +398,10 @@ if NOT !n_jobs! == -1 (
 if "!build_type!" == "Debug" set args=!args! -C--global-option=build -C--global-option=--debug
 
 if !force_local_pkgs! == 1 (
-  set args=!args! -C--global-option=--var -C--global-option=MQ_FORCE_LOCAL_PKGS -C--global-option=all
+  set args=!args! -C--global-option=--var -C--global-option=QUAFU_FORCE_LOCAL_PKGS -C--global-option=all
 ) else (
   if NOT "!local_pkgs!" == "" (
-    set args=!args! -C--global-option=--var -C--global-option=MQ_FORCE_LOCAL_PKGS -C--global-option=!local_pkgs!
+    set args=!args! -C--global-option=--var -C--global-option=QUAFU_FORCE_LOCAL_PKGS -C--global-option=!local_pkgs!
   )
 )
 
@@ -446,29 +446,29 @@ if !has_build_dir! == 1 (
 )
 
 if !delocate_wheel! == 1 (
-  set MQ_DELOCATE_WHEEL=1
-  set MQ_DELOCATE_WHEEL_PLAT=
-  if NOT "!platform_name!" == "" set MQ_DELOCATE_WHEEL_PLAT=!platform_name!
+  set QUAFU_DELOCATE_WHEEL=1
+  set QUAFU_DELOCATE_WHEEL_PLAT=
+  if NOT "!platform_name!" == "" set QUAFU_DELOCATE_WHEEL_PLAT=!platform_name!
 
   if !has_build_dir! == 1 (
     set build_dir_for_env=!build_dir!
   ) else (
     if "!fast_build_dir!" == "" (
-      for /F "delims=" %%i IN ('!PYTHON! -m mindquantum_config --tempdir') DO set build_dir_for_env=%%i
+      for /F "delims=" %%i IN ('!PYTHON! -m quafu_config --tempdir') DO set build_dir_for_env=%%i
     ) else (
       set build_dir_for_env=!fast_build_dir!
     )
   )
 
   if !_IS_MINDSPORE_CI! == 1 (
-    set MQ_LIB_PATHS=!ROOTDIR!\ld_library_paths.txt
+    set QUAFU_LIB_PATHS=!ROOTDIR!\ld_library_paths.txt
   ) else (
-    set MQ_LIB_PATHS=!build_dir_for_env!\ld_library_paths.txt
+    set QUAFU_LIB_PATHS=!build_dir_for_env!\ld_library_paths.txt
   )
-  set MQ_BUILD_DIR=!build_dir_for_env!
+  set QUAFU_BUILD_DIR=!build_dir_for_env!
 
-  echo MQ_LIB_PATHS = !MQ_LIB_PATHS!
-  echo MQ_BUILD_DIR = !MQ_BUILD_DIR!
+  echo QUAFU_LIB_PATHS = !QUAFU_LIB_PATHS!
+  echo QUAFU_BUILD_DIR = !QUAFU_BUILD_DIR!
 )
 
 call %SCRIPTDIR%\dos\call_cmd.bat !PYTHON! -m build !args! !unparsed_args!
@@ -476,10 +476,10 @@ call %SCRIPTDIR%\dos\call_cmd.bat !PYTHON! -m build !args! !unparsed_args!
 if DEFINED args set args=
 if DEFINED unparsed_args set unparsed_args=
 
-if DEFINED MQ_DELOCATE_WHEEL set MQ_DELOCATE_WHEEL=
-if DEFINED MQ_DELOCATE_WHEEL_PLAT set MQ_DELOCATE_WHEEL_PLAT=
-if DEFINED MQ_LIB_PATHS set MQ_LIB_PATHS=
-if DEFINED MQ_BUILD_DIR set MQ_BUILD_DIR=
+if DEFINED QUAFU_DELOCATE_WHEEL set QUAFU_DELOCATE_WHEEL=
+if DEFINED QUAFU_DELOCATE_WHEEL_PLAT set QUAFU_DELOCATE_WHEEL_PLAT=
+if DEFINED QUAFU_LIB_PATHS set QUAFU_LIB_PATHS=
+if DEFINED QUAFU_BUILD_DIR set QUAFU_BUILD_DIR=
 
 rem -----------------------------------------------------------------------------
 rem Move the wheels to the output directory
@@ -490,7 +490,7 @@ IF NOT EXIST "!output_path!" (
 
 call %SCRIPTDIR%\dos\call_cmd.bat move /Y %ROOTDIR%\dist\* %output_path%
 
-echo ------Successfully created mindquantum package------
+echo ------Successfully created quafu package------
 
 goto :END
 
@@ -499,11 +499,11 @@ rem ============================================================================
 :help_message
   echo Build binary Python wheel for MindQunantum
   echo:
-  echo This is mainly relevant for developers that want to deploy MindQuantum
+  echo This is mainly relevant for developers that want to deploy quafu
   echo on machines other than their own.
   echo:
-  echo This script will create a Python virtualenv in the MindQuantum root
-  echo directory and then build a binary Python wheel of MindQuantum.
+  echo This script will create a Python virtualenv in the quafu root
+  echo directory and then build a binary Python wheel of quafu.
   echo:
   echo Usage:
   echo   %PROGRAM% [options]

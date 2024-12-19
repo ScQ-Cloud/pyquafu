@@ -34,7 +34,7 @@
 #include <type_traits>
 #include <vector>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "math/pr/parameter_resolver.h"
 #include "ops/basic_gate.h"
 #include "ops/gates.h"
@@ -42,7 +42,7 @@
 #include "simulator/timer.h"
 #include "simulator/utils.h"
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 template <typename qs_policy_t_>
 struct BLAS;
 
@@ -198,7 +198,7 @@ class DensityMatrixState {
     RndEngine rnd_eng_;
     std::function<double()> rng_;
 };
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail
 
 #include "simulator/densitymatrix/densitymatrix_state.tpp"  // NOLINT
 

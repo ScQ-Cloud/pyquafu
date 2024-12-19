@@ -27,11 +27,11 @@
 #endif
 #include "simulator/densitymatrix/detail/cpu_densitymatrix_policy.h"
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 template <typename derived_, typename calc_type_>
 auto CPUDensityMatrixPolicyBase<derived_, calc_type_>::DiagonalConditionalCollect(const qs_data_p_t& qs, index_t mask,
-                                                                                  index_t condi, index_t dim)
-    -> calc_type {
+                                                                                  index_t condi,
+                                                                                  index_t dim) -> calc_type {
     if (qs == nullptr) {
         if ((0 & mask) == condi) {
             return 1.0;
@@ -42,7 +42,7 @@ auto CPUDensityMatrixPolicyBase<derived_, calc_type_>::DiagonalConditionalCollec
     calc_type res_real = 0;
     // clang-format off
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel
+        QUAFU_DO_PRAGMA(omp parallel
             for schedule(static) reduction(+: res_real)), dim, DimTh,
                      for (omp::idx_t i = 0; i <static_cast<omp::idx_t>(dim); i++) {
                          if ((i & mask) == condi) {
@@ -168,4 +168,4 @@ template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyAvxDouble, doub
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmFloat, float>;
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail

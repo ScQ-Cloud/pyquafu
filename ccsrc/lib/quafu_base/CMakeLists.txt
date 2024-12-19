@@ -19,11 +19,11 @@
 # lint_cmake: -whitespace/indent
 
 target_sources(
-  mq_base PRIVATE ${CMAKE_CURRENT_LIST_DIR}/utils.cc $<$<BOOL:${ENABLE_LOGGING}>:${CMAKE_CURRENT_LIST_DIR}/logging.cpp>
+  quafu_base PRIVATE ${CMAKE_CURRENT_LIST_DIR}/utils.cc $<$<BOOL:${ENABLE_LOGGING}>:${CMAKE_CURRENT_LIST_DIR}/logging.cpp>
                   ${CMAKE_CURRENT_LIST_DIR}/gates/gates.cpp ${CMAKE_CURRENT_LIST_DIR}/libc_compat.cpp)
 
 if(ENABLE_CUDA)
-  target_compile_definitions(mq_base PUBLIC GPUACCELERATED)
+  target_compile_definitions(quafu_base PUBLIC GPUACCELERATED)
 endif()
 
 # ==============================================================================

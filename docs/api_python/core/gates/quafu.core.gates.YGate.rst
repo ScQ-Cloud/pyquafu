@@ -1,7 +1,7 @@
-mindquantum.core.gates.YGate
+quafu.core.gates.YGate
 ===============================
 
-.. py:class:: mindquantum.core.gates.YGate
+.. py:class:: quafu.core.gates.YGate
 
     泡利Y门。矩阵为：
 

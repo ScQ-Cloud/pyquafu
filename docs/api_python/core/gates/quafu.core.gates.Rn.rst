@@ -1,7 +1,7 @@
-mindquantum.core.gates.Rn
+quafu.core.gates.Rn
 ===============================
 
-.. py:class:: mindquantum.core.gates.Rn(alpha: ParameterResolver, beta: ParameterResolver, gamma: ParameterResolver)
+.. py:class:: quafu.core.gates.Rn(alpha: ParameterResolver, beta: ParameterResolver, gamma: ParameterResolver)
 
     Rn 门表示绕布洛赫球中给定轴旋转的量子门。Rn 门的矩阵形式为：
 

@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "simulator/vector/detail/cpu_vector_policy.h"
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 struct CPUVectorPolicyArmDouble : public CPUVectorPolicyBase<CPUVectorPolicyArmDouble, double> {};
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 #endif

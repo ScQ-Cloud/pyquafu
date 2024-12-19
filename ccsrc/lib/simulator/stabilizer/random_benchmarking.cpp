@@ -18,7 +18,7 @@
 #include <random>
 
 #include "simulator/stabilizer/stabilizer.h"
-namespace mindquantum::stabilizer {
+namespace quafu::stabilizer {
 VT<StabilizerTableau> SingleQubitRBCircuit(size_t len, int seed) {
     VT<StabilizerTableau> out{};
     if (len < 2) {
@@ -62,4 +62,4 @@ VT<StabilizerTableau> DoubleQubitsRBCircuit(size_t len, int seed) {
     out.push_back(last_stab);
     return out;
 }
-}  // namespace mindquantum::stabilizer
+}  // namespace quafu::stabilizer

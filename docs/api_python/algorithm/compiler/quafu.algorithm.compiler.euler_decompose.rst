@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.euler_decompose
+quafu.algorithm.compiler.euler_decompose
 ==============================================
 
-.. py:function:: mindquantum.algorithm.compiler.euler_decompose(gate: QuantumGate, basis: str = 'zyz', with_phase: bool = True)
+.. py:function:: quafu.algorithm.compiler.euler_decompose(gate: QuantumGate, basis: str = 'zyz', with_phase: bool = True)
 
     单比特门欧拉分解。
 

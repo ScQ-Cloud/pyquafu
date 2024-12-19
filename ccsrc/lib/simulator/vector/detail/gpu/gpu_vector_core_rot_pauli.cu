@@ -24,7 +24,7 @@
 #include "thrust/functional.h"
 #include "thrust/inner_product.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename derived_, typename calc_type_>
 void GPUVectorPolicyBase<derived_, calc_type_>::ApplyRPS(qs_data_p_t* qs_p, const PauliMask& mask, Index ctrl_mask,
                                                          calc_type val, index_t dim, bool diff) {
@@ -590,4 +590,4 @@ void GPUVectorPolicyBase<derived_, calc_type_>::ApplyGivens(qs_data_p_t* qs_p, c
 template struct GPUVectorPolicyBase<GPUVectorPolicyFloat, float>;
 template struct GPUVectorPolicyBase<GPUVectorPolicyDouble, double>;
 
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

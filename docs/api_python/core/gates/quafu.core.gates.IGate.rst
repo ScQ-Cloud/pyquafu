@@ -1,7 +1,7 @@
-mindquantum.core.gates.IGate
+quafu.core.gates.IGate
 =============================
 
-.. py:class:: mindquantum.core.gates.IGate
+.. py:class:: quafu.core.gates.IGate
 
     Identity门。矩阵为：
 

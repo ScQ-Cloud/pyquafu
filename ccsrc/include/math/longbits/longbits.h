@@ -24,7 +24,7 @@
 #include <vector>
 
 #include <fmt/core.h>
-namespace mindquantum {
+namespace quafu {
 class LongBits {
     using ele_t = uint64_t;
 
@@ -62,17 +62,17 @@ class LongBits {
     size_t n_bits = 1;
     std::vector<ele_t> data = {0};
 };
-}  // namespace mindquantum
+}  // namespace quafu
 
 // -----------------------------------------------------------------------------
 
 template <>
-struct fmt::formatter<mindquantum::LongBits> {
+struct fmt::formatter<quafu::LongBits> {
     constexpr auto parse(format_parse_context& ctx) {  // NOLINT(runtime/references)
         return ctx.begin();
     }
     template <typename FormatContext>
-    auto format(const mindquantum::LongBits& obj, FormatContext& ctx) {  // NOLINT(runtime/references)
+    auto format(const quafu::LongBits& obj, FormatContext& ctx) {  // NOLINT(runtime/references)
         return format_to(ctx.out(), obj.ToString());
     }
 };

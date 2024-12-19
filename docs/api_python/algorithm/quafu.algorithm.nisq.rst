@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq
+quafu.algorithm.nisq
 ===========================
 
-.. py:module:: mindquantum.algorithm.nisq
+.. py:module:: quafu.algorithm.nisq
 
 
 NISQ算法。
@@ -14,7 +14,7 @@ Base Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.nisq.Ansatz
+    quafu.algorithm.nisq.Ansatz
 
 Encoder
 -------------
@@ -24,8 +24,8 @@ Encoder
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.nisq.IQPEncoding
-    mindquantum.algorithm.nisq.QuantumNeuron
+    quafu.algorithm.nisq.IQPEncoding
+    quafu.algorithm.nisq.QuantumNeuron
 
 Ansatz
 -------------
@@ -35,23 +35,23 @@ Ansatz
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.nisq.HardwareEfficientAnsatz
-    mindquantum.algorithm.nisq.Max2SATAnsatz
-    mindquantum.algorithm.nisq.MaxCutAnsatz
-    mindquantum.algorithm.nisq.QubitUCCAnsatz
-    mindquantum.algorithm.nisq.StronglyEntangling
-    mindquantum.algorithm.nisq.UCCAnsatz
+    quafu.algorithm.nisq.HardwareEfficientAnsatz
+    quafu.algorithm.nisq.Max2SATAnsatz
+    quafu.algorithm.nisq.MaxCutAnsatz
+    quafu.algorithm.nisq.QubitUCCAnsatz
+    quafu.algorithm.nisq.StronglyEntangling
+    quafu.algorithm.nisq.UCCAnsatz
 
 .. toctree::
     :hidden:
 
-    nisq/mindquantum.algorithm.nisq.RYLinear
-    nisq/mindquantum.algorithm.nisq.RYFull
-    nisq/mindquantum.algorithm.nisq.RYCascade
-    nisq/mindquantum.algorithm.nisq.RYRZFull
-    nisq/mindquantum.algorithm.nisq.PCHeaXYZ1F
-    nisq/mindquantum.algorithm.nisq.PCHeaXYZ2F
-    nisq/mindquantum.algorithm.nisq.ASWAP
+    nisq/quafu.algorithm.nisq.RYLinear
+    nisq/quafu.algorithm.nisq.RYFull
+    nisq/quafu.algorithm.nisq.RYCascade
+    nisq/quafu.algorithm.nisq.RYRZFull
+    nisq/quafu.algorithm.nisq.PCHeaXYZ1F
+    nisq/quafu.algorithm.nisq.PCHeaXYZ2F
+    nisq/quafu.algorithm.nisq.ASWAP
 
 .. list-table::
     :widths: 20 80
@@ -59,25 +59,25 @@ Ansatz
 
     * - Class
       - Images
-    * - :class:`mindquantum.algorithm.nisq.RYLinear`
+    * - :class:`quafu.algorithm.nisq.RYLinear`
       - .. image:: nisq/ansatz_images/RYLinear.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.RYFull`
+    * - :class:`quafu.algorithm.nisq.RYFull`
       - .. image:: nisq/ansatz_images/RYFull.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.RYCascade`
+    * - :class:`quafu.algorithm.nisq.RYCascade`
       - .. image:: nisq/ansatz_images/RYCascade.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.RYRZFull`
+    * - :class:`quafu.algorithm.nisq.RYRZFull`
       - .. image:: nisq/ansatz_images/RYRZFull.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.PCHeaXYZ1F`
+    * - :class:`quafu.algorithm.nisq.PCHeaXYZ1F`
       - .. image:: nisq/ansatz_images/PCHeaXYZ1F.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.PCHeaXYZ2F`
+    * - :class:`quafu.algorithm.nisq.PCHeaXYZ2F`
       - .. image:: nisq/ansatz_images/PCHeaXYZ2F.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.ASWAP`
+    * - :class:`quafu.algorithm.nisq.ASWAP`
       - .. image:: nisq/ansatz_images/ASWAP.png
             :height: 180px
 
@@ -86,25 +86,25 @@ Ansatz
 .. toctree::
     :hidden:
 
-    nisq/mindquantum.algorithm.nisq.Ansatz1
-    nisq/mindquantum.algorithm.nisq.Ansatz2
-    nisq/mindquantum.algorithm.nisq.Ansatz3
-    nisq/mindquantum.algorithm.nisq.Ansatz4
-    nisq/mindquantum.algorithm.nisq.Ansatz5
-    nisq/mindquantum.algorithm.nisq.Ansatz6
-    nisq/mindquantum.algorithm.nisq.Ansatz7
-    nisq/mindquantum.algorithm.nisq.Ansatz8
-    nisq/mindquantum.algorithm.nisq.Ansatz9
-    nisq/mindquantum.algorithm.nisq.Ansatz10
-    nisq/mindquantum.algorithm.nisq.Ansatz11
-    nisq/mindquantum.algorithm.nisq.Ansatz12
-    nisq/mindquantum.algorithm.nisq.Ansatz13
-    nisq/mindquantum.algorithm.nisq.Ansatz14
-    nisq/mindquantum.algorithm.nisq.Ansatz15
-    nisq/mindquantum.algorithm.nisq.Ansatz16
-    nisq/mindquantum.algorithm.nisq.Ansatz17
-    nisq/mindquantum.algorithm.nisq.Ansatz18
-    nisq/mindquantum.algorithm.nisq.Ansatz19
+    nisq/quafu.algorithm.nisq.Ansatz1
+    nisq/quafu.algorithm.nisq.Ansatz2
+    nisq/quafu.algorithm.nisq.Ansatz3
+    nisq/quafu.algorithm.nisq.Ansatz4
+    nisq/quafu.algorithm.nisq.Ansatz5
+    nisq/quafu.algorithm.nisq.Ansatz6
+    nisq/quafu.algorithm.nisq.Ansatz7
+    nisq/quafu.algorithm.nisq.Ansatz8
+    nisq/quafu.algorithm.nisq.Ansatz9
+    nisq/quafu.algorithm.nisq.Ansatz10
+    nisq/quafu.algorithm.nisq.Ansatz11
+    nisq/quafu.algorithm.nisq.Ansatz12
+    nisq/quafu.algorithm.nisq.Ansatz13
+    nisq/quafu.algorithm.nisq.Ansatz14
+    nisq/quafu.algorithm.nisq.Ansatz15
+    nisq/quafu.algorithm.nisq.Ansatz16
+    nisq/quafu.algorithm.nisq.Ansatz17
+    nisq/quafu.algorithm.nisq.Ansatz18
+    nisq/quafu.algorithm.nisq.Ansatz19
 
 .. list-table::
     :widths: 20 80
@@ -112,61 +112,61 @@ Ansatz
 
     * - Class
       - Images
-    * - :class:`mindquantum.algorithm.nisq.Ansatz1`
+    * - :class:`quafu.algorithm.nisq.Ansatz1`
       - .. image:: nisq/ansatz_images/ansatz1.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz2`
+    * - :class:`quafu.algorithm.nisq.Ansatz2`
       - .. image:: nisq/ansatz_images/ansatz2.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz3`
+    * - :class:`quafu.algorithm.nisq.Ansatz3`
       - .. image:: nisq/ansatz_images/ansatz3.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz4`
+    * - :class:`quafu.algorithm.nisq.Ansatz4`
       - .. image:: nisq/ansatz_images/ansatz4.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz5`
+    * - :class:`quafu.algorithm.nisq.Ansatz5`
       - .. image:: nisq/ansatz_images/ansatz5.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz6`
+    * - :class:`quafu.algorithm.nisq.Ansatz6`
       - .. image:: nisq/ansatz_images/ansatz6.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz7`
+    * - :class:`quafu.algorithm.nisq.Ansatz7`
       - .. image:: nisq/ansatz_images/ansatz7.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz8`
+    * - :class:`quafu.algorithm.nisq.Ansatz8`
       - .. image:: nisq/ansatz_images/ansatz8.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz9`
+    * - :class:`quafu.algorithm.nisq.Ansatz9`
       - .. image:: nisq/ansatz_images/ansatz9.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz10`
+    * - :class:`quafu.algorithm.nisq.Ansatz10`
       - .. image:: nisq/ansatz_images/ansatz10.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz11`
+    * - :class:`quafu.algorithm.nisq.Ansatz11`
       - .. image:: nisq/ansatz_images/ansatz11.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz12`
+    * - :class:`quafu.algorithm.nisq.Ansatz12`
       - .. image:: nisq/ansatz_images/ansatz12.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz13`
+    * - :class:`quafu.algorithm.nisq.Ansatz13`
       - .. image:: nisq/ansatz_images/ansatz13.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz14`
+    * - :class:`quafu.algorithm.nisq.Ansatz14`
       - .. image:: nisq/ansatz_images/ansatz14.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz15`
+    * - :class:`quafu.algorithm.nisq.Ansatz15`
       - .. image:: nisq/ansatz_images/ansatz15.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz16`
+    * - :class:`quafu.algorithm.nisq.Ansatz16`
       - .. image:: nisq/ansatz_images/ansatz16.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz17`
+    * - :class:`quafu.algorithm.nisq.Ansatz17`
       - .. image:: nisq/ansatz_images/ansatz17.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz18`
+    * - :class:`quafu.algorithm.nisq.Ansatz18`
       - .. image:: nisq/ansatz_images/ansatz18.png
             :height: 180px
-    * - :class:`mindquantum.algorithm.nisq.Ansatz19`
+    * - :class:`quafu.algorithm.nisq.Ansatz19`
       - .. image:: nisq/ansatz_images/ansatz19.png
             :height: 180px
 
@@ -178,10 +178,10 @@ Generator
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.nisq.generate_uccsd
-    mindquantum.algorithm.nisq.quccsd_generator
-    mindquantum.algorithm.nisq.uccsd0_singlet_generator
-    mindquantum.algorithm.nisq.uccsd_singlet_generator
+    quafu.algorithm.nisq.generate_uccsd
+    quafu.algorithm.nisq.quccsd_generator
+    quafu.algorithm.nisq.uccsd0_singlet_generator
+    quafu.algorithm.nisq.uccsd_singlet_generator
 
 Functional
 -------------
@@ -191,8 +191,8 @@ Functional
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.nisq.Transform
-    mindquantum.algorithm.nisq.get_qubit_hamiltonian
-    mindquantum.algorithm.nisq.uccsd_singlet_get_packed_amplitudes
-    mindquantum.algorithm.nisq.ansatz_variance
-    mindquantum.algorithm.nisq.get_reference_circuit
+    quafu.algorithm.nisq.Transform
+    quafu.algorithm.nisq.get_qubit_hamiltonian
+    quafu.algorithm.nisq.uccsd_singlet_get_packed_amplitudes
+    quafu.algorithm.nisq.ansatz_variance
+    quafu.algorithm.nisq.get_reference_circuit

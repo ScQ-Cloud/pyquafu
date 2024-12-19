@@ -37,8 +37,8 @@ set(CMAKE_OPTION -DFMT_TEST=OFF -DFMT_DOC=OFF -DFMT_SYSTEM_HEADERS=OFF -DCMAKE_P
 if(MSVC)
   set(fmt_CXXFLAGS "/Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /D_CRT_SECURE_NO_WARNINGS /DWIN32_LEAN_AND_MEAN")
   if(ENABLE_ITERATOR_DEBUG)
-    set(fmt_CFLAGS "/D_ITERATOR_DEBUG_LEVEL=${MQ_ITERATOR_DEBUG}")
-    set(fmt_CXXFLAGS "${fmt_CXXFLAGS} /D_ITERATOR_DEBUG_LEVEL=${MQ_ITERATOR_DEBUG}")
+    set(fmt_CFLAGS "/D_ITERATOR_DEBUG_LEVEL=${QUAFU_ITERATOR_DEBUG}")
+    set(fmt_CXXFLAGS "${fmt_CXXFLAGS} /D_ITERATOR_DEBUG_LEVEL=${QUAFU_ITERATOR_DEBUG}")
   endif()
   list(APPEND CMAKE_OPTION -DCMAKE_DEBUG_POSTFIX=d)
 
@@ -47,24 +47,24 @@ if(MSVC)
   endif()
 endif()
 
-mindquantum_add_pkg(
+quafu_add_pkg(
   fmt
   VER ${VER}
   URL ${REQ_URL}
   MD5 ${MD5}
   CMAKE_PKG_NO_COMPONENTS
   CMAKE_OPTION ${CMAKE_OPTION}
-  TARGET_ALIAS 3 mindquantum::fmt fmt::fmt-header-only fmt::fmt)
+  TARGET_ALIAS 3 quafu::fmt fmt::fmt-header-only fmt::fmt)
 
-get_target_property(_aliased_target mindquantum::fmt ALIASED_TARGET)
+get_target_property(_aliased_target quafu::fmt ALIASED_TARGET)
 if(_aliased_target)
   if("${_aliased_target}" STREQUAL "fmt::fmt")
     set(_fmt_use_header_only
         FALSE
-        CACHE BOOL "Is mindquantum::fmt using fmt::fmt-header-only")
+        CACHE BOOL "Is quafu::fmt using fmt::fmt-header-only")
   else()
     set(_fmt_use_header_only
         TRUE
-        CACHE BOOL "Is mindquantum::fmt using fmt::fmt-header-only")
+        CACHE BOOL "Is quafu::fmt using fmt::fmt-header-only")
   endif()
 endif()

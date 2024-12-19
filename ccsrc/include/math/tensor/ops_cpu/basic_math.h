@@ -22,7 +22,7 @@
 #include <utility>
 
 #include "config/openmp.h"
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/utils.h"
 #include "math/tensor/csr_matrix.h"
 #include "math/tensor/matrix.h"
@@ -592,7 +592,7 @@ Tensor MatMul(void* m1, size_t* indptr, size_t* indices, size_t n_row, size_t n_
     auto c_out = reinterpret_cast<upper_t*>(out.data);
 
     THRESHOLD_OMP_FOR(
-        len, static_cast<uint64_t>(1) << mindquantum::nQubitTh,
+        len, static_cast<uint64_t>(1) << quafu::nQubitTh,
         for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(n_row); i++) {
             upper_t sum = 0.0;
             for (omp::idx_t j = indptr[i]; j < static_cast<omp::idx_t>(indptr[i + 1]); j++) {

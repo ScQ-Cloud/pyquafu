@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.try_merge
+quafu.algorithm.compiler.try_merge
 ========================================
 
-.. py:function:: mindquantum.algorithm.compiler.try_merge(father_node: GateNode, child_node: GateNode)
+.. py:function:: quafu.algorithm.compiler.try_merge(father_node: GateNode, child_node: GateNode)
 
     尝试将两个节点融合起来。
 

@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.QuantumNeuron
+quafu.algorithm.nisq.QuantumNeuron
 =========================================
 
-.. py:class:: mindquantum.algorithm.nisq.QuantumNeuron(weight, gamma=1, bias=0, input_qubits=None, output_qubit=None, ancilla_qubit=None)
+.. py:class:: quafu.algorithm.nisq.QuantumNeuron(weight, gamma=1, bias=0, input_qubits=None, output_qubit=None, ancilla_qubit=None)
 
     基于RUS(Repeat-Until-Success)策略的量子神经元实现，通过量子电路模拟经典神经元行为和激活函数。
 

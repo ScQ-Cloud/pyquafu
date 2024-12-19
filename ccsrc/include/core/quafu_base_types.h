@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-namespace mindquantum {
+namespace quafu {
 #define PRECISION     1e-8
 #define COS1_2(theta) static_cast<T>(cos((theta) / 2))
 #define SIN1_2(theta) static_cast<T>(sin((theta) / 2))
@@ -149,5 +149,5 @@ constexpr const char cPD[] = "PDC";  // phase damping channel
  *
  */
 static constexpr Index nQubitTh = 13;
-}  // namespace mindquantum
+}  // namespace quafu
 #endif  // MINDQUANTUM_BASE_TYPES_HPP_

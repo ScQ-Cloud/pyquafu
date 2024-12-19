@@ -1,16 +1,16 @@
-mindquantum.engine
+quafu.engine
 ==================
 
-.. py:module:: mindquantum.engine
+.. py:module:: quafu.engine
 
 
-MindQuantum引擎模块。
+quafu引擎模块。
 
-.. include:: engine/mindquantum.engine.BasicQubit.rst
+.. include:: engine/quafu.engine.BasicQubit.rst
 
-.. include:: engine/mindquantum.engine.CircuitEngine.rst
+.. include:: engine/quafu.engine.CircuitEngine.rst
 
-.. include:: engine/mindquantum.engine.circuit_generator.rst
+.. include:: engine/quafu.engine.circuit_generator.rst
 
-.. automodule:: mindquantum.engine
+.. automodule:: quafu.engine
     :members:

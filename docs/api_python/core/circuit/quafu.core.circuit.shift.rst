@@ -1,7 +1,7 @@
-mindquantum.core.circuit.shift
+quafu.core.circuit.shift
 ===============================
 
-.. py:function:: mindquantum.core.circuit.shift(circ, inc)
+.. py:function:: quafu.core.circuit.shift(circ, inc)
 
     移动给定线路的量子比特范围。
 

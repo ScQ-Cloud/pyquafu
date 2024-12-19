@@ -18,7 +18,7 @@
 
 # lint_cmake: -whitespace/indent
 
-set(MQ_BASE_HEADERS
+set(QUAFU_BASE_HEADERS
     config/popcnt.h
     config/config.h
     config/libc_compat.h
@@ -27,22 +27,22 @@ set(MQ_BASE_HEADERS
     core/sparse/csrhdmatrix.h
     core/sparse/paulimat.h
     core/sparse/sparse_utils.h
-    core/mq_base_types.h
+    core/quafu_base_types.h
     core/utils.h
     ops/basic_gate.h
     ops/gates.h
     ops/hamiltonian.h
     ops/projector.h)
-target_sources(mq_base PRIVATE $<BUILD_INTERFACE:${MQ_BASE_HEADERS}>)
-target_include_directories(mq_base PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-                                          $<INSTALL_INTERFACE:${MQ_INSTALL_INCLUDEDIR}>)
+target_sources(quafu_base PRIVATE $<BUILD_INTERFACE:${QUAFU_BASE_HEADERS}>)
+target_include_directories(quafu_base PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+                                          $<INSTALL_INTERFACE:${QUAFU_INSTALL_INCLUDEDIR}>)
 
 # ==============================================================================
 
 add_library(include_lib INTERFACE)
 target_include_directories(include_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-                                                 $<INSTALL_INTERFACE:${MQ_INSTALL_INCLUDEDIR}>)
-append_to_property(mq_install_targets GLOBAL include_lib)
+                                                 $<INSTALL_INTERFACE:${QUAFU_INSTALL_INCLUDEDIR}>)
+append_to_property(quafu_install_targets GLOBAL include_lib)
 
 # ------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ install(
     ${CMAKE_CURRENT_LIST_DIR}/simulator
     ${CMAKE_CURRENT_LIST_DIR}/device
     ${CMAKE_CURRENT_LIST_DIR}/math
-  DESTINATION ${MQ_INSTALL_INCLUDEDIR}/
+  DESTINATION ${QUAFU_INSTALL_INCLUDEDIR}/
   PATTERN "CPPLINT.cfg" EXCLUDE)
 
 # =============================================================================

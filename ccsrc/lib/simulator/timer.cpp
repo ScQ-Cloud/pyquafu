@@ -18,7 +18,7 @@
 
 #include <numeric>
 
-namespace mindquantum::timer {
+namespace quafu::timer {
 TimePoint NOW() {
     return std::chrono::steady_clock::now();
 }
@@ -87,4 +87,4 @@ void Timer::Analyze() {
                   << time_unit<TimePair::time_unit_t>::time_unit_v() << std::endl;
     }
 }
-}  // namespace mindquantum::timer
+}  // namespace quafu::timer

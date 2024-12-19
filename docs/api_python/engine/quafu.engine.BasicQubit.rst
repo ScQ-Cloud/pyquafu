@@ -1,4 +1,4 @@
-.. py:class:: mindquantum.engine.BasicQubit(qubit_id, circuit=None)
+.. py:class:: quafu.engine.BasicQubit(qubit_id, circuit=None)
 
     量子比特。
 

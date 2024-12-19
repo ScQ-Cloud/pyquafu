@@ -50,30 +50,30 @@ int main() {
 ]]
     compiler_${lang}20_memory_works)
 
-  set(_MQ_MEMORY_${LANG}20_WORKS FALSE)
+  set(_QUAFU_MEMORY_${LANG}20_WORKS FALSE)
   if(compiler_${lang}20_memory_works)
-    set(_MQ_MEMORY_${LANG}20_WORKS TRUE)
+    set(_QUAFU_MEMORY_${LANG}20_WORKS TRUE)
   endif()
 
-  set(_MQ_MEMORY_${LANG}20_WORKS
-      ${_MQ_MEMORY_${LANG}20_WORKS}
+  set(_QUAFU_MEMORY_${LANG}20_WORKS
+      ${_QUAFU_MEMORY_${LANG}20_WORKS}
       PARENT_SCOPE)
 
-  set(_MQ_MEMORY_${LANG}20_WORKS
-      ${_MQ_MEMORY_${LANG}20_WORKS}
+  set(_QUAFU_MEMORY_${LANG}20_WORKS
+      ${_QUAFU_MEMORY_${LANG}20_WORKS}
       CACHE INTERNAL compiler_${lang}20_memory_works)
 endfunction()
 
 __test_lang20_memory(CXX)
 
-if(NOT _MQ_MEMORY_CXX20_WORKS)
+if(NOT _QUAFU_MEMORY_CXX20_WORKS)
   set(CMAKE_CXX_STANDARD 17)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
 if(_cuda_enabled)
   __test_lang20_memory(CUDA)
-  if(NOT _MQ_MEMORY_CUDA20_WORKS)
+  if(NOT _QUAFU_MEMORY_CUDA20_WORKS)
     set(CMAKE_CUDA_STANDARD 17)
     set(CMAKE_CUDA_STANDARD_REQUIRED ON)
   endif()
@@ -103,13 +103,13 @@ function(check_code_compiles cmake_identifier var lang_standard code)
     string(TOUPPER "${_lang}" LANG)
     string(TOLOWER "${_lang}" lang)
     set(cmake_identifier "${lang}_${_cmake_identifier}")
-    set(var "MQ_${LANG}_${_var}")
+    set(var "QUAFU_${LANG}_${_var}")
 
     if(lang_standard MATCHES "std_([0-9]+)")
       set(CMAKE_${LANG}_STANDARD ${CMAKE_MATCH_1})
     endif()
 
-    if(CMAKE_${LANG}_STANDARD EQUAL 20 AND NOT _MQ_MEMORY_${LANG}20_WORKS)
+    if(CMAKE_${LANG}_STANDARD EQUAL 20 AND NOT _QUAFU_MEMORY_${LANG}20_WORKS)
       set(CMAKE_${LANG}_STANDARD 17)
     endif()
 
@@ -353,9 +353,9 @@ int main() {
 ]]
     CXX)
 elseif(cxx_compiler_has_concepts) # C++20 concepts + concepts library
-  set(MQ_CXX_HAS_CONCEPT_DESTRUCTIBLE TRUE)
+  set(QUAFU_CXX_HAS_CONCEPT_DESTRUCTIBLE TRUE)
 else()
-  set(MQ_CXX_HAS_CONCEPT_DESTRUCTIBLE FALSE)
+  set(QUAFU_CXX_HAS_CONCEPT_DESTRUCTIBLE FALSE)
 endif()
 
 # --------------------------------------
@@ -393,8 +393,8 @@ int main() {
 }
 ]])
 else()
-  set(MQ_CXX_SUPPORTS_EXT_DEPENDENT_CONCEPTS FALSE)
-  set(MQ_CUDA_SUPPORTS_EXT_DEPENDENT_CONCEPTS FALSE)
+  set(QUAFU_CXX_SUPPORTS_EXT_DEPENDENT_CONCEPTS FALSE)
+  set(QUAFU_CUDA_SUPPORTS_EXT_DEPENDENT_CONCEPTS FALSE)
 endif()
 
 # --------------------------------------
@@ -559,21 +559,21 @@ int main() {
 
 # NB: second condition is workardoung for Clang < 9.0
 if(cxx_std_20 IN_LIST CMAKE_CXX_COMPILE_FEATURES AND CMAKE_CXX_STANDARD EQUAL 20)
-  target_compile_features(CXX_mindquantum INTERFACE cxx_std_20)
+  target_compile_features(CXX_quafu INTERFACE cxx_std_20)
 else()
-  target_compile_features(CXX_mindquantum INTERFACE cxx_std_17)
+  target_compile_features(CXX_quafu INTERFACE cxx_std_17)
 endif()
-set_target_properties(CXX_mindquantum PROPERTIES CXX_STANDARD_REQUIRED ON)
+set_target_properties(CXX_quafu PROPERTIES CXX_STANDARD_REQUIRED ON)
 
 if(ENABLE_CUDA)
   if(cuda_std_20 IN_LIST CMAKE_CUDA_COMPILE_FEATURES)
-    target_compile_features(CUDA_mindquantum INTERFACE cuda_std_20)
+    target_compile_features(CUDA_quafu INTERFACE cuda_std_20)
   elseif(cuda_std_17 IN_LIST CMAKE_CUDA_COMPILE_FEATURES)
-    target_compile_features(CUDA_mindquantum INTERFACE cuda_std_17)
+    target_compile_features(CUDA_quafu INTERFACE cuda_std_17)
   else()
-    target_compile_features(CUDA_mindquantum INTERFACE cuda_std_14)
+    target_compile_features(CUDA_quafu INTERFACE cuda_std_14)
   endif()
-  set_target_properties(CUDA_mindquantum PROPERTIES CUDA_STANDARD_REQUIRED ON)
+  set_target_properties(CUDA_quafu PROPERTIES CUDA_STANDARD_REQUIRED ON)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -587,18 +587,18 @@ set(_configured_headers)
 foreach(_lang ${_lang_list})
   set(LANG ${_lang})
   string(TOLOWER "${_lang}" lang)
-  set(MQ_DEFINE_MACRO "#cmakedefine01")
+  set(QUAFU_DEFINE_MACRO "#cmakedefine01")
   configure_file(${CMAKE_CURRENT_LIST_DIR}/lang20_config.h.in.in ${PROJECT_BINARY_DIR}/${lang}20_config.h.in @ONLY)
   configure_file(${PROJECT_BINARY_DIR}/${lang}20_config.h.in ${PROJECT_BINARY_DIR}/config/${lang}20_config.h)
   list(APPEND _configured_headers "${PROJECT_BINARY_DIR}/config/${lang}20_config.h")
 
   add_library(${lang}20_compat INTERFACE)
   target_include_directories(${lang}20_compat INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>)
-  append_to_property(mq_install_targets GLOBAL ${lang}20_compat)
+  append_to_property(quafu_install_targets GLOBAL ${lang}20_compat)
 endforeach()
 
 # ------------------------------------------------------------------------------
 
-install(FILES ${_configured_headers} DESTINATION ${MQ_INSTALL_INCLUDEDIR}/config)
+install(FILES ${_configured_headers} DESTINATION ${QUAFU_INSTALL_INCLUDEDIR}/config)
 
 # ==============================================================================

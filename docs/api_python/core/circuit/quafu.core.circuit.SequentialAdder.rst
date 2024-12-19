@@ -1,7 +1,7 @@
-mindquantum.core.circuit.SequentialAdder
+quafu.core.circuit.SequentialAdder
 ========================================
 
-.. py:class:: mindquantum.core.circuit.SequentialAdder(adders: typing.List[ChannelAdderBase])
+.. py:class:: quafu.core.circuit.SequentialAdder(adders: typing.List[ChannelAdderBase])
 
     依次执行每一个添加器。
 

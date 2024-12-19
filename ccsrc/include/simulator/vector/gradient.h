@@ -23,11 +23,11 @@
 #include <utility>
 #include <vector>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "math/pr/parameter_resolver.h"
 #include "math/tensor/matrix.h"
 
-namespace mindquantum {
+namespace quafu {
 /*
  * ! A example policy.
  *
@@ -298,5 +298,5 @@ class GradientHelper {
         }
     }
 };
-}  // namespace mindquantum
+}  // namespace quafu
 #endif

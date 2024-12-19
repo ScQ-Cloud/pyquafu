@@ -1,4 +1,4 @@
-.. py:function:: mindquantum.engine.circuit_generator(n_qubits, *args, **kwds)
+.. py:function:: quafu.engine.circuit_generator(n_qubits, *args, **kwds)
 
     生成projectq格式的量子线路。
 

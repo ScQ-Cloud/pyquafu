@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CATCH2_CATCH2_FMT_FORMATTER_HPP
-#define MQ_CATCH2_CATCH2_FMT_FORMATTER_HPP
+#ifndef QUAFU_CATCH2_CATCH2_FMT_FORMATTER_HPP
+#define QUAFU_CATCH2_CATCH2_FMT_FORMATTER_HPP
 
 #include <string>
 
 #include <fmt/format.h>
 
-namespace mindquantum::details {
+namespace quafu::details {
 template <typename type_t>
 struct FmtStringMakerBase {
     static std::string convert(const type_t& type) {
         return fmt::format("{}", type);
     }
 };
-}  // namespace mindquantum::details
+}  // namespace quafu::details
 
-#endif /* MQ_CATCH2_CATCH2_FMT_FORMATTER_HPP */
+#endif /* QUAFU_CATCH2_CATCH2_FMT_FORMATTER_HPP */

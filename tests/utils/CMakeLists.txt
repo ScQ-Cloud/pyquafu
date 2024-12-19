@@ -18,14 +18,14 @@
 
 # lint_cmake: -whitespace/indent
 
-add_library(mindquantum_catch2_main STATIC ${CMAKE_CURRENT_LIST_DIR}/catch2_main.cpp)
-target_link_libraries(mindquantum_catch2_main PUBLIC Catch2::Catch2 include_lib
-                                                     $<$<BOOL:${ENABLE_LOGGING}>:mindquantum::spdlog>)
-target_compile_definitions(mindquantum_catch2_main PUBLIC "$<$<BOOL:${ENABLE_LOGGING}>:ENABLE_LOGGING>")
+add_library(quafu_catch2_main STATIC ${CMAKE_CURRENT_LIST_DIR}/catch2_main.cpp)
+target_link_libraries(quafu_catch2_main PUBLIC Catch2::Catch2 include_lib
+                                                     $<$<BOOL:${ENABLE_LOGGING}>:quafu::spdlog>)
+target_compile_definitions(quafu_catch2_main PUBLIC "$<$<BOOL:${ENABLE_LOGGING}>:ENABLE_LOGGING>")
 
 # ==============================================================================
 
-add_library(mindquantum_catch2_utils INTERFACE)
-target_include_directories(mindquantum_catch2_utils INTERFACE ${CMAKE_CURRENT_LIST_DIR})
+add_library(quafu_catch2_utils INTERFACE)
+target_include_directories(quafu_catch2_utils INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 
 # ==============================================================================

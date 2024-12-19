@@ -1,7 +1,7 @@
-mindquantum.framework.MQN2AnsatzOnlyOps
+quafu.framework.QUAFUN2AnsatzOnlyOps
 =======================================
 
-.. py:class:: mindquantum.framework.MQN2AnsatzOnlyOps(expectation_with_grad)
+.. py:class:: quafu.framework.QUAFUN2AnsatzOnlyOps(expectation_with_grad)
 
     仅包含ansatz线路的量子线路演化算子，算子返回在参数化量子线路（PQC）演化出的量子态上哈密顿量期望值绝对值的平方。此算子只能在 `PYNATIVE_MODE` 下执行。
 

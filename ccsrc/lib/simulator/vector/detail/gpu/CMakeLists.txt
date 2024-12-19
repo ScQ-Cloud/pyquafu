@@ -19,7 +19,7 @@
 # lint_cmake: -whitespace/indent
 
 target_sources(
-  mqsim_vector_gpu
+  quafusim_vector_gpu
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/gpu_vector_core_x_like.cu
           ${CMAKE_CURRENT_LIST_DIR}/gpu_vector_core_condition.cu
           ${CMAKE_CURRENT_LIST_DIR}/gpu_vector_core_dot_like.cu

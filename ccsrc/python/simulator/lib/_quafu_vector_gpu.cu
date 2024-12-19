@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-#define _mq_vector _mq_vector_gpu
+#define _quafu_vector _quafu_vector_gpu
 
-#include "_mq_vector.cpp"  // NOLINT
+#include "_quafu_vector.cpp"  // NOLINT

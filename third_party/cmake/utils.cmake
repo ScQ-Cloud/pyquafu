@@ -64,10 +64,10 @@ file(WRITE "${_local_libs_path_file}" "")
 # ------------------------------------------------------------------------------
 # Allow the user to specify some packages to always built from source locally
 
-if(MQ_FORCE_LOCAL_PKGS)
-  string(TOLOWER ${MQ_FORCE_LOCAL_PKGS} _val)
+if(QUAFU_FORCE_LOCAL_PKGS)
+  string(TOLOWER ${QUAFU_FORCE_LOCAL_PKGS} _val)
   if("${_val}" STREQUAL "all")
-    set(MQ_FORCE_LOCAL_PKGS ON)
+    set(QUAFU_FORCE_LOCAL_PKGS ON)
   elseif(
     NOT
     ("${_val}" STREQUAL "on"
@@ -76,42 +76,42 @@ if(MQ_FORCE_LOCAL_PKGS)
      OR "${_val}" STREQUAL "off"
      OR "${_val}" STREQUAL "false"
      OR "${_val}" STREQUAL "0"))
-    string(REPLACE "," ";" MQ_FORCE_LOCAL_PKGS ${MQ_FORCE_LOCAL_PKGS})
-    foreach(_name ${MQ_FORCE_LOCAL_PKGS})
+    string(REPLACE "," ";" QUAFU_FORCE_LOCAL_PKGS ${QUAFU_FORCE_LOCAL_PKGS})
+    foreach(_name ${QUAFU_FORCE_LOCAL_PKGS})
       string(TOUPPER ${_name} _name)
-      set(MQ_${_name}_FORCE_LOCAL ON)
-      message(STATUS "MQ_${_name}_FORCE_LOCAL = ${MQ_${_name}_FORCE_LOCAL}")
+      set(QUAFU_${_name}_FORCE_LOCAL ON)
+      message(STATUS "QUAFU_${_name}_FORCE_LOCAL = ${QUAFU_${_name}_FORCE_LOCAL}")
     endforeach()
-    set(MQ_FORCE_LOCAL_PKGS "")
+    set(QUAFU_FORCE_LOCAL_PKGS "")
   endif()
 endif()
 
 # ------------------------------------------------------------------------------
 # Local prefix path for installing packages from source if we cannot find any suitable versions on the system
 
-if(DEFINED ENV{MQLIBS_CACHE_PATH})
-  debug_print(STATUS "Using cache path from MQLIBS_CACHE_PATH environment variable")
-  set(_mq_local_prefix "$ENV{MQLIBS_CACHE_PATH}")
+if(DEFINED ENV{QUAFULIBS_CACHE_PATH})
+  debug_print(STATUS "Using cache path from QUAFULIBS_CACHE_PATH environment variable")
+  set(_quafu_local_prefix "$ENV{QUAFULIBS_CACHE_PATH}")
 elseif(DEFINED ENV{MSLIBS_CACHE_PATH})
   debug_print(STATUS "Using cache path from MSLIBS_CACHE_PATH environment variable")
-  set(_mq_local_prefix "$ENV{MSLIBS_CACHE_PATH}") # compatibility with MindSpore CI
-elseif(DEFINED ENV{MQLIBS_LOCAL_PREFIX_PATH})
-  debug_print(STATUS "Using cache path from MQLIBS_LOCAL_PREFIX_PATH environment variable")
-  set(_mq_local_prefix "$ENV{MQLIBS_LOCAL_PREFIX_PATH}")
+  set(_quafu_local_prefix "$ENV{MSLIBS_CACHE_PATH}") # compatibility with MindSpore CI
+elseif(DEFINED ENV{QUAFULIBS_LOCAL_PREFIX_PATH})
+  debug_print(STATUS "Using cache path from QUAFULIBS_LOCAL_PREFIX_PATH environment variable")
+  set(_quafu_local_prefix "$ENV{QUAFULIBS_LOCAL_PREFIX_PATH}")
 elseif(DEFINED ENV{MSLIBS_LOCAL_PREFIX_PATH})
   debug_print(STATUS "Using cache path from MSLIBS_LOCAL_PREFIX_PATH environment variable")
-  set(_mq_local_prefix "$ENV{MSLIBS_LOCAL_PREFIX_PATH}") # compatibility with MindSpore CI
+  set(_quafu_local_prefix "$ENV{MSLIBS_LOCAL_PREFIX_PATH}") # compatibility with MindSpore CI
 else()
   debug_print(STATUS "Using default cache path")
-  set(_mq_local_prefix ${PROJECT_BINARY_DIR}/.mqlibs)
+  set(_quafu_local_prefix ${PROJECT_BINARY_DIR}/.quafulibs)
 endif()
-message(STATUS "MQ local prefix:  ${_mq_local_prefix}")
+message(STATUS "QUAFU local prefix:  ${_quafu_local_prefix}")
 
-if(NOT EXISTS ${_mq_local_prefix})
-  file(MAKE_DIRECTORY ${_mq_local_prefix})
+if(NOT EXISTS ${_quafu_local_prefix})
+  file(MAKE_DIRECTORY ${_quafu_local_prefix})
 endif()
 
-string(FIND ${_mq_local_prefix} " " _whitespace)
+string(FIND ${_quafu_local_prefix} " " _whitespace)
 if(NOT _whitespace EQUAL -1)
   message(
     WARNING
@@ -125,11 +125,11 @@ endif()
 # If desired (e.g. like on CIs), a local server can be used to download the source of packages that need to be built
 # locally.
 
-debug_print(STATUS "ENV{MQLIBS_SERVER} = $ENV{MQLIBS_SERVER}")
+debug_print(STATUS "ENV{QUAFULIBS_SERVER} = $ENV{QUAFULIBS_SERVER}")
 debug_print(STATUS "ENV{MSLIBS_SERVER} = $ENV{MSLIBS_SERVER}")
 
-if(DEFINED ENV{MQLIBS_SERVER} AND NOT ENABLE_GITEE)
-  set(_local_server "$ENV{MQLIBS_SERVER}")
+if(DEFINED ENV{QUAFULIBS_SERVER} AND NOT ENABLE_GITEE)
+  set(_local_server "$ENV{QUAFULIBS_SERVER}")
 elseif(DEFINED ENV{MSLIBS_SERVER} AND NOT ENABLE_GITEE)
   set(_local_server "$ENV{MSLIBS_SERVER}")
 elseif(LOCAL_LIBS_SERVER)
@@ -271,8 +271,8 @@ endfunction()
 function(__check_patches pkg_patches)
   # check patches
   if(pkg_patches)
-    file(TOUCH ${_mq_local_prefix}/${pkg_name}_patch.md5)
-    file(READ ${_mq_local_prefix}/${pkg_name}_patch.md5 ${pkg_name}_PATCHES_MD5)
+    file(TOUCH ${_quafu_local_prefix}/${pkg_name}_patch.md5)
+    file(READ ${_quafu_local_prefix}/${pkg_name}_patch.md5 ${pkg_name}_PATCHES_MD5)
 
     message(STATUS "patches MD5:${${pkg_name}_PATCHES_MD5}")
 
@@ -284,8 +284,8 @@ function(__check_patches pkg_patches)
 
     if(NOT "${${pkg_name}_PATCHES_MD5}" STREQUAL "${${pkg_name}_PATCHES_NEW_MD5}")
       set(${pkg_name}_PATCHES ${pkg_patches})
-      file(REMOVE_RECURSE "${_mq_local_prefix}/${pkg_name}-subbuild")
-      file(WRITE ${_mq_local_prefix}/${pkg_name}_patch.md5 ${${pkg_name}_PATCHES_NEW_MD5})
+      file(REMOVE_RECURSE "${_quafu_local_prefix}/${pkg_name}-subbuild")
+      file(WRITE ${_quafu_local_prefix}/${pkg_name}_patch.md5 ${${pkg_name}_PATCHES_NEW_MD5})
       message(STATUS "patches changed : ${${pkg_name}_PATCHES_NEW_MD5}")
     endif()
   endif()
@@ -992,9 +992,9 @@ endfunction()
 #
 # __setup_install_target(<pkg_name>)
 #
-# This function appends some pre-formatted strings to the mq_external_find_packages global CMake property.
+# This function appends some pre-formatted strings to the quafu_external_find_packages global CMake property.
 #
-# Those strings may contain references to MQ_3RDPARTY_PREFIX_PATH in the form of @MQ_3RDPARTY_PREFIX_PATH@ references
+# Those strings may contain references to QUAFU_3RDPARTY_PREFIX_PATH in the form of @QUAFU_3RDPARTY_PREFIX_PATH@ references
 # that must be substituted by calling string(CONFIGURE) at a later time.
 #
 # This function also saves the strings content into the CMake cache at _<pkg_name>_find_pkg_str.
@@ -1017,16 +1017,16 @@ function(__setup_install_target pkg_name)
       list(APPEND _find_pkg_str "# ${pkg_name} (local)")
       set(_args_patched)
       foreach(_value ${_find_pkg_args})
-        if(_value MATCHES "^${_mq_local_prefix}/(.*)")
-          cmake_path(RELATIVE_PATH _value BASE_DIRECTORY "${_mq_local_prefix}")
-          list(APPEND _args_patched "\"@MQ_3RDPARTY_PREFIX_PATH@/${_value}\"")
+        if(_value MATCHES "^${_quafu_local_prefix}/(.*)")
+          cmake_path(RELATIVE_PATH _value BASE_DIRECTORY "${_quafu_local_prefix}")
+          list(APPEND _args_patched "\"@QUAFU_3RDPARTY_PREFIX_PATH@/${_value}\"")
         else()
           list(APPEND _args_patched "${_value}")
         endif()
       endforeach()
       set(_find_pkg_args ${_args_patched})
       # NB: to filter static libraries, use  (... REGEX [[.*\.(a|lib)$]] EXCLUDE) below
-      install(DIRECTORY ${${pkg_name}_BASE_DIR} DESTINATION ${MQ_INSTALL_3RDPARTYDIR})
+      install(DIRECTORY ${${pkg_name}_BASE_DIR} DESTINATION ${QUAFU_INSTALL_3RDPARTYDIR})
     endif()
     set(_tmp)
     string(REPLACE ";" ";             " _tmp "${_find_pkg_args}")
@@ -1035,7 +1035,7 @@ function(__setup_install_target pkg_name)
     store_in_cache(_${pkg_name}_find_pkg_str "${_find_pkg_str}")
   endif()
 
-  append_to_property(mq_external_packages GLOBAL ${pkg_name})
+  append_to_property(quafu_external_packages GLOBAL ${pkg_name})
 endfunction()
 
 # ==============================================================================
@@ -1044,7 +1044,7 @@ endfunction()
 # ~~~
 # Add an external dependency
 #
-# mindquantum_add_pkg(<pkg_name>
+# quafu_add_pkg(<pkg_name>
 #                     # Mandatory options
 #                     [VER <version-num>]
 #                     [MD5 <archive-md5>]
@@ -1067,15 +1067,15 @@ endfunction()
 #                     <other-options>)
 #
 # The purpose of this function is to manage the download, configuration and build of third-party libraries while
-# executing the CMake configure step for MindQuantum. This function will always attempt to locate the third-party
+# executing the CMake configure step for quafu. This function will always attempt to locate the third-party
 # library on the system (unless otherwise specified) before downloading and compiling the third-party locally. If
 # compiled locally, the third-party will be installed within the local installation prefix.
 #
-# The actual location of the installation prefix defaults to `.mqlibs` inside the build directory, but may be influenced
+# The actual location of the installation prefix defaults to `.quafulibs` inside the build directory, but may be influenced
 # by specifying one of the following environment variables:
-#   - `MQLIBS_CACHE_PATH`
+#   - `QUAFULIBS_CACHE_PATH`
 #   - `MSLIBS_CACHE_PATH`
-#   - `MQLIBS_LOCAL_PREFIX_PATH`
+#   - `QUAFULIBS_LOCAL_PREFIX_PATH`
 #   - `MSLIBS_LOCAL_PREFIX_PATH`
 #
 # The minimum amount of arguments you need to specify are either:
@@ -1116,7 +1116,7 @@ endfunction()
 # checksum has not changed. If you change a patch the patch application might fail and you will get a CMake error
 # message that will let you know how to solve that issue.
 #
-# The <SKIP_IN_INSTALL_CONFIG> option can be used to prevent certain alias targets of being defined inside MindQuantum's
+# The <SKIP_IN_INSTALL_CONFIG> option can be used to prevent certain alias targets of being defined inside quafu's
 # installation configuration file.
 #
 # <SYSTEM_EXTRA_DEFINES> can be used to set some additional COMPILE_DEFINITIONS in the case the specified target is
@@ -1124,7 +1124,7 @@ endfunction()
 #
 # ========== CMake projects ==========
 #
-# mindquantum_add_pkg(...
+# quafu_add_pkg(...
 #                     [BUILD_USING_CMAKE, USE_STATIC_LIBS]
 #                     [CMAKE_OPTION <cmake_option> [... <cmake_option>]]
 #                     [CMAKE_PATH <path-to-cmakefiles-txt>])
@@ -1155,7 +1155,7 @@ endfunction()
 #
 # ======== Non-CMake projects ========
 #
-# mindquantum_add_pkg(...
+# quafu_add_pkg(...
 #                     ONLY_COPY_DIRS <directory> [... <directory>])
 #
 # In this mode, the function will only unpack the third-party source code and then attempt to copy some directories
@@ -1166,7 +1166,7 @@ endfunction()
 # always be generated.
 #
 #
-# mindquantum_add_pkg(...
+# quafu_add_pkg(...
 #                     ONLY_MAKE
 #                     [GEN_CMAKE_CONFIG]
 #                     [ONLY_MAKE_INCS <directory> [... <directory>]]
@@ -1178,10 +1178,10 @@ endfunction()
 # under `<prefix>/include` and `<prefix>/lib` respectively. The paths are taken relative to the source directory.
 #
 # By specifying <GEN_CMAKE_CONFIG>, you are instructing the function to generate some pseudo CMake installation
-# configuration files (like mindquantumConfig.cmake, mindquantumConfigVersion.cmake, etc.). Use this for third-party
+# configuration files (like quafuConfig.cmake, quafuConfigVersion.cmake, etc.). Use this for third-party
 # libraries that do not use CMake for building.
 #
-# mindquantum_add_pkg(...
+# quafu_add_pkg(...
 #                     [GEN_CMAKE_CONFIG, SKIP_BUILD_STEP, SKIP_INSTALL_STEP]
 #                     [PRE_CONFIGURE_COMMAND <command> [... <args>]]
 #                     [CONFIGURE_COMMAND  <command> [... <args>]]
@@ -1214,14 +1214,14 @@ endfunction()
 # installation prefix under `<prefix>/include` and `<prefix>/lib` respectively.
 #
 # By specifying <GEN_CMAKE_CONFIG>, you are instructing the function to generate some pseudo CMake installation
-# configuration files (like mindquantumConfig.cmake, mindquantumConfigVersion.cmake, etc.). Use this for third-party
+# configuration files (like quafuConfig.cmake, quafuConfigVersion.cmake, etc.). Use this for third-party
 # libraries that do not use CMake for building.
 #
 # ========== Advanced topic ==========
 #
 # This function is also able to use a local server to download the third-party library archives. Note that this is also
 # valid for the cases where <GIT_REPOSITORY> is specified. In order to use this functionality, either specify
-#   - `MQLIBS_SERVER` environment variable (only if `ENABLE_GITEE=OFF`)
+#   - `QUAFULIBS_SERVER` environment variable (only if `ENABLE_GITEE=OFF`)
 #   - `MSLIBS_SERVER` environment variable (only if `ENABLE_GITEE=OFF`)
 #   - `LOCAL_LIBS_SERVER` CMake variable
 #
@@ -1238,7 +1238,7 @@ endfunction()
 # that the function may check the downloaded archive MD5 checksum.
 #
 # ~~~
-function(mindquantum_add_pkg pkg_name)
+function(quafu_add_pkg pkg_name)
   # cmake-lint: disable=R0912,R0915,C0103,E1126
   set(options
       BUILD_USING_CMAKE
@@ -1356,10 +1356,10 @@ Cannot specify either of <INSTALL_INCS> or <INSTALL_LIBS> with either of <INSTAL
         # If the third-party has a Git repository, then simply run git stash --all within the repository
 
         message(STATUS "Old config hash does not match new config hash")
-        set(_directories_to_clean "${${pkg_name}_BASE_DIR}" "${_mq_local_prefix}/../_deps/${pkg_name}-src")
+        set(_directories_to_clean "${${pkg_name}_BASE_DIR}" "${_quafu_local_prefix}/../_deps/${pkg_name}-src")
         if(NOT PKG_GIT_REPOSITORY)
-          list(APPEND _directories_to_clean "${_mq_local_prefix}/../_deps/${pkg_name}-subbuild"
-               "${_mq_local_prefix}/../_deps/${pkg_name}-build")
+          list(APPEND _directories_to_clean "${_quafu_local_prefix}/../_deps/${pkg_name}-subbuild"
+               "${_quafu_local_prefix}/../_deps/${pkg_name}-build")
         endif()
         foreach(_dir ${_directories_to_clean})
           if(NOT "${_dir}" STREQUAL "")
@@ -1396,7 +1396,7 @@ Cannot specify either of <INSTALL_INCS> or <INSTALL_LIBS> with either of <INSTAL
 
     if(${pkg_name}_FOUND)
       if(CLEAN_3RDPARTY_INSTALL_DIR)
-        file(GLOB _installations ${_mq_local_prefix}/${pkg_name}_${PKG_VER}_*)
+        file(GLOB _installations ${_quafu_local_prefix}/${pkg_name}_${PKG_VER}_*)
         message(STATUS "Deleting old installation directories (if any):")
         foreach(_dir ${_installations})
           cmake_path(CONVERT "${_dir}" TO_CMAKE_PATH_LIST _dir NORMALIZE)
@@ -1433,8 +1433,8 @@ Cannot specify either of <INSTALL_INCS> or <INSTALL_LIBS> with either of <INSTAL
     endif()
   endif()
 
-  if(NOT MQ_FORCE_LOCAL_PKGS
-     AND NOT MQ_${PKG_NAME}_FORCE_LOCAL
+  if(NOT QUAFU_FORCE_LOCAL_PKGS
+     AND NOT QUAFU_${PKG_NAME}_FORCE_LOCAL
      AND NOT PKG_FORCE_LOCAL_PKG)
     set(_args "${pkg_name}" "${PKG_VER}")
     if(PKG_FORCE_CONFIG_SEARCH)
@@ -1481,7 +1481,7 @@ Cannot specify either of <INSTALL_INCS> or <INSTALL_LIBS> with either of <INSTAL
 
   # NB: If the package is not found on the system, this is where we will be looking for it
   set(${pkg_name}_BASE_DIR
-      ${_mq_local_prefix}/${pkg_name}_${PKG_VER}_${${pkg_name}_CONFIG_HASH}
+      ${_quafu_local_prefix}/${pkg_name}_${PKG_VER}_${${pkg_name}_CONFIG_HASH}
       CACHE FILEPATH INTERNAL)
 
   set(${pkg_name}_DIRPATH
@@ -1491,7 +1491,7 @@ Cannot specify either of <INSTALL_INCS> or <INSTALL_LIBS> with either of <INSTAL
   file(APPEND "${_local_libs_path_file}" "${${pkg_name}_DIRPATH}\n")
 
   if(CLEAN_3RDPARTY_INSTALL_DIR)
-    file(GLOB _installations ${_mq_local_prefix}/${pkg_name}_${PKG_VER}_*)
+    file(GLOB _installations ${_quafu_local_prefix}/${pkg_name}_${PKG_VER}_*)
     message(STATUS "Deleting old installation directories (if any):")
     foreach(_dir ${_installations})
       cmake_path(CONVERT "${_dir}" TO_CMAKE_PATH_LIST _dir NORMALIZE)
@@ -1513,7 +1513,7 @@ Cannot specify either of <INSTALL_INCS> or <INSTALL_LIBS> with either of <INSTAL
         "${${pkg_name}_BASE_DIR}"
         ${_find_package_args})
 
-    __find_package(${_args} SEARCH_NAME "MindQuantum build dir")
+    __find_package(${_args} SEARCH_NAME "quafu build dir")
     if(${pkg_name}_FOUND)
       if(${pkg_name}_DIR)
         message(STATUS "Package CMake config dir: ${${pkg_name}_DIR}")
@@ -1792,7 +1792,7 @@ Cannot specify either of <INSTALL_INCS> or <INSTALL_LIBS> with either of <INSTAL
       HINTS
       "${${pkg_name}_BASE_DIR}"
       ${_find_package_args})
-  __find_package(${_args} SEARCH_NAME "MindQuantum build dir")
+  __find_package(${_args} SEARCH_NAME "quafu build dir")
   if(NOT "${PKG_LOCAL_EXTRA_DEFINES}" STREQUAL "")
     __append_target_properties(COMPILE_DEFINITIONS ${PKG_LOCAL_EXTRA_DEFINES})
   endif()

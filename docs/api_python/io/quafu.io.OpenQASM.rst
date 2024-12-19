@@ -1,7 +1,7 @@
-mindquantum.io.OpenQASM
+quafu.io.OpenQASM
 ========================
 
-.. py:class:: mindquantum.io.OpenQASM
+.. py:class:: quafu.io.OpenQASM
 
     将电路转换为openqasm格式的模块。
 

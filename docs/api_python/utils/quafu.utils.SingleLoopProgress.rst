@@ -1,7 +1,7 @@
-mindquantum.utils.SingleLoopProgress
+quafu.utils.SingleLoopProgress
 ====================================
 
-.. py:class:: mindquantum.utils.SingleLoopProgress(n_loop: int, loop_name: str = 'Task')
+.. py:class:: quafu.utils.SingleLoopProgress(n_loop: int, loop_name: str = 'Task')
 
     一个用于展示拥有一层循环任务的进度的进度条。
 

@@ -18,35 +18,35 @@
 
 # lint_cmake: -whitespace/indent
 
-pybind11_add_module(_mq_vector MODULE ${CMAKE_CURRENT_SOURCE_DIR}/lib/_mq_vector.cpp
-                    OUTPUT_HINT "${MQ_PYTHON_PACKAGE_NAME}")
+pybind11_add_module(_quafu_vector MODULE ${CMAKE_CURRENT_SOURCE_DIR}/lib/_quafu_vector.cpp
+                    OUTPUT_HINT "${QUAFU_PYTHON_PACKAGE_NAME}")
 
-target_include_directories(_mq_vector PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
-force_at_least_cxx17_workaround(_mq_vector)
-target_link_libraries(_mq_vector PUBLIC mq_python_core mqsim_vector_cpu mqsim_stabilizer)
+target_include_directories(_quafu_vector PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
+force_at_least_cxx17_workaround(_quafu_vector)
+target_link_libraries(_quafu_vector PUBLIC quafu_python_core quafusim_vector_cpu quafusim_stabilizer)
 
 # ------------------------------------------------------------------------------
 
 if(ENABLE_CUDA)
-  pybind11_add_module(_mq_vector_gpu MODULE ${CMAKE_CURRENT_SOURCE_DIR}/lib/_mq_vector_gpu.cu
-                      OUTPUT_HINT "${MQ_PYTHON_PACKAGE_NAME}")
+  pybind11_add_module(_quafu_vector_gpu MODULE ${CMAKE_CURRENT_SOURCE_DIR}/lib/_quafu_vector_gpu.cu
+                      OUTPUT_HINT "${QUAFU_PYTHON_PACKAGE_NAME}")
 
-  target_include_directories(_mq_vector_gpu PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
-  force_at_least_cxx17_workaround(_mq_vector_gpu)
-  target_link_libraries(_mq_vector_gpu PUBLIC mq_python_core mqsim_vector_gpu)
-  set_target_properties(_mq_vector_gpu PROPERTIES CUDA_RUNTIME_LIBRARY $<IF:$<BOOL:${CUDA_STATIC}>,Static,Shared>)
+  target_include_directories(_quafu_vector_gpu PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
+  force_at_least_cxx17_workaround(_quafu_vector_gpu)
+  target_link_libraries(_quafu_vector_gpu PUBLIC quafu_python_core quafusim_vector_gpu)
+  set_target_properties(_quafu_vector_gpu PROPERTIES CUDA_RUNTIME_LIBRARY $<IF:$<BOOL:${CUDA_STATIC}>,Static,Shared>)
 endif()
 
 # ------------------------------------------------------------------------------
 
 # lint_cmake: -whitespace/indent
 
-pybind11_add_module(_mq_matrix MODULE ${CMAKE_CURRENT_SOURCE_DIR}/lib/_mq_matrix.cpp
-                    OUTPUT_HINT "${MQ_PYTHON_PACKAGE_NAME}")
+pybind11_add_module(_quafu_matrix MODULE ${CMAKE_CURRENT_SOURCE_DIR}/lib/_quafu_matrix.cpp
+                    OUTPUT_HINT "${QUAFU_PYTHON_PACKAGE_NAME}")
 
-target_include_directories(_mq_matrix PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
-force_at_least_cxx17_workaround(_mq_matrix)
-target_link_libraries(_mq_matrix PUBLIC mq_python_core mqsim_densitymatrix_cpu)
+target_include_directories(_quafu_matrix PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
+force_at_least_cxx17_workaround(_quafu_matrix)
+target_link_libraries(_quafu_matrix PUBLIC quafu_python_core quafusim_densitymatrix_cpu)
 
 # ------------------------------------------------------------------------------
 

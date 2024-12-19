@@ -1,7 +1,7 @@
-mindquantum.core.gates.RotPauliString
+quafu.core.gates.RotPauliString
 =====================================
 
-.. py:class:: mindquantum.core.gates.RotPauliString(pauli_string: str, pr)
+.. py:class:: quafu.core.gates.RotPauliString(pauli_string: str, pr)
 
     任意泡利串的旋转门。
 

@@ -1,6 +1,6 @@
 # MindSpore Quantum Contributing Guidelines
 
-[查看中文](https://gitee.com/mindspore/mindquantum/blob/master/CONTRIBUTING_CN.md)
+[查看中文](https://gitee.com/mindspore/quafu/blob/master/CONTRIBUTING_CN.md)
 
 - [MindSpore Quantum Contributing Guidelines](#mindspore-quantum-contributing-guidelines)
     - [Contributor License Agreement](#contributor-license-agreement)
@@ -56,10 +56,10 @@ MindSpore is a new open source deep learning training/inference framework that c
 
 #### Pip installation
 
-- Install MindQuantum
+- Install quafu
 
 ```bash
-pip install mindquantum
+pip install quafu
 ```
 
 #### Source code installation
@@ -68,54 +68,54 @@ pip install mindquantum
 
 ```bash
 cd ~
-git clone https://gitee.com/mindspore/mindquantum.git
+git clone https://gitee.com/mindspore/quafu.git
 ```
 
-- Compile MindQuantum
+- Compile quafu
 
     Make **Linux system** sure that CMake > = 3.18.3 is installed, and then run the following command:
 
 ```bash
-cd ~/mindquantum
+cd ~/quafu
 bash build.sh --gitee
 ```
 
 Here `--gitee` let the script download the third-party dependencies from the gitee code hosting platform. If you need to compile the GPU version, please first install CUDA 11.x and the corresponding graphics driver, and then use the `--gpu` parameters to execute the following compilation instructions:
 
 ```bash
-cd ~/mindquantum
+cd ~/quafu
 bash build.sh --gitee --gpu
 ```
 
 Make **Windows system** sure that MinGW-W64 and CMake > = 3.18.3 are installed, and then run the following command:
 
 ```bash
-cd ~/mindquantum
+cd ~/quafu
 build.bat /Gitee
 ```
 
 Make **Mac system** sure that OpenMP and CMake > = 3.18.3 are installed, and then run the following command:
 
 ```bash
-cd ~/mindquantum
+cd ~/quafu
 bash build.sh --gitee
 ```
 
 - Install the compiled whl package
 
-    Enter the output directory and install the compiled mindquantum whl package through the `pip` command.
+    Enter the output directory and install the compiled quafu whl package through the `pip` command.
 
 #### Verify installation successful
 
-Execute the following command. If no error `No module named 'mindquantum'` is reported, the installation is successful.
+Execute the following command. If no error `No module named 'quafu'` is reported, the installation is successful.
 
 ```bash
-python -c 'import mindquantum'
+python -c 'import quafu'
 ```
 
 ### Compile
 
-MindQuantum provides **Compile the package** and **Local compilation** two methods
+quafu provides **Compile the package** and **Local compilation** two methods
 
 1.Compile the package. If the user needs to adapt to different system environments and python versions, he can compile the source code into a package and then install it. For detailed process, please refer to the above *Source code installation*
 
@@ -125,15 +125,15 @@ Download the source code from the code warehouse
 
 ```bash
 cd ~
-git clone https://gitee.com/mindspore/mindquantum.git
+git clone https://gitee.com/mindspore/quafu.git
 ```
 
 - **Linux** System, depending on CMake > = 3.18.3, compiled natively.
 
-   `--gitee` The parameter specifies that the script downloads third-party dependencies from the gitee code hosting platform; `export` the command adds the mindquantum source code path to the PYTHONPATH environment variable.
+   `--gitee` The parameter specifies that the script downloads third-party dependencies from the gitee code hosting platform; `export` the command adds the quafu source code path to the PYTHONPATH environment variable.
 
   ```bash
-  cd ~/mindquantum
+  cd ~/quafu
 
   bash build_locally.sh --gitee
   export PYTHONPATH=`pwd`$PYTHONPATH
@@ -142,7 +142,7 @@ git clone https://gitee.com/mindspore/mindquantum.git
 - **Windows** system, depending on MinGW-W64 and CMake > = 3.18.3, compiled natively.
 
   ```bash
-  cd ~/mindquantum
+  cd ~/quafu
   build_locally.bat /Gitee -G 'MinGW Makefiles'
   set PYTHONPATH=%cd%;%PYTHONPATH%
   ```
@@ -150,7 +150,7 @@ git clone https://gitee.com/mindspore/mindquantum.git
 - **Mac** System, depending on OpenMP and CMake > = 3.18.3, compiled natively.
 
   ```bash
-  cd ~/mindquantum
+  cd ~/quafu
   bash build_locally.sh --gitee
   export PYTHONPATH=`pwd`$PYTHONPATH
   ```
@@ -160,7 +160,7 @@ git clone https://gitee.com/mindspore/mindquantum.git
 
       1.Linux and MacOS installation
 
-      1.1 Linux/Ubuntu/Centos systems and MacOS systems will come with versions `gcc` that meet the MindQuantum compilation.
+      1.1 Linux/Ubuntu/Centos systems and MacOS systems will come with versions `gcc` that meet the quafu compilation.
 
       1.2 Use the command to install GCC
 
@@ -217,22 +217,22 @@ git clone https://gitee.com/mindspore/mindquantum.git
 
 ### Development
 
-The mindquantum is mainly developed in C + + and python, the core computing unit is implemented in C/C + +, and the upper interface and peripheral modules are implemented in Python
+The quafu is mainly developed in C + + and python, the core computing unit is implemented in C/C + +, and the upper interface and peripheral modules are implemented in Python
 
 The development process is mainly divided into two categories, developing new functions and fixing bugs:
 
-- Develop new features, enter the issue page of MindQuantum, submit the issue, write new feature descriptions, categories, implementation methods, etc. Talk to the MindQuantum development team to confirm if this feature is necessary. Start the implementation locally, write the code, implement the function, write the corresponding test cases, and the corresponding documentation. Submit PR, merge into the main branch after the code passes the review, and complete the development of new functions.
+- Develop new features, enter the issue page of quafu, submit the issue, write new feature descriptions, categories, implementation methods, etc. Talk to the quafu development team to confirm if this feature is necessary. Start the implementation locally, write the code, implement the function, write the corresponding test cases, and the corresponding documentation. Submit PR, merge into the main branch after the code passes the review, and complete the development of new functions.
 
-- Fix the bug, go to the issue page of MindQuantum, read the unclosed issues, and claim the issue to solve the problem. Or if you encounter a bug when using MindQuantum, you are welcome to submit an issue to help improve the MindQuantum function module.
+- Fix the bug, go to the issue page of quafu, read the unclosed issues, and claim the issue to solve the problem. Or if you encounter a bug when using quafu, you are welcome to submit an issue to help improve the quafu function module.
 
 ## Quick start
 
-- On [Gitee](https://gitee.com/mindspore/mindquantum) the fork mind quantum code bin.
-- See [README.md](https://gitee.com/mindspore/mindquantum/blob/master/README.md) for project information and build instructions.
-- First experience, Build a parameterized quantum circuit. Use `mindquantum` to a quantum circuit including a H-gate, an RX gate, and an ry gate, and obtain a quantum state
+- On [Gitee](https://gitee.com/mindspore/quafu) the fork mind quantum code bin.
+- See [README.md](https://gitee.com/mindspore/quafu/blob/master/README.md) for project information and build instructions.
+- First experience, Build a parameterized quantum circuit. Use `quafu` to a quantum circuit including a H-gate, an RX gate, and an ry gate, and obtain a quantum state
 
 ```python
-from mindquantum import *
+from quafu import *
 import numpy as np
 
 encoder = Circuit().h(0).rx({'a0': 2}, 0).ry('a1', 1)
@@ -257,43 +257,43 @@ q1: ──┨ RY(a1) ┠───────────
 
 ## Code structure
 
-- [`ccsrc`](https://api.gitee.com/mindspore/mindquantum/tree/master/ccsrc) core computing module, using C/C + + implementation
-- [`cmake`](https://api.gitee.com/mindspore/mindquantum/tree/master/cmake) cmake compiles configuration information
-- [`docs`](https://api.gitee.com/mindspore/mindquantum/tree/master/docs) Mind Quantum API Documentation
-- [`mindquantum`](https://api.gitee.com/mindspore/mindquantum/tree/master/mindquantum) Mind Quantum quantum computing module, implemented in Python
-    - [`mindquantum.dtype`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.dtype.html#module-mindquantum.dtype)  MindQuantum data type simulation.
-    - [`mindquantum.core`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.core.html#module-mindquantum.core)  Core features of MindQuantum (eDSL).
-        - [`gata`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/core/mindquantum.core.gates.html) quantum gate module providing different quantum gates.
-        - [`circuit`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/core/mindquantum.core.circuit.html) Quantum circuit module, It can easily build quantum circuits that meet the requirements, including parameterized quantum circuits.
-        - [`operators`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/core/mindquantum.core.operators.html) MindQuantum  Operator library
-        - [`parameterresolver`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/core/mindquantum.core.parameterresolver.html)  The parameter parser module is used for declaring the used parameters.
-    - [`mindquantum.simulator`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.simulator.html#module-mindquantum.simulator) A quantum simulator for simulating the evolution of a quantum system.
-    - [`mindquantum.framework`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.framework.html#module-mindquantum.framework) Quantum neural network operators and cell.
-    - [`mindquantum.algorithm`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.algorithm.html#module-mindquantum.algorithm) Quantum algorithm.
-        - [`compiler`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.compiler.html)  Quantum circuit compiling module
-        - [`library`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.library.html) Common algorithm module
-        - [`nisq`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.nisq.html) NISQ algorithm
-        - [`error_mitigation`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.error_mitigation.html) Error mitigation module
-        - [`mapping`](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/algorithm/mindquantum.algorithm.mapping.html) Bit Mapping Module
-    - [`mindquantum.device`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.device.html#module-mindquantum.device)  Mind Quantum hardware module.
-    - [`mindquantum.io`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.io.html#module-mindquantum.io)  Input/output module for MindQuantum.
-    - [`mindquantum.engine`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.engine.html#module-mindquantum.engine)  MindQuantum Engine Module.
-    - [`mindquantum.utils`](https://mindspore.cn/mindquantum/docs/zh-CN/master/mindquantum.utils.html#module-mindquantum.utils) utility.
-- [`mindquantum_config`](https://api.gitee.com/mindspore/mindquantum/tree/master/mindquantum_config) Item Configuration Information
-- [`scripts`](https://api.gitee.com/mindspore/mindquantum/tree/master/scripts) Compiling a Dependent Tools Update Script
-- [`tests`](https://api.gitee.com/mindspore/mindquantum/tree/master/tests) MindQuantum unit tests, based on Pytest, written in Python
-- [`third_party`](https://api.gitee.com/mindspore/mindquantum/tree/master/third_party) Third-party open source packages on which MindQuantum compiles
-- [`tutorials`](https://api.gitee.com/mindspore/mindquantum/tree/master/tutorials) Mind Quantum tutorial, which can be run directly with jupyter. Readable in [Official document of MindSpore](https://www.mindspore.cn/mindquantum/docs/en/master/index.html).
+- [`ccsrc`](https://api.gitee.com/mindspore/quafu/tree/master/ccsrc) core computing module, using C/C + + implementation
+- [`cmake`](https://api.gitee.com/mindspore/quafu/tree/master/cmake) cmake compiles configuration information
+- [`docs`](https://api.gitee.com/mindspore/quafu/tree/master/docs) Mind Quantum API Documentation
+- [`quafu`](https://api.gitee.com/mindspore/quafu/tree/master/quafu) Mind Quantum quantum computing module, implemented in Python
+    - [`quafu.dtype`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.dtype.html#module-quafu.dtype)  quafu data type simulation.
+    - [`quafu.core`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.core.html#module-quafu.core)  Core features of quafu (eDSL).
+        - [`gata`](https://www.mindspore.cn/quafu/docs/zh-CN/master/core/quafu.core.gates.html) quantum gate module providing different quantum gates.
+        - [`circuit`](https://www.mindspore.cn/quafu/docs/zh-CN/master/core/quafu.core.circuit.html) Quantum circuit module, It can easily build quantum circuits that meet the requirements, including parameterized quantum circuits.
+        - [`operators`](https://www.mindspore.cn/quafu/docs/zh-CN/master/core/quafu.core.operators.html) quafu  Operator library
+        - [`parameterresolver`](https://www.mindspore.cn/quafu/docs/zh-CN/master/core/quafu.core.parameterresolver.html)  The parameter parser module is used for declaring the used parameters.
+    - [`quafu.simulator`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.simulator.html#module-quafu.simulator) A quantum simulator for simulating the evolution of a quantum system.
+    - [`quafu.framework`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.framework.html#module-quafu.framework) Quantum neural network operators and cell.
+    - [`quafu.algorithm`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.algorithm.html#module-quafu.algorithm) Quantum algorithm.
+        - [`compiler`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.compiler.html)  Quantum circuit compiling module
+        - [`library`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.library.html) Common algorithm module
+        - [`nisq`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.nisq.html) NISQ algorithm
+        - [`error_mitigation`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.error_mitigation.html) Error mitigation module
+        - [`mapping`](https://www.mindspore.cn/quafu/docs/zh-CN/master/algorithm/quafu.algorithm.mapping.html) Bit Mapping Module
+    - [`quafu.device`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.device.html#module-quafu.device)  Mind Quantum hardware module.
+    - [`quafu.io`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.io.html#module-quafu.io)  Input/output module for quafu.
+    - [`quafu.engine`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.engine.html#module-quafu.engine)  quafu Engine Module.
+    - [`quafu.utils`](https://mindspore.cn/quafu/docs/zh-CN/master/quafu.utils.html#module-quafu.utils) utility.
+- [`quafu_config`](https://api.gitee.com/mindspore/quafu/tree/master/quafu_config) Item Configuration Information
+- [`scripts`](https://api.gitee.com/mindspore/quafu/tree/master/scripts) Compiling a Dependent Tools Update Script
+- [`tests`](https://api.gitee.com/mindspore/quafu/tree/master/tests) quafu unit tests, based on Pytest, written in Python
+- [`third_party`](https://api.gitee.com/mindspore/quafu/tree/master/third_party) Third-party open source packages on which quafu compiles
+- [`tutorials`](https://api.gitee.com/mindspore/quafu/tree/master/tutorials) Mind Quantum tutorial, which can be run directly with jupyter. Readable in [Official document of MindSpore](https://www.mindspore.cn/quafu/docs/en/master/index.html).
 
 ## Unit testing
 
-MindQuantum writes unit test cases based on pytest. It is recommended that developers write corresponding unit test cases after implementing a new function or module to ensure normal functions
+quafu writes unit test cases based on pytest. It is recommended that developers write corresponding unit test cases after implementing a new function or module to ensure normal functions
 
 ## Write document
 
-Instructions for writing documentation, MindQuantum has two main types of documentation:
+Instructions for writing documentation, quafu has two main types of documentation:
 
-- User-oriented documents: These are the documents that users see on [Mind Spore Quantum website](https://www.mindspore.cn/mindquantum/docs/en/master/index.html) the Internet, including the tutorial plans for circuit construction, simulator, algorithm implementation, etc., which are helpful to quickly get started and apply MindQuantum, as well as to learn quantum computing algorithms.
+- User-oriented documents: These are the documents that users see on [Mind Spore Quantum website](https://www.mindspore.cn/quafu/docs/en/master/index.html) the Internet, including the tutorial plans for circuit construction, simulator, algorithm implementation, etc., which are helpful to quickly get started and apply quafu, as well as to learn quantum computing algorithms.
 - Documentation for developers: Documentation for developers is distributed across the code `MindQuanntum/docs` base. If you're interested in adding new developer documentation, read this page on the wiki to learn about best practices and write comments after you've written the code. The API is collated by extracting comments from the code.
 
 ## Contribution Workflow

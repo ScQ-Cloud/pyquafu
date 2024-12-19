@@ -1,10 +1,10 @@
-mindquantum.io
+quafu.io
 ==============
 
-.. py:module:: mindquantum.io
+.. py:module:: quafu.io
 
 
-MindQuantum的输入/输出模块。
+quafu的输入/输出模块。
 
 Class
 ------
@@ -14,10 +14,10 @@ Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.io.BlochScene
-    mindquantum.io.HiQASM
-    mindquantum.io.OpenQASM
-    mindquantum.io.QCIS
+    quafu.io.BlochScene
+    quafu.io.HiQASM
+    quafu.io.OpenQASM
+    quafu.io.QCIS
 
 Function
 ---------
@@ -27,7 +27,7 @@ Function
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.io.bprint
-    mindquantum.io.random_hiqasm
-    mindquantum.io.draw_topology
-    mindquantum.io.draw_topology_plt
+    quafu.io.bprint
+    quafu.io.random_hiqasm
+    quafu.io.draw_topology
+    quafu.io.draw_topology_plt

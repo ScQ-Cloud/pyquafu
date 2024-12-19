@@ -19,7 +19,7 @@
 # lint_cmake: -whitespace/indent
 
 target_sources(
-  mqsim_vector_cpu
+  quafusim_vector_cpu
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/cpu_vector_core_policy.cpp
           ${CMAKE_CURRENT_LIST_DIR}/cpu_vector_core_condition.cpp
           ${CMAKE_CURRENT_LIST_DIR}/cpu_vector_core_dot_like.cpp

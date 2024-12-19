@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.DSB
+quafu.algorithm.qaia.DSB
 ===============================
 
-.. py:class:: mindquantum.algorithm.qaia.DSB(J, h=None, x=None, n_iter=1000, batch_size=1, dt=1, xi=None, backend='cpu-float32')
+.. py:class:: quafu.algorithm.qaia.DSB(J, h=None, x=None, n_iter=1000, batch_size=1, dt=1, xi=None, backend='cpu-float32')
 
     离散模拟分叉算法。
 

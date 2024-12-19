@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_PYTHON_BASIC_GATE_HPP
-#define MQ_PYTHON_BASIC_GATE_HPP
+#ifndef QUAFU_PYTHON_BASIC_GATE_HPP
+#define QUAFU_PYTHON_BASIC_GATE_HPP
 
 #include <string>
 #include <utility>
@@ -25,7 +25,7 @@
 
 #include "ops/basic_gate.h"
 
-namespace mindquantum::python {
+namespace quafu::python {
 template <typename T>
 inline VVT<CT<T>> CastArray(const pybind11::object& fun, T theta) {
     pybind11::array_t<CT<T>> a = fun(theta);
@@ -47,6 +47,6 @@ inline VVT<CT<T>> CastArray(const pybind11::object& fun, T theta) {
     }
     return matrix;
 }
-}  // namespace mindquantum::python
+}  // namespace quafu::python
 
-#endif /* MQ_PYTHON_BASIC_GATE_HPP */
+#endif /* QUAFU_PYTHON_BASIC_GATE_HPP */

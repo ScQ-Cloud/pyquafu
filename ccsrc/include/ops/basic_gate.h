@@ -27,8 +27,8 @@
 #include <string>
 #include <utility>
 
-#include "core/mq_base_types.h"
 #include "core/numba_wrapper.h"
+#include "core/quafu_base_types.h"
 #include "core/utils.h"
 #include "math/pr/parameter_resolver.h"
 #include "math/tensor/matrix.h"
@@ -36,7 +36,7 @@
 #include "ops/gate_id.h"
 #include "ops/hamiltonian.h"
 
-namespace mindquantum {
+namespace quafu {
 class BasicGate {
  public:
     BasicGate() = default;
@@ -108,7 +108,7 @@ class PauliString : public BasicGate {
             term.push_back(PauliWord(obj_qubits.at(i), pauli));
             ++i;
         }
-        pauli_mask = mindquantum::GetPauliMask(term);
+        pauli_mask = quafu::GetPauliMask(term);
         ctrl_mask = GetControlMask(ctrl_qubits);
     }
     PauliMask GetPauliMask() const {
@@ -510,9 +510,8 @@ class CustomTwoParamGate : public Parameterizable {
         , numba_param_diff_matrix2_(dm_addr2, dim) {
         if (!this->Parameterized()) {
             auto coeffs = this->GetCoeffs();
-            base_matrix_ = this->numba_param_matrix_(
-                tensor::ops::cpu::to_vector<double>(coeffs[0].const_value)[0],
-                tensor::ops::cpu::to_vector<double>(coeffs[1].const_value)[0]);
+            base_matrix_ = this->numba_param_matrix_(tensor::ops::cpu::to_vector<double>(coeffs[0].const_value)[0],
+                                                     tensor::ops::cpu::to_vector<double>(coeffs[1].const_value)[0]);
         }
     }
 
@@ -539,5 +538,5 @@ class CustomTwoParamGate : public Parameterizable {
     NumbaTwoParamMatFunWrapper numba_param_diff_matrix1_;
     NumbaTwoParamMatFunWrapper numba_param_diff_matrix2_;
 };
-}  // namespace mindquantum
+}  // namespace quafu
 #endif  // MINDQUANTUM_GATE_basic_gate_H_

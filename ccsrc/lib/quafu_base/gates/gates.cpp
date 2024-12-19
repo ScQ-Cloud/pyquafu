@@ -18,14 +18,14 @@
 
 #include <utility>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "math/tensor/matrix.h"
 #include "math/tensor/ops/advance_math.h"
 #include "math/tensor/tensor.h"
 #include "math/tensor/traits.h"
 #include "ops/basic_gate.h"
 
-namespace mindquantum {
+namespace quafu {
 tensor::Matrix U3Matrix(tensor::Tensor theta, tensor::Tensor phi, tensor::Tensor lambda) {
     auto el = tensor::ops::exp(lambda * std::complex<float>(0, 1));
     auto ep = tensor::ops::exp(phi * std::complex<float>(0, 1));
@@ -177,4 +177,4 @@ FSim::FSim(const parameter::ParameterResolver& theta, const parameter::Parameter
         this->base_matrix_ = FSimMatrix(theta.const_value, phi.const_value);
     }
 }
-}  // namespace mindquantum
+}  // namespace quafu

@@ -1,7 +1,7 @@
-mindquantum.core.gates.RX
+quafu.core.gates.RX
 ===============================
 
-.. py:class:: mindquantum.core.gates.RX(pr)
+.. py:class:: quafu.core.gates.RX(pr)
 
     围绕x轴的旋转门。
 

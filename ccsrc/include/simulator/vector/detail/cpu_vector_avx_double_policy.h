@@ -53,7 +53,7 @@
         }                                                                                                              \
     } while (0)
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 struct CPUVectorPolicyAvxDouble : public CPUVectorPolicyBase<CPUVectorPolicyAvxDouble, double> {
     using gate_matrix_t = std::vector<std::vector<qs_data_t>>;
     static void ApplySingleQubitMatrix(const qs_data_p_t& src, qs_data_p_t* des_p, qbit_t obj_qubit,
@@ -62,5 +62,5 @@ struct CPUVectorPolicyAvxDouble : public CPUVectorPolicyBase<CPUVectorPolicyAvxD
     static qs_data_t ExpectDiffSingleQubitMatrix(const qs_data_p_t& bra, const qs_data_p_t& ket, const qbits_t& objs,
                                                  const qbits_t& ctrls, const VVT<py_qs_data_t>& m, index_t dim);
 };
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 #endif

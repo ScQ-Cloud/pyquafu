@@ -16,4 +16,4 @@
 #
 # ==============================================================================
 
-target_sources(mq_math PRIVATE ${CMAKE_CURRENT_LIST_DIR}/parameter_resolver.cpp)
+target_sources(quafu_math PRIVATE ${CMAKE_CURRENT_LIST_DIR}/parameter_resolver.cpp)

@@ -1,7 +1,7 @@
-mindquantum.algorithm.library.general_ghz_state
+quafu.algorithm.library.general_ghz_state
 ================================================
 
-.. py:function:: mindquantum.algorithm.library.general_ghz_state(qubits)
+.. py:function:: quafu.algorithm.library.general_ghz_state(qubits)
 
     基于零态制备通用GHZ态的线路。
     GHZ态通常定义为三个全零态和三个全一态的均匀叠加：

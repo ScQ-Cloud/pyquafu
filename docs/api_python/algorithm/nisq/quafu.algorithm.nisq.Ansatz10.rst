@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.Ansatz10
+quafu.algorithm.nisq.Ansatz10
 ===================================
 
-.. py:class:: mindquantum.algorithm.nisq.Ansatz10(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
+.. py:class:: quafu.algorithm.nisq.Ansatz10(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
 
     Arxiv 论文中所提及的量子线路10。
 

@@ -1,7 +1,7 @@
-mindquantum.simulator.Simulator
+quafu.simulator.Simulator
 ================================
 
-.. py:class:: mindquantum.simulator.Simulator(backend, n_qubits=None, seed=None, dtype=None, *args, **kwargs)
+.. py:class:: quafu.simulator.Simulator(backend, n_qubits=None, seed=None, dtype=None, *args, **kwargs)
 
     模拟量子线路的量子模拟器。
 
@@ -9,7 +9,7 @@ mindquantum.simulator.Simulator
         - **backend** (str) - 想要的后端。通过调用 `get_supported_simulator()` 可以返回支持的后端。
         - **n_qubits** (int) - 量子模拟器的量子比特数量。默认值： ``None``。
         - **seed** (int) - 模拟器的随机种子，如果为 ``None``，种子将由 `numpy.random.randint` 生成。默认值： ``None``。
-        - **dtype** (mindquantum.dtype) - 模拟器的数据类型。
+        - **dtype** (quafu.dtype) - 模拟器的数据类型。
 
     异常：
         - **TypeError** - 如果 `backend` 不是str。
@@ -66,7 +66,7 @@ mindquantum.simulator.Simulator
             量子模拟器中的状态将从原始模拟器中复制。
 
         参数：
-            - **dtype** (mindquantum.dtype) - 新模拟器的数据类型。
+            - **dtype** (quafu.dtype) - 新模拟器的数据类型。
             - **seed** (int) - 新模拟器的随机数种子。默认值： ``None``。
 
     .. py:method:: copy()
@@ -137,7 +137,7 @@ mindquantum.simulator.Simulator
             - **circ_left** (:class:`~.core.circuit.Circuit`) - 上述 :math:`U_l` 电路，默认情况下，这个线路将为 ``None``，在这种情况下， :math:`U_l` 将等于 :math:`U_r` 。默认值： ``None``。
             - **simulator_left** (:class:`~.simulator.Simulator`) - 包含 :math:`\left|\varphi\right>` 的模拟器。如果无，则 :math:`\left|\varphi\right>` 被假定等于 :math:`\left|\psi\right>`。默认值： ``None``。
             - **parallel_worker** (int) - 并行器数目。并行器可以在并行线程中处理batch。默认值： ``None``。
-            - **pr_shift** (bool) - 是否使用 parameter-shift rule。仅在mqvector模拟器中可用，当电路包含噪声信道时该参数将自动启用。请注意，并非所有门都适用于相同移位值 π/2，因此 FSim 门和自定义参数化门的梯度将通过有限差分法计算，差分值为 0.001。默认值： ``False``。
+            - **pr_shift** (bool) - 是否使用 parameter-shift rule。仅在quafuvector模拟器中可用，当电路包含噪声信道时该参数将自动启用。请注意，并非所有门都适用于相同移位值 π/2，因此 FSim 门和自定义参数化门的梯度将通过有限差分法计算，差分值为 0.001。默认值： ``False``。
 
         返回：
             GradOpsWrapper，一个包含生成梯度算子信息的梯度算子包装器。

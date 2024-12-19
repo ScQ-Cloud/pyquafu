@@ -1,7 +1,7 @@
-mindquantum.core.gates.SWAPalpha
+quafu.core.gates.SWAPalpha
 =================================
 
-.. py:class:: mindquantum.core.gates.SWAPalpha(pr)
+.. py:class:: quafu.core.gates.SWAPalpha(pr)
 
     SWAPalpha 门。更多用法，请参见 :class:`~.core.gates.RX`。
 

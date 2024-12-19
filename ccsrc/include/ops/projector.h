@@ -20,7 +20,7 @@
 
 #include "core/utils.h"
 
-namespace mindquantum {
+namespace quafu {
 struct Projector {
     std::string proj_str_;
     Index n_qubits_;
@@ -45,5 +45,5 @@ struct Projector {
         }
     }
 };
-}  // namespace mindquantum
+}  // namespace quafu
 #endif  // MINDQUANTUM_PROJECTOR_PROJECTOR_H_

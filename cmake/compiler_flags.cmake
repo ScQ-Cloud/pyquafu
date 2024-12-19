@@ -123,14 +123,14 @@ if(ENABLE_CUDA)
     nvhpc_flagcheck_flags FLAGCHECK
     LANGS NVCXX
     FLAGS "--flagcheck"
-    NO_MQ_TARGET NO_TRYCOMPILE_TARGET)
+    NO_QUAFU_TARGET NO_TRYCOMPILE_TARGET)
 
   test_compile_option(
     nvhpc_cxx_standard_flags FLAGCHECK
     LANGS NVCXX
     FLAGS "-std=c++20 -std=c++17")
 
-  set(_flag -gpu=cuda${MQ_CUDA_VERSION})
+  set(_flag -gpu=cuda${QUAFU_CUDA_VERSION})
   test_compile_option(
     nvhpc_cuda_version_flags FLAGCHECK
     LANGS NVCXX
@@ -161,9 +161,9 @@ if(ENABLE_CUDA)
     message(WARNING "NVHPC does not support ${_flag}. Proceed at your own risk!")
   endif()
 
-  if(TARGET NVCXX_mindquantum)
+  if(TARGET NVCXX_quafu)
     # For all the languages except NVCXX, use NVHPC's filename extension detection for the language
-    target_compile_options(NVCXX_mindquantum INTERFACE "$<$<AND:$<OR:$<C_COMPILER_ID:NVHPC>,\
+    target_compile_options(NVCXX_quafu INTERFACE "$<$<AND:$<OR:$<C_COMPILER_ID:NVHPC>,\
 $<CXX_COMPILER_ID:NVHPC>,$<CUDA_COMPILER_ID:NVHPC>>,$<NOT:$<COMPILE_LANGUAGE:NVCXX>>>:-x none>")
   endif()
 endif()
@@ -210,19 +210,19 @@ if(X86_64)
   test_compile_option(
     intrin_flag
     LANGS C CXX DPCXX
-    NO_MQ_TARGET NO_TRYCOMPILE_TARGET NO_TRYCOMPILE_FLAGCHECK_TARGET
+    NO_QUAFU_TARGET NO_TRYCOMPILE_TARGET NO_TRYCOMPILE_FLAGCHECK_TARGET
     FLAGS "-mavx2 -xCORE-AVX2 /QxCORE-AVX2 /arch:AVX2")
 elseif(AARCH64)
   test_compile_option(
     intrin_flag
     LANGS C CXX DPCXX
-    NO_MQ_TARGET NO_TRYCOMPILE_TARGET NO_TRYCOMPILE_FLAGCHECK_TARGET
+    NO_QUAFU_TARGET NO_TRYCOMPILE_TARGET NO_TRYCOMPILE_FLAGCHECK_TARGET
     FLAGS "-march=armv8.5-a -march=armv8.4-a -march=armv8.3-a -march=armv8.2-a")
 endif()
 
 foreach(_lang C CXX DPCXX)
   if(TARGET intrin_flag_${_lang})
-    append_to_property(mq_install_targets GLOBAL intrin_flag_${_lang})
+    append_to_property(quafu_install_targets GLOBAL intrin_flag_${_lang})
   endif()
 endforeach()
 
@@ -307,19 +307,19 @@ if(VERSION_INFO MATCHES [=["(.*)\.dev[0-9]+"$]=])
 endif()
 
 if(VERSION_INFO MATCHES [=["(.*)"]=])
-  set(MQ_VERSION ${CMAKE_MATCH_1})
+  set(QUAFU_VERSION ${CMAKE_MATCH_1})
 else()
-  set(MQ_VERSION ${VERSION_INFO})
+  set(QUAFU_VERSION ${VERSION_INFO})
 endif()
 
-if("${MQ_VERSION}" STREQUAL "" AND EXISTS "${PROJECT_SOURCE_DIR}/VERSION.txt")
-  file(STRINGS "${PROJECT_SOURCE_DIR}/VERSION.txt" MQ_VERSION)
+if("${QUAFU_VERSION}" STREQUAL "" AND EXISTS "${PROJECT_SOURCE_DIR}/VERSION.txt")
+  file(STRINGS "${PROJECT_SOURCE_DIR}/VERSION.txt" QUAFU_VERSION)
 endif()
 
-if("${MQ_VERSION}" STREQUAL "")
-  message(FATAL_ERROR "Unable to get MindQuantum version number!")
+if("${QUAFU_VERSION}" STREQUAL "")
+  message(FATAL_ERROR "Unable to get quafu version number!")
 else()
-  message(STATUS "MindQuantum version: ${MQ_VERSION}")
+  message(STATUS "quafu version: ${QUAFU_VERSION}")
 endif()
 
 # --------------------------------------
@@ -328,12 +328,12 @@ include(compiler_test)
 
 # --------------------------------------
 
-mq_add_compile_definitions(
-  "$<$<BOOL:${MINDSPORE_CI}>:MQ_MINDSPORE_CI>"
+quafu_add_compile_definitions(
+  "$<$<BOOL:${MINDSPORE_CI}>:QUAFU_MINDSPORE_CI>"
   "$<$<BOOL:${USE_OPENMP}>:USE_OPENMP>"
   "$<$<BOOL:${USE_PARALLEL_STL}>:USE_PARALLEL_STL>"
-  "$<$<BOOL:${ENABLE_LOGGING_DEBUG_LEVEL}>:MQ_LOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG>"
-  "$<$<BOOL:${ENABLE_LOGGING_TRACE_LEVEL}>:MQ_LOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>"
+  "$<$<BOOL:${ENABLE_LOGGING_DEBUG_LEVEL}>:QUAFU_LOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG>"
+  "$<$<BOOL:${ENABLE_LOGGING_TRACE_LEVEL}>:QUAFU_LOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>"
   "$<$<BOOL:${ENABLE_LOGGING}>:ENABLE_LOGGING>"
   "$<$<AND:$<BOOL:${ENABLE_GCC_DEBUG_MODE}>,$<BOOL:${CMAKE_COMPILER_IS_GNUCXX}>>:_GLIBCXX_DEBUG>"
   "$<$<AND:$<CONFIG:RELEASE>,$<COMPILE_LANGUAGE:CXX>>:_FORTIFY_SOURCE=2>")
@@ -342,7 +342,7 @@ mq_add_compile_definitions(
 # Platform specific flags
 
 if(WIN32 AND Python_VERSION VERSION_LESS 3.9)
-  mq_add_compile_definitions(HAVE_SNPRINTF)
+  quafu_add_compile_definitions(HAVE_SNPRINTF)
 endif()
 
 if(MSVC)
@@ -361,14 +361,14 @@ if(MSVC)
       string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}")
     endif()
   endif()
-  mq_add_compile_definitions(_USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS WIN32_LEAN_AND_MEAN
-                             "$<$<BOOL:${ENABLE_ITERATOR_DEBUG}>:_ITERATOR_DEBUG_LEVEL=${MQ_ITERATOR_DEBUG}>")
+  quafu_add_compile_definitions(_USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS WIN32_LEAN_AND_MEAN
+                             "$<$<BOOL:${ENABLE_ITERATOR_DEBUG}>:_ITERATOR_DEBUG_LEVEL=${QUAFU_ITERATOR_DEBUG}>")
 elseif(MINGW)
-  mq_add_compile_definitions(_USE_MATH_DEFINES)
+  quafu_add_compile_definitions(_USE_MATH_DEFINES)
   foreach(lang C CXX CUDA NVCXX DPCXX)
     is_language_enabled(${lang} _enabled)
     if(_enabled)
-      target_compile_options(${lang}_mindquantum INTERFACE "$<$<COMPILE_LANGUAGE:${lang}>:-Wa,-mbig-obj>")
+      target_compile_options(${lang}_quafu INTERFACE "$<$<COMPILE_LANGUAGE:${lang}>:-Wa,-mbig-obj>")
       if(MACD_TRYCOMPILE)
         target_compile_options(${lang}_try_compile INTERFACE "$<$<COMPILE_LANGUAGE:${lang}>:-Wa,-mbig-obj>")
       endif()
@@ -378,15 +378,15 @@ elseif(MINGW)
     endif()
   endforeach()
 elseif(CYGWIN)
-  mq_add_compile_definitions(_USE_MATH_DEFINES)
+  quafu_add_compile_definitions(_USE_MATH_DEFINES)
 elseif(MSYS)
-  mq_add_compile_definitions(_USE_MATH_DEFINES)
+  quafu_add_compile_definitions(_USE_MATH_DEFINES)
 endif()
 
 # ==============================================================================
 
-set(MQ_HAS_ABSEIL_CPP ${ENABLE_ABSEIL_CPP})
-set(MQ_HAS_LONG_DOUBLE ${ENABLE_LONG_DOUBLE})
+set(QUAFU_HAS_ABSEIL_CPP ${ENABLE_ABSEIL_CPP})
+set(QUAFU_HAS_LONG_DOUBLE ${ENABLE_LONG_DOUBLE})
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake_config.h.in ${PROJECT_BINARY_DIR}/config/cmake_config.h)
 
 add_library(cmake_config INTERFACE)
@@ -394,7 +394,7 @@ target_include_directories(cmake_config INTERFACE $<BUILD_INTERFACE:${PROJECT_BI
 
 # ------------------------------------------------------------------------------
 
-append_to_property(mq_install_targets GLOBAL cmake_config)
-install(FILES ${PROJECT_BINARY_DIR}/config/cmake_config.h DESTINATION ${MQ_INSTALL_INCLUDEDIR}/config)
+append_to_property(quafu_install_targets GLOBAL cmake_config)
+install(FILES ${PROJECT_BINARY_DIR}/config/cmake_config.h DESTINATION ${QUAFU_INSTALL_INCLUDEDIR}/config)
 
 # ==============================================================================

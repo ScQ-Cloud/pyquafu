@@ -17,7 +17,7 @@
 #define INCLUDE_DENSITYMATRIX_DETAIL_CPU_DENSITYMATRIX_ARM_FLOAT_POLICY_HPP
 #include "simulator/densitymatrix/detail/cpu_densitymatrix_policy.h"
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 struct CPUDensityMatrixPolicyArmFloat : public CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmFloat, float> {};
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail
 #endif

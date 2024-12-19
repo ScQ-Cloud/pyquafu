@@ -28,7 +28,7 @@
 #include "device/topology.h"
 #include "ops/basic_gate.h"
 #include "ops/gate_id.h"
-namespace mindquantum::mapping {
+namespace quafu::mapping {
 struct Gate {
     std::string type;  // gate's type, such as CNOT or X
     int q1, q2;        // logical qubit number, if
@@ -49,7 +49,7 @@ std::pair<qbit_t, VT<Gate>> GateToAbstractGate(const VT<std::shared_ptr<BasicGat
  */
 VT<VT<int>> GetCircuitDAG(int n, const VT<Gate>& gates);
 
-class MQ_SABRE {
+class QUAFU_SABRE {
  private:
     int num_logical;
     int num_physical;
@@ -173,15 +173,15 @@ class MQ_SABRE {
     VT<VT<double>> CNOT_gate_length;  // The length of the cnot gates
 
     /**
-     * @brief Construct a new MQ_SABRE object
+     * @brief Construct a new QUAFU_SABRE object
      *
      * @param circ logical qubits circle
      * @param coupling_graph physical qubits topology
      * @param num_physical number of physical qubits
      * @param CnotErrrorRateAndGateLength  The error rate and length of the cnot gate between two adjacent qubits
      */
-    MQ_SABRE(const VT<std::shared_ptr<BasicGate>>& circ, const std::shared_ptr<QubitsTopology>& coupling_graph,
-             const std::vector<std::pair<std::pair<int, int>, VT<double>>>& CnotErrrorRateAndGateLength);
+    QUAFU_SABRE(const VT<std::shared_ptr<BasicGate>>& circ, const std::shared_ptr<QubitsTopology>& coupling_graph,
+                const std::vector<std::pair<std::pair<int, int>, VT<double>>>& CnotErrrorRateAndGateLength);
 
     /**
      * @brief solve qubit mapping problem
@@ -340,5 +340,5 @@ class SABRE {
 
     inline void SetParameters(double W, double delta1, double delta2);
 };
-}  // namespace mindquantum::mapping
+}  // namespace quafu::mapping
 #endif

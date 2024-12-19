@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MQ_CONFIG_LIBC_COMPAT_H_
-#define MQ_CONFIG_LIBC_COMPAT_H_
+#ifndef QUAFU_CONFIG_LIBC_COMPAT_H_
+#define QUAFU_CONFIG_LIBC_COMPAT_H_
 #ifdef __linux__
 extern "C" {
 double __exp_finite(double x);

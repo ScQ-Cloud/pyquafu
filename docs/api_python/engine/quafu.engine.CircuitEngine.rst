@@ -1,4 +1,4 @@
-.. py:class:: mindquantum.engine.CircuitEngine
+.. py:class:: quafu.engine.CircuitEngine
 
     一个简单的线路引擎，生成projectq格式的量子线路。
 

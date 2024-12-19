@@ -1,7 +1,7 @@
-mindquantum.core.circuit.controlled
+quafu.core.circuit.controlled
 ====================================
 
-.. py:function:: mindquantum.core.circuit.controlled(circuit_fn)
+.. py:function:: quafu.core.circuit.controlled(circuit_fn)
 
     在量子线路或量子算子（可以生成量子线路的函数）上添加控制量子比特。
 

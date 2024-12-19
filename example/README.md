@@ -24,6 +24,6 @@
 
 ## 参考资源
 
-- [MindQuantum 官方文档](https://www.mindspore.cn/mindquantum/docs/zh-CN/master/index.html)
+- [MindQuantum 官方文档](https://www.mindspore.cn/quafu/docs/zh-CN/master/index.html)
 
 

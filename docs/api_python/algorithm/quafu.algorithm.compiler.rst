@@ -1,10 +1,10 @@
-mindquantum.algorithm.compiler
+quafu.algorithm.compiler
 ==============================
 
-.. py:module:: mindquantum.algorithm.compiler
+.. py:module:: quafu.algorithm.compiler
 
 
-MindQuantum 量子线路编译模块。
+quafu 量子线路编译模块。
 
 Fixed decompose rules
 ---------------------
@@ -14,24 +14,24 @@ Fixed decompose rules
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.compiler.ch_decompose
-    mindquantum.algorithm.compiler.crx_decompose
-    mindquantum.algorithm.compiler.crxx_decompose
-    mindquantum.algorithm.compiler.cry_decompose
-    mindquantum.algorithm.compiler.cnry_decompose
-    mindquantum.algorithm.compiler.crz_decompose
-    mindquantum.algorithm.compiler.cnrz_decompose
-    mindquantum.algorithm.compiler.cryy_decompose
-    mindquantum.algorithm.compiler.cswap_decompose
-    mindquantum.algorithm.compiler.ct_decompose
-    mindquantum.algorithm.compiler.cy_decompose
-    mindquantum.algorithm.compiler.cz_decompose
-    mindquantum.algorithm.compiler.rxx_decompose
-    mindquantum.algorithm.compiler.ryy_decompose
-    mindquantum.algorithm.compiler.rzz_decompose
-    mindquantum.algorithm.compiler.cs_decompose
-    mindquantum.algorithm.compiler.swap_decompose
-    mindquantum.algorithm.compiler.ccx_decompose
+    quafu.algorithm.compiler.ch_decompose
+    quafu.algorithm.compiler.crx_decompose
+    quafu.algorithm.compiler.crxx_decompose
+    quafu.algorithm.compiler.cry_decompose
+    quafu.algorithm.compiler.cnry_decompose
+    quafu.algorithm.compiler.crz_decompose
+    quafu.algorithm.compiler.cnrz_decompose
+    quafu.algorithm.compiler.cryy_decompose
+    quafu.algorithm.compiler.cswap_decompose
+    quafu.algorithm.compiler.ct_decompose
+    quafu.algorithm.compiler.cy_decompose
+    quafu.algorithm.compiler.cz_decompose
+    quafu.algorithm.compiler.rxx_decompose
+    quafu.algorithm.compiler.ryy_decompose
+    quafu.algorithm.compiler.rzz_decompose
+    quafu.algorithm.compiler.cs_decompose
+    quafu.algorithm.compiler.swap_decompose
+    quafu.algorithm.compiler.ccx_decompose
 
 Universal decompose rules
 -------------------------
@@ -41,12 +41,12 @@ Universal decompose rules
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.compiler.euler_decompose
-    mindquantum.algorithm.compiler.cu_decompose
-    mindquantum.algorithm.compiler.qs_decompose
-    mindquantum.algorithm.compiler.abc_decompose
-    mindquantum.algorithm.compiler.kak_decompose
-    mindquantum.algorithm.compiler.tensor_product_decompose
+    quafu.algorithm.compiler.euler_decompose
+    quafu.algorithm.compiler.cu_decompose
+    quafu.algorithm.compiler.qs_decompose
+    quafu.algorithm.compiler.abc_decompose
+    quafu.algorithm.compiler.kak_decompose
+    quafu.algorithm.compiler.tensor_product_decompose
 
 Compiler rules
 --------------
@@ -56,17 +56,17 @@ Compiler rules
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.compiler.BasicCompilerRule
-    mindquantum.algorithm.compiler.KroneckerSeqCompiler
-    mindquantum.algorithm.compiler.SequentialCompiler
-    mindquantum.algorithm.compiler.BasicDecompose
-    mindquantum.algorithm.compiler.CZBasedChipCompiler
-    mindquantum.algorithm.compiler.CXToCZ
-    mindquantum.algorithm.compiler.CZToCX
-    mindquantum.algorithm.compiler.GateReplacer
-    mindquantum.algorithm.compiler.FullyNeighborCanceler
-    mindquantum.algorithm.compiler.SimpleNeighborCanceler
-    mindquantum.algorithm.compiler.compile_circuit
+    quafu.algorithm.compiler.BasicCompilerRule
+    quafu.algorithm.compiler.KroneckerSeqCompiler
+    quafu.algorithm.compiler.SequentialCompiler
+    quafu.algorithm.compiler.BasicDecompose
+    quafu.algorithm.compiler.CZBasedChipCompiler
+    quafu.algorithm.compiler.CXToCZ
+    quafu.algorithm.compiler.CZToCX
+    quafu.algorithm.compiler.GateReplacer
+    quafu.algorithm.compiler.FullyNeighborCanceler
+    quafu.algorithm.compiler.SimpleNeighborCanceler
+    quafu.algorithm.compiler.compile_circuit
 
 DAG circuit
 -----------
@@ -76,9 +76,9 @@ DAG circuit
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.compiler.DAGCircuit
-    mindquantum.algorithm.compiler.DAGNode
-    mindquantum.algorithm.compiler.GateNode
-    mindquantum.algorithm.compiler.DAGQubitNode
-    mindquantum.algorithm.compiler.connect_two_node
-    mindquantum.algorithm.compiler.try_merge
+    quafu.algorithm.compiler.DAGCircuit
+    quafu.algorithm.compiler.DAGNode
+    quafu.algorithm.compiler.GateNode
+    quafu.algorithm.compiler.DAGQubitNode
+    quafu.algorithm.compiler.connect_two_node
+    quafu.algorithm.compiler.try_merge

@@ -15,7 +15,7 @@
 API
 ===
 
-API of the Python and C++ code of MindQuantum.
+API of the Python and C++ code of quafu.
 To have a Python frontend and C++ in the backend,
 we make use of `Pybind11 <https://github.com/pybind/pybind11/>`_.
 The C++ code represents quantum circuits with the help of

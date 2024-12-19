@@ -1,7 +1,7 @@
-mindquantum.core.gates.PhaseShift
+quafu.core.gates.PhaseShift
 ==================================
 
-.. py:class:: mindquantum.core.gates.PhaseShift(pr)
+.. py:class:: quafu.core.gates.PhaseShift(pr)
 
     相移门。更多用法，请参见 :class:`~.core.gates.RX`。
 

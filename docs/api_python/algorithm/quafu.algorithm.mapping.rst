@@ -1,15 +1,15 @@
-mindquantum.algorithm.mapping
+quafu.algorithm.mapping
 ======================================
 
-.. py:module:: mindquantum.algorithm.mapping
+.. py:module:: quafu.algorithm.mapping
 
 
-MindQuantum 比特映射模块。
+quafu 比特映射模块。
 
 .. mscnautosummary::
     :toctree: mapping
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.algorithm.mapping.SABRE
-    mindquantum.algorithm.mapping.MQSABRE
+    quafu.algorithm.mapping.SABRE
+    quafu.algorithm.mapping.QUAFUSABRE

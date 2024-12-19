@@ -1,7 +1,7 @@
-mindquantum.io.QCIS
+quafu.io.QCIS
 ========================
 
-.. py:class:: mindquantum.io.QCIS
+.. py:class:: quafu.io.QCIS
 
     将电路转换为qcis格式的模块。
 

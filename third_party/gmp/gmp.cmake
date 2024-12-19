@@ -38,7 +38,7 @@ elseif(CYGWIN)
   message(WARNING "Build of gmp on Cygwin is broken. Make sure to install the libgmp-devel package instead.")
 endif()
 
-mindquantum_add_pkg(
+quafu_add_pkg(
   gmp
   LIBS gmp gmpxx
   VER ${VER}
@@ -47,4 +47,4 @@ mindquantum_add_pkg(
   GEN_CMAKE_CONFIG
   BUILD_DEPENDENCIES "m4"
   CONFIGURE_COMMAND ./configure --enable-cxx --enable-shared=no --with-pic
-  TARGET_ALIAS mindquantum::gmp gmp::gmp)
+  TARGET_ALIAS quafu::gmp gmp::gmp)

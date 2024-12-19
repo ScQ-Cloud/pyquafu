@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.NMFA
+quafu.algorithm.qaia.NMFA
 ===============================
 
-.. py:class:: mindquantum.algorithm.qaia.NMFA(J, h=None, x=None, n_iter=1000, batch_size=1, alpha=0.15, sigma=0.15)
+.. py:class:: quafu.algorithm.qaia.NMFA(J, h=None, x=None, n_iter=1000, batch_size=1, alpha=0.15, sigma=0.15)
 
     含噪平均场退火算法。
 

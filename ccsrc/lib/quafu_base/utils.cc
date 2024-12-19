@@ -16,9 +16,9 @@
 
 #include "core/utils.h"
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 
-namespace mindquantum {
+namespace quafu {
 const VT<CT<double>> POLAR = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 TimePoint NOW() {
     return std::chrono::steady_clock::now();
@@ -64,4 +64,4 @@ PauliMask GetPauliMask(const VT<PauliWord> &pws) {
     PauliMask res = {out[0], out[1], out[2], out[3], out[4], out[5]};
     return res;
 }
-}  // namespace mindquantum
+}  // namespace quafu

@@ -24,11 +24,11 @@ echo "Called with: $*"
 # Test for MindSpore CI
 _IS_MINDSPORE_CI=0
 if [[ "${JENKINS_URL:-0}" =~ https?://build.mindspore.cn && ! "${CI:-0}" =~ ^(false|0)$ ]]; then
-    echo "Detected MindSpore/MindQuantum CI"
+    echo "Detected MindSpore/quafu CI"
     _IS_MINDSPORE_CI=1
 fi
 if [[ "${DEVCLOUD_CI:-0}" == "1" ]]; then
-    echo "Detected MindSpore/MindQuantum CI"
+    echo "Detected MindSpore/quafu CI"
     _IS_MINDSPORE_CI=1
 fi
 # ==============================================================================
@@ -112,11 +112,11 @@ fi
 function help_header() {
     echo 'Build binary Python wheel for MindQunantum'
     echo ''
-    echo 'This is mainly relevant for developers that want to deploy MindQuantum '
+    echo 'This is mainly relevant for developers that want to deploy quafu '
     echo 'on machines other than their own.'
     echo ''
-    echo 'This script will create a Python virtualenv in the MindQuantum root'
-    echo 'directory and then build a binary Python wheel of MindQuantum.'
+    echo 'This script will create a Python virtualenv in the quafu root'
+    echo 'directory and then build a binary Python wheel of quafu.'
 }
 
 function extra_help() {
@@ -285,9 +285,9 @@ fi
 
 local_pkgs_str=$(join_by , "${local_pkgs[@]}")
 if [[ "$force_local_pkgs" -eq 1 ]]; then
-    args+=(--var MQ_FORCE_LOCAL_PKGS all)
+    args+=(--var QUAFU_FORCE_LOCAL_PKGS all)
 elif [ -n "$local_pkgs_str" ]; then
-    args+=(--var MQ_FORCE_LOCAL_PKGS "$local_pkgs_str")
+    args+=(--var QUAFU_FORCE_LOCAL_PKGS "$local_pkgs_str")
 fi
 
 # --------------------------------------
@@ -356,7 +356,7 @@ fi
 # ------------------------------------------------------------------------------
 # Clean build directory if requested and possible
 
-temp_build_dir=$("$PYTHON" -m mindquantum_config --tempdir)
+temp_build_dir=$("$PYTHON" -m quafu_config --tempdir)
 if [ "${_build_dir_was_set:-0}" -eq 1 ]; then
     build_dir_for_cleaning="$build_dir"
 elif [ -d "$temp_build_dir" ]; then
@@ -382,11 +382,11 @@ fi
 
 env_vars=()
 if [[ "$cmake_generator" == "Ninja" || "$cmake_generator" == "Ninja Multi-Config" ]]; then
-    env_vars+=(MQ_USE_NINJA=1)
+    env_vars+=(QUAFU_USE_NINJA=1)
 fi
 
 if [ "$delocate_wheel" -eq 1 ]; then
-    env_vars+=(MQ_DELOCATE_WHEEL=1
+    env_vars+=(QUAFU_DELOCATE_WHEEL=1
                "${LD_PATH_VAR}=${!LD_PATH_VAR}")
 
     if [[ "${_build_dir_was_set:-0}" -eq 1 || "${fast_build:-0}" -eq 1 ]]; then
@@ -394,19 +394,19 @@ if [ "$delocate_wheel" -eq 1 ]; then
     elif [ "${_fast_build_dir_was_set:-0}" -eq 1 ]; then
         build_dir_for_env="$fast_build_dir"
     else
-        build_dir_for_env=$("$PYTHON" -m mindquantum_config --tempdir)
+        build_dir_for_env=$("$PYTHON" -m quafu_config --tempdir)
     fi
 
     if [ "$_IS_MINDSPORE_CI" -eq 1 ]; then
-        env_vars+=(MQ_LIB_PATHS="$ROOTDIR/ld_library_paths.txt")
+        env_vars+=(QUAFU_LIB_PATHS="$ROOTDIR/ld_library_paths.txt")
     else
-        env_vars+=(MQ_LIB_PATHS="$build_dir_for_env/ld_library_paths.txt")
+        env_vars+=(QUAFU_LIB_PATHS="$build_dir_for_env/ld_library_paths.txt")
     fi
 
-    env_vars+=(MQ_BUILD_DIR="$build_dir_for_env")
+    env_vars+=(QUAFU_BUILD_DIR="$build_dir_for_env")
 
     if [ -n "$platform_name" ]; then
-        env_vars+=(MQ_DELOCATE_WHEEL_PLAT="$platform_name")
+        env_vars+=(QUAFU_DELOCATE_WHEEL_PLAT="$platform_name")
     fi
 fi
 
@@ -432,4 +432,4 @@ if [[ "$_IS_MINDSPORE_CI" -eq 1 && "$(uname)" == 'Linux' ]]; then
     done
 fi
 
-echo "------Successfully created mindquantum package------"
+echo "------Successfully created quafu package------"

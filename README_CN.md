@@ -24,7 +24,7 @@
 
 ## pyquafu介绍
 
-pyquafu 从 [MindQuantum](https://gitee.com/mindspore/mindquantum/) fork而来，在此基础上，pyquafu可以直接在北京量子信息科学研究院所搭建的quafu量子计算云平台上执行量子算法。
+pyquafu 从 [MindQuantum](https://gitee.com/mindspore/quafu/) fork而来，在此基础上，pyquafu可以直接在北京量子信息科学研究院所搭建的quafu量子计算云平台上执行量子算法。
 
 ## 初体验
 

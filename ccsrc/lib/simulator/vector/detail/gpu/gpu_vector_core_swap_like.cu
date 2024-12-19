@@ -24,7 +24,7 @@
 #include "thrust/functional.h"
 #include "thrust/inner_product.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 
 template <typename derived_, typename calc_type_>
 void GPUVectorPolicyBase<derived_, calc_type_>::ApplySWAP(qs_data_p_t* qs_p, const qbits_t& objs, const qbits_t& ctrls,
@@ -194,4 +194,4 @@ void GPUVectorPolicyBase<derived_, calc_type_>::ApplySWAPalpha(qs_data_p_t* qs_p
 template struct GPUVectorPolicyBase<GPUVectorPolicyFloat, float>;
 template struct GPUVectorPolicyBase<GPUVectorPolicyDouble, double>;
 
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

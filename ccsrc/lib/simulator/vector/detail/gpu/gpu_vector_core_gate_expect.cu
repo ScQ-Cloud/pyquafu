@@ -25,7 +25,7 @@
 #include "thrust/functional.h"
 #include "thrust/inner_product.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename derived_, typename calc_type_>
 auto GPUVectorPolicyBase<derived_, calc_type_>::ExpectDiffRPS(const qs_data_p_t& bra_out, const qs_data_p_t& ket_out,
                                                               const PauliMask& mask, Index ctrl_mask, calc_type val,
@@ -1145,4 +1145,4 @@ auto GPUVectorPolicyBase<derived_, calc_type_>::ExpectDiffSWAPalpha(const qs_dat
 template struct GPUVectorPolicyBase<GPUVectorPolicyFloat, float>;
 template struct GPUVectorPolicyBase<GPUVectorPolicyDouble, double>;
 
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

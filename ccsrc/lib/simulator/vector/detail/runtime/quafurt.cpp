@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "simulator/vector/runtime/cmd.h"
 
-#ifndef MQ_PYTHON_BUILD_ENV_HPP_
-#define MQ_PYTHON_BUILD_ENV_HPP_
-#include <algorithm>
-#include <string>
-
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-namespace py = pybind11;
-
-namespace mindquantum {
-std::string GetBuildABI();
-std::string GetCompilerType();
-std::string GetStdLib();
-void BindPybind11Env(py::module &module);  // NOLINT(runtime/references)
-}  // namespace mindquantum
-#endif
+int main(int argc, char *argv[]) {
+    std::vector<std::string> args;
+    for (int i = 0; i < argc; i++) {
+        args.push_back(std::string(argv[i]));
+    }
+    if (argc == 1) {
+        return 0;
+    }
+    if (args[1] == "cmd") {
+        return quafu::sim::rt::cmd(args);
+    }
+    throw std::runtime_error("First arg is runtime type, should be 'cmd'.");
+}

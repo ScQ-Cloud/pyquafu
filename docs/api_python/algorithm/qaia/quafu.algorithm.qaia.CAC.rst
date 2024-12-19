@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.CAC
+quafu.algorithm.qaia.CAC
 ==============================
 
-.. py:class:: mindquantum.algorithm.qaia.CAC(J, h=None, x=None, n_iter=1000, batch_size=1, dt=0.075)
+.. py:class:: quafu.algorithm.qaia.CAC(J, h=None, x=None, n_iter=1000, batch_size=1, dt=0.075)
 
     混沌振幅控制算法。
 

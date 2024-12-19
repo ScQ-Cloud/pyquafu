@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_DETECTED_HPP
-#define MQ_CONFIG_DETECTED_HPP
+#ifndef QUAFU_CONFIG_DETECTED_HPP
+#define QUAFU_CONFIG_DETECTED_HPP
 
 #include "config/config.h"
 
 #ifdef HAS_STD_DETECTED_TS2
 #    include <experimental/type_traits>
 
-namespace mindquantum {
+namespace quafu {
 using std::experimental::detected_or;
 using std::experimental::detected_t;
 using std::experimental::is_detected;
@@ -33,11 +33,11 @@ using std::experimental::is_detected_convertible_v;
 using std::experimental::is_detected_exact;
 using std::experimental::is_detected_exact_v;
 using std::experimental::is_detected_v;
-}  // namespace mindquantum
+}  // namespace quafu
 #else
 #    include <type_traits>
 
-namespace mindquantum {
+namespace quafu {
 namespace detail {
 template <class...>
 using void_t = void;
@@ -90,7 +90,7 @@ using is_detected_convertible = std::is_convertible<To, detected_t<Op, Args...>>
 
 template <class To, template <class...> class Op, class... Args>
 constexpr inline bool is_detected_convertible_v = is_detected_convertible<To, Op, Args...>::value;
-}  // namespace mindquantum
+}  // namespace quafu
 #endif  // COMPILER_TYPE_TRAITS_TS2
 
-#endif /* MQ_CONFIG_DETECTED_HPP */
+#endif /* QUAFU_CONFIG_DETECTED_HPP */

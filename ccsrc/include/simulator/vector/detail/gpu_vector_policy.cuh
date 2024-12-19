@@ -25,13 +25,13 @@
 
 #include <thrust/transform_reduce.h>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/sparse/csrhdmatrix.h"
 #include "math/tensor/traits.h"
 #include "thrust/complex.h"
 #include "thrust/functional.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 struct GPUVectorPolicyFloat;
 struct GPUVectorPolicyDouble;
 
@@ -153,7 +153,7 @@ struct GPUVectorPolicyBase {
     static void ApplyRyz(qs_data_p_t* qs_p, const qbits_t& objs, const qbits_t& ctrls, calc_type val, index_t dim,
                          bool diff = false);
     static void ApplyGivens(qs_data_p_t* qs_p, const qbits_t& objs, const qbits_t& ctrls, calc_type val, index_t dim,
-                         bool diff = false);
+                            bool diff = false);
     // gate_expec
     // ========================================================================================================
     static qs_data_t ExpectDiffRPS(const qs_data_p_t& bra, const qs_data_p_t& ket, const PauliMask& pauli_mask,
@@ -186,7 +186,7 @@ struct GPUVectorPolicyBase {
     static qs_data_t ExpectDiffRyz(const qs_data_p_t& bra, const qs_data_p_t& ket, const qbits_t& objs,
                                    const qbits_t& ctrls, calc_type val, index_t dim);
     static qs_data_t ExpectDiffGivens(const qs_data_p_t& bra, const qs_data_p_t& ket, const qbits_t& objs,
-                                   const qbits_t& ctrls, calc_type val, index_t dim);
+                                      const qbits_t& ctrls, calc_type val, index_t dim);
     static qs_data_t ExpectDiffSWAPalpha(const qs_data_p_t& bra, const qs_data_p_t& ket, const qbits_t& objs,
                                          const qbits_t& ctrls, calc_type val, index_t dim);
     static qs_data_t ExpectDiffPS(const qs_data_p_t& bra, const qs_data_p_t& ket, const qbits_t& objs,
@@ -247,6 +247,6 @@ struct CastTo {
         return des;
     }
 };
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail
 
 #endif

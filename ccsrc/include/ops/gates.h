@@ -23,7 +23,7 @@
 #include <string>
 #include <utility>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "core/utils.h"
 #include "math/pr/parameter_resolver.h"
 #include "math/tensor/matrix.h"
@@ -47,7 +47,7 @@
 #    define M_PI_2 1.57079632679489661923132169163975144
 #endif  // !M_PI_2
 
-namespace mindquantum {
+namespace quafu {
 tensor::Matrix U3Matrix(tensor::Tensor theta, tensor::Tensor phi, tensor::Tensor lambda);
 
 tensor::Matrix FSimMatrix(tensor::Tensor theta, tensor::Tensor phi);
@@ -137,5 +137,5 @@ class Rn : public Parameterizable {
     parameter::ParameterResolver gamma;
     tensor::Matrix base_matrix_;
 };
-}  // namespace mindquantum
+}  // namespace quafu
 #endif  // MINDQUANTUM_GATE_GATES_HPP_

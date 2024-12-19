@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.ASB
+quafu.algorithm.qaia.ASB
 ===============================
 
-.. py:class:: mindquantum.algorithm.qaia.ASB(J, h=None, x=None, n_iter=1000, batch_size=1, dt=1, xi=None, M=2)
+.. py:class:: quafu.algorithm.qaia.ASB(J, h=None, x=None, n_iter=1000, batch_size=1, dt=1, xi=None, M=2)
 
     绝热模拟分叉算法。
 

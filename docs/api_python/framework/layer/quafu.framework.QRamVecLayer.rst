@@ -1,7 +1,7 @@
-mindquantum.framework.QRamVecLayer
+quafu.framework.QRamVecLayer
 ==================================
 
-.. py:class:: mindquantum.framework.QRamVecLayer(ham, circ, sim, n_thread=None, weight='normal')
+.. py:class:: quafu.framework.QRamVecLayer(ham, circ, sim, n_thread=None, weight='normal')
 
     包含qram和ansatz线路的量子神经网络，qram将经典数据直接编码成量子态，ansatz线路的参数是可训练的参数。
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_COMPLEX_CAST_HPP
-#define MQ_CONFIG_COMPLEX_CAST_HPP
+#ifndef QUAFU_CONFIG_COMPLEX_CAST_HPP
+#define QUAFU_CONFIG_COMPLEX_CAST_HPP
 
 #include <complex>
 #include <type_traits>
@@ -23,7 +23,7 @@
 
 #include "config/type_traits.h"
 
-namespace mindquantum {
+namespace quafu {
 template <typename coeff_t>
 class ParameterResolver;
 
@@ -51,6 +51,6 @@ template <typename real_t>
 constexpr auto complex_cast(real_t&& number) {
     return details::complex_cast_impl<std::remove_cvref_t<real_t>>::apply(std::forward<real_t>(number));
 }
-}  // namespace mindquantum
+}  // namespace quafu
 
-#endif /* MQ_CONFIG_COMPLEX_CAST_HPP */
+#endif /* QUAFU_CONFIG_COMPLEX_CAST_HPP */

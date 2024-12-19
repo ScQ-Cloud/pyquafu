@@ -1,19 +1,19 @@
-# MindQuantum Docker安装指南
+# quafu Docker安装指南
 
 <!-- TOC --->
 
-- [Docker方式安装MindQuantum](#docker方式安装mindquantum)
+- [Docker方式安装quafu](#docker方式安装quafu)
     - [获取MindSpore镜像](#获取mindspore镜像)
     - [运行MindSpore镜像](#运行mindspore镜像)
     - [验证Mindspore是否安装成功](#验证mindspore是否安装成功)
-    - [在Docker容器内安装Mindquantum](#在docker容器内安装mindquantum)
-    - [验证MindQuantum是否安装成功](#验证mindquantum是否安装成功)
+    - [在Docker容器内安装Mindquantum](#在docker容器内安装quafu)
+    - [验证quafu是否安装成功](#验证quafu是否安装成功)
 
 <!-- TOC --->
 
-## Docker方式安装MindQuantum
+## Docker方式安装quafu
 
-本文档介绍如何使用Docker方式快速安装MindQuantum。首先需要通过Docker方式安装MindSpore，流程介绍在[MindSpore的官方网站](https://www.mindspore.cn/install)，以下将重复这部分的内容。
+本文档介绍如何使用Docker方式快速安装quafu。首先需要通过Docker方式安装MindSpore，流程介绍在[MindSpore的官方网站](https://www.mindspore.cn/install)，以下将重复这部分的内容。
 
 ### 获取MindSpore镜像
 
@@ -82,19 +82,19 @@ print(ops.add(x, y))
     **编译安装：**
 
     ```shell
-    git clone https://gitee.com/mindspore/mindquantum.git
-    cd ~/mindquantum
+    git clone https://gitee.com/mindspore/quafu.git
+    cd ~/quafu
     python setup.py install --user
     ```
 
     **pip安装：**
 
     ```shell
-    pip install https://hiq.huaweicloud.com/download/mindquantum/newest/linux/mindquantum-master-cp37-cp37m-linux_x86_64.whl -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install https://hiq.huaweicloud.com/download/quafu/newest/linux/quafu-master-cp37-cp37m-linux_x86_64.whl -i https://pypi.tuna.tsinghua.edu.cn/simple
     ```
 
-### 验证MindQuantum是否安装成功
+### 验证quafu是否安装成功
 
 ```shell
-python -c 'import mindquantum'
+python -c 'import quafu'
 ```

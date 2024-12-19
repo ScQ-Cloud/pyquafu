@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.IQPEncoding
+quafu.algorithm.nisq.IQPEncoding
 =======================================
 
-.. py:class:: mindquantum.algorithm.nisq.IQPEncoding(n_feature, first_rotation_gate=RZ, second_rotation_gate=RZ, num_repeats=1, prefix: str = '', suffix: str = '')
+.. py:class:: quafu.algorithm.nisq.IQPEncoding(n_feature, first_rotation_gate=RZ, second_rotation_gate=RZ, num_repeats=1, prefix: str = '', suffix: str = '')
 
     通用IQP编码。
 

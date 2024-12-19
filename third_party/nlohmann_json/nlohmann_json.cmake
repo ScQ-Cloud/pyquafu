@@ -27,8 +27,8 @@ if(MSVC)
   set(nlohmann_json_CXXFLAGS
       "/Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /D_CRT_SECURE_NO_WARNINGS /DWIN32_LEAN_AND_MEAN")
   if(ENABLE_ITERATOR_DEBUG)
-    set(nlohmann_json_CFLAGS "/D_ITERATOR_DEBUG_LEVEL=${MQ_ITERATOR_DEBUG}")
-    set(nlohmann_json_CXXFLAGS "${nlohmann_json_CXXFLAGS} /D_ITERATOR_DEBUG_LEVEL=${MQ_ITERATOR_DEBUG}")
+    set(nlohmann_json_CFLAGS "/D_ITERATOR_DEBUG_LEVEL=${QUAFU_ITERATOR_DEBUG}")
+    set(nlohmann_json_CXXFLAGS "${nlohmann_json_CXXFLAGS} /D_ITERATOR_DEBUG_LEVEL=${QUAFU_ITERATOR_DEBUG}")
   endif()
   list(APPEND CMAKE_OPTION -DCMAKE_DEBUG_POSTFIX=d)
   if(CMAKE_MT)
@@ -52,11 +52,11 @@ else()
   set(MD5 "e8d56bc54621037842ee9f0aeae27746")
 endif()
 
-mindquantum_add_pkg(
+quafu_add_pkg(
   nlohmann_json
   VER ${VER}
   URL ${REQ_URL}
   MD5 ${MD5}
   CMAKE_PKG_NO_COMPONENTS
   CMAKE_OPTION ${CMAKE_OPTION}
-  TARGET_ALIAS mindquantum::json nlohmann_json::nlohmann_json)
+  TARGET_ALIAS quafu::json nlohmann_json::nlohmann_json)

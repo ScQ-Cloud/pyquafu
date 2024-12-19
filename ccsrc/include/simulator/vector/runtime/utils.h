@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MQ_SIM_VECTOR_RT
-#define MQ_SIM_VECTOR_RT
+#ifndef QUAFU_SIM_VECTOR_RT
+#define QUAFU_SIM_VECTOR_RT
 #include <string>
 #include <tuple>
 
@@ -22,7 +22,7 @@
 #define MAX_QUBIT 64
 #define MAX_SEED  65536
 
-namespace mindquantum::sim::rt {
+namespace quafu::sim::rt {
 enum class State {
     null,
     W_GATE,
@@ -36,5 +36,5 @@ enum class State {
 std::tuple<bool, Index> convert_int(const std::string &s, int64_t limit, bool raise_error = true);
 
 std::tuple<bool, double> convert_double(const std::string &s, bool raise_error = true);
-}  // namespace mindquantum::sim::rt
+}  // namespace quafu::sim::rt
 #endif

@@ -21,12 +21,12 @@
 #include <stdexcept>
 #include <utility>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "math/longbits/longbits.h"
 #include "ops/basic_gate.h"
 #include "ops/gate_id.h"
 
-namespace mindquantum::stabilizer {
+namespace quafu::stabilizer {
 StabilizerTableau::StabilizerTableau(size_t n_qubits, unsigned seed) : n_qubits(n_qubits), seed(seed), rnd_eng_(seed) {
     phase = LongBits(2 * n_qubits);
     table = std::vector<LongBits>(2 * n_qubits, LongBits(n_qubits * 2));
@@ -634,4 +634,4 @@ double StabilizerTableau::GetExpectation(const VT<PauliTerm<double>>& ham_termli
     }
     return expectation;
 }
-}  // namespace mindquantum::stabilizer
+}  // namespace quafu::stabilizer

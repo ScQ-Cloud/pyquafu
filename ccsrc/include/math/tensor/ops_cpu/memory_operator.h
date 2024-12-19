@@ -111,7 +111,7 @@ template <typename T>
 Tensor init_with_vector(const std::vector<T>& a) {
     constexpr auto dtype = to_dtype_v<T>;
     auto out = cpu::init<dtype>(a.size());
-    mindquantum::safe_copy(out.data, sizeof(T) * a.size(), a.data(), sizeof(T) * a.size());
+    quafu::safe_copy(out.data, sizeof(T) * a.size(), a.data(), sizeof(T) * a.size());
     return out;
 }
 
@@ -121,7 +121,7 @@ template <TDtype dtype>
 Tensor copy(const void* data, size_t len) {
     using calc_t = to_device_t<dtype>;
     auto out = init<dtype>(len);
-    mindquantum::safe_copy(out.data, sizeof(calc_t) * len, data, sizeof(calc_t) * len);
+    quafu::safe_copy(out.data, sizeof(calc_t) * len, data, sizeof(calc_t) * len);
     return out;
 }
 
@@ -134,7 +134,7 @@ void* copy_mem(const void* data, size_t len) {
     if (res == nullptr) {
         throw std::runtime_error("malloc memory error.");
     }
-    mindquantum::safe_copy(res, sizeof(calc_t) * len, data, sizeof(calc_t) * len);
+    quafu::safe_copy(res, sizeof(calc_t) * len, data, sizeof(calc_t) * len);
     return res;
 }
 void* copy_mem(const void* data, TDtype dtype, size_t len);

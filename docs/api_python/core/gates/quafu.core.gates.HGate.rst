@@ -1,7 +1,7 @@
-mindquantum.core.gates.HGate
+quafu.core.gates.HGate
 =============================
 
-.. py:class:: mindquantum.core.gates.HGate
+.. py:class:: quafu.core.gates.HGate
 
     Hadamard门。矩阵为：
 

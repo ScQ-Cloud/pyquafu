@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_PYTHON_BUILD_ENV_HPP_
-#define MQ_PYTHON_BUILD_ENV_HPP_
+#ifndef QUAFU_PYTHON_BUILD_ENV_HPP_
+#define QUAFU_PYTHON_BUILD_ENV_HPP_
 #include "python/ops/build_env.h"
 
 #include <algorithm>
@@ -27,7 +27,7 @@
 #define macro_value_to_string(x) macro_to_string(x)
 namespace py = pybind11;
 
-namespace mindquantum {
+namespace quafu {
 std::string GetBuildABI() {
     auto abi = macro_value_to_string(PYBIND11_BUILD_ABI);
     abi.erase(std::remove(abi.begin(), abi.end(), '\"'), abi.end());
@@ -49,5 +49,5 @@ void BindPybind11Env(py::module &module) {
     module.def("compiler_type", &GetCompilerType);
     module.def("std_lib", &GetStdLib);
 }
-}  // namespace mindquantum
+}  // namespace quafu
 #endif

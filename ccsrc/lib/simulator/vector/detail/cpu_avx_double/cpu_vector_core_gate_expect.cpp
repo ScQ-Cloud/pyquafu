@@ -18,7 +18,7 @@
 #include "simulator/utils.h"
 #include "simulator/vector/detail/cpu_vector_avx_double_policy.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 auto CPUVectorPolicyAvxDouble::ExpectDiffSingleQubitMatrix(const qs_data_p_t& bra_out, const qs_data_p_t& ket_out,
                                                            const qbits_t& objs, const qbits_t& ctrls,
                                                            const VVT<py_qs_data_t>& m, index_t dim) -> qs_data_t {
@@ -44,7 +44,7 @@ auto CPUVectorPolicyAvxDouble::ExpectDiffSingleQubitMatrix(const qs_data_p_t& br
     if (!mask.ctrl_mask) {
         // clang-format off
         THRESHOLD_OMP(
-            MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
+            QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
                 for (omp::idx_t l = 0; l < static_cast<omp::idx_t>(dim / 2); l++) {
                     auto i = ((l & mask.obj_high_mask) << 1) + (l & mask.obj_low_mask);
                     auto j = i + mask.obj_mask;
@@ -75,7 +75,7 @@ auto CPUVectorPolicyAvxDouble::ExpectDiffSingleQubitMatrix(const qs_data_p_t& br
             auto second_high_mask = ~second_low_mask;
             // clang-format off
             THRESHOLD_OMP(
-                MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
+                QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
                     for (omp::idx_t l = 0; l < static_cast<omp::idx_t>(dim / 4); l++) {
                         auto i = ((l & first_high_mask) << 1) + (l & first_low_mask);
                         i = ((i & second_high_mask) << 1) + (i & second_low_mask) + mask.ctrl_mask;
@@ -94,7 +94,7 @@ auto CPUVectorPolicyAvxDouble::ExpectDiffSingleQubitMatrix(const qs_data_p_t& br
         } else {
             // clang-format off
             THRESHOLD_OMP(
-                MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
+                QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
                     for (omp::idx_t l = 0; l < static_cast<omp::idx_t>(dim / 2); l++) {
                         auto i = ((l & mask.obj_high_mask) << 1) + (l & mask.obj_low_mask);
                         if ((i & mask.ctrl_mask) == mask.ctrl_mask) {
@@ -121,4 +121,4 @@ auto CPUVectorPolicyAvxDouble::ExpectDiffSingleQubitMatrix(const qs_data_p_t& br
     }
     return {res_real, res_imag};
 };
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

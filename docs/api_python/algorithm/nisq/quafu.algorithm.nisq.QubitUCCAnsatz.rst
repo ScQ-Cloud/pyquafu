@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.QubitUCCAnsatz
+quafu.algorithm.nisq.QubitUCCAnsatz
 ==========================================
 
-.. py:class:: mindquantum.algorithm.nisq.QubitUCCAnsatz(n_qubits=None, n_electrons=None, occ_orb=None, vir_orb=None, generalized=False, trotter_step=1)
+.. py:class:: quafu.algorithm.nisq.QubitUCCAnsatz(n_qubits=None, n_electrons=None, occ_orb=None, vir_orb=None, generalized=False, trotter_step=1)
 
     量子比特幺正耦合簇（qUCC）是幺正耦合簇的变体，它使用量子比特激励算子而不是费米子激励算子。
     量子比特激励算子跨越的Fock空间相当于费米子算子，因此可以使用量子比特激发算子以更高阶的 Trotterization 为代价来近似精确的波函数。

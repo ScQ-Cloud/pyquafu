@@ -32,7 +32,7 @@
 #include "simulator/vector/vector_state.h"
 constexpr int MAX_SHOTS = 100000;
 
-namespace mindquantum::sim::rt {
+namespace quafu::sim::rt {
 int cmd(const std::vector<std::string> &args) {
     if (args.size() < 4) {
         throw std::runtime_error("You should set n_qubits and random seed when running simulator.");
@@ -236,4 +236,4 @@ int cmd_file(const char *filename) {
     cmd(cmds);
     return 0;
 }
-}  // namespace mindquantum::sim::rt
+}  // namespace quafu::sim::rt

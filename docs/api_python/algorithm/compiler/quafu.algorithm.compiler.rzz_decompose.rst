@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.rzz_decompose
+quafu.algorithm.compiler.rzz_decompose
 ============================================
 
-.. py:function:: mindquantum.algorithm.compiler.rzz_decompose(gate: gates.Rzz)
+.. py:function:: quafu.algorithm.compiler.rzz_decompose(gate: gates.Rzz)
 
     分解一个的 :class:`~.core.gates.Rzz` 门。
 

@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.GateReplacer
+quafu.algorithm.compiler.GateReplacer
 ===========================================
 
-.. py:class:: mindquantum.algorithm.compiler.GateReplacer(ori_example_gate: BasicGate, wanted_example_circ: Circuit)
+.. py:class:: quafu.algorithm.compiler.GateReplacer(ori_example_gate: BasicGate, wanted_example_circ: Circuit)
 
     将给定的量子门替换成给定的量子线路。
 

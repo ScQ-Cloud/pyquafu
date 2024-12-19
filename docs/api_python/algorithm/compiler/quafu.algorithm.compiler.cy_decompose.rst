@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.cy_decompose
+quafu.algorithm.compiler.cy_decompose
 ===========================================
 
-.. py:function:: mindquantum.algorithm.compiler.cy_decompose(gate: gates.YGate)
+.. py:function:: quafu.algorithm.compiler.cy_decompose(gate: gates.YGate)
 
     分解一个受控的 :class:`~.core.gates.YGate` 门。
 

@@ -25,12 +25,12 @@
 
 #include <fmt/core.h>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "device/topology.h"
 #include "ops/basic_gate.h"
 #include "ops/gate_id.h"
 
-namespace mindquantum::mapping {
+namespace quafu::mapping {
 // -----------------------------------------------------------------------------
 VT<VT<int>> GetCircuitDAG(int n, const VT<Gate>& gates) {
     int m = gates.size();
@@ -88,7 +88,7 @@ std::pair<qbit_t, VT<Gate>> GateToAbstractGate(const VT<std::shared_ptr<BasicGat
 }
 
 // -----------------------------------------------------------------------------
-int MQ_SABRE::CalGraphCenter(const VT<VT<int>>& graph) {
+int QUAFU_SABRE::CalGraphCenter(const VT<VT<int>>& graph) {
     int n = graph.size();
     int center_qubit = 0;
     int tempmin = INT16_MAX;
@@ -105,7 +105,7 @@ int MQ_SABRE::CalGraphCenter(const VT<VT<int>>& graph) {
     return center_qubit;
 }
 
-VT<int> MQ_SABRE::InitialMapping(const std::shared_ptr<QubitsTopology>& coupling_graph) {
+VT<int> QUAFU_SABRE::InitialMapping(const std::shared_ptr<QubitsTopology>& coupling_graph) {
     VT<int> layout(this->num_physical, -1);
     VT<int> Rlayout(this->num_physical, -1);
     int Qc = CalGraphCenter(this->D);
@@ -217,7 +217,7 @@ VT<int> MQ_SABRE::InitialMapping(const std::shared_ptr<QubitsTopology>& coupling
     return layout;
 }
 
-std::list<int> MQ_SABRE::GetNextLayer(const std::list<int>& F, const VT<VT<int>>& DAG, VT<int>& indeg) {
+std::list<int> QUAFU_SABRE::GetNextLayer(const std::list<int>& F, const VT<VT<int>>& DAG, VT<int>& indeg) {
     std::list<int> ret;
     for (int x : F) {
         for (int y : DAG[x]) {
@@ -236,7 +236,7 @@ std::list<int> MQ_SABRE::GetNextLayer(const std::list<int>& F, const VT<VT<int>>
     }
     return ret;
 }
-std::list<int> MQ_SABRE::GetFLayer(std::list<std::pair<int, int>>& E) {
+std::list<int> QUAFU_SABRE::GetFLayer(std::list<std::pair<int, int>>& E) {
     std::list<int> res;
     if (E.size() > 0) {
         int flag = E.front().second;
@@ -248,7 +248,7 @@ std::list<int> MQ_SABRE::GetFLayer(std::list<std::pair<int, int>>& E) {
     return res;
 }
 
-bool MQ_SABRE::IsExecutable(const VT<int>& pi, int g) const {
+bool QUAFU_SABRE::IsExecutable(const VT<int>& pi, int g) const {
     if (gates[g].type == "CNOT") {
         int p = pi[gates[g].q1], q = pi[gates[g].q2];
         return std::any_of(G[p].begin(), G[p].end(), [&](int a) { return a == q; });
@@ -257,7 +257,7 @@ bool MQ_SABRE::IsExecutable(const VT<int>& pi, int g) const {
     }
 }
 
-std::set<std::pair<int, int>> MQ_SABRE::ObtainSWAPs(const std::list<int>& F, const VT<int>& pi) const {
+std::set<std::pair<int, int>> QUAFU_SABRE::ObtainSWAPs(const std::list<int>& F, const VT<int>& pi) const {
     std::set<std::pair<int, int>> ret;
     for (int g : F) {
         int x = pi[gates[g].q1];
@@ -272,7 +272,7 @@ std::set<std::pair<int, int>> MQ_SABRE::ObtainSWAPs(const std::list<int>& F, con
     return ret;
 }
 
-double MQ_SABRE::HBasic(const std::list<int>& F, const VT<int>& pi) const {
+double QUAFU_SABRE::HBasic(const std::list<int>& F, const VT<int>& pi) const {
     double sum = 0;
     for (int g : F) {
         int q1 = gates[g].q1;
@@ -282,8 +282,8 @@ double MQ_SABRE::HBasic(const std::list<int>& F, const VT<int>& pi) const {
     return sum;
 }
 
-std::pair<double, double> MQ_SABRE::HExtended(const std::list<std::pair<int, int>>& E, const VT<int>& tmppi,
-                                              const VT<int>& pi) const {
+std::pair<double, double> QUAFU_SABRE::HExtended(const std::list<std::pair<int, int>>& E, const VT<int>& tmppi,
+                                                 const VT<int>& pi) const {
     double sum = 0;
     double effectcost = 0;
     for (auto g : E) {
@@ -295,7 +295,7 @@ std::pair<double, double> MQ_SABRE::HExtended(const std::list<std::pair<int, int
     return std::pair<double, double>({sum, effectcost});
 }
 
-VT<int> MQ_SABRE::GetReversePi(const VT<int>& pi) const {
+VT<int> QUAFU_SABRE::GetReversePi(const VT<int>& pi) const {
     VT<int> rpi(pi.size(), -1);
     for (int i = 0; i < static_cast<int>(pi.size()); ++i) {
         if (pi[i] != -1)
@@ -304,7 +304,7 @@ VT<int> MQ_SABRE::GetReversePi(const VT<int>& pi) const {
     return rpi;
 }
 
-VT<Gate> MQ_SABRE::HeuristicSearch(VT<int>& pi, const VT<VT<int>>& DAG) {
+VT<Gate> QUAFU_SABRE::HeuristicSearch(VT<int>& pi, const VT<VT<int>>& DAG) {
     VT<Gate> ans;
     int tot = 0;
     auto rpi = GetReversePi(pi);   // mapping from physical to logical
@@ -442,8 +442,9 @@ VT<Gate> MQ_SABRE::HeuristicSearch(VT<int>& pi, const VT<VT<int>>& DAG) {
     return ans;
 }
 
-MQ_SABRE::MQ_SABRE(const VT<std::shared_ptr<BasicGate>>& circ, const std::shared_ptr<QubitsTopology>& coupling_graph,
-                   const std::vector<std::pair<std::pair<int, int>, VT<double>>>& CnotErrrorRateAndGateLength) {
+QUAFU_SABRE::QUAFU_SABRE(const VT<std::shared_ptr<BasicGate>>& circ,
+                         const std::shared_ptr<QubitsTopology>& coupling_graph,
+                         const std::vector<std::pair<std::pair<int, int>, VT<double>>>& CnotErrrorRateAndGateLength) {
     auto tmp = GateToAbstractGate(circ);
     this->num_logical = tmp.first;
     this->gates = tmp.second;
@@ -560,8 +561,8 @@ MQ_SABRE::MQ_SABRE(const VT<std::shared_ptr<BasicGate>>& circ, const std::shared
     // return;
 }
 
-std::pair<VT<VT<int>>, std::pair<VT<int>, VT<int>>> MQ_SABRE::Solve(double W, double alpha1, double alpha2,
-                                                                    double alpha3) {
+std::pair<VT<VT<int>>, std::pair<VT<int>, VT<int>>> QUAFU_SABRE::Solve(double W, double alpha1, double alpha2,
+                                                                       double alpha3) {
     this->SetParameters(W, alpha1, alpha2, alpha3);  // set parameters
     this->DM = VT<VT<double>>(num_physical, VT<double>(num_physical, 0.0));
     for (int i = 0; i < num_physical; i++) {
@@ -584,7 +585,7 @@ std::pair<VT<VT<int>>, std::pair<VT<int>, VT<int>>> MQ_SABRE::Solve(double W, do
     return {gate_info, {initial_mapping, this->layout}};
 }
 
-inline void MQ_SABRE::SetParameters(double W, double alpha1, double alpha2, double alpha3) {
+inline void QUAFU_SABRE::SetParameters(double W, double alpha1, double alpha2, double alpha3) {
     this->W = W;
     this->alpha1 = alpha1;
     this->alpha2 = alpha2;
@@ -831,4 +832,4 @@ inline void SABRE::SetParameters(double W, double delta1, double delta2) {
     this->delta1 = delta1;
     this->delta2 = delta2;
 }
-}  // namespace mindquantum::mapping
+}  // namespace quafu::mapping

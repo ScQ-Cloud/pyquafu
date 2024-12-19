@@ -18,7 +18,7 @@
 
 #include "core/utils.h"
 
-namespace mindquantum::sparse {
+namespace quafu::sparse {
 template <typename T>
 struct CsrHdMatrix {
     Index dim_;
@@ -85,5 +85,5 @@ struct CsrHdMatrix {
         std::cout << "-->\n\n";
     }
 };
-}  // namespace mindquantum::sparse
+}  // namespace quafu::sparse
 #endif  // MINDQUANTUM_SPARSE_CSR_HD_MATRIX_H_

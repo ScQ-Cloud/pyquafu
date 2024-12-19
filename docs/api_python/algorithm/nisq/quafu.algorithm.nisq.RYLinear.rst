@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.RYLinear
+quafu.algorithm.nisq.RYLinear
 ===================================
 
-.. py:class:: mindquantum.algorithm.nisq.RYLinear(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
+.. py:class:: quafu.algorithm.nisq.RYLinear(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
 
     以 :class:`~.core.gates.RY` 门作为单比特门，以线性分布的 CNOT 门作为纠缠门的硬件友好型线路。
 

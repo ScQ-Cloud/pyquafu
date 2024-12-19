@@ -1,7 +1,7 @@
-mindquantum.framework.MQEncoderOnlyOps
+quafu.framework.QUAFUEncoderOnlyOps
 ======================================
 
-.. py:class:: mindquantum.framework.MQEncoderOnlyOps(expectation_with_grad)
+.. py:class:: quafu.framework.QUAFUEncoderOnlyOps(expectation_with_grad)
 
     仅包含encoder线路的量子线路演化算子。通过参数化量子线路(PQC)获得对量子态的哈密顿期望。此算子只能在 `PYNATIVE_MODE` 下执行。
 

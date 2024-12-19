@@ -1,10 +1,10 @@
-mindquantum.core.operators
+quafu.core.operators
 ==========================
 
-.. py:module:: mindquantum.core.operators
+.. py:module:: quafu.core.operators
 
 
-MindQuantum算子库。算子由一个或多个基本门的组合而成。
+quafu算子库。算子由一个或多个基本门的组合而成。
 
 包含以下类的表示：
 
@@ -22,14 +22,14 @@ Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.operators.FermionOperator
-    mindquantum.core.operators.Hamiltonian
-    mindquantum.core.operators.InteractionOperator
-    mindquantum.core.operators.PolynomialTensor
-    mindquantum.core.operators.Projector
-    mindquantum.core.operators.QubitExcitationOperator
-    mindquantum.core.operators.QubitOperator
-    mindquantum.core.operators.TimeEvolution
+    quafu.core.operators.FermionOperator
+    quafu.core.operators.Hamiltonian
+    quafu.core.operators.InteractionOperator
+    quafu.core.operators.PolynomialTensor
+    quafu.core.operators.Projector
+    quafu.core.operators.QubitExcitationOperator
+    quafu.core.operators.QubitOperator
+    quafu.core.operators.TimeEvolution
 
 Function
 ---------------
@@ -39,13 +39,13 @@ Function
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.operators.commutator
-    mindquantum.core.operators.count_qubits
-    mindquantum.core.operators.down_index
-    mindquantum.core.operators.get_fermion_operator
-    mindquantum.core.operators.ground_state_of_sum_zz
-    mindquantum.core.operators.hermitian_conjugated
-    mindquantum.core.operators.normal_ordered
-    mindquantum.core.operators.number_operator
-    mindquantum.core.operators.sz_operator
-    mindquantum.core.operators.up_index
+    quafu.core.operators.commutator
+    quafu.core.operators.count_qubits
+    quafu.core.operators.down_index
+    quafu.core.operators.get_fermion_operator
+    quafu.core.operators.ground_state_of_sum_zz
+    quafu.core.operators.hermitian_conjugated
+    quafu.core.operators.normal_ordered
+    quafu.core.operators.number_operator
+    quafu.core.operators.sz_operator
+    quafu.core.operators.up_index

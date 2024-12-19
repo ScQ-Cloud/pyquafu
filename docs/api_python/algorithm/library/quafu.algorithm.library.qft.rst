@@ -1,7 +1,7 @@
-mindquantum.algorithm.library.qft
+quafu.algorithm.library.qft
 ==================================
 
-.. py:function:: mindquantum.algorithm.library.qft(qubits)
+.. py:function:: quafu.algorithm.library.qft(qubits)
 
     量子傅里叶变换（QFT）。量子傅里叶变换与经典傅里叶变换的功能相似。
 

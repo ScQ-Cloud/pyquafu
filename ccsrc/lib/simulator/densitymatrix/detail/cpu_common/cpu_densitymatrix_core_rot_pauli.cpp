@@ -26,7 +26,7 @@
 #endif
 #include "simulator/densitymatrix/detail/cpu_densitymatrix_policy.h"
 #define MATSUM4(a1, b1, c1, d1, a2, b2, c2, d2) ((a1) * (a2) + (b1) * (b2) + (c1) * (c2) + (d1) * (d2))
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 template <typename derived_, typename calc_type_>
 void CPUDensityMatrixPolicyBase<derived_, calc_type_>::ApplyRPS(qs_data_p_t* qs_p, const PauliMask& mask,
                                                                 Index ctrl_mask, calc_type val, index_t dim,
@@ -993,4 +993,4 @@ template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyAvxDouble, doub
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmFloat, float>;
 template struct CPUDensityMatrixPolicyBase<CPUDensityMatrixPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail

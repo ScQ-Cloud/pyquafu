@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.Ansatz
+quafu.algorithm.nisq.Ansatz
 ==================================
 
-.. py:class:: mindquantum.algorithm.nisq.Ansatz(name, n_qubits, *args, **kwargs)
+.. py:class:: quafu.algorithm.nisq.Ansatz(name, n_qubits, *args, **kwargs)
 
     Ansatz的基类。
 

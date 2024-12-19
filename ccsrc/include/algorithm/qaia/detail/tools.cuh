@@ -25,9 +25,9 @@
 #include <cuda_runtime.h>
 
 #include "algorithm/qaia/csr_base.h"
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 
-using mindquantum::Index;
+using quafu::Index;
 
 template <typename T>
 struct Bounds;

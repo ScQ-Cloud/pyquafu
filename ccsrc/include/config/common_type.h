@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef MQ_CONFIG_COMMON_TYPE_HPP
-#define MQ_CONFIG_COMMON_TYPE_HPP
+#ifndef QUAFU_CONFIG_COMMON_TYPE_HPP
+#define QUAFU_CONFIG_COMMON_TYPE_HPP
 
 // =============================================================================
 
-namespace mindquantum::traits {
+namespace quafu::traits {
 template <typename... args_t>
 struct common_type;
 
@@ -76,8 +76,8 @@ struct common_type<T, U, args_t...> : common_type_fold<common_type<T, U>, common
 
 template <typename... args_t>
 using common_type_t = typename common_type<args_t...>::type;
-}  // namespace mindquantum::traits
+}  // namespace quafu::traits
 
 // =============================================================================
 
-#endif /* MQ_CONFIG_COMMON_TYPE_HPP */
+#endif /* QUAFU_CONFIG_COMMON_TYPE_HPP */

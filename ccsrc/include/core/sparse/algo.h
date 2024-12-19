@@ -25,7 +25,7 @@
 #include "core/sparse/sparse_utils.h"
 #include "core/utils.h"
 
-namespace mindquantum::sparse {
+namespace quafu::sparse {
 template <typename T>
 std::shared_ptr<CsrHdMatrix<T>> TransposeCsrHdMatrix(std::shared_ptr<CsrHdMatrix<T>> a) {
     auto &dim = a->dim_;
@@ -72,11 +72,11 @@ std::shared_ptr<CsrHdMatrix<T>> PauliMatToCsrHdMatrix(std::shared_ptr<PauliMat<T
     auto &coeff = a->coeff_;
     auto &p = a->p_;
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for schedule(static) reduction(+ : nnz)), dim, static_cast<uint64_t>(1) << nQubitTh,
+        QUAFU_DO_PRAGMA(omp parallel for schedule(static) reduction(+ : nnz)), dim, static_cast<uint64_t>(1) << nQubitTh,
                      for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) {
-                         if (i <= col[i]) {
-                             nnz++;
-                         }
+        if (i <= col[i]) {
+            nnz++;
+        }
                      })
     Index *indptr = reinterpret_cast<Index *>(malloc(sizeof(Index) * (dim + 1)));
     Index *indices = reinterpret_cast<Index *>(malloc(sizeof(Index) * nnz));
@@ -136,10 +136,10 @@ std::shared_ptr<CsrHdMatrix<T>> SparseHamiltonian(const VT<PauliTerm<T>> &hams, 
     while (tot > 1) {
         Index half = tot / 2 + tot % 2;
         THRESHOLD_OMP(
-            MQ_DO_PRAGMA(omp parallel for schedule(static) num_threads(half)), n_qubits, nQubitTh,
+            QUAFU_DO_PRAGMA(omp parallel for schedule(static) num_threads(half)), n_qubits, nQubitTh,
                          for (omp::idx_t i = static_cast<omp::idx_t>(half); i < tot; i++) {
-                             sp_hams[i - half] = Csr_Plus_Csr(sp_hams[i - half], sp_hams[i]);
-                             sp_hams[i]->Reset();
+            sp_hams[i - half] = Csr_Plus_Csr(sp_hams[i - half], sp_hams[i]);
+            sp_hams[i]->Reset();
                          })
         tot = half;
     }
@@ -175,16 +175,16 @@ CT<T2> ExpectationOfCsr(std::shared_ptr<CsrHdMatrix<T>> a, T2 *bra, T2 *ket) {
     auto indices = a->indices_;
     T2 res_real = 0, res_imag = 0;
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim,
+        QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim,
                                                 static_cast<uint64_t>(1) << nQubitTh,
                                                 for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) {
-                                                    CT<T2> sum = {0.0, 0.0};
-                                                    for (Index j = indptr[i]; j < indptr[i + 1]; j++) {
-                                                        sum += data[j] * c_ket[indices[j]];
-                                                    }
-                                                    auto tmp = std::conj(c_bra[i]) * sum;
-                                                    res_real += std::real(tmp);
-                                                    res_imag += std::imag(tmp);
+        CT<T2> sum = {0.0, 0.0};
+        for (Index j = indptr[i]; j < indptr[i + 1]; j++) {
+            sum += data[j] * c_ket[indices[j]];
+        }
+        auto tmp = std::conj(c_bra[i]) * sum;
+        res_real += std::real(tmp);
+        res_imag += std::imag(tmp);
                                                 })
     return {res_real, res_imag};
 }
@@ -230,7 +230,7 @@ CT<T2> ExpectationOfCsr(std::shared_ptr<CsrHdMatrix<T>> a, std::shared_ptr<CsrHd
 
     // clang-format off
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim,
+        QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim,
             static_cast<uint64_t>(1) << nQubitTh,
             for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) {
                 CT<T2> sum = {0.0, 0.0};
@@ -247,5 +247,5 @@ CT<T2> ExpectationOfCsr(std::shared_ptr<CsrHdMatrix<T>> a, std::shared_ptr<CsrHd
     // clang-format on
     return {res_real, res_imag};
 }
-}  // namespace mindquantum::sparse
+}  // namespace quafu::sparse
 #endif  // MINDQUANTUM_SPARSE_ALGO_H_

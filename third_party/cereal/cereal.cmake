@@ -42,10 +42,10 @@ if(MSVC AND CMAKE_MT)
   list(APPEND CMAKE_OPTION -DCMAKE_MT=${CMAKE_MT})
 endif()
 
-mindquantum_add_pkg(
+quafu_add_pkg(
   cereal
   VER ${VER}
   URL ${REQ_URL}
   MD5 ${MD5}
   CMAKE_OPTION ${CMAKE_OPTION}
-  TARGET_ALIAS mindquantum::cereal cereal::cereal)
+  TARGET_ALIAS quafu::cereal cereal::cereal)

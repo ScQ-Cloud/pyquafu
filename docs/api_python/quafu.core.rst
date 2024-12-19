@@ -1,15 +1,15 @@
-mindquantum.core
+quafu.core
 ================
 
-.. py:module:: mindquantum.core
+.. py:module:: quafu.core
 
 
-MindQuantum的核心特性(eDSL)
+quafu的核心特性(eDSL)
 
 .. mscnautosummary::
    :toctree: core
 
-   mindquantum.core.gates
-   mindquantum.core.circuit
-   mindquantum.core.operators
-   mindquantum.core.parameterresolver
+   quafu.core.gates
+   quafu.core.circuit
+   quafu.core.operators
+   quafu.core.parameterresolver

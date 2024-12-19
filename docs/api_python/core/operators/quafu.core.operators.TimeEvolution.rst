@@ -1,7 +1,7 @@
-mindquantum.core.operators.TimeEvolution
+quafu.core.operators.TimeEvolution
 =========================================
 
-.. py:class:: mindquantum.core.operators.TimeEvolution(ops: QubitOperator, time=None)
+.. py:class:: quafu.core.operators.TimeEvolution(ops: QubitOperator, time=None)
 
     可以生成对应线路的时间演化算子。
 

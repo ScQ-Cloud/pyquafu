@@ -22,7 +22,7 @@ include(debug_print)
 include(CMakeDependentOption)
 
 # ==============================================================================
-# MindQuantum feature selection
+# quafu feature selection
 
 option(ENABLE_GITEE "Use Gitee instead of GitHub for checking out third-party dependencies" OFF)
 option(ENABLE_DOCUMENTATION "Enable building of the documentation using Doxygen" OFF)
@@ -89,7 +89,7 @@ if(MSVC)
   option(ENABLE_MD "Enable compilation using the /MD,/MDd flags" OFF)
   option(ENABLE_MT "Enable compilation using the /MT,/MTd flags" OFF)
   option(ENABLE_ITERATOR_DEBUG
-         "Enable the definition of _ITERATOR_DEBUG compiler defines (use MQ_ITERATOR_DEBUG to specify the value)" OFF)
+         "Enable the definition of _ITERATOR_DEBUG compiler defines (use QUAFU_ITERATOR_DEBUG to specify the value)" OFF)
   option(DISABLE_FORTRAN_COMPILER "Forcefully disable the Fortran compiler for some 3rd party libraries" ON)
 endif()
 
@@ -146,7 +146,7 @@ option(USE_VERBOSE_MAKEFILE "Use verbose Makefiles" ON)
 
 # ==============================================================================
 # ==============================================================================
-# MindQuantum feature selection
+# quafu feature selection
 
 if(ENABLE_LOGGING_TRACE_LEVEL AND ENABLE_LOGGING_DEBUG_LEVEL)
   message(
@@ -186,9 +186,9 @@ endif()
 
 include(CheckLanguage)
 
-set(_mq_added_nvcxx_module_path FALSE)
+set(_quafu_added_nvcxx_module_path FALSE)
 if(ENABLE_CUDA)
-  set(_mq_added_nvcxx_module_path TRUE)
+  set(_quafu_added_nvcxx_module_path TRUE)
   list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/NVCXX)
 
   set(_default_cudaarchs FALSE)
@@ -242,7 +242,7 @@ if(ENABLE_CUDA)
         # * NVCXX < 21.5  : extraction of GPU kernels from shared library is broken
         message(
           FATAL_ERROR
-            "MindQuantum is not compatible with the current version of NVHPC (${CMAKE_NVCXX_COMPILER_VERSION})"
+            "quafu is not compatible with the current version of NVHPC (${CMAKE_NVCXX_COMPILER_VERSION})"
             "Required is at least 21.5.")
       endif()
     else()
@@ -267,8 +267,8 @@ if(ENABLE_SANITIZERS)
 endif()
 
 if(MSVC)
-  if(NOT DEFINED MQ_ITERATOR_DEBUG)
-    set(MQ_ITERATOR_DEBUG
+  if(NOT DEFINED QUAFU_ITERATOR_DEBUG)
+    set(QUAFU_ITERATOR_DEBUG
         2
         CACHE STRING "Value to define the _ITERATOR_DEBUG compiler define to \
 (requires ENABLE_ITERATOR_DEBUG to have an effect)")

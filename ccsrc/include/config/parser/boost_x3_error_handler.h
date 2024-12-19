@@ -32,7 +32,7 @@
 
 #include "config/logging.h"
 
-namespace mindquantum::parser {
+namespace quafu::parser {
 template <typename iterator_t>
 class error_handler;
 
@@ -104,9 +104,9 @@ class error_handler {
 template <typename iterator_t>
 void error_handler<iterator_t>::print_file_line(std::size_t line) const {
     if (!std::empty(file)) {
-        MQ_LOGGER_ERROR(logger, "In file {}, line: {}", file, line);
+        QUAFU_LOGGER_ERROR(logger, "In file {}, line: {}", file, line);
     } else {
-        MQ_LOGGER_ERROR(logger, "On line: {}", line);
+        QUAFU_LOGGER_ERROR(logger, "On line: {}", line);
     }
 }
 
@@ -122,7 +122,7 @@ void error_handler<iterator_t>::print_line(iterator_t start, iterator_t last) co
     }
     using char_type = typename std::iterator_traits<iterator_t>::value_type;
     std::basic_string<char_type> line{start, end};
-    MQ_LOGGER_ERROR(logger, boost::spirit::x3::to_utf8(line));
+    QUAFU_LOGGER_ERROR(logger, boost::spirit::x3::to_utf8(line));
 }
 
 template <typename iterator_t>
@@ -142,13 +142,13 @@ void error_handler<iterator_t>::print_indicator(iterator_t& start, iterator_t la
     }
     switch (ind) {
         case ' ':
-            MQ_LOGGER_ERROR(logger, "{: >{}}{}", "", length, indicator);
+            QUAFU_LOGGER_ERROR(logger, "{: >{}}{}", "", length, indicator);
             break;
         case '~':
-            MQ_LOGGER_ERROR(logger, "{:~>{}}{}", "", length, indicator);
+            QUAFU_LOGGER_ERROR(logger, "{:~>{}}{}", "", length, indicator);
             break;
         default:
-            MQ_LOGGER_ERROR(logger, "{:->{}}{}", "", length, indicator);
+            QUAFU_LOGGER_ERROR(logger, "{:->{}}{}", "", length, indicator);
             break;
     }
 }
@@ -196,7 +196,7 @@ void error_handler<iterator_t>::operator()(iterator_t err_pos, std::string const
     iterator_t last = pos_cache.last();
 
     print_file_line(position(err_pos));
-    MQ_LOGGER_ERROR(logger, error_message);
+    QUAFU_LOGGER_ERROR(logger, error_message);
 
     iterator_t start = get_line_start(first, err_pos);
     print_line(start, last);
@@ -210,7 +210,7 @@ void error_handler<iterator_t>::operator()(iterator_t err_first, iterator_t err_
     iterator_t last = pos_cache.last();
 
     print_file_line(position(err_first));
-    MQ_LOGGER_ERROR(logger, error_message);
+    QUAFU_LOGGER_ERROR(logger, error_message);
 
     iterator_t start = get_line_start(first, err_first);
     print_line(start, last);
@@ -218,6 +218,6 @@ void error_handler<iterator_t>::operator()(iterator_t err_first, iterator_t err_
     print_indicator(start, err_last, '~', " <<-- Here");
 }
 #endif  // ENABLE_LOGGING
-}  // namespace mindquantum::parser
+}  // namespace quafu::parser
 
 #endif /* BOOST_X3_ERROR_HANDLER_HPP */

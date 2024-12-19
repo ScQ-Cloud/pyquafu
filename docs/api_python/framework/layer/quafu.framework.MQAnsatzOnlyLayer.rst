@@ -1,7 +1,7 @@
-mindquantum.framework.MQAnsatzOnlyLayer
+quafu.framework.QUAFUAnsatzOnlyLayer
 =======================================
 
-.. py:class:: mindquantum.framework.MQAnsatzOnlyLayer(expectation_with_grad, weight='normal')
+.. py:class:: quafu.framework.QUAFUAnsatzOnlyLayer(expectation_with_grad, weight='normal')
 
     仅包含ansatz线路的量子神经网络，ansatz线路的参数是可训练的参数。
 

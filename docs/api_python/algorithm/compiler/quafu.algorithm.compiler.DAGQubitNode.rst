@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.DAGQubitNode
+quafu.algorithm.compiler.DAGQubitNode
 ===========================================
 
-.. py:class:: mindquantum.algorithm.compiler.DAGQubitNode(qubit: int)
+.. py:class:: quafu.algorithm.compiler.DAGQubitNode(qubit: int)
 
     DAG 图中作为量子比特的节点。
 

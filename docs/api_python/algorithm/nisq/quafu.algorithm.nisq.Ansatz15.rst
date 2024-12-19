@@ -1,7 +1,7 @@
-mindquantum.algorithm.nisq.Ansatz15
+quafu.algorithm.nisq.Ansatz15
 ===================================
 
-.. py:class:: mindquantum.algorithm.nisq.Ansatz15(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
+.. py:class:: quafu.algorithm.nisq.Ansatz15(n_qubits: int, depth: int, prefix: str = '', suffix: str = '')
 
     Arxiv 论文中所提及的量子线路15。
 

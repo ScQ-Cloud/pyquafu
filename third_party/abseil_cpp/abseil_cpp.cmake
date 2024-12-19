@@ -32,7 +32,7 @@ endif()
 set(CMAKE_OPTION -DBUILD_TESTING=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DABSL_PROPAGATE_CXX_STD=ON
                  -DABSL_ENABLE_INSTALL=ON)
 
-mindquantum_add_pkg(
+quafu_add_pkg(
   absl
   VER ${VER}
   FORCE_EXACT_VERSION
@@ -40,4 +40,4 @@ mindquantum_add_pkg(
   URL ${REQ_URL}
   MD5 ${MD5}
   CMAKE_OPTION ${CMAKE_OPTION}
-  TARGET_ALIAS mindquantum::absl_node_hash_set absl::node_hash_set)
+  TARGET_ALIAS quafu::absl_node_hash_set absl::node_hash_set)

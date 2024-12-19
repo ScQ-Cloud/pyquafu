@@ -14,14 +14,14 @@
 
 .. title:: Overview
 
-MindQuantum
+quafu
 ===========
 
-MindQuantum is a general quantum computing framework developed by MindSpore and HiQ, that can be used to build and
+quafu is a general quantum computing framework developed by MindSpore and HiQ, that can be used to build and
 train different quantum neural networks. Thanks to the powerful algorithm of quantum software group of Huawei and
-High-performance automatic differentiation ability of MindSpore, MindQuantum can efficiently handle problems such as
+High-performance automatic differentiation ability of MindSpore, quafu can efficiently handle problems such as
 quantum machine learning, quantum chemistry simulation, and quantum optimization, which provides an efficient platform
-for researchers, teachers and students to quickly design and verify quantum machine learning algorithms. MindQuantum
+for researchers, teachers and students to quickly design and verify quantum machine learning algorithms. quafu
 Architecture
 
 .. toctree::
@@ -46,19 +46,19 @@ Architecture
 How to cite
 ===========
 
-When using MindQuantum for research, please cite:
+When using quafu for research, please cite:
 
 .. code-block:: latex
 
-   @misc{mq_2021,
-       author      = {MindQuantum Developer},
-       title       = {MindQuantum, version 0.5.0},
+   @misc{quafu_2021,
+       author      = {quafu Developer},
+       title       = {quafu, version 0.5.0},
        month       = {March},
        year        = {2021},
-       url         = {https://gitee.com/mindspore/mindquantum}
+       url         = {https://gitee.com/mindspore/quafu}
    }
 
-MindQuantum License
+quafu License
 ===================
 
 Apache License 2.0

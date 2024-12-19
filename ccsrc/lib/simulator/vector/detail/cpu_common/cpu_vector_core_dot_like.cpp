@@ -28,10 +28,10 @@
 #endif
 #include "simulator/vector/detail/cpu_vector_policy.h"
 
-namespace mindquantum::sim::vector::detail {
+namespace quafu::sim::vector::detail {
 template <typename derived_, typename calc_type_>
-auto CPUVectorPolicyBase<derived_, calc_type_>::Vdot(const qs_data_p_t& bra, const qs_data_p_t& ket, index_t dim)
-    -> py_qs_data_t {
+auto CPUVectorPolicyBase<derived_, calc_type_>::Vdot(const qs_data_p_t& bra, const qs_data_p_t& ket,
+                                                     index_t dim) -> py_qs_data_t {
     if (bra == nullptr && ket == nullptr) {
         return 1.0;
     } else if (bra == nullptr) {
@@ -42,7 +42,7 @@ auto CPUVectorPolicyBase<derived_, calc_type_>::Vdot(const qs_data_p_t& bra, con
     calc_type res_real = 0, res_imag = 0;
     // clang-format off
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
+        QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
             for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) {
                 res_real += bra[i].real() * ket[i].real() + bra[i].imag() * ket[i].imag();
                 res_imag += bra[i].real() * ket[i].imag() - bra[i].imag() * ket[i].real();
@@ -74,7 +74,7 @@ auto CPUVectorPolicyBase<derived_, calc_type_>::ConditionVdot(const qs_data_p_t&
     calc_type res_real = 0, res_imag = 0;
     // clang-format off
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
+        QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
             for (omp::idx_t i = 0; i < static_cast<omp::idx_t>(dim); i++) {
                 if ((i & mask) == condi) {
                     res_real += bra[i].real() * ket[i].real() + bra[i].imag() * ket[i].imag();
@@ -95,7 +95,7 @@ auto CPUVectorPolicyBase<derived_, calc_type_>::OneStateVdot(const qs_data_p_t& 
     calc_type res_real = 0, res_imag = 0;
     // clang-format off
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
+        QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
             for (omp::idx_t l = 0; l < static_cast<omp::idx_t>(dim / 2); l++) {
                 auto i = ((l & mask.obj_high_mask) << 1) + (l & mask.obj_low_mask) + mask.obj_mask;
                 res_real += bra[i].real() * ket[i].real() + bra[i].imag() * ket[i].imag();
@@ -119,7 +119,7 @@ auto CPUVectorPolicyBase<derived_, calc_type_>::ZeroStateVdot(const qs_data_p_t&
     calc_type res_real = 0, res_imag = 0;
     // clang-format off
     THRESHOLD_OMP(
-        MQ_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
+        QUAFU_DO_PRAGMA(omp parallel for reduction(+:res_real, res_imag) schedule(static)), dim, DimTh,
             for (omp::idx_t l = 0; l < static_cast<omp::idx_t>(dim / 2); l++) {
                 auto i = ((l & mask.obj_high_mask) << 1) + (l & mask.obj_low_mask);
                 res_real += bra[i].real() * ket[i].real() + bra[i].imag() * ket[i].imag();
@@ -231,4 +231,4 @@ template struct CPUVectorPolicyBase<CPUVectorPolicyAvxDouble, double>;
 template struct CPUVectorPolicyBase<CPUVectorPolicyArmFloat, float>;
 template struct CPUVectorPolicyBase<CPUVectorPolicyArmDouble, double>;
 #endif
-}  // namespace mindquantum::sim::vector::detail
+}  // namespace quafu::sim::vector::detail

@@ -1,7 +1,7 @@
-mindquantum.core.parameterresolver
+quafu.core.parameterresolver
 ==================================
 
-.. py:module:: mindquantum.core.parameterresolver
+.. py:module:: quafu.core.parameterresolver
 
 
 参数解析器模块，用于声明MindSpore Quantum中所使用到的参数。
@@ -14,5 +14,5 @@ Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.parameterresolver.ParameterResolver
-    mindquantum.core.parameterresolver.PRGenerator
+    quafu.core.parameterresolver.ParameterResolver
+    quafu.core.parameterresolver.PRGenerator

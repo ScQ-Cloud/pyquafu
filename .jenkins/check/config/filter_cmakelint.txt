@@ -1,5 +1,5 @@
-# MindQuantum
-"mindquantum/cmake"                                                                    "whitespace/indent"
-"mindquantum/cmake/Modules"                                                            "whitespace/indent"
-"mindquantum/cmake/Modules/apple"                                                      "whitespace/indent"
-"mindquantum/ccsrc/lib/simulator/stabilizer/CMakeLists.txt"                            "whitespace/indent"
+# quafu
+"quafu/cmake"                                                                    "whitespace/indent"
+"quafu/cmake/Modules"                                                            "whitespace/indent"
+"quafu/cmake/Modules/apple"                                                      "whitespace/indent"
+"quafu/ccsrc/lib/simulator/stabilizer/CMakeLists.txt"                            "whitespace/indent"

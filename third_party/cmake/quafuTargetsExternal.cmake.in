@@ -16,4 +16,4 @@
 #
 # ==============================================================================
 
-@MQ_FIND_EXTERNAL_PACKAGES@
+@QUAFU_FIND_EXTERNAL_PACKAGES@

@@ -16,11 +16,11 @@
 #
 # ==============================================================================
 
-add_library(mq_python_device INTERFACE)
-target_include_directories(mq_python_device INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-                                                      $<INSTALL_INTERFACE:${MQ_INSTALL_INCLUDEDIR}>)
+add_library(quafu_python_device INTERFACE)
+target_include_directories(quafu_python_device INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                                                      $<INSTALL_INTERFACE:${QUAFU_INSTALL_INCLUDEDIR}>)
 
-install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/python DESTINATION ${MQ_INSTALL_INCLUDEDIR})
-append_to_property(mq_install_targets GLOBAL mq_python_device)
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/python DESTINATION ${QUAFU_INSTALL_INCLUDEDIR})
+append_to_property(quafu_install_targets GLOBAL quafu_python_device)
 
 # ==============================================================================

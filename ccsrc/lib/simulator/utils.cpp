@@ -19,7 +19,7 @@
 #include <cassert>
 #include <numeric>
 
-namespace mindquantum::sim {
+namespace quafu::sim {
 index_t QIndexToMask(qbits_t objs) {
     return std::accumulate(objs.begin(), objs.end(), index_t(0),
                            [](index_t a, qbit_t b) { return a + (static_cast<uint64_t>(1) << b); });
@@ -72,4 +72,4 @@ DoubleQubitGateMask::DoubleQubitGateMask(const qbits_t &obj_qubits, const qbits_
     obj_rev_low_mask = ~obj_low_mask;
     obj_rev_high_mask = ~obj_high_mask;
 }
-}  // namespace mindquantum::sim
+}  // namespace quafu::sim

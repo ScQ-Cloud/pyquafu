@@ -1,7 +1,7 @@
-mindquantum.algorithm.error_mitigation.generate_single_qubit_rb_circ
+quafu.algorithm.error_mitigation.generate_single_qubit_rb_circ
 =====================================================================
 
-.. py:function:: mindquantum.algorithm.error_mitigation.generate_single_qubit_rb_circ(length: int, seed: int = None)
+.. py:function:: quafu.algorithm.error_mitigation.generate_single_qubit_rb_circ(length: int, seed: int = None)
 
     生成单比特量子随机基准测试线路。
 

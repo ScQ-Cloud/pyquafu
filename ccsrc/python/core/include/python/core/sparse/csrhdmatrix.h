@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MQ_PYTHON_CSRHDMATRIX_HPP
-#define MQ_PYTHON_CSRHDMATRIX_HPP
+#ifndef QUAFU_PYTHON_CSRHDMATRIX_HPP
+#define QUAFU_PYTHON_CSRHDMATRIX_HPP
 
 #include <pybind11/complex.h>
 #include <pybind11/numpy.h>
@@ -23,7 +23,7 @@
 
 #include "core/sparse/csrhdmatrix.h"
 
-namespace mindquantum::python {
+namespace quafu::python {
 template <typename T>
 struct CsrHdMatrix : sparse::CsrHdMatrix<T> {
     using sparse::CsrHdMatrix<T>::CsrHdMatrix;
@@ -52,6 +52,6 @@ struct CsrHdMatrix : sparse::CsrHdMatrix<T> {
         }
     }
 };
-}  // namespace mindquantum::python
+}  // namespace quafu::python
 
-#endif /* MQ_PYTHON_CSRHDMATRIX_HPP */
+#endif /* QUAFU_PYTHON_CSRHDMATRIX_HPP */

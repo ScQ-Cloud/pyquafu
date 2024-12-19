@@ -23,7 +23,7 @@
 #include "algorithm/qaia/detail/gpu_sb.cuh"
 #include "algorithm/qaia/detail/para.h"
 
-namespace mindquantum::algorithm::qaia::detail {
+namespace quafu::algorithm::qaia::detail {
 
 // Helper structure, using template specialization to select different update functions
 template <int SB, typename T, bool H>
@@ -31,67 +31,67 @@ struct SBUpdater;
 
 template <>
 struct SBUpdater<0, half, true> {
-    static void update(const mindquantum::sparse::CsrBase<double>& csr_matrix, double* raw_x,
-                       const mindquantum::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
-        mindquantum::algorithm::qaia::detail::SBBase::bSB_update_h_fp16(csr_matrix, raw_x, paras, raw_h, h_size);
+    static void update(const quafu::sparse::CsrBase<double>& csr_matrix, double* raw_x,
+                       const quafu::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
+        quafu::algorithm::qaia::detail::SBBase::bSB_update_h_fp16(csr_matrix, raw_x, paras, raw_h, h_size);
     }
 };
 
 template <>
 struct SBUpdater<0, int8_t, true> {
-    static void update(const mindquantum::sparse::CsrBase<double>& csr_matrix, double* raw_x,
-                       const mindquantum::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
-        mindquantum::algorithm::qaia::detail::SBBase::bSB_update_h_int8(csr_matrix, raw_x, paras, raw_h, h_size);
+    static void update(const quafu::sparse::CsrBase<double>& csr_matrix, double* raw_x,
+                       const quafu::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
+        quafu::algorithm::qaia::detail::SBBase::bSB_update_h_int8(csr_matrix, raw_x, paras, raw_h, h_size);
     }
 };
 
 template <>
 struct SBUpdater<1, half, true> {
-    static void update(const mindquantum::sparse::CsrBase<double>& csr_matrix, double* raw_x,
-                       const mindquantum::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
-        mindquantum::algorithm::qaia::detail::SBBase::dSB_update_h_fp16(csr_matrix, raw_x, paras, raw_h, h_size);
+    static void update(const quafu::sparse::CsrBase<double>& csr_matrix, double* raw_x,
+                       const quafu::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
+        quafu::algorithm::qaia::detail::SBBase::dSB_update_h_fp16(csr_matrix, raw_x, paras, raw_h, h_size);
     }
 };
 
 template <>
 struct SBUpdater<1, int8_t, true> {
-    static void update(const mindquantum::sparse::CsrBase<double>& csr_matrix, double* raw_x,
-                       const mindquantum::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
-        mindquantum::algorithm::qaia::detail::SBBase::dSB_update_h_int8(csr_matrix, raw_x, paras, raw_h, h_size);
+    static void update(const quafu::sparse::CsrBase<double>& csr_matrix, double* raw_x,
+                       const quafu::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
+        quafu::algorithm::qaia::detail::SBBase::dSB_update_h_int8(csr_matrix, raw_x, paras, raw_h, h_size);
     }
 };
 
 template <>
 struct SBUpdater<0, half, false> {
-    static void update(const mindquantum::sparse::CsrBase<double>& csr_matrix, double* raw_x,
-                       const mindquantum::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
-        mindquantum::algorithm::qaia::detail::SBBase::bSB_update_fp16(csr_matrix, raw_x, paras);
+    static void update(const quafu::sparse::CsrBase<double>& csr_matrix, double* raw_x,
+                       const quafu::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
+        quafu::algorithm::qaia::detail::SBBase::bSB_update_fp16(csr_matrix, raw_x, paras);
     }
 };
 
 template <>
 struct SBUpdater<0, int8_t, false> {
-    static void update(const mindquantum::sparse::CsrBase<double>& csr_matrix, double* raw_x,
-                       const mindquantum::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
-        mindquantum::algorithm::qaia::detail::SBBase::bSB_update_int8(csr_matrix, raw_x, paras);
+    static void update(const quafu::sparse::CsrBase<double>& csr_matrix, double* raw_x,
+                       const quafu::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
+        quafu::algorithm::qaia::detail::SBBase::bSB_update_int8(csr_matrix, raw_x, paras);
     }
 };
 
 template <>
 struct SBUpdater<1, half, false> {
-    static void update(const mindquantum::sparse::CsrBase<double>& csr_matrix, double* raw_x,
-                       const mindquantum::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
-        mindquantum::algorithm::qaia::detail::SBBase::dSB_update_fp16(csr_matrix, raw_x, paras);
+    static void update(const quafu::sparse::CsrBase<double>& csr_matrix, double* raw_x,
+                       const quafu::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
+        quafu::algorithm::qaia::detail::SBBase::dSB_update_fp16(csr_matrix, raw_x, paras);
     }
 };
 
 template <>
 struct SBUpdater<1, int8_t, false> {
-    static void update(const mindquantum::sparse::CsrBase<double>& csr_matrix, double* raw_x,
-                       const mindquantum::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
-        mindquantum::algorithm::qaia::detail::SBBase::dSB_update_int8(csr_matrix, raw_x, paras);
+    static void update(const quafu::sparse::CsrBase<double>& csr_matrix, double* raw_x,
+                       const quafu::algorithm::qaia::detail::Para& paras, double* raw_h, int h_size) {
+        quafu::algorithm::qaia::detail::SBBase::dSB_update_int8(csr_matrix, raw_x, paras);
     }
 };
 
-}  // namespace mindquantum::algorithm::qaia::detail
+}  // namespace quafu::algorithm::qaia::detail
 #endif

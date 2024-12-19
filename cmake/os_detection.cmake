@@ -105,7 +105,7 @@ message(STATUS "Detected system: ${OS_NAME} (${OS_RELEASE})")
 # ==============================================================================
 
 message(STATUS "Detected processor: ${CMAKE_SYSTEM_PROCESSOR}")
-if(MQ_SKIP_SYSTEM_PROCESSOR_DETECTION)
+if(QUAFU_SKIP_SYSTEM_PROCESSOR_DETECTION)
   # custom setup: required variables are passed through cache / CMake's command-line
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|x86_64.*|AMD64.*")
   set(X86_64 1)
@@ -114,7 +114,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "i686.*|i386.*|x86.*")
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64.*|AARCH64.*|arm64.*|ARM64.*)")
   set(AARCH64 1)
 else()
-  message(WARNING "MindQuantum: unrecognized target processor configuration")
+  message(WARNING "quafu: unrecognized target processor configuration")
 endif()
 
 # ==============================================================================

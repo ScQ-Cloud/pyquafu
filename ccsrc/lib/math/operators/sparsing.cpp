@@ -20,7 +20,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "fmt/format.h"
 #include "math/operators/qubit_operator_view.h"
 #include "math/tensor/csr_matrix.h"
@@ -29,10 +29,10 @@
 #include "math/tensor/traits.h"
 
 namespace operators {
-namespace mq = mindquantum;
+namespace quafu = quafu;
 template <typename T>
 struct EleComp {
-    using ele_t = std::pair<mq::index_t, T>;
+    using ele_t = std::pair<quafu::index_t, T>;
     bool operator()(const ele_t& lhs, const ele_t& rhs) const {
         return lhs.first < rhs.first;
     }
@@ -47,7 +47,7 @@ tn::CsrMatrix GetMatrixImp(const qubit::QubitOperator& ops, int n_qubits) {
         throw std::invalid_argument(fmt::format("Data type mismatch for sparsing operator."));
     }
     using calc_type = tn::to_device_t<dtype>;
-    mq::VT<calc_type> polar = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+    quafu::VT<calc_type> polar = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 
     auto n_local_qubits = ops.count_qubits();
     if (n_qubits < 0) {
@@ -57,35 +57,35 @@ tn::CsrMatrix GetMatrixImp(const qubit::QubitOperator& ops, int n_qubits) {
             fmt::format("n_qubits ({}) is less than local qubit number ({}).", n_qubits, n_local_qubits));
     }
 
-    mq::VT<mq::PauliMask> pauli_mask;
-    mq::VT<calc_type> consts;
+    quafu::VT<quafu::PauliMask> pauli_mask;
+    quafu::VT<calc_type> consts;
     for (auto [term, pr] : ops.get_terms()) {
         consts.push_back(tn::ops::cpu::to_vector<calc_type>(pr.const_value)[0]);
-        mq::VT<mq::index_t> out = {0, 0, 0, 0, 0, 0};
+        quafu::VT<quafu::index_t> out = {0, 0, 0, 0, 0, 0};
         for (auto& [idx, w] : term) {
-            for (mq::index_t i = 0; i < 3; i++) {
-                if (static_cast<mq::index_t>(w) - 1 == i) {
+            for (quafu::index_t i = 0; i < 3; i++) {
+                if (static_cast<quafu::index_t>(w) - 1 == i) {
                     out[i] += (static_cast<uint64_t>(1) << idx);
                     out[3 + i] += 1;
                     break;
                 }
             }
         }
-        pauli_mask.push_back(mq::PauliMask({out[0], out[1], out[2], out[3], out[4], out[5]}));
+        pauli_mask.push_back(quafu::PauliMask({out[0], out[1], out[2], out[3], out[4], out[5]}));
     }
 
     auto dim = static_cast<uint64_t>(1) << n_qubits;
-    mq::VT<ele_set<calc_type>> all_value(dim);
-    mq::index_t nnz = 0;
+    quafu::VT<ele_set<calc_type>> all_value(dim);
+    quafu::index_t nnz = 0;
 #pragma omp parallel for schedule(static) reduction(+ : nnz)
-    for (mq::index_t i = 0; i < dim; i++) {
+    for (quafu::index_t i = 0; i < dim; i++) {
         ele_set<calc_type> vals;
-        for (mq::index_t term_idx = 0; term_idx < ops.size(); term_idx++) {
+        for (quafu::index_t term_idx = 0; term_idx < ops.size(); term_idx++) {
             auto& mask = pauli_mask[term_idx];
             auto mask_f = mask.mask_x | mask.mask_y;
             auto j = (i ^ mask_f);
-            auto axis2power = mq::CountOne(static_cast<uint64_t>(i & mask.mask_z));  // -1
-            auto axis3power = mq::CountOne(static_cast<uint64_t>(i & mask.mask_y));  // -1j
+            auto axis2power = quafu::CountOne(static_cast<uint64_t>(i & mask.mask_z));  // -1
+            auto axis3power = quafu::CountOne(static_cast<uint64_t>(i & mask.mask_y));  // -1j
             auto val = polar[(mask.num_y + 2 * axis3power + 2 * axis2power) & 3] * consts[term_idx];
             typename EleComp<calc_type>::ele_t ele_new = {j, val};
             auto prev = vals.find(ele_new);
@@ -101,16 +101,16 @@ tn::CsrMatrix GetMatrixImp(const qubit::QubitOperator& ops, int n_qubits) {
         nnz += vals.size();
         all_value[i] = vals;
     }
-    auto indptr = reinterpret_cast<mq::index_t*>(malloc(sizeof(mq::index_t) * (dim + 1)));
-    auto indices = reinterpret_cast<mq::index_t*>(malloc(sizeof(mq::index_t) * nnz));
+    auto indptr = reinterpret_cast<quafu::index_t*>(malloc(sizeof(quafu::index_t) * (dim + 1)));
+    auto indices = reinterpret_cast<quafu::index_t*>(malloc(sizeof(quafu::index_t) * nnz));
     auto data = reinterpret_cast<calc_type*>(malloc(sizeof(calc_type) * nnz));
     indptr[0] = 0;
-    for (mq::index_t i = 0; i < all_value.size(); i++) {
+    for (quafu::index_t i = 0; i < all_value.size(); i++) {
         auto& vals = all_value[i];
         indptr[i + 1] = indptr[i] + vals.size();
     }
 #pragma omp parallel for schedule(static)
-    for (mq::index_t i = 0; i < all_value.size(); i++) {
+    for (quafu::index_t i = 0; i < all_value.size(); i++) {
         auto& vals = all_value[i];
         auto begin = indptr[i];
         for (auto& [idx, val] : vals) {

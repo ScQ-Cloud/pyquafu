@@ -44,7 +44,7 @@
 template <typename sim_t>
 auto BindSim(pybind11::module& module, const std::string_view& name) {  // NOLINT
     using namespace pybind11::literals;                                 // NOLINT
-    using qbit_t = mindquantum::qbit_t;
+    using qbit_t = quafu::qbit_t;
 
     return pybind11::class_<sim_t>(module, name.data())
         .def(pybind11::init<qbit_t, unsigned>(), "n_qubits"_a, "seed"_a = 42)

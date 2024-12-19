@@ -1,7 +1,7 @@
-mindquantum.io.BlochScene
+quafu.io.BlochScene
 ==========================
 
-.. py:class:: mindquantum.io.BlochScene(config=None)
+.. py:class:: quafu.io.BlochScene(config=None)
 
     在布洛赫球中展示单量子比特的量子态。
 

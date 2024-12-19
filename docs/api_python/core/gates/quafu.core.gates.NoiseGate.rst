@@ -1,7 +1,7 @@
-mindquantum.core.gates.NoiseGate
+quafu.core.gates.NoiseGate
 ================================
 
-.. py:class:: mindquantum.core.gates.NoiseGate(name, n_qubits, obj_qubits=None, ctrl_qubits=None)
+.. py:class:: quafu.core.gates.NoiseGate(name, n_qubits, obj_qubits=None, ctrl_qubits=None)
 
     噪声信道。
 

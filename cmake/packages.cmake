@@ -19,12 +19,12 @@
 # lint_cmake: -whitespace/indent
 
 include(debug_print)
-include(mq_link_libraries)
+include(quafu_link_libraries)
 
 # ==============================================================================
 # Math lib
 
-if(UNIX AND "${CMAKE_PROJECT_NAME}" STREQUAL "MindQuantum")
+if(UNIX AND "${CMAKE_PROJECT_NAME}" STREQUAL "quafu")
   include(CheckLibraryExists)
   check_library_exists(m sin "" HAVE_LIB_M)
 
@@ -33,24 +33,24 @@ if(UNIX AND "${CMAKE_PROJECT_NAME}" STREQUAL "MindQuantum")
       add_library(libm INTERFACE)
     endif()
     target_link_libraries(libm INTERFACE m)
-    if(NOT TARGET mindquantum::math)
-      add_library(mindquantum::math ALIAS libm)
+    if(NOT TARGET quafu::math)
+      add_library(quafu::math ALIAS libm)
     endif()
-    append_to_property(mq_install_targets GLOBAL libm)
+    append_to_property(quafu_install_targets GLOBAL libm)
   else()
     message(FATAL_ERROR "Math library (m) required on UNIX systems")
   endif()
 endif()
 
-if(TARGET libm AND NOT TARGET mindquantum::math)
-  add_library(mindquantum::math ALIAS libm)
+if(TARGET libm AND NOT TARGET quafu::math)
+  add_library(quafu::math ALIAS libm)
 endif()
 
 # ==============================================================================
 # libstdc++
 
 if(UNIX
-   AND "${CMAKE_PROJECT_NAME}" STREQUAL "MindQuantum"
+   AND "${CMAKE_PROJECT_NAME}" STREQUAL "quafu"
    AND ENABLE_GCC_DEBUG_MODE
    AND CMAKE_COMPILER_IS_GNUCXX)
 
@@ -58,13 +58,13 @@ if(UNIX
     add_library(libstdc++ INTERFACE)
   endif()
   target_link_libraries(libstdc++ INTERFACE $<$<AND:$<LINK_LANGUAGE:CXX>,$<BOOL:${CMAKE_COMPILER_IS_GNUCXX}>>:stdc++>)
-  append_to_property(mq_install_targets GLOBAL libstdc++)
-  if(TARGET libstdc++ AND NOT TARGET mindquantum::stdcxx)
-    add_library(mindquantum::stdcxx ALIAS libstdc++)
+  append_to_property(quafu_install_targets GLOBAL libstdc++)
+  if(TARGET libstdc++ AND NOT TARGET quafu::stdcxx)
+    add_library(quafu::stdcxx ALIAS libstdc++)
   endif()
 
   # If ENABLE_GCC_DEBUG_MODE is enabled we need to explicitly link to libstdc++
-  target_link_libraries(CXX_mindquantum INTERFACE mindquantum::stdcxx)
+  target_link_libraries(CXX_quafu INTERFACE quafu::stdcxx)
 endif()
 
 # ==============================================================================
@@ -140,10 +140,10 @@ if(USE_OPENMP)
   endif()
   find_package(OpenMP)
   if(OpenMP_FOUND)
-    set(MQ_OPENMP_TARGET OpenMP::OpenMP_CXX)
+    set(QUAFU_OPENMP_TARGET OpenMP::OpenMP_CXX)
     list(APPEND PARALLEL_LIBS ${OpenMP_target})
   else()
-    set(MQ_OPENMP_TARGET)
+    set(QUAFU_OPENMP_TARGET)
     set(USE_OPENMP
         FALSE
         CACHE INTERNAL "Disabled OpenMP support")
@@ -171,7 +171,7 @@ endif()
 find_package(Threads REQUIRED)
 list(APPEND PARALLEL_LIBS Threads::Threads)
 
-if("${CMAKE_PROJECT_NAME}" STREQUAL "MindQuantum")
+if("${CMAKE_PROJECT_NAME}" STREQUAL "quafu")
   find_package(Patch REQUIRED)
 endif()
 
@@ -179,9 +179,9 @@ endif()
 # CUDA
 
 if(ENABLE_CUDA)
-  find_package(CUDAToolkit ${MQ_CUDA_VERSION})
+  find_package(CUDAToolkit ${QUAFU_CUDA_VERSION})
   if(CUDAToolkit_FOUND)
-    set(MQ_CUDA_VERSION "${CUDAToolkit_VERSION_MAJOR}.${CUDAToolkit_VERSION_MINOR}")
+    set(QUAFU_CUDA_VERSION "${CUDAToolkit_VERSION_MAJOR}.${CUDAToolkit_VERSION_MINOR}")
   else()
     message(STATUS "Disabling CUDA since unable to locate CUDAToolkit")
     set(ENABLE_CUDA
@@ -202,29 +202,29 @@ find_package(Python 3.7.0 COMPONENTS Interpreter Development.Module)
 # ------------------------------------------------------------------------------
 
 # Check if we are being used directly or via add_subdirectory()
-if("${CMAKE_PROJECT_NAME}" STREQUAL "MindQuantum")
-  if(NOT MQ_PYTHON_PACKAGE_NAME)
+if("${CMAKE_PROJECT_NAME}" STREQUAL "quafu")
+  if(NOT QUAFU_PYTHON_PACKAGE_NAME)
     execute_process(
       COMMAND "${Python_EXECUTABLE}" setup.py --name
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
       RESULT_VARIABLE result
-      OUTPUT_VARIABLE MQ_PYTHON_PACKAGE_NAME
+      OUTPUT_VARIABLE QUAFU_PYTHON_PACKAGE_NAME
       OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     if(NOT result EQUAL 0)
-      message(FATAL_ERROR "Unable to determine MindQuantum's Python package name")
+      message(FATAL_ERROR "Unable to determine quafu's Python package name")
     endif()
 
-    set(MQ_PYTHON_PACKAGE_NAME
-        "${MQ_PYTHON_PACKAGE_NAME}"
-        CACHE STRING "MindQuantum's Python package name")
-    mark_as_advanced(MQ_PYTHON_PACKAGE_NAME)
+    set(QUAFU_PYTHON_PACKAGE_NAME
+        "${QUAFU_PYTHON_PACKAGE_NAME}"
+        CACHE STRING "quafu's Python package name")
+    mark_as_advanced(QUAFU_PYTHON_PACKAGE_NAME)
   endif()
-  debug_print(STATUS "Python package name: ${MQ_PYTHON_PACKAGE_NAME}")
+  debug_print(STATUS "Python package name: ${QUAFU_PYTHON_PACKAGE_NAME}")
 
   # ----------------------------------------------------------------------------
 
-  if(NOT MQ_INSTALL_PYTHONDIR)
+  if(NOT QUAFU_INSTALL_PYTHONDIR)
     execute_process(
       COMMAND
         "${Python_EXECUTABLE}" -c [=[
@@ -245,26 +245,26 @@ except Exception:
 sys.stdout.write(str(platlib.relative_to(platbase)))
 ]=]
       RESULT_VARIABLE result
-      OUTPUT_VARIABLE MQ_INSTALL_PYTHONDIR)
+      OUTPUT_VARIABLE QUAFU_INSTALL_PYTHONDIR)
 
     if(NOT result EQUAL 0)
       message(FATAL_ERROR "Unable to determine Python path to site-packages sub-directory")
     endif()
 
-    set(MQ_INSTALL_PYTHONDIR
-        "${MQ_INSTALL_PYTHONDIR}"
+    set(QUAFU_INSTALL_PYTHONDIR
+        "${QUAFU_INSTALL_PYTHONDIR}"
         CACHE FILEPATH "Python path to site-packages sub-directory")
-    mark_as_advanced(MQ_INSTALL_PYTHONDIR)
+    mark_as_advanced(QUAFU_INSTALL_PYTHONDIR)
   endif()
-  debug_print(STATUS "Python path to site-packages sub-directory: ${MQ_INSTALL_PYTHONDIR}")
+  debug_print(STATUS "Python path to site-packages sub-directory: ${QUAFU_INSTALL_PYTHONDIR}")
 
-  GNUInstallDirs_get_absolute_install_dir(MQ_INSTALL_FULL_PYTHONDIR MQ_INSTALL_PYTHONDIR PYTHONDIR)
+  GNUInstallDirs_get_absolute_install_dir(QUAFU_INSTALL_FULL_PYTHONDIR QUAFU_INSTALL_PYTHONDIR PYTHONDIR)
 endif()
 
 # ==============================================================================
 # For Huawei internal security assessment
 
-if("${CMAKE_PROJECT_NAME}" STREQUAL "MindQuantum")
+if("${CMAKE_PROJECT_NAME}" STREQUAL "quafu")
   if(BINSCOPE)
     get_filename_component(_binscope_path ${BINSCOPE} DIRECTORY)
     get_filename_component(_binscope_name ${BINSCOPE} NAME)

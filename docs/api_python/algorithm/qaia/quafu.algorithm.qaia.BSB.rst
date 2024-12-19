@@ -1,7 +1,7 @@
-mindquantum.algorithm.qaia.BSB
+quafu.algorithm.qaia.BSB
 ===============================
 
-.. py:class:: mindquantum.algorithm.qaia.BSB(J, h=None, x=None, n_iter=1000, batch_size=1, dt=1, xi=None, backend='cpu-float32')
+.. py:class:: quafu.algorithm.qaia.BSB(J, h=None, x=None, n_iter=1000, batch_size=1, dt=1, xi=None, backend='cpu-float32')
 
     弹道模拟分叉算法。
 

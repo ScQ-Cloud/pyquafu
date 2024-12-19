@@ -64,7 +64,7 @@ $PARAMETERLIST = (Get-Command -Name ".\$PROGRAM").Parameters
 # Test for MindSpore CI
 $_IS_MINDSPORE_CI=$false
 if ("$Env:JENKINS_URL" -Match 'https?://build.mindspore.cn' -And [bool]$Env:CI) {
-    Write-Output "Detected MindSpore/MindQuantum CI"
+    Write-Output "Detected MindSpore/quafu CI"
     $_IS_MINDSPORE_CI=$true
 }
 
@@ -83,13 +83,13 @@ function Help-Header {
     Write-Output 'This is mainly relevant for developers that do not want to always '
     Write-Output 'have to reinstall the Python package'
     Write-Output ''
-    Write-Output 'This script will create a Python virtualenv in the MindQuantum root'
+    Write-Output 'This script will create a Python virtualenv in the quafu root'
     Write-Output 'directory and then build all the C++ Python modules and place the'
-    Write-Output 'generated libraries in their right locations within the MindQuantum'
+    Write-Output 'generated libraries in their right locations within the quafu'
     Write-Output 'folder hierarchy so Python knows how to find them.'
     Write-Output ''
     Write-Output 'A pth-file will be created in the virtualenv site-packages directory'
-    Write-Output 'so that the MindQuantum root folder will be added to the Python PATH'
+    Write-Output 'so that the quafu root folder will be added to the Python PATH'
     Write-Output 'without the need to modify PYTHONPATH.'
 }
 
@@ -98,7 +98,7 @@ function Extra-Help {
     Write-Output '  -CCache             If ccache or sccache are found within the PATH, use them with CMake'
     Write-Output '  -Clean              Run make clean before building'
     Write-Output '  -C,-Configure       Force running the CMake configure step'
-    Write-Output '  -ConfigureOnly      Stop after the CMake configure and generation steps (ie. before building MindQuantum)'
+    Write-Output '  -ConfigureOnly      Stop after the CMake configure and generation steps (ie. before building quafu)'
     Write-Output '  -Doc, -Docs         Setup the Python virtualenv for building the documentation and ask CMake to build the'
     Write-Output '                      documentation'
     Write-Output '  -Install            Build the ´install´ target'
@@ -189,7 +189,7 @@ if ($LastExitCode -ne 0) {
 if ($dry_run -ne 1) {
     # Make sure the root directory is in the virtualenv PATH
     $site_pkg_dir = Invoke-Expression -Command "$PYTHON -c 'import site; print(site.getsitepackages()[0])'"
-    $pth_file = "$site_pkg_dir\mindquantum_local.pth"
+    $pth_file = "$site_pkg_dir\quafu_local.pth"
 
     if (-Not (Test-Path -Path "$pth_file" -PathType leaf)) {
         Write-Output "Creating pth-file in $pth_file"
@@ -285,10 +285,10 @@ if ($enable_gpu -and [bool]$cuda_arch) {
 }
 
 if ($force_local_pkgs) {
-    $cmake_args += "-DMQ_FORCE_LOCAL_PKGS=all"
+    $cmake_args += "-DQUAFU_FORCE_LOCAL_PKGS=all"
 }
 elseif ([bool]"$local_pkgs") {
-    $cmake_args += "-DMQ_FORCE_LOCAL_PKGS=`"$local_pkgs`""
+    $cmake_args += "-DQUAFU_FORCE_LOCAL_PKGS=`"$local_pkgs`""
 }
 
 if($n_jobs -ne -1) {
@@ -388,11 +388,11 @@ Build MindQunantum locally (in-source build)
 
 This is mainly relevant for developers that do not want to always have to reinstall the Python package
 
-This script will create a Python virtualenv in the MindQuantum root directory and then build all the C++ Python
-modules and place the generated libraries in their right locations within the MindQuantum folder hierarchy so Python
+This script will create a Python virtualenv in the quafu root directory and then build all the C++ Python
+modules and place the generated libraries in their right locations within the quafu folder hierarchy so Python
 knows how to find them.
 
-A pth-file will be created in the virtualenv site-packages directory so that the MindQuantum root folder will be added
+A pth-file will be created in the virtualenv site-packages directory so that the quafu root folder will be added
 to the Python PATH without the need to modify PYTHONPATH.
 
 .PARAMETER Analyzer
@@ -436,7 +436,7 @@ Force running the CMake configure step
 Path to INI configuration file with default values for the parameters
 
 .PARAMETER ConfigureOnly
-Stop after the CMake configure and generation steps (ie. before building MindQuantum)
+Stop after the CMake configure and generation steps (ie. before building quafu)
 
 .PARAMETER Debug
 Build in debug mode

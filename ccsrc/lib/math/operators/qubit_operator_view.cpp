@@ -201,9 +201,9 @@ std::tuple<tn::Tensor, uint64_t> SinglePauliStr::MulSingleCompressTerm(uint64_t 
     auto idx_1 = (~(a >> 1) & a & (b >> 1) & b) | ((a >> 1) & ~a & ~(b >> 1) & b) | ((a >> 1) & a & (b >> 1) & ~b);
     idx_0 = idx_0 & M_B;
     idx_1 = idx_1 & M_B;
-    auto num_I = mindquantum::CountOne(~idx_1 & idx_0);
-    auto num_M_ONE = mindquantum::CountOne(idx_1 & ~idx_0);
-    auto num_M_I = mindquantum::CountOne(idx_1 & idx_0);
+    auto num_I = quafu::CountOne(~idx_1 & idx_0);
+    auto num_M_ONE = quafu::CountOne(idx_1 & ~idx_0);
+    auto num_M_I = quafu::CountOne(idx_1 & idx_0);
     auto out = (num_I + 2 * num_M_ONE + 3 * num_M_I) & 3;
     switch (out) {
         case (0):
@@ -338,7 +338,7 @@ size_t QubitOperator::count_qubits() const {
         for (auto word = k.rbegin(); word != k.rend(); ++word) {
             if ((*word) != 0) {
                 n_qubits = std::max(n_qubits,
-                                    static_cast<int>((63 - mindquantum::CountLeadingZero(*word)) / 2 + group_id * 32));
+                                    static_cast<int>((63 - quafu::CountLeadingZero(*word)) / 2 + group_id * 32));
                 break;
             }
             group_id -= 1;

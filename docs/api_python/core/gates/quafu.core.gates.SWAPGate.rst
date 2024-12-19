@@ -1,7 +1,7 @@
-mindquantum.core.gates.SWAPGate
+quafu.core.gates.SWAPGate
 ================================
 
-.. py:class:: mindquantum.core.gates.SWAPGate
+.. py:class:: quafu.core.gates.SWAPGate
 
     SWAP门可以交换两个不同的量子比特。
 

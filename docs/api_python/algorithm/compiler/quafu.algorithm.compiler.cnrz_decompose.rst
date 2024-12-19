@@ -1,7 +1,7 @@
-mindquantum.algorithm.compiler.cnrz_decompose
+quafu.algorithm.compiler.cnrz_decompose
 =============================================
 
-.. py:function:: mindquantum.algorithm.compiler.cnrz_decompose(gate: gates.RZ)
+.. py:function:: quafu.algorithm.compiler.cnrz_decompose(gate: gates.RZ)
 
     分解一个受控的 :class:`~.core.gates.RZ` 门。
 

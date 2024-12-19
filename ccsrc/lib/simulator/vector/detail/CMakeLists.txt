@@ -22,9 +22,9 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/cpu_common)
 
 if(X86_64)
   add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/cpu_avx_double)
-  target_compile_definitions(mqsim_vector_cpu PUBLIC __x86_64__)
+  target_compile_definitions(quafusim_vector_cpu PUBLIC __x86_64__)
 elseif(AARCH64)
-  target_compile_definitions(mqsim_vector_cpu PUBLIC __amd64)
+  target_compile_definitions(quafusim_vector_cpu PUBLIC __amd64)
 endif()
 
 if(ENABLE_CUDA)

@@ -1,7 +1,7 @@
-mindquantum.core.parameterresolver
+quafu.core.parameterresolver
 ==================================
 
-.. automodule:: mindquantum.core.parameterresolver
+.. automodule:: quafu.core.parameterresolver
 
 Class
 ---------------
@@ -11,5 +11,5 @@ Class
     :nosignatures:
     :template: classtemplate.rst
 
-    mindquantum.core.parameterresolver.ParameterResolver
-    mindquantum.core.parameterresolver.PRGenerator
+    quafu.core.parameterresolver.ParameterResolver
+    quafu.core.parameterresolver.PRGenerator

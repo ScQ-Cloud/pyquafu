@@ -18,7 +18,7 @@
 
 #include "core/utils.h"
 
-namespace mindquantum {
+namespace quafu {
 namespace sparse {
 template <typename T>
 struct PauliMat {
@@ -84,5 +84,5 @@ struct PauliMat {
     }
 };
 }  // namespace sparse
-}  // namespace mindquantum
+}  // namespace quafu
 #endif  // MINDQUANTUM_SPARSE_PAULI_MAT_H_

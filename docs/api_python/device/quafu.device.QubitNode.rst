@@ -1,7 +1,7 @@
-mindquantum.device.QubitNode
+quafu.device.QubitNode
 ============================
 
-.. py:class:: mindquantum.device.QubitNode(qubit_id: int, color: str = '#000000', poi_x: float = 0.0, poi_y: float = 0.0)
+.. py:class:: quafu.device.QubitNode(qubit_id: int, color: str = '#000000', poi_x: float = 0.0, poi_y: float = 0.0)
 
     量子比特节点。
 

@@ -36,7 +36,7 @@
 #include <utility>
 #include <vector>
 
-#include "core/mq_base_types.h"
+#include "core/quafu_base_types.h"
 #include "math/pr/parameter_resolver.h"
 #include "math/tensor/matrix.h"
 #include "math/tensor/ops/basic_math.h"
@@ -46,7 +46,7 @@
 #include "ops/hamiltonian.h"
 #include "simulator/densitymatrix/densitymatrix_state.h"
 
-namespace mindquantum::sim::densitymatrix::detail {
+namespace quafu::sim::densitymatrix::detail {
 
 template <typename qs_policy_t_>
 DensityMatrixState<qs_policy_t_>::DensityMatrixState(qbit_t n_qubits, unsigned seed)
@@ -1153,6 +1153,6 @@ VT<unsigned> DensityMatrixState<qs_policy_t_>::SamplingMeasurementEndingWithoutN
     }
     return sim.Sampling(mea_circ, pr, shots, key_map, static_cast<unsigned>(rng()));
 }
-}  // namespace mindquantum::sim::densitymatrix::detail
+}  // namespace quafu::sim::densitymatrix::detail
 
 #endif
