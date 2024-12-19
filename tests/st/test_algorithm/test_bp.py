@@ -16,12 +16,12 @@
 import numpy as np
 import pytest
 
-from mindquantum.algorithm.nisq import ansatz_variance
-from mindquantum.algorithm.nisq.chem import HardwareEfficientAnsatz
-from mindquantum.core.gates import RY, RZ, Z
-from mindquantum.core.operators import Hamiltonian, QubitOperator
-from mindquantum.simulator import Simulator
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.algorithm.nisq import ansatz_variance
+from quafu.algorithm.nisq.chem import HardwareEfficientAnsatz
+from quafu.core.gates import RY, RZ, Z
+from quafu.core.operators import Hamiltonian, QubitOperator
+from quafu.simulator import Simulator
+from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
 
 @pytest.mark.level0
@@ -33,7 +33,7 @@ def test_barren_plateau(config):
     Expectation: success
     """
     simulator, dtype = config
-    if simulator != 'mqvector':
+    if simulator != 'quafuvector':
         return
     np.random.seed(42)
     ham = Hamiltonian(QubitOperator('Z0 Z1'), dtype=dtype)

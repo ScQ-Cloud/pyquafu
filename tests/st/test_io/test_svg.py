@@ -14,9 +14,9 @@
 # ============================================================================
 """Test svg."""
 
-from mindquantum.algorithm.library import qft
-from mindquantum.core.gates import RX, BarrierGate
-from mindquantum.simulator import Simulator
+from quafu.algorithm.library import qft
+from quafu.core.gates import RX, BarrierGate
+from quafu.simulator import Simulator
 
 
 def test_measure_svg():
@@ -25,7 +25,7 @@ def test_measure_svg():
     Expectation: success.
     """
     circ = qft(range(3)).measure_all()
-    sim = Simulator('mqvector', 3)
+    sim = Simulator('quafuvector', 3)
     res = sim.sampling(circ, shots=100, seed=42)
     text = res.svg()._repr_svg_().split('bar')  # pylint: disable=protected-access
     text = "bar".join([text[0]] + ['"'.join(i.split('"')[1:]) for i in text[1:]])

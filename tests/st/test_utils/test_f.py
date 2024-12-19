@@ -16,8 +16,8 @@
 
 import numpy as np
 
-from mindquantum.simulator import Simulator, decompose_stabilizer
-from mindquantum.utils import f
+from quafu.simulator import Simulator, decompose_stabilizer
+from quafu.utils import f
 
 
 def test_mod():

@@ -18,18 +18,18 @@
 import numpy as np
 import pytest
 
-import mindquantum.core.gates as G
-from mindquantum.algorithm.library import qft
-from mindquantum.core.circuit import AP, CPN, Circuit, add_prefix
-from mindquantum.core.circuit import apply as A
-from mindquantum.core.circuit import as_ansatz, as_encoder
-from mindquantum.core.circuit import controlled as C
-from mindquantum.core.circuit import dagger as D
-from mindquantum.core.circuit import (
+import quafu.core.gates as G
+from quafu.algorithm.library import qft
+from quafu.core.circuit import AP, CPN, Circuit, add_prefix
+from quafu.core.circuit import apply as A
+from quafu.core.circuit import as_ansatz, as_encoder
+from quafu.core.circuit import controlled as C
+from quafu.core.circuit import dagger as D
+from quafu.core.circuit import (
     decompose_single_term_time_evolution,
     pauli_word_to_circuits,
 )
-from mindquantum.core.operators import QubitOperator
+from quafu.core.operators import QubitOperator
 
 
 def test_pauli_word_to_circuits():

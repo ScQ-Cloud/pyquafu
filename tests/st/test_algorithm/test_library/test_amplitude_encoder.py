@@ -19,7 +19,7 @@ import warnings
 import numpy as np
 import pytest
 
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
 with warnings.catch_warnings():
     warnings.filterwarnings('ignore', category=UserWarning, message='MindSpore not installed.*')
@@ -27,8 +27,8 @@ with warnings.catch_warnings():
         'ignore', category=DeprecationWarning, message=r'Please use `OptimizeResult` from the `scipy\.optimize`'
     )
 
-    from mindquantum.algorithm.library import amplitude_encoder
-    from mindquantum.simulator import Simulator
+    from quafu.algorithm.library import amplitude_encoder
+    from quafu.simulator import Simulator
 
 AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
 
@@ -50,7 +50,7 @@ def test_amplitude_encoder(config):
     circuit, params = amplitude_encoder([0.5, 0.5, 0.5, 0.5], 3)
     sim.apply_circuit(circuit, params)
     state = sim.get_qs(False)
-    if backend == "mqmatrix":
+    if backend == "quafumatrix":
         assert abs(state[0][0].real - 0.25) < 1e-6
         assert abs(state[1][1].real - 0.25) < 1e-6
         assert abs(state[2][2].real - 0.25) < 1e-6
@@ -64,7 +64,7 @@ def test_amplitude_encoder(config):
     sim.reset()
     sim.apply_circuit(circuit, params)
     state = sim.get_qs(False)
-    if backend == "mqmatrix":
+    if backend == "quafumatrix":
         assert abs(state[2][2].real - 0.25) < 1e-6
         assert abs(state[3][3].real - 0.25) < 1e-6
         assert abs(state[4][4].real - 0.25) < 1e-6
@@ -78,7 +78,7 @@ def test_amplitude_encoder(config):
     sim.reset()
     sim.apply_circuit(circuit, params)
     state = sim.get_qs(False)
-    if backend == "mqmatrix":
+    if backend == "quafumatrix":
         assert abs(state[0][0].real - 0.25) < 1e-6
         assert abs(state[1][1].real - 0.25) < 1e-6
         assert abs(state[2][2].real - 0.25) < 1e-6
@@ -94,7 +94,7 @@ def test_amplitude_encoder(config):
     sim.reset()
     sim.apply_circuit(circuit, params)
     state = sim.get_qs(False)
-    if backend == "mqmatrix":
+    if backend == "quafumatrix":
         assert abs(state[0][0].real - 0.25) < 1e-6
         assert abs(state[1][1].real - 0.25) < 1e-6
         assert abs(state[2][2].real - 0.25) < 1e-6

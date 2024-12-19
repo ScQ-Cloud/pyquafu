@@ -15,7 +15,7 @@
 """Test operator_utils."""
 import pytest
 
-from mindquantum.core.operators import (
+from quafu.core.operators import (
     FermionOperator,
     QubitExcitationOperator,
     QubitOperator,

@@ -119,7 +119,7 @@ class CMakeBuildExt(build_ext):  # pylint: disable=too-many-instance-attributes
     user_options = build_ext.user_options + [
         ('build-dir=', None, 'Specify a location for the build directory'),
         ('clean-build', None, 'Build in a clean build environment'),
-        ('install-light', None, 'Install a "light" version of MindQuantum (ie. no development libraries)'),
+        ('install-light', None, 'Install a "light" version of quafu (ie. no development libraries)'),
         ('jobs=', None, 'Number of concurrent jobs for sub-build processes'),
         ('no-arch-native', None, 'Do not use the -march=native flag when compiling'),
     ]
@@ -141,8 +141,8 @@ class CMakeBuildExt(build_ext):  # pylint: disable=too-many-instance-attributes
         # pylint: disable=attribute-defined-outside-init
         self.build_dir = self.build_dir or None
         self.clean_build = self.clean_build or False
-        self.fast_bdist_wheel = bool(int(os.getenv('MQ_FAST_BDIST_WHEEL', '0')))
-        self.fast_bdist_wheel_dir = os.getenv('MQ_FAST_BDIST_DIR', None)
+        self.fast_bdist_wheel = bool(int(os.getenv('QUAFU_FAST_BDIST_WHEEL', '0')))
+        self.fast_bdist_wheel_dir = os.getenv('QUAFU_FAST_BDIST_DIR', None)
         self.install_light = self.install_light or False
         self.jobs = self.jobs or multiprocessing.cpu_count()
         self.no_arch_native = self.no_arch_native or False
@@ -196,8 +196,8 @@ class CMakeBuildExt(build_ext):  # pylint: disable=too-many-instance-attributes
 
         pkg_name = self.distribution.get_name()
         if pkg_name == 'UNKNOWN':
-            warnings.warn('Unable to determine package name automatically... defaulting to `mindquantum`')
-            pkg_name = 'mindquantum'
+            warnings.warn('Unable to determine package name automatically... defaulting to `quafu`')
+            pkg_name = 'quafu'
 
         cmake_args = [
             '-DPython_EXECUTABLE:FILEPATH=' + python_exec,
@@ -205,7 +205,7 @@ class CMakeBuildExt(build_ext):  # pylint: disable=too-many-instance-attributes
             '-DIN_PLACE_BUILD:BOOL=OFF',
             '-DIS_PYTHON_BUILD:BOOL=ON',
             f'-DVERSION_INFO="{self.distribution.get_version()}"',
-            f'-DMQ_PYTHON_PACKAGE_NAME:STRING={pkg_name}',
+            f'-DQUAFU_PYTHON_PACKAGE_NAME:STRING={pkg_name}',
             # NB: make sure that the install path is absolute!
             f'-DCMAKE_INSTALL_PREFIX:FILEPATH={Path(self.build_lib, Path().resolve().name).resolve()}',
         ]
@@ -419,7 +419,7 @@ class BdistWheel(bdist_wheel):
         """Run the bdist_wheel command."""
         if self.fast_build:
             logging.info('doing a fast-build')
-            with modified_environ(MQ_FAST_BDIST_WHEEL=True, MQ_FAST_BDIST_DIR=self.fast_build_dir):
+            with modified_environ(QUAFU_FAST_BDIST_WHEEL=True, QUAFU_FAST_BDIST_DIR=self.fast_build_dir):
                 super().run()
         else:
             super().run()
@@ -499,12 +499,12 @@ class GenerateRequirementFile(setuptools.Command):
 # ==============================================================================
 
 ext_modules = [
-    CMakeExtension(pymod='mindquantum.mqbackend'),
-    CMakeExtension(pymod='mindquantum._mq_vector'),
-    CMakeExtension(pymod='mindquantum._mq_vector_gpu', optional=True),
-    CMakeExtension(pymod='mindquantum._mq_matrix'),
-    CMakeExtension(pymod='mindquantum._math'),
-    CMakeExtension(pymod='mindquantum._qaia_sb', optional=True),
+    CMakeExtension(pymod='quafu.quafubackend'),
+    CMakeExtension(pymod='quafu._quafu_vector'),
+    CMakeExtension(pymod='quafu._quafu_vector_gpu', optional=True),
+    CMakeExtension(pymod='quafu._quafu_matrix'),
+    CMakeExtension(pymod='quafu._math'),
+    CMakeExtension(pymod='quafu._qaia_sb', optional=True),
 ]
 
 
@@ -568,7 +568,7 @@ if __name__ == '__main__':
     arg_parser.add_argument('-G', dest='cmake_generator', action=ArgsCMakeFlag)
 
     if 'bdist_wheel' in sys.argv:
-        sys.argv.extend(arg.strip() for arg in os.environ.get('MQ_CIBW_BUILD_ARGS', '').split(',') if arg)
+        sys.argv.extend(arg.strip() for arg in os.environ.get('QUAFU_CIBW_BUILD_ARGS', '').split(',') if arg)
         parsed_args, unparsed_args = arg_parser.parse_known_args()
 
         sys.argv = sys.argv[:1] + unparsed_args

@@ -18,10 +18,10 @@ import warnings
 
 import pytest
 
-from mindquantum.algorithm.nisq import quccsd_generator
-from mindquantum.core.operators import TimeEvolution, count_qubits
-from mindquantum.core.operators._term_value import TermValue
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.algorithm.nisq import quccsd_generator
+from quafu.core.operators import TimeEvolution, count_qubits
+from quafu.core.operators._term_value import TermValue
+from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
 AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
 

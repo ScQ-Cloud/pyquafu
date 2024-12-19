@@ -20,8 +20,8 @@ import numpy as np
 import pytest
 from scipy.linalg import expm
 
-import mindquantum.core.gates as G
-from mindquantum.core.circuit import UN
+import quafu.core.gates as G
+from quafu.core.circuit import UN
 
 
 def test_rotate_pauli():

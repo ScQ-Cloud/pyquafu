@@ -15,9 +15,9 @@
 import numpy as np
 import pytest
 
-from mindquantum.algorithm.compiler.decompose import crz_decompose, cnrz_decompose
-from mindquantum.core.circuit import Circuit
-from mindquantum.core.gates import RZ
+from quafu.algorithm.compiler.decompose import crz_decompose, cnrz_decompose
+from quafu.core.circuit import Circuit
+from quafu.core.gates import RZ
 
 
 def circuit_equal_test(gate, decompose_circ):
@@ -38,6 +38,7 @@ def test_crz():
     crz = RZ(1.23).on(1, 0)
     for solution in crz_decompose(crz):
         circuit_equal_test(crz, solution)
+
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu

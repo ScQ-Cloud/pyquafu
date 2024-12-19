@@ -16,16 +16,16 @@
 import numpy as np
 import pytest
 
-import mindquantum as mq
-from mindquantum.algorithm.nisq import StronglyEntangling
-from mindquantum.core.gates import X
+import quafu
+from quafu.algorithm.nisq import StronglyEntangling
+from quafu.core.gates import X
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_gpu_training
 @pytest.mark.platform_x86_cpu
 @pytest.mark.env_onecard
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 def test_strongly_entangling_ansatz(dtype):
     """
     Description: Test strongly_entangling_ansatz

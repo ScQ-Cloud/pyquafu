@@ -16,9 +16,9 @@
 
 import numpy as np
 
-from mindquantum.algorithm import nisq
-from mindquantum.core.circuit import Circuit
-from mindquantum.core.parameterresolver import PRGenerator
+from quafu.algorithm import nisq
+from quafu.core.circuit import Circuit
+from quafu.core.parameterresolver import PRGenerator
 
 
 def test_ry_linear():

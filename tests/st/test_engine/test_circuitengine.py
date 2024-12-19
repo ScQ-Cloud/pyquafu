@@ -17,10 +17,10 @@
 
 """Test circuitengine."""
 
-import mindquantum.core.gates as G
-from mindquantum.core.circuit import Circuit
-from mindquantum.engine import circuit_generator
-from mindquantum.engine.circuitengine import CircuitEngine
+import quafu.core.gates as G
+from quafu.core.circuit import Circuit
+from quafu.engine import circuit_generator
+from quafu.engine.circuitengine import CircuitEngine
 
 
 def test_allocate_qureg():

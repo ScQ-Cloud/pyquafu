@@ -15,7 +15,7 @@
 """Test topology of device."""
 import pytest
 
-from mindquantum.device import GridQubits, LinearQubits, QubitNode, QubitsTopology
+from quafu.device import GridQubits, LinearQubits, QubitNode, QubitsTopology
 
 
 def test_qubit_node_property():

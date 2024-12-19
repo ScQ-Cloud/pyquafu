@@ -16,10 +16,10 @@
 
 import numpy as np
 
-from mindquantum.core import U3, UN, Circuit, H, X
-from mindquantum.io import OpenQASM
-from mindquantum.simulator import Simulator
-from mindquantum.utils import random_circuit
+from quafu.core import U3, UN, Circuit, H, X
+from quafu.io import OpenQASM
+from quafu.simulator import Simulator
+from quafu.utils import random_circuit
 
 
 def test_openqasm():
@@ -122,7 +122,7 @@ measure cout[0] -> ans[4];
     exp_circ.measure(b[3])
     exp_circ.measure(cout[0])
     init = random_circuit(circ.n_qubits, 30, seed=42)
-    sim = Simulator('mqvector', circ.n_qubits)
+    sim = Simulator('quafuvector', circ.n_qubits)
     s_1 = sim.sampling(init + circ, shots=50, seed=42)
     s_2 = sim.sampling(init + exp_circ, shots=50, seed=42)
     assert np.all(s_1.samples == s_2.samples)
@@ -175,7 +175,7 @@ measure q -> c;
     )
     exp_circ.measure_all()
     init = random_circuit(circ.n_qubits, 30, seed=42)
-    sim = Simulator('mqvector', circ.n_qubits)
+    sim = Simulator('quafuvector', circ.n_qubits)
     s_1 = sim.sampling(init + circ, shots=50, seed=42)
     s_2 = sim.sampling(init + exp_circ, shots=50, seed=42)
     assert np.all(s_1.samples == s_2.samples)

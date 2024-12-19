@@ -22,12 +22,12 @@ AVAILABLE_BACKEND = []
 try:
     import mindspore as ms
 
-    from mindquantum.core import gates as G
-    from mindquantum.core.circuit import Circuit
-    from mindquantum.core.operators import Hamiltonian, QubitOperator
-    from mindquantum.framework import MQAnsatzOnlyOps
-    from mindquantum.simulator import Simulator
-    from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+    from quafu.core import gates as G
+    from quafu.core.circuit import Circuit
+    from quafu.core.operators import Hamiltonian, QubitOperator
+    from quafu.framework import QUAFUAnsatzOnlyOps
+    from quafu.simulator import Simulator
+    from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
     AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
 
@@ -46,9 +46,9 @@ except ImportError:
 @pytest.mark.env_onecard
 @pytest.mark.parametrize('config', AVAILABLE_BACKEND)
 @pytest.mark.skipif(not _HAS_MINDSPORE, reason='MindSpore is not installed')
-def test_mindquantum_ansatz_only_ops(config):
+def test_quafu_ansatz_only_ops(config):
     """
-    Description: Test MQAnsatzOnlyOps
+    Description: Test QUAFUAnsatzOnlyOps
     Expectation:
     """
     backend, dtype = config
@@ -57,6 +57,6 @@ def test_mindquantum_ansatz_only_ops(config):
     ham = Hamiltonian(QubitOperator('Z0').astype(dtype))
     sim = Simulator(backend, circ.n_qubits, dtype=dtype)
 
-    evol = MQAnsatzOnlyOps(sim.get_expectation_with_grad(ham, circ))
+    evol = QUAFUAnsatzOnlyOps(sim.get_expectation_with_grad(ham, circ))
     output = evol(data)
     assert np.allclose(output.asnumpy(), [[8.77582550e-01]])

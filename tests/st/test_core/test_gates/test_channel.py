@@ -18,7 +18,7 @@ from math import exp, sqrt
 import numpy as np
 import pytest
 
-import mindquantum.core.gates.channel as C
+import quafu.core.gates.channel as C
 
 I = np.array([[1.0 + 0.0j, 0], [0, 1]])  # noqa: E741
 X = np.array([[0, 1], [1, 0]])

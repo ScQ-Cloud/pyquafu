@@ -19,13 +19,13 @@ from inspect import signature
 import numpy as np
 import pytest
 
-import mindquantum as mq
-from mindquantum.core import gates as G
-from mindquantum.core.circuit import Circuit
-from mindquantum.core.operators import Hamiltonian, QubitOperator
-from mindquantum.simulator import Simulator
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
-from mindquantum.utils import random_circuit, random_hamiltonian
+import quafu
+from quafu.core import gates as G
+from quafu.core.circuit import Circuit
+from quafu.core.operators import Hamiltonian, QubitOperator
+from quafu.simulator import Simulator
+from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.utils import random_circuit, random_hamiltonian
 
 none_parameter_gate = [
     G.HGate,
@@ -86,7 +86,7 @@ def test_none_parameter_gate(config, gate):
     sim.set_qs(init_state)
     sim.apply_gate(g)
     ref_qs = g.matrix() @ (init_state / np.linalg.norm(init_state))
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         assert np.allclose(sim.get_qs(), np.outer(ref_qs, ref_qs.conj()))
     else:
         assert np.allclose(sim.get_qs(), ref_qs)
@@ -98,7 +98,7 @@ def test_none_parameter_gate(config, gate):
     c_sim.apply_gate(c_g)
     m = np.block([[np.eye(dim), np.zeros((dim, dim))], [np.zeros((dim, dim)), g.matrix()]])
     c_ref_qs = m @ (c_init_state / np.linalg.norm(c_init_state))
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         assert np.allclose(c_sim.get_qs(), np.outer(c_ref_qs, c_ref_qs.conj()), atol=1e-6)
     else:
         assert np.allclose(c_sim.get_qs(), c_ref_qs, atol=1e-6)
@@ -126,7 +126,7 @@ def test_parameter_gate(config, gate):  # pylint: disable=too-many-locals
     sim.set_qs(init_state)
     sim.apply_gate(g)
     ref_qs = g.matrix() @ (init_state / np.linalg.norm(init_state))
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         assert np.allclose(sim.get_qs(), np.outer(ref_qs, ref_qs.conj()), atol=1e-6)
     else:
         assert np.allclose(sim.get_qs(), ref_qs, atol=1e-6)
@@ -138,7 +138,7 @@ def test_parameter_gate(config, gate):  # pylint: disable=too-many-locals
     c_sim.apply_gate(c_g)
     m = np.block([[np.eye(dim), np.zeros((dim, dim))], [np.zeros((dim, dim)), g.matrix()]])
     c_ref_qs = m @ (c_init_state / np.linalg.norm(c_init_state))
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         assert np.allclose(c_sim.get_qs(), np.outer(c_ref_qs, c_ref_qs.conj()), atol=1e-6)
     else:
         assert np.allclose(c_sim.get_qs(), c_ref_qs, atol=1e-6)
@@ -227,7 +227,7 @@ def test_custom_gate(config):  # pylint: disable=too-many-locals
     """
     virtual_qc, dtype = config
     for n in (1, 2, 3):
-        circ = mq.random_circuit(n, 100)
+        circ = quafu.random_circuit(n, 100)
         g = G.UnivMathGate('custom', circ.matrix())
         dim = 2 ** (n + 1)
         g_dim = 2**n
@@ -237,7 +237,7 @@ def test_custom_gate(config):  # pylint: disable=too-many-locals
         sim.set_qs(init_state)
         sim.apply_gate(g)
         ref_qs = np.kron(np.eye(2), g.matrix()) @ (init_state / np.linalg.norm(init_state))
-        if virtual_qc.startswith("mqmatrix"):
+        if virtual_qc.startswith("quafumatrix"):
             assert np.allclose(sim.get_qs(), np.outer(ref_qs, ref_qs.conj()), atol=1e-6)
         else:
             assert np.allclose(sim.get_qs(), ref_qs, atol=1e-6)
@@ -249,7 +249,7 @@ def test_custom_gate(config):  # pylint: disable=too-many-locals
         c_sim.apply_gate(c_g)
         m = np.block([[np.eye(g_dim), np.zeros((g_dim, g_dim))], [np.zeros((g_dim, g_dim)), g.matrix()]])
         c_ref_qs = np.kron(np.eye(2), m) @ (c_init_state / np.linalg.norm(c_init_state))
-        if virtual_qc.startswith("mqmatrix"):
+        if virtual_qc.startswith("quafumatrix"):
             assert np.allclose(c_sim.get_qs(), np.outer(c_ref_qs, c_ref_qs.conj()), atol=1e-6)
         else:
             assert np.allclose(c_sim.get_qs(), c_ref_qs, atol=1e-6)
@@ -342,7 +342,7 @@ def test_custom_two_params_gate(config):  # pylint: disable=too-many-locals
         sim.set_qs(init_state)
         sim.apply_gate(g, {'a': pr1, 'b': pr2})
         ref_qs = np.kron(np.eye(2), g.matrix({'a': pr1, 'b': pr2})) @ (init_state / np.linalg.norm(init_state))
-        if virtual_qc.startswith("mqmatrix"):
+        if virtual_qc.startswith("quafumatrix"):
             assert np.allclose(sim.get_qs(), np.outer(ref_qs, ref_qs.conj()), atol=1e-6)
         else:
             assert np.allclose(sim.get_qs(), ref_qs, atol=1e-6)
@@ -357,7 +357,7 @@ def test_custom_two_params_gate(config):  # pylint: disable=too-many-locals
             [[np.eye(g_dim), np.zeros((g_dim, g_dim))], [np.zeros((g_dim, g_dim)), g.matrix({'a': pr1, 'b': pr2})]]
         )
         c_ref_qs = np.kron(np.eye(2), m) @ (c_init_state / np.linalg.norm(c_init_state))
-        if virtual_qc.startswith("mqmatrix"):
+        if virtual_qc.startswith("quafumatrix"):
             assert np.allclose(c_sim.get_qs(), np.outer(c_ref_qs, c_ref_qs.conj()), atol=1e-6)
         else:
             assert np.allclose(c_sim.get_qs(), c_ref_qs, atol=1e-6)
@@ -670,7 +670,7 @@ def test_rn_expectation_with_grad(config):  # pylint: disable=R0914
     """
     virtual_qc, dtype = config
     rn = G.Rn('a', 'b', 'c').on(0)
-    init = mq.random_circuit(1, 10)
+    init = quafu.random_circuit(1, 10)
     circ = Circuit([rn])
     ham = Hamiltonian(QubitOperator('X0') + QubitOperator('Y0') + QubitOperator('Z0')).astype(dtype)
     m_ham = ham.hamiltonian.matrix().toarray()
@@ -719,7 +719,7 @@ def test_pauli_string_gate(config):  # pylint: disable=too-many-locals
         obj_qubits = qubits[: n_qubits - 1]
         ctrl_qubits = None if np.random.random() < 0.5 else qubits[-1]
         circs.append(G.GroupedPauli(random_pauli_string(obj_qubits)).on(obj_qubits, ctrl_qubits))
-    if virtual_qc.startswith('mqvector'):
+    if virtual_qc.startswith('quafuvector'):
         state = (random_circuit(n_qubits, 10) + G.I.on(n_qubits - 1)).get_qs()
         sim = Simulator(virtual_qc, n_qubits, dtype=dtype)
         for g in circs:
@@ -730,7 +730,7 @@ def test_pauli_string_gate(config):  # pylint: disable=too-many-locals
             sim.apply_circuit(g.__decompose__())
             qs1 = sim.get_qs()
             assert np.allclose(qs0, qs1)
-    elif virtual_qc.startswith("mqmatrix"):
+    elif virtual_qc.startswith("quafumatrix"):
         qs0 = (random_circuit(n_qubits, 10) + G.I.on(n_qubits - 1)).get_qs()
         qs1 = (random_circuit(n_qubits, 10) + G.I.on(n_qubits - 1)).get_qs()
         qs2 = (random_circuit(n_qubits, 10) + G.I.on(n_qubits - 1)).get_qs()
@@ -787,7 +787,7 @@ def test_rot_pauli_string_gate(config):  # pylint: disable=too-many-locals
         sim.apply_circuit(rand_circ)
         sim.apply_circuit(circ)
         qs2 = sim.get_qs()
-        if dtype == mq.complex64:
+        if dtype == quafu.complex64:
             atol = 1e-4
         else:
             atol = 1e-8
@@ -834,7 +834,7 @@ def test_rot_pauli_string_gate_gradient(config):  # pylint: disable=too-many-loc
         grad_ops2 = sim2.get_expectation_with_grad(ham, circ2)
         f1, g1 = grad_ops1(p0)
         f2, g2 = grad_ops2(p0)
-        if dtype == mq.complex64:
+        if dtype == quafu.complex64:
             atol = 1e-4
         else:
             atol = 1e-8
@@ -854,18 +854,18 @@ def test_custom_gate_order(config):  # pylint: disable=too-many-locals
     """
     virtual_qc, dtype = config
     for n in (2, 3, 4):
-        circ = mq.random_circuit(n, 100, 1.0, 0.0)
+        circ = quafu.random_circuit(n, 100, 1.0, 0.0)
         g = G.UnivMathGate('random', circ.matrix()).on(list(reversed(range(n))))
         dim = 2**g.n_qubits
         init_state = np.random.rand(dim) + np.random.rand(dim) * 1j
         sim = Simulator(virtual_qc, g.n_qubits, dtype=dtype)
         sim.set_qs(init_state)
         sim.apply_gate(g)
-        ref_sim = Simulator("mqvector", g.n_qubits, dtype=dtype)
+        ref_sim = Simulator("quafuvector", g.n_qubits, dtype=dtype)
         ref_sim.set_qs(init_state)
         ref_sim.apply_circuit(circ.reverse_qubits())
         ref_qs = ref_sim.get_qs()
-        if virtual_qc.startswith("mqmatrix"):
+        if virtual_qc.startswith("quafumatrix"):
             assert np.allclose(sim.get_qs(), np.outer(ref_qs, ref_qs.conj()), atol=1e-6)
         else:
             assert np.allclose(sim.get_qs(), ref_qs, atol=1e-6)
@@ -883,7 +883,7 @@ def test_two_qubit_gate_order(config, gate):  # pylint: disable=too-many-locals
     Expectation: success.
     """
     virtual_qc, dtype = config
-    if isinstance(gate, mq.NoneParameterGate):
+    if isinstance(gate, quafu.NoneParameterGate):
         g = gate()
     else:
         n_pr = len(signature(gate).parameters)
@@ -896,11 +896,11 @@ def test_two_qubit_gate_order(config, gate):  # pylint: disable=too-many-locals
     sim.set_qs(init_state)
     sim.apply_gate(g)
     ref_g = G.UnivMathGate('ref', g.matrix()).on(list(reversed(range(g.n_qubits))))
-    ref_sim = Simulator("mqvector", g.n_qubits, dtype=dtype)
+    ref_sim = Simulator("quafuvector", g.n_qubits, dtype=dtype)
     ref_sim.set_qs(init_state)
     ref_sim.apply_gate(ref_g)
     ref_qs = ref_sim.get_qs()
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         assert np.allclose(sim.get_qs(), np.outer(ref_qs, ref_qs.conj()), atol=1e-6)
     else:
         assert np.allclose(sim.get_qs(), ref_qs, atol=1e-6)

@@ -17,8 +17,8 @@
 import json
 import os
 
-from mindquantum.io.display.circuit_text_drawer_helper import removesuffix
-from mindquantum.utils import fdopen
+from quafu.io.display.circuit_text_drawer_helper import removesuffix
+from quafu.utils import fdopen
 
 
 def api_snippets(directory, snippets):
@@ -29,10 +29,8 @@ def api_snippets(directory, snippets):
             rel_path = os.path.relpath(  # pylint: disable=replace-os-relpath-abspath # noqa: SCS100
                 file_path, directory
             )
-            en_url = removesuffix(f"https://www.mindspore.cn/mindquantum/docs/en/master/{rel_path}", ".rst") + ".html"
-            cn_url = (
-                removesuffix(f"https://www.mindspore.cn/mindquantum/docs/zh-CN/master/{rel_path}", ".rst") + ".html"
-            )
+            en_url = removesuffix(f"https://www.mindspore.cn/quafu/docs/en/master/{rel_path}", ".rst") + ".html"
+            cn_url = removesuffix(f"https://www.mindspore.cn/quafu/docs/zh-CN/master/{rel_path}", ".rst") + ".html"
             api_name = en_url.split('/')[-1].split('.')[-2]
             snippets[f'en {api_name}'] = {
                 "prefix": f"url_en_{api_name}",
@@ -52,7 +50,7 @@ SNIPPETS_DIR = "../tmp"
 SNIPPETS_DIR = os.path.realpath(SNIPPETS_DIR)
 DIRECTORY_PATH = os.path.realpath(DIRECTORY_PATH)
 
-snippets_path = os.path.join(SNIPPETS_DIR, 'mindquantum_snippets.code-snippets')
+snippets_path = os.path.join(SNIPPETS_DIR, 'quafu_snippets.code-snippets')
 
 api_snippets(DIRECTORY_PATH, snippets_json)
 with fdopen(snippets_path, 'w') as f_write:

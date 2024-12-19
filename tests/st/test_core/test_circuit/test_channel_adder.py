@@ -14,7 +14,7 @@
 # ============================================================================
 """Test channel adder."""
 
-from mindquantum.core.circuit import (
+from quafu.core.circuit import (
     BitFlipAdder,
     Circuit,
     MeasureAccepter,
@@ -26,7 +26,7 @@ from mindquantum.core.circuit import (
     ReverseAdder,
     SequentialAdder,
 )
-from mindquantum.core.gates import (
+from quafu.core.gates import (
     AmplitudeDampingChannel,
     BitFlipChannel,
     DepolarizingChannel,

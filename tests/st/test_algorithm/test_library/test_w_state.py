@@ -17,13 +17,13 @@
 import numpy as np
 import pytest
 
-import mindquantum as mq
-from mindquantum.algorithm.library import general_w_state
+import quafu
+from quafu.algorithm.library import general_w_state
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 def test_general_w_state(dtype):
     """
     Description: Test general_w_state

@@ -16,9 +16,9 @@ Test the transforms in the hiqfermion module.
 """
 import pytest
 
-import mindquantum as mq
-from mindquantum.algorithm.nisq import Transform
-from mindquantum.core.operators import FermionOperator
+import quafu
+from quafu.algorithm.nisq import Transform
+from quafu.core.operators import FermionOperator
 
 
 def _get_terms_as_set(qubit_op):
@@ -27,7 +27,7 @@ def _get_terms_as_set(qubit_op):
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 def test_transform_jordan_wigner(dtype):
     """
     Description: Test transform
@@ -41,7 +41,7 @@ def test_transform_jordan_wigner(dtype):
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 def test_transform_parity(dtype):
     """
     Description: Test transform
@@ -56,7 +56,7 @@ def test_transform_parity(dtype):
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 def test_transform_bravyi_kitaev(dtype):
     """
     Description: Test transform
@@ -70,7 +70,7 @@ def test_transform_bravyi_kitaev(dtype):
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 def test_transform_ternary_tree(dtype):
     """
     Description: Test transform

@@ -181,17 +181,17 @@ def update_library_path_from_env(ld_path_var, install_prefix):
 def update_library_path(ld_path_var):
     """Update XXX_LIBRARY_PATH environment variable."""
     logging.info('Updating %s environment variable', ld_path_var)
-    mq_lib_paths = os.getenv('MQ_LIB_PATHS', '')
+    quafu_lib_paths = os.getenv('QUAFU_LIB_PATHS', '')
     try:
-        update_library_path_from_file(ld_path_var, mq_lib_paths)
+        update_library_path_from_file(ld_path_var, quafu_lib_paths)
         return
     except FileNotFoundError:
         pass
 
     try:
         prefix = 'build/temp.macosx'
-        if platform.system() == 'Darwin' and mq_lib_paths.startswith(prefix):
-            re_match = re.match(r'build/temp\.macosx-([^-]+)-(.*)', mq_lib_paths)
+        if platform.system() == 'Darwin' and quafu_lib_paths.startswith(prefix):
+            re_match = re.match(r'build/temp\.macosx-([^-]+)-(.*)', quafu_lib_paths)
             if re_match:
                 macos_ver = os.getenv('MACOSX_DEPLOYMENT_TARGET', 'NA')
                 suffix = re_match.group(2)
@@ -203,11 +203,11 @@ def update_library_path(ld_path_var):
         pass
 
     for install_prefix in (
-        'MQLIBS_CACHE_PATH',
+        'QUAFULIBS_CACHE_PATH',
         'MSLIBS_CACHE_PATH',
-        'MQLIBS_LOCAL_PREFIX_PATH',
+        'QUAFULIBS_LOCAL_PREFIX_PATH',
         'MSLIBS_LOCAL_PREFIX_PATH',
-        'MQ_BUILD_DIR',
+        'QUAFU_BUILD_DIR',
     ):
         try:
             update_library_path_from_env(ld_path_var, os.getenv(install_prefix, ''))
@@ -227,10 +227,10 @@ def get_requires_for_build_wheel(config_settings=None):
     requirements = setuptools.build_meta.get_requires_for_build_wheel(config_settings=config_settings)
 
     executable_list = ['cmake']
-    if int(os.environ.get('MQ_USE_NINJA', False)):
+    if int(os.environ.get('QUAFU_USE_NINJA', False)):
         executable_list.append('ninja')
 
-    delocate_wheel = int(os.environ.get('MQ_DELOCATE_WHEEL', False))
+    delocate_wheel = int(os.environ.get('QUAFU_DELOCATE_WHEEL', False))
     if delocate_wheel:
         if platform.system() == 'Linux':
             requirements.append('auditwheel')
@@ -298,7 +298,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     # Delocate the wheel if requested
 
     delocated_wheel_directory = Path(wheel_directory, 'delocated')
-    delocate_wheel = int(os.environ.get('MQ_DELOCATE_WHEEL', False))
+    delocate_wheel = int(os.environ.get('QUAFU_DELOCATE_WHEEL', False))
     done_delocate = False
     delocated_wheel = None
 
@@ -309,12 +309,12 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
         if platform.system() == 'Darwin':
             ld_lib_var = 'DYLD_LIBRARY_PATH'
         elif platform.system() == 'Windows':
-            ld_lib_var = 'MQ_LIB'  # Name of variable intentionally custom
+            ld_lib_var = 'QUAFU_LIB'  # Name of variable intentionally custom
         update_library_path(ld_lib_var)
 
         if platform.system() == 'Linux':
             done_delocate = True
-            plat = os.environ.get('MQ_DELOCATE_WHEEL_PLAT', '')
+            plat = os.environ.get('QUAFU_DELOCATE_WHEEL_PLAT', '')
 
             call_auditwheel('show', name_full)
             if plat:

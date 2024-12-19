@@ -22,30 +22,30 @@ import numpy as np
 import pytest
 from scipy.sparse import csr_matrix
 
-import mindquantum as mq
-import mindquantum.core.operators as ops
-from mindquantum.algorithm.library import qft
-from mindquantum.algorithm.nisq import Ansatz6
-from mindquantum.core import gates as G
-from mindquantum.core.circuit import (
+import quafu
+import quafu.core.operators as ops
+from quafu.algorithm.library import qft
+from quafu.algorithm.nisq import Ansatz6
+from quafu.core import gates as G
+from quafu.core.circuit import (
     UN,
     BitFlipAdder,
     Circuit,
     MeasureAccepter,
     MixerAdder,
 )
-from mindquantum.core.operators import Hamiltonian, QubitOperator
-from mindquantum.core.parameterresolver import ParameterResolver as PR
-from mindquantum.simulator import NoiseBackend, Simulator, inner_product
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
-from mindquantum.utils import random_circuit
+from quafu.core.operators import Hamiltonian, QubitOperator
+from quafu.core.parameterresolver import ParameterResolver as PR
+from quafu.simulator import NoiseBackend, Simulator, inner_product
+from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.utils import random_circuit
 
 _HAS_MINDSPORE = True
 try:
     import mindspore as ms
 
-    from mindquantum.framework.layer import (  # pylint: disable=ungrouped-imports
-        MQAnsatzOnlyLayer,
+    from quafu.framework.layer import (  # pylint: disable=ungrouped-imports
+        QUAFUAnsatzOnlyLayer,
     )
 
     ms.context.set_context(mode=ms.context.PYNATIVE_MODE, device_target="CPU")
@@ -77,14 +77,14 @@ except FileNotFoundError:
 @pytest.mark.env_onecard
 @pytest.mark.skipif(platform.system() != 'Linux', reason='GPU backend only available for linux.')
 @pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')
-@pytest.mark.parametrize("dtype", [mq.complex128, mq.complex64])
+@pytest.mark.parametrize("dtype", [quafu.complex128, quafu.complex64])
 def test_gpu(dtype):
     """
     test gpu
     Description: to make sure gpu platform was tested.
     Expectation: gpu backend not available.
     """
-    sim = Simulator('mqvector_gpu', 1, dtype=dtype)
+    sim = Simulator('quafuvector_gpu', 1, dtype=dtype)
     sim.apply_circuit(Circuit().h(0))
     v = sim.get_qs()
     assert np.allclose(v, np.ones_like(v) / np.sqrt(2))
@@ -109,7 +109,7 @@ def test_init_reset(config):
     s1.reset()
     v3 = s1.get_qs()
     v = np.array([1, 0, 0, 0], dtype=np.complex128)
-    if virtual_qc == "mqmatrix":
+    if virtual_qc == "quafumatrix":
         assert np.allclose(v1, np.outer(v, v.conj()))
         assert np.allclose(v1, v3)
     else:
@@ -148,7 +148,7 @@ def test_apply_circuit_and_hermitian(config):
     matrix = G.Rzz(10).matrix() @ matrix
     matrix = (np.kron(G.I.matrix(), sv0) + np.kron(G.Z.matrix(), sv1)) @ matrix
     v = matrix[:, 0]
-    if virtual_qc == "mqmatrix":
+    if virtual_qc == "quafumatrix":
         m = np.outer(v, v.conj())
         assert np.allclose(m, v1)
     else:
@@ -160,7 +160,7 @@ def test_apply_circuit_and_hermitian(config):
     matrix = np.conj(matrix.T)
     v1 = s1.get_qs()
     v = matrix[:, 0]
-    if virtual_qc == "mqmatrix":
+    if virtual_qc == "quafumatrix":
         m = np.outer(v, v.conj())
         assert np.allclose(m, v1)
     else:
@@ -181,13 +181,13 @@ def test_set_and_get(config):
     virtual_qc, dtype = config
     sim = Simulator(virtual_qc, 1, dtype=dtype)
     qs1 = sim.get_qs()
-    if virtual_qc == "mqmatrix":
+    if virtual_qc == "quafumatrix":
         assert np.allclose(qs1, np.array([[1, 0], [0, 0]]))
     else:
         assert np.allclose(qs1, np.array([1, 0]))
     sim.set_qs(np.array([1, 1]))
     qs2 = sim.get_qs()
-    if virtual_qc == "mqmatrix":
+    if virtual_qc == "quafumatrix":
         assert np.allclose(qs2, np.array([[0.5, 0.5], [0.5, 0.5]]))
         sim.set_qs(np.array([[1, 1], [1, 1]]))
         qs2 = sim.get_qs()
@@ -208,7 +208,7 @@ def test_non_hermitian_grad_ops1(config):
     Expectation:
     """
     virtual_qc, dtype = config
-    if virtual_qc == 'mqmatrix':
+    if virtual_qc == 'quafumatrix':
         return
     sim = Simulator(virtual_qc, 1, dtype=dtype)
     c_r = Circuit().ry('b', 0)
@@ -287,7 +287,7 @@ def test_all_gate_with_simulator(config):  # pylint: disable=too-many-locals
             -0.17429908 + 0.27887826j,
         ]
     )
-    if virtual_qc == "mqmatrix":
+    if virtual_qc == "quafumatrix":
         assert np.allclose(qs, np.outer(qs_exp, qs_exp.conj()))
     else:
         assert np.allclose(qs, qs_exp)
@@ -303,7 +303,7 @@ def test_all_gate_with_simulator(config):  # pylint: disable=too-many-locals
     g_a_1 = g1[0, 0, 0]
     g_a_2 = g2[0, 0, 0]
     atol = 1e-3
-    if dtype == mq.complex64:
+    if dtype == quafu.complex64:
         atol = 1e-1
     assert np.allclose(g_a, g_a_1, atol=atol)
     assert np.allclose(g_a, g_a_2, atol=atol)
@@ -346,8 +346,8 @@ def test_optimization_with_custom_gate(config):  # pylint: disable=too-many-loca
     grad_ops2 = sim.get_expectation_with_grad(ham, circuit2)
     ms.context.set_context(mode=ms.context.PYNATIVE_MODE, device_target="CPU")
     init_data = ms.Tensor(np.array([1.2]).astype(np.float32))
-    net1 = MQAnsatzOnlyLayer(grad_ops1, weight=init_data)
-    net2 = MQAnsatzOnlyLayer(grad_ops2, weight=init_data)
+    net1 = QUAFUAnsatzOnlyLayer(grad_ops1, weight=init_data)
+    net2 = QUAFUAnsatzOnlyLayer(grad_ops2, weight=init_data)
     opti1 = ms.nn.Adam(net1.trainable_params(), learning_rate=0.1)
     opti2 = ms.nn.Adam(net2.trainable_params(), learning_rate=0.1)
     train1 = ms.nn.TrainOneStepCell(net1, opti1)
@@ -369,7 +369,7 @@ def test_fid(config):
     Expectation:
     """
     virtual_qc, dtype = config
-    if virtual_qc == 'mqmatrix':
+    if virtual_qc == 'quafumatrix':
         return
     sim1 = Simulator(virtual_qc, 1, dtype=dtype)
     prep_circ = Circuit().h(0)
@@ -393,7 +393,7 @@ def test_non_hermitian_grad_ops2(config):
     Expectation: success.
     """
     virtual_qc, dtype = config
-    if virtual_qc == 'mqmatrix':
+    if virtual_qc == 'quafumatrix':
         return
     circuit1 = Circuit([G.RX('a').on(0)])
     circuit2 = Circuit([G.RY('b').on(0)])
@@ -426,8 +426,8 @@ def test_csr_ham(config):
     f_exp = np.conj(circ.matrix(np.array([1, 2])).T) @ ham.sparse_matrix.toarray() @ circ.matrix(np.array([1, 2]))
     f_exp = f_exp[0, 0]
     assert np.allclose(f, f_exp)
-    if virtual_qc == 'mqmatrix':
-        sim2 = Simulator('mqvector', 1, dtype=dtype)
+    if virtual_qc == 'quafumatrix':
+        sim2 = Simulator('quafuvector', 1, dtype=dtype)
         grad_ops2 = sim2.get_expectation_with_grad(ham, circ)
         _, g2 = grad_ops2(np.array([1, 2]))
         assert np.allclose(g, g2)
@@ -435,7 +435,7 @@ def test_csr_ham(config):
     sim.apply_hamiltonian(ham)
     qs = sim.get_qs()
     qs_exp = ham.sparse_matrix.toarray() @ circ.matrix(np.array([1, 2])) @ np.array([1, 0])
-    if virtual_qc == 'mqmatrix':
+    if virtual_qc == 'quafumatrix':
         assert np.allclose(qs, np.outer(qs_exp, qs_exp.conj()))
     else:
         assert np.allclose(qs, qs_exp)
@@ -452,7 +452,7 @@ def test_inner_product(config):
     Expectation: success.
     """
     virtual_qc, dtype = config
-    if virtual_qc == 'mqmatrix':
+    if virtual_qc == 'quafumatrix':
         return
     sim1 = Simulator(virtual_qc, 1, dtype=dtype)
     sim1.apply_gate(G.RX(1.2).on(0))
@@ -481,7 +481,7 @@ def test_copy(config):
     sim.reset()
     qs1 = sim.get_qs()
     qs2 = sim2.get_qs()
-    if virtual_qc == 'mqmatrix' and dtype == mq.complex64:
+    if virtual_qc == 'quafumatrix' and dtype == quafu.complex64:
         assert np.allclose(qs1, qs2, atol=1.0e-6)
     else:
         assert np.allclose(qs1, qs2, atol=1e-6)
@@ -499,8 +499,8 @@ def test_univ_order(config):
     """
     virtual_qc, dtype = config
     r_c = random_circuit(2, 100)
-    if virtual_qc == 'mqmatrix':
-        u = r_c.matrix(backend='mqvector', dtype=dtype)
+    if virtual_qc == 'quafumatrix':
+        u = r_c.matrix(backend='quafuvector', dtype=dtype)
         assert np.allclose(r_c.get_qs(backend=virtual_qc, dtype=dtype), np.outer(u[:, 0], np.conj(u[:, 0])), atol=1e-6)
     else:
         u = r_c.matrix(backend=virtual_qc, dtype=dtype)
@@ -508,7 +508,7 @@ def test_univ_order(config):
     g = G.UnivMathGate('u', u)
     c0 = Circuit([g.on([0, 1])])
     c1 = Circuit([g.on([1, 0])])
-    if virtual_qc == 'mqmatrix':
+    if virtual_qc == 'quafumatrix':
         assert np.allclose(c0.get_qs(backend=virtual_qc, dtype=dtype), np.outer(u[:, 0], np.conj(u[:, 0])), atol=1e-6)
         v_tmp = np.array([u[0, 0], u[2, 0], u[1, 0], u[3, 0]])
         assert np.allclose(c1.get_qs(backend=virtual_qc, dtype=dtype), np.outer(v_tmp, np.conj(v_tmp)), atol=1e-6)
@@ -536,7 +536,7 @@ def test_multi_params_gate(config):
     p0 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
     sim.apply_circuit(circ, pr=dict(zip(circ.params_name, p0)))
     qs_exp = np.array([0.06207773 + 0.0j, 0.12413139 + 0.44906334j, 0.10068061 - 0.05143708j, 0.65995413 + 0.57511569j])
-    if virtual_qc == "mqmatrix":
+    if virtual_qc == "quafumatrix":
         assert np.allclose(np.outer(qs_exp, qs_exp.conj()), sim.get_qs())
     else:
         assert np.allclose(qs_exp, sim.get_qs())
@@ -599,7 +599,7 @@ def test_cd_term(config):
     Expectation:
     """
     virtual_qc, dtype = config
-    if virtual_qc == 'mqmatrix':
+    if virtual_qc == 'quafumatrix':
         return
     cd_term = [G.Rxy, G.Rxz, G.Ryz]
     for g in cd_term:
@@ -684,11 +684,11 @@ def test_mul_qubit_gate(config):
 @pytest.mark.parametrize(
     "virtual_qc",
     [
-        'mqvector',
-        pytest.param('mqvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
+        'quafuvector',
+        pytest.param('quafuvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
     ],
 )
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_non_hermitian_expectation(virtual_qc, dtype):
     """
     Description: Test get expectation with non hermitian situation.
@@ -727,9 +727,9 @@ def test_noise_simulator(config):
     )
     sim = Simulator(NoiseBackend(virtual_qc, 2, adder=adder, dtype=dtype))
     res = sim.sampling(circ, seed=42, shots=5000)
-    if virtual_qc.startswith('mqvector'):
+    if virtual_qc.startswith('quafuvector'):
         assert res.data['00'] == 1701
-    elif virtual_qc.startswith('mqmatrix'):
+    elif virtual_qc.startswith('quafumatrix'):
         assert res.data['00'] == 1684
 
 
@@ -771,8 +771,8 @@ def test_parameter_shift_rule():
         else:
             new_c += i
     c = new_c
-    sim1 = Simulator('mqvector', c.n_qubits)
-    sim2 = Simulator('mqvector', c.n_qubits)
+    sim1 = Simulator('quafuvector', c.n_qubits)
+    sim2 = Simulator('quafuvector', c.n_qubits)
     ham = Hamiltonian(QubitOperator('Z0 Y1 X2'))
     grad_ops1 = sim1.get_expectation_with_grad(ham, c, parallel_worker=5)
     noise_c = c + G.AmplitudeDampingChannel(0.0).on(0)

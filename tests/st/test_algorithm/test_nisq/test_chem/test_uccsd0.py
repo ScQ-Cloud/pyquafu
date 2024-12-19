@@ -18,9 +18,9 @@ import warnings
 
 import pytest
 
-from mindquantum.algorithm.nisq import Transform, uccsd0_singlet_generator
-from mindquantum.algorithm.nisq.chem.uccsd0 import spin_adapted_t1, spin_adapted_t2
-from mindquantum.core.operators import TimeEvolution, count_qubits
+from quafu.algorithm.nisq import Transform, uccsd0_singlet_generator
+from quafu.algorithm.nisq.chem.uccsd0 import spin_adapted_t1, spin_adapted_t2
+from quafu.core.operators import TimeEvolution, count_qubits
 
 
 @pytest.mark.level0

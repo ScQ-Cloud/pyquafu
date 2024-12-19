@@ -17,16 +17,16 @@
 import numpy as np
 import pytest
 
-import mindquantum as mq
-from mindquantum import UN, H
-from mindquantum.algorithm.library import bitphaseflip_operator
-from mindquantum.core.circuit import Circuit
+import quafu
+from quafu import UN, H
+from quafu.algorithm.library import bitphaseflip_operator
+from quafu.core.circuit import Circuit
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
 @pytest.mark.env_onecard
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 def test_bitphaseflip_operator(dtype):
     """
     Description: Test bitphaseflip_operator

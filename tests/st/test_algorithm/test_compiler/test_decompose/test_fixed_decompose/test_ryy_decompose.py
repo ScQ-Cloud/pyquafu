@@ -17,9 +17,9 @@
 import numpy as np
 import pytest
 
-from mindquantum.algorithm.compiler.decompose import cryy_decompose, ryy_decompose
-from mindquantum.core.circuit import Circuit
-from mindquantum.core.gates import Ryy
+from quafu.algorithm.compiler.decompose import cryy_decompose, ryy_decompose
+from quafu.core.circuit import Circuit
+from quafu.core.gates import Ryy
 
 
 def circuit_equal_test(gate, decompose_circ):

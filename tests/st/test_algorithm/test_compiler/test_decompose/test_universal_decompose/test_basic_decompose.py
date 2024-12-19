@@ -20,9 +20,9 @@ import numpy as np
 import pytest
 from scipy.stats import unitary_group
 
-from mindquantum.algorithm.compiler import decompose
-from mindquantum.core import gates
-from mindquantum.core.circuit import Circuit
+from quafu.algorithm.compiler import decompose
+from quafu.core import gates
+from quafu.core.circuit import Circuit
 
 rand_unitary = unitary_group.rvs
 

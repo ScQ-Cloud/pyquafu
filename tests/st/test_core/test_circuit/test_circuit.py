@@ -22,11 +22,11 @@ from io import StringIO
 import numpy as np
 import pytest
 
-from mindquantum.core import gates as G
-from mindquantum.core.circuit import Circuit, add_prefix, shift
-from mindquantum.core.parameterresolver import ParameterResolver
-from mindquantum.simulator import Simulator
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.core import gates as G
+from quafucircuit import Circuit, add_prefix, shift
+from quafuparameterresolver import ParameterResolver
+from quafuator import Simulator
+from quafuator.available_simulator import SUPPORTED_SIMULATOR
 
 try:
     import importlib.metadata as importlib_metadata
@@ -114,7 +114,7 @@ def test_evolution_state(config):
     simulator.apply_circuit(circ, ParameterResolver({'a': a, 'b': b}))
     state = simulator.get_qs()
     state_exp = [0.9580325796404553, -0.14479246283091116j, -0.2446258794777393j, -0.036971585637570345]
-    if backend == "mqmatrix":
+    if backend == "quafumatrix":
         assert np.allclose(state, np.outer(state_exp, np.conj(state_exp)))
     else:
         assert np.allclose(state, state_exp)
@@ -141,7 +141,7 @@ def test_depth():
     Description:
     Expectation:
     """
-    circ = Circuit().x(0).x(1,0).x(0).barrier().x(3,2).x(1).x(2,1)
+    circ = Circuit().x(0).x(1, 0).x(0).barrier().x(3, 2).x(1).x(2, 1)
     assert circ.depth(with_single=True, with_barrier=True) == 5
     assert circ.depth(with_single=True, with_barrier=False) == 4
     assert circ.depth(with_single=False, with_barrier=True) == 3

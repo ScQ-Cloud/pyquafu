@@ -17,7 +17,7 @@ Test the polynomial_tensor in the ops module.
 import numpy as np
 import pytest
 
-from mindquantum.core.operators import PolynomialTensor
+from quafu.core.operators import PolynomialTensor
 
 
 @pytest.mark.level0

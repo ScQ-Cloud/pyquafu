@@ -13,8 +13,8 @@
 # limitations under the License.
 # ============================================================================
 """Test module_circuit."""
-from mindquantum.core import gates as G
-from mindquantum.core.circuit import UN, SwapParts
+from quafu.core import gates as G
+from quafu.core.circuit import UN, SwapParts
 
 
 def test_un():

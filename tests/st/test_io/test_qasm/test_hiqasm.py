@@ -14,8 +14,8 @@
 # ============================================================================
 """Test hiqasm."""
 
-from mindquantum.core.gates import X
-from mindquantum.io import HiQASM, random_hiqasm
+from quafu.core.gates import X
+from quafu.io import HiQASM, random_hiqasm
 
 
 def test_hiqasm():

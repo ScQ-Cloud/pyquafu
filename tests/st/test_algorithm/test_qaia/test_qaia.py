@@ -20,8 +20,8 @@ import subprocess
 import numpy as np
 from scipy.sparse import coo_matrix
 
-from mindquantum.algorithm.qaia import ASB, BSB, CAC, CFC, DSB, LQA, SFC
-from mindquantum.utils.fdopen import fdopen
+from quafu.algorithm.qaia import ASB, BSB, CAC, CFC, DSB, LQA, SFC
+from quafu.utils.fdopen import fdopen
 
 import pytest
 

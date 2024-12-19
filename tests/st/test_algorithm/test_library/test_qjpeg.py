@@ -16,9 +16,9 @@
 
 import numpy as np
 
-from mindquantum.simulator import Simulator
-from mindquantum.utils import normalize
-from mindquantum.algorithm.library import qjpeg
+from quafu.simulator import Simulator
+from quafu.utils import normalize
+from quafu.algorithm.library import qjpeg
 
 
 def test_qjpeg():
@@ -32,16 +32,12 @@ def test_qjpeg():
     assert remainder_qubits == [0, 2]
     assert discard_qubits == [1, 3]
 
-    data = np.array([[1, 0, 0, 0],
-                     [1, 1, 0, 0],
-                     [1, 1, 1, 0],
-                     [1, 1, 1, 1]])
+    data = np.array([[1, 0, 0, 0], [1, 1, 0, 0], [1, 1, 1, 0], [1, 1, 1, 1]])
     state = normalize(data.reshape(-1))
-    sim = Simulator('mqmatrix', n_qubits)
+    sim = Simulator('quafumatrix', n_qubits)
     sim.set_qs(state)
     sim.apply_circuit(circ)
     rho = sim.get_partial_trace(discard_qubits)
     sub_probs = rho.diagonal().real
     new_data = sub_probs.reshape((2 ** (m_qubits // 2), -1))
-    assert np.allclose(new_data, np.array([[0.3, 0.0],
-                                           [0.4, 0.3]]))
+    assert np.allclose(new_data, np.array([[0.3, 0.0], [0.4, 0.3]]))

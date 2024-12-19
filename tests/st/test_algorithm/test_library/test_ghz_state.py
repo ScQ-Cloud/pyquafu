@@ -17,13 +17,13 @@
 import numpy as np
 import pytest
 
-import mindquantum as mq
-from mindquantum.algorithm.library import general_ghz_state
+import quafu
+from quafu.algorithm.library import general_ghz_state
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 def test_general_ghz_state(dtype):
     """
     Description: Test if three qubit general_ghz_state correct or not.

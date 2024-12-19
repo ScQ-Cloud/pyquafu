@@ -21,12 +21,12 @@ import numpy as np
 import pytest
 from scipy.stats import entropy
 
-import mindquantum as mq
-from mindquantum.core import gates as G
-from mindquantum.core.circuit import Circuit
-from mindquantum.simulator import Simulator
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
-from mindquantum.utils import random_circuit
+import quafu
+from quafu.core import gates as G
+from quafu.core.circuit import Circuit
+from quafu.simulator import Simulator
+from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.utils import random_circuit
 
 flip_and_damping_channel = [
     G.BitFlipChannel,
@@ -55,12 +55,12 @@ def test_flip_and_damping_channel(config, channel):
     p = np.random.rand()
     c = channel(p).on(0)
     tmp = np.outer(init_state, init_state.T.conj())
-    ref_qs = np.zeros((2, 2), dtype=mq.to_np_type(dtype))
+    ref_qs = np.zeros((2, 2), dtype=quafu.to_np_type(dtype))
     for m in c.matrix():
         ref_qs += m @ tmp @ m.T.conj()
     sim = Simulator(virtual_qc, 1, dtype=dtype)
     sim.set_qs(init_state)
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         sim.apply_gate(c)
         assert np.allclose(sim.get_qs(), ref_qs)
     else:
@@ -84,12 +84,12 @@ def test_pauli_channel(config):
     px, py, pz = np.random.rand(3) / 3
     c = G.PauliChannel(px, py, pz).on(0)
     tmp = np.outer(init_state, init_state.T.conj())
-    ref_qs = np.zeros((2, 2), dtype=mq.to_np_type(dtype))
+    ref_qs = np.zeros((2, 2), dtype=quafu.to_np_type(dtype))
     for m in c.matrix():
         ref_qs += m @ tmp @ m.T.conj()
     sim = Simulator(virtual_qc, 1, dtype=dtype)
     sim.set_qs(init_state)
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         sim.apply_gate(c)
         assert np.allclose(sim.get_qs(), ref_qs)
     else:
@@ -115,12 +115,12 @@ def test_depolarizing_channel(config):
         init_state = np.random.rand(dim) + np.random.rand(dim) * 1j
         init_state = init_state / np.linalg.norm(init_state)
         tmp = np.outer(init_state, init_state.T.conj())
-        ref_qs = np.zeros((dim, dim), dtype=mq.to_np_type(dtype))
+        ref_qs = np.zeros((dim, dim), dtype=quafu.to_np_type(dtype))
         for m in c.matrix():
             ref_qs += m @ tmp @ m.T.conj()
         sim = Simulator(virtual_qc, n, dtype=dtype)
         sim.set_qs(init_state)
-        if virtual_qc.startswith("mqmatrix"):
+        if virtual_qc.startswith("quafumatrix"):
             sim.apply_gate(c)
             assert np.allclose(sim.get_qs(), ref_qs)
         else:
@@ -148,12 +148,12 @@ def test_kraus_channel(config):
     c2 = G.KrausChannel('gp', [1j * i for i in G.DepolarizingChannel(np.random.rand() * 4 / 3).matrix()]).on(0)
 
     for c in (c0, c1, c2):
-        ref_qs = np.zeros((2, 2), dtype=mq.to_np_type(dtype))
+        ref_qs = np.zeros((2, 2), dtype=quafu.to_np_type(dtype))
         for m in c.matrix():
             ref_qs += m @ tmp @ m.T.conj()
         sim = Simulator(virtual_qc, 1, dtype=dtype)
         sim.set_qs(init_state)
-        if virtual_qc.startswith("mqmatrix"):
+        if virtual_qc.startswith("quafumatrix"):
             sim.apply_gate(c)
             assert np.allclose(sim.get_qs(), ref_qs)
         else:
@@ -181,7 +181,7 @@ def test_grouped_pauli_channel(config):
     sim = Simulator(virtual_qc, n_qubits, dtype=dtype)
     circ1 = (old + paulis).measure_all()
     circ2 = (old + grouped).measure_all()
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         sim.apply_circuit(circ1.remove_measure())
         qs1 = sim.get_qs()
         sim.reset()
@@ -221,7 +221,7 @@ def test_thermal_relaxation_channel(config):
     ref_dm = np.array([[mat[0][0] + mat[2][2], mat[0][1] + mat[2][1]], [mat[1][0] + mat[3][2], mat[1][1] + mat[3][3]]])
     sim = Simulator(virtual_qc, 1, dtype=dtype)
     sim.set_qs(init_state)
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         sim.apply_gate(c)
         assert np.allclose(sim.get_qs(), ref_dm)
     else:

@@ -17,9 +17,9 @@ import pickle
 
 import pytest
 
-import mindquantum as mq
-from mindquantum.core.parameterresolver import ParameterResolver as PR
-from mindquantum.core.parameterresolver import PRGenerator
+import quafu
+from quafu.core.parameterresolver import ParameterResolver as PR
+from quafu.core.parameterresolver import PRGenerator
 
 
 @pytest.mark.level0
@@ -62,7 +62,7 @@ def test_parameter_resolve():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.float64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.float64])
 def test_parameter_resolve_dumps_and_loads(dtype):
     '''
     Description: Test pr dumps to json and json loads to pr
@@ -78,7 +78,7 @@ def test_parameter_resolve_dumps_and_loads(dtype):
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64, mq.float32, mq.float64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64, quafu.float32, quafu.float64])
 def test_parameter_resolve_combination(dtype):
     """
     Description: Test pr combination
@@ -91,7 +91,7 @@ def test_parameter_resolve_combination(dtype):
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64, mq.float32, mq.float64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64, quafu.float32, quafu.float64])
 def test_parameter_resolver_pickle(dtype):
     """
     Description: Test pickle

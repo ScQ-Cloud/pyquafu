@@ -17,19 +17,19 @@ import numpy as np
 from scipy.stats import entropy
 import pytest
 
-from mindquantum import _mq_vector
-from mindquantum.algorithm.error_mitigation import (
+from quafu import _quafu_vector
+from quafu.algorithm.error_mitigation import (
     query_double_qubits_clifford_elem,
     query_single_qubit_clifford_elem,
 )
-from mindquantum.core.circuit import Circuit
-from mindquantum.simulator import (
+from quafu.core.circuit import Circuit
+from quafu.simulator import (
     Simulator,
     decompose_stabilizer,
     get_stabilizer_string,
     get_tableau_string,
 )
-from mindquantum.utils import random_clifford_circuit, random_hamiltonian
+from quafu.utils import random_clifford_circuit, random_hamiltonian
 
 
 @pytest.mark.level0
@@ -39,7 +39,7 @@ def test_stabilizer():
     Description: Test stabilizer simulator.
     Expectation:
     """
-    _mq_vector.stabilizer.verify()  # pylint: disable=no-member
+    _quafu_vector.stabilizer.verify()  # pylint: disable=no-member
 
     for i in range(11520):
         clifford = query_double_qubits_clifford_elem(i)
@@ -94,7 +94,7 @@ def test_stabilizer_sampling():
         clifford = random_clifford_circuit(n_qubits, length).measure_all()
         sim = Simulator('stabilizer', clifford.n_qubits)
         res_clifford = sim.sampling(clifford, shots=10000)
-        res_state_vector = Simulator('mqvector', clifford.n_qubits).sampling(clifford, shots=10000)
+        res_state_vector = Simulator('quafuvector', clifford.n_qubits).sampling(clifford, shots=10000)
 
         keys = set(res_clifford.data.keys()) | set(res_state_vector.data.keys())
         dis1 = np.array([res_clifford.data.get(key, 0) for key in keys]) / res_clifford.shots
@@ -109,7 +109,7 @@ def test_stabilizer_expectation():
     Expectation:
     """
     sim = Simulator('stabilizer', 4)
-    ref_sim = Simulator('mqvector', 4)
+    ref_sim = Simulator('quafuvector', 4)
     rc = random_clifford_circuit(4, 20)
     rh = random_hamiltonian(4, 20)
     exp_val = sim.get_expectation(rh, rc)

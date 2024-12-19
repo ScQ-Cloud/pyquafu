@@ -25,12 +25,12 @@ AVAILABLE_BACKEND = []
 try:
     import mindspore as ms
 
-    from mindquantum.algorithm.nisq import HardwareEfficientAnsatz
-    from mindquantum.core.gates import RX, RY, X
-    from mindquantum.core.operators import Hamiltonian, QubitOperator
-    from mindquantum.framework import MQAnsatzOnlyLayer
-    from mindquantum.simulator import Simulator
-    from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+    from quafu.algorithm.nisq import HardwareEfficientAnsatz
+    from quafu.core.gates import RX, RY, X
+    from quafu.core.operators import Hamiltonian, QubitOperator
+    from quafu.framework import QUAFUAnsatzOnlyLayer
+    from quafu.simulator import Simulator
+    from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
     AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
     ms.context.set_context(mode=ms.context.PYNATIVE_MODE, device_target="CPU")
@@ -63,7 +63,7 @@ def test_hardware_efficient(config):
     ham = QubitOperator('Z0 Z1 Z2').astype(dtype)
     sim = Simulator(backend, hea.circuit.n_qubits, dtype=dtype)
     f_g_ops = sim.get_expectation_with_grad(Hamiltonian(ham), hea.circuit)
-    net = MQAnsatzOnlyLayer(f_g_ops, 'one')
+    net = QUAFUAnsatzOnlyLayer(f_g_ops, 'one')
     opti = ms.nn.Adam(net.trainable_params(), learning_rate=4e-1)
     train_net = ms.nn.TrainOneStepCell(net, opti)
     for _ in range(100):

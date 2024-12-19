@@ -15,9 +15,9 @@
 '''test DAG circuit'''
 import pytest
 
-from mindquantum.algorithm.compiler.dag import DAGCircuit
-from mindquantum.algorithm.compiler.decompose.utils import is_equiv_unitary
-from mindquantum.utils import random_circuit
+from quafu.algorithm.compiler.dag import DAGCircuit
+from quafu.algorithm.compiler.decompose.utils import is_equiv_unitary
+from quafu.utils import random_circuit
 
 
 @pytest.mark.level0

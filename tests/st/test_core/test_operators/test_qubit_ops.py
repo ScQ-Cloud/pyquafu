@@ -20,10 +20,10 @@ import pickle
 import numpy as np
 import pytest
 
-from mindquantum.core.operators import QubitOperator, ground_state_of_sum_zz
-from mindquantum.core.parameterresolver import ParameterResolver
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
-from mindquantum.utils.error import DeviceNotSupportedError
+from quafu.core.operators import QubitOperator, ground_state_of_sum_zz
+from quafu.core.parameterresolver import ParameterResolver
+from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.utils.error import DeviceNotSupportedError
 
 _HAS_OPENFERMION = True
 AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
@@ -203,10 +203,10 @@ def test_qubit_ops_trans():
     Expectation: success.
     """
     ofo_ops = OFQubitOperator("X0 Y1 Z2", 1)
-    mq_ops = QubitOperator("X0 Y1 Z2", 1)
+    quafu_ops = QubitOperator("X0 Y1 Z2", 1)
 
-    assert mq_ops.to_openfermion() == ofo_ops
-    assert mq_ops == QubitOperator.from_openfermion(ofo_ops)
+    assert quafu_ops.to_openfermion() == ofo_ops
+    assert quafu_ops == QubitOperator.from_openfermion(ofo_ops)
 
 
 @pytest.mark.level0
@@ -225,9 +225,9 @@ def test_ground_state_of_sum_zz_cpu():
         pass
 
 
-tmp_sim = ['mqvector']
-if 'mqvector_gpu' in SUPPORTED_SIMULATOR.sims:
-    tmp_sim.append('mqvector_gpu')
+tmp_sim = ['quafuvector']
+if 'quafuvector_gpu' in SUPPORTED_SIMULATOR.sims:
+    tmp_sim.append('quafuvector_gpu')
 
 
 @pytest.mark.level0

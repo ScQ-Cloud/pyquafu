@@ -14,9 +14,9 @@
 # ============================================================================
 """Test quantum neuron"""
 
-from mindquantum.simulator import Simulator
-from mindquantum.algorithm import QuantumNeuron
-from mindquantum import Circuit, H
+from quafu.simulator import Simulator
+from quafu.algorithm import QuantumNeuron
+from quafu import Circuit, H
 import numpy as np
 import pytest
 
@@ -36,7 +36,7 @@ def test_quantum_neuron():
     circ += H.on(1)
 
     # Initialize simulator
-    sim = Simulator('mqvector', 4, seed=2)
+    sim = Simulator('quafuvector', 4, seed=2)
     sim.apply_circuit(circ)
 
     # Create quantum neuron

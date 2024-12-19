@@ -16,8 +16,8 @@
 # pylint: disable=invalid-name
 """Test gate."""
 
-from mindquantum.utils import random_circuit
-from mindquantum.simulator import Simulator
+from quafu.utils import random_circuit
+from quafuator import Simulator
 import numpy as np
 
 
@@ -29,7 +29,7 @@ def test_measure_result_reverse_endian():
     circ = random_circuit(10, 10)
     circ.measure_all()
 
-    sim = Simulator("mqvector", 10)
+    sim = Simulator("quafuvector", 10)
     res = sim.sampling(circ, shots=100)
 
     original_keys = res.keys.copy()

@@ -22,11 +22,11 @@ AVAILABLE_BACKEND = []
 try:
     import mindspore as ms
 
-    from mindquantum.algorithm.nisq import Max2SATAnsatz
-    from mindquantum.core.operators import Hamiltonian
-    from mindquantum.framework import MQAnsatzOnlyLayer
-    from mindquantum.simulator import Simulator
-    from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+    from quafu.algorithm.nisq import Max2SATAnsatz
+    from quafu.core.operators import Hamiltonian
+    from quafu.framework import QUAFUAnsatzOnlyLayer
+    from quafu.simulator import Simulator
+    from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
     AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
 
@@ -58,7 +58,7 @@ def test_max_2_sat(config):
     ham = max2sat.hamiltonian.astype(dtype)
     f_g_ops = sim.get_expectation_with_grad(Hamiltonian(ham), max2sat.circuit)
     ms.set_seed(42)
-    net = MQAnsatzOnlyLayer(f_g_ops)
+    net = QUAFUAnsatzOnlyLayer(f_g_ops)
     opt = ms.nn.Adagrad(net.trainable_params(), learning_rate=4e-1)
     train_net = ms.nn.TrainOneStepCell(net, opt)
     ret = 0

@@ -16,7 +16,7 @@
 import numpy as np
 import pytest
 
-from mindquantum.core.operators import Hamiltonian, QubitOperator
+from quafu.core.operators import Hamiltonian, QubitOperator
 
 
 @pytest.mark.level0

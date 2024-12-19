@@ -20,8 +20,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from mindquantum.algorithm.nisq import generate_uccsd
-from mindquantum.core import gates as G
+from quafu.algorithm.nisq import generate_uccsd
+from quafu.core import gates as G
 
 _HAS_OPENFERMION = True
 try:

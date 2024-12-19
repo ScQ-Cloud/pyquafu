@@ -23,13 +23,13 @@ AVAILABLE_BACKEND = []
 try:
     import mindspore as ms
 
-    from mindquantum.algorithm.nisq import generate_uccsd
-    from mindquantum.core import gates as G
-    from mindquantum.core.circuit import Circuit
-    from mindquantum.core.operators import Hamiltonian
-    from mindquantum.framework import MQAnsatzOnlyLayer
-    from mindquantum.simulator import Simulator
-    from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+    from quafu.algorithm.nisq import generate_uccsd
+    from quafu.core import gates as G
+    from quafu.core.circuit import Circuit
+    from quafu.core.operators import Hamiltonian
+    from quafu.framework import QUAFUAnsatzOnlyLayer
+    from quafu.simulator import Simulator
+    from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
     AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
 
@@ -65,7 +65,7 @@ def test_vqe_net(config):  # pylint: disable=too-many-locals
     Expectation:
     """
     backend, dtype = config
-    if backend == 'mqmatrix':
+    if backend == 'quafumatrix':
         return
     ms.context.set_context(mode=ms.context.PYNATIVE_MODE, device_target="CPU")
     (
@@ -80,7 +80,7 @@ def test_vqe_net(config):  # pylint: disable=too-many-locals
     vqe_circuit = hf_circuit + ansatz_circuit
     sim = Simulator(backend, vqe_circuit.n_qubits, dtype=dtype)
     f_g_ops = sim.get_expectation_with_grad(Hamiltonian(hamiltonian_qubitop.real.astype(dtype)), vqe_circuit)
-    molecule_pqcnet = MQAnsatzOnlyLayer(f_g_ops)
+    molecule_pqcnet = QUAFUAnsatzOnlyLayer(f_g_ops)
     optimizer = ms.nn.Adagrad(molecule_pqcnet.trainable_params(), learning_rate=4e-2)
     train_pqcnet = ms.nn.TrainOneStepCell(molecule_pqcnet, optimizer)
     eps = 1e-8

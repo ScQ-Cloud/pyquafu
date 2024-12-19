@@ -17,7 +17,7 @@
 
 """Test utils."""
 
-from mindquantum.io import bprint
+from quafu.io import bprint
 
 
 def test_beauty_print():

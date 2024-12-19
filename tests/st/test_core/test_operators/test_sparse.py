@@ -20,10 +20,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-import mindquantum as mq
-from mindquantum.algorithm.nisq import Transform
-from mindquantum.core.operators import FermionOperator
-from mindquantum.third_party.interaction_operator import InteractionOperator
+import quafu
+from quafu.algorithm.nisq import Transform
+from quafu.core.operators import FermionOperator
+from quafu.third_party.interaction_operator import InteractionOperator
 
 _HAS_OPENFERMION = True
 try:
@@ -36,7 +36,7 @@ _FORCE_TEST = bool(os.environ.get("FORCE_TEST", False))
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
-@pytest.mark.parametrize('dtype', [mq.complex128, mq.complex64])
+@pytest.mark.parametrize('dtype', [quafu.complex128, quafu.complex64])
 @pytest.mark.skipif(not _HAS_OPENFERMION, reason='OpenFermion is not installed')
 @pytest.mark.skipif(not _FORCE_TEST, reason='set not force test')
 def test_sparsing_operator(dtype):
@@ -56,7 +56,7 @@ def test_sparsing_operator(dtype):
     ham = Transform(ham_hiq).jordan_wigner()
 
     hamiltonian = ham.to_openfermion()
-    matrix1 = get_sparse_operator(hamiltonian).toarray().astype(mq.to_np_type(dtype))
+    matrix1 = get_sparse_operator(hamiltonian).toarray().astype(quafu.to_np_type(dtype))
     matrix2 = ham.astype(dtype).matrix().toarray()
     matrix3 = ham_hiq.astype(dtype).matrix().toarray()
     eigen_v1 = np.real(np.linalg.eigvals(matrix1))

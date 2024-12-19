@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-"""Test mindquantum provide arxiv ansatz."""
+"""Test quafu provide arxiv ansatz."""
 
-from mindquantum.algorithm import nisq
-import mindquantum.core.gates as G
-from mindquantum.core.circuit import Circuit
+from quafu.algorithm import nisq
+import quafu.core.gates as G
+from quafu.core.circuit import Circuit
 
 import numpy as np
 import pytest
@@ -210,7 +210,7 @@ def test_ansatz7():
         test_cir += G.RZ(f'p{i+qubits+pr_count}').on(i)
     pr_count += qubits * 2
     test_cir += G.BARRIER
-    for i in range(qubits)[1:qubits - 1:2]:
+    for i in range(qubits)[1 : qubits - 1 : 2]:
         test_cir += G.RZ(f'p{pr_count}').on(i, i + 1)
         pr_count += 1
     test_matrix = test_cir.matrix(pr)
@@ -245,7 +245,7 @@ def test_ansatz8():
         test_cir += G.RZ(f'p{i+qubits+pr_count}').on(i)
     pr_count += qubits * 2
     test_cir += G.BARRIER
-    for i in range(qubits)[1:qubits - 1:2]:
+    for i in range(qubits)[1 : qubits - 1 : 2]:
         test_cir += G.RX(f'p{pr_count}').on(i, i + 1)
         pr_count += 1
     test_matrix = test_cir.matrix(pr)
@@ -269,7 +269,7 @@ def test_ansatz9():
     for i in range(qubits):
         test_cir += G.H.on(i)
     test_cir += G.BARRIER
-    for i in range(qubits)[qubits - 2::-1]:
+    for i in range(qubits)[qubits - 2 :: -1]:
         test_cir += G.Z.on(i, i + 1)
     test_cir += G.BARRIER
     for i in range(qubits):
@@ -295,7 +295,7 @@ def test_ansatz10():
     for i in range(qubits):
         test_cir += G.RY(f'p{i}').on(i)
     test_cir += G.BARRIER
-    for i in range(qubits)[qubits - 1::-1]:
+    for i in range(qubits)[qubits - 1 :: -1]:
         if i == 0:
             test_cir += G.Z.on(i, qubits - 1)
         else:
@@ -325,14 +325,14 @@ def test_ansatz11():
         test_cir += G.RY(f'p{i}').on(i)
         test_cir += G.RZ(f'p{i+qubits}').on(i)
     test_cir += G.BARRIER
-    for i in range(qubits)[:qubits - (qubits % 2):2]:
+    for i in range(qubits)[: qubits - (qubits % 2) : 2]:
         test_cir += G.X.on(i, i + 1)
     test_cir += G.BARRIER
     for i in range(qubits)[1:-1]:
         test_cir += G.RY(f'p{i+2*qubits-1}').on(i)
         test_cir += G.RZ(f'p{i+(3*qubits-2)-1}').on(i)
     test_cir += G.BARRIER
-    for i in range(qubits)[1:qubits - (qubits % 2) - 1:2]:
+    for i in range(qubits)[1 : qubits - (qubits % 2) - 1 : 2]:
         test_cir += G.X.on(i, i + 1)
     test_matrix = test_cir.matrix(pr)
 
@@ -356,14 +356,14 @@ def test_ansatz12():
         test_cir += G.RY(f'p{i}').on(i)
         test_cir += G.RZ(f'p{i+qubits}').on(i)
     test_cir += G.BARRIER
-    for i in range(qubits)[:qubits - (qubits % 2):2]:
+    for i in range(qubits)[: qubits - (qubits % 2) : 2]:
         test_cir += G.Z.on(i, i + 1)
     test_cir += G.BARRIER
     for i in range(qubits)[1:-1]:
         test_cir += G.RY(f'p{i+2*qubits-1}').on(i)
         test_cir += G.RZ(f'p{i+(3*qubits-2)-1}').on(i)
     test_cir += G.BARRIER
-    for i in range(qubits)[1:qubits - (qubits % 2) - 1:2]:
+    for i in range(qubits)[1 : qubits - (qubits % 2) - 1 : 2]:
         test_cir += G.Z.on(i, i + 1)
     test_matrix = test_cir.matrix(pr)
 
@@ -482,10 +482,10 @@ def test_ansatz16():
         test_cir += G.RZ(f'p{i+qubits}').on(i)
     test_cir += G.BARRIER
     pr_count = 2 * qubits
-    for i in range(qubits)[:qubits - (qubits % 2):2]:
+    for i in range(qubits)[: qubits - (qubits % 2) : 2]:
         test_cir += G.RZ(f'p{pr_count}').on(i, i + 1)
         pr_count += 1
-    for i in range(qubits)[1:qubits - (qubits % 2) - 1:2]:
+    for i in range(qubits)[1 : qubits - (qubits % 2) - 1 : 2]:
         test_cir += G.RZ(f'p{pr_count}').on(i, i + 1)
         pr_count += 1
     test_matrix = test_cir.matrix(pr)
@@ -511,10 +511,10 @@ def test_ansatz17():
         test_cir += G.RZ(f'p{i+qubits}').on(i)
     test_cir += G.BARRIER
     pr_count = 2 * qubits
-    for i in range(qubits)[:qubits - (qubits % 2):2]:
+    for i in range(qubits)[: qubits - (qubits % 2) : 2]:
         test_cir += G.RX(f'p{pr_count}').on(i, i + 1)
         pr_count += 1
-    for i in range(qubits)[1:qubits - (qubits % 2) - 1:2]:
+    for i in range(qubits)[1 : qubits - (qubits % 2) - 1 : 2]:
         test_cir += G.RX(f'p{pr_count}').on(i, i + 1)
         pr_count += 1
     test_matrix = test_cir.matrix(pr)

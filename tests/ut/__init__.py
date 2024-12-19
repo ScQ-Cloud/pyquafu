@@ -13,4 +13,4 @@
 # limitations under the License.
 # ============================================================================
 
-"""MindQuantum ut test module."""
+"""quafu ut test module."""

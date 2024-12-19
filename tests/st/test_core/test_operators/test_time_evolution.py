@@ -15,9 +15,9 @@
 """Test TimeEvolution."""
 import pytest
 
-from mindquantum.core import gates as G
-from mindquantum.core.circuit import Circuit
-from mindquantum.core.operators import QubitOperator, TimeEvolution
+from quafu.core import gates as G
+from quafu.core.circuit import Circuit
+from quafu.core.operators import QubitOperator, TimeEvolution
 
 
 @pytest.mark.level0

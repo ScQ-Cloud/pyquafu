@@ -24,12 +24,12 @@ AVAILABLE_BACKEND = []
 try:
     import mindspore as ms
 
-    from mindquantum.core import gates as G
-    from mindquantum.core.circuit import Circuit
-    from mindquantum.core.operators import Hamiltonian, QubitOperator
-    from mindquantum.framework import MQLayer, QRamVecLayer
-    from mindquantum.simulator import Simulator
-    from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+    from quafu.core import gates as G
+    from quafu.core.circuit import Circuit
+    from quafu.core.operators import Hamiltonian, QubitOperator
+    from quafu.framework import QUAFULayer, QRamVecLayer
+    from quafu.simulator import Simulator
+    from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
     AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
 
@@ -48,9 +48,9 @@ except ImportError:
 @pytest.mark.env_onecard
 @pytest.mark.parametrize('config', AVAILABLE_BACKEND)
 @pytest.mark.skipif(not _HAS_MINDSPORE, reason='MindSpore is not installed')
-def test_mindquantumlayer(config):
+def test_quafulayer(config):
     """
-    Description: Test MQLayer
+    Description: Test QUAFULayer
     Expectation:
     """
     backend, dtype = config
@@ -65,7 +65,7 @@ def test_mindquantumlayer(config):
     circ = encoder.as_encoder() + ansatz.as_ansatz()
     sim = Simulator(backend, circ.n_qubits, dtype=dtype)
     f_g_ops = sim.get_expectation_with_grad(ham, circ)
-    net = MQLayer(f_g_ops)
+    net = QUAFULayer(f_g_ops)
     encoder_data = ms.Tensor(np.array([[0.1, 0.2]]).astype(np.float32))
     res = net(encoder_data)
     assert np.allclose(res.asnumpy()[0, 0], 0.994962, atol=1e-2)
@@ -84,7 +84,7 @@ def test_qram_vec_layer(config):
     Expectation:
     """
     backend, dtype = config
-    if backend == 'mqmatrix':
+    if backend == 'quafumatrix':
         return
     ms.set_seed(42)
     ans = Circuit().ry('a', 0).rx('b', 0).as_ansatz()

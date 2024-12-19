@@ -17,9 +17,9 @@
 import pytest
 from scipy.stats import unitary_group
 
-from mindquantum.algorithm.compiler import decompose
-from mindquantum.algorithm.compiler.decompose import utils
-from mindquantum.core import gates
+from quafu.algorithm.compiler import decompose
+from quafu.algorithm.compiler.decompose import utils
+from quafu.core import gates
 
 rand_unitary = unitary_group.rvs
 

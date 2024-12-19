@@ -15,7 +15,7 @@
 '''test compiler rules'''
 import pytest
 
-from mindquantum.algorithm.compiler import (
+from quafu.algorithm.compiler import (
     BasicDecompose,
     SequentialCompiler,
     KroneckerSeqCompiler,
@@ -26,8 +26,8 @@ from mindquantum.algorithm.compiler import (
     CZBasedChipCompiler,
     DAGCircuit,
 )
-from mindquantum.algorithm.compiler.decompose.utils import is_equiv_unitary
-from mindquantum.utils import random_circuit
+from quafu.algorithm.compiler.decompose.utils import is_equiv_unitary
+from quafu.utils import random_circuit
 
 
 @pytest.mark.level0

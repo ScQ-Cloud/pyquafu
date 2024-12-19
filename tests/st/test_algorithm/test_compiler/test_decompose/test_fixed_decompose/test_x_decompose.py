@@ -23,9 +23,9 @@ with warnings.catch_warnings():
     warnings.filterwarnings(
         'ignore', category=DeprecationWarning, message=r'Please use `OptimizeResult` from the `scipy\.optimize`'
     )
-    from mindquantum.algorithm.compiler.decompose import ccx_decompose
-    from mindquantum.core.circuit import Circuit
-    from mindquantum.core.gates import X
+    from quafu.algorithm.compiler.decompose import ccx_decompose
+    from quafu.core.circuit import Circuit
+    from quafu.core.gates import X
 
 
 def circuit_equal_test(gate, decompose_circ):

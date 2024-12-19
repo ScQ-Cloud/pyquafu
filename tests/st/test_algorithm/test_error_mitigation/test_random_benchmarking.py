@@ -16,7 +16,7 @@
 import numpy as np
 import pytest
 
-from mindquantum.algorithm.error_mitigation import (
+from quafu.algorithm.error_mitigation import (
     generate_double_qubits_rb_circ,
     generate_single_qubit_rb_circ,
 )

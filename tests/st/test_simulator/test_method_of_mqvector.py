@@ -13,18 +13,18 @@
 # limitations under the License.
 # ============================================================================
 
-"""Test method of mqvector simulator."""
+"""Test method of quafuvector simulator."""
 import subprocess
 
 import numpy as np
 import pytest
 from scipy.sparse import csr_matrix
 
-import mindquantum as mq
-from mindquantum.core import gates as G
-from mindquantum.core.operators import Hamiltonian, QubitOperator
-from mindquantum.simulator import Simulator
-from mindquantum.utils import random_circuit, random_hamiltonian
+import quafu
+from quafu.core import gates as G
+from quafu.core.operators import Hamiltonian, QubitOperator
+from quafu.simulator import Simulator
+from quafu.utils import random_circuit, random_hamiltonian
 
 _HAS_GPU = False
 
@@ -53,11 +53,11 @@ except ImportError:
 @pytest.mark.parametrize(
     "virtual_qc",
     [
-        'mqvector',
-        pytest.param('mqvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
+        'quafuvector',
+        pytest.param('quafuvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
     ],
 )
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_get_expectation(virtual_qc, dtype):
     """
     Description: test get expectation
@@ -121,11 +121,11 @@ def test_get_expectation(virtual_qc, dtype):
 @pytest.mark.parametrize(
     "virtual_qc",
     [
-        'mqvector',
-        pytest.param('mqvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
+        'quafuvector',
+        pytest.param('quafuvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
     ],
 )
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_non_hermitian_get_expectation_with_grad(virtual_qc, dtype):
     """
     Description: test get expectation
@@ -198,11 +198,11 @@ single_parameter_gate = [
 @pytest.mark.parametrize(
     "virtual_qc",
     [
-        'mqvector',
-        pytest.param('mqvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
+        'quafuvector',
+        pytest.param('quafuvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
     ],
 )
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_parameter_shift_rule(virtual_qc, dtype):  # pylint: disable=too-many-locals
     """
     Description: test parameter shift rule
@@ -235,11 +235,11 @@ def test_parameter_shift_rule(virtual_qc, dtype):  # pylint: disable=too-many-lo
 @pytest.mark.parametrize(
     "virtual_qc",
     [
-        'mqvector',
-        pytest.param('mqvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
+        'quafuvector',
+        pytest.param('quafuvector_gpu', marks=pytest.mark.skipif(not _HAS_GPU, reason='Machine does not has GPU.')),
     ],
 )
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 @pytest.mark.skipif(not _HAS_NUMBA, reason='Numba is not installed')
 def test_parameter_shift_rule_finite_diff_case(virtual_qc, dtype):  # pylint: disable=too-many-locals
     """

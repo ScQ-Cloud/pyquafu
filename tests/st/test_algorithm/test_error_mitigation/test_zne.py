@@ -16,18 +16,18 @@
 
 import numpy as np
 
-from mindquantum.algorithm.error_mitigation import zne
-from mindquantum.core.circuit import Circuit
-from mindquantum.core.circuit.channel_adder import BitFlipAdder
-from mindquantum.core.gates import RX, RY, RZ
-from mindquantum.core.operators import Hamiltonian, QubitOperator
-from mindquantum.simulator import Simulator
-from mindquantum.simulator.noise import NoiseBackend
+from quafu.algorithm.error_mitigation import zne
+from quafu.core.circuit import Circuit
+from quafu.core.circuit.channel_adder import BitFlipAdder
+from quafu.core.gates import RX, RY, RZ
+from quafu.core.operators import Hamiltonian, QubitOperator
+from quafu.simulator import Simulator
+from quafu.simulator.noise import NoiseBackend
 
 
 def execute(circ: Circuit, noise_level: float, ham: Hamiltonian, seed=42):
     """Simulator executor."""
-    return Simulator(NoiseBackend('mqmatrix', circ.n_qubits, BitFlipAdder(noise_level), seed=seed)).get_expectation(
+    return Simulator(NoiseBackend('quafumatrix', circ.n_qubits, BitFlipAdder(noise_level), seed=seed)).get_expectation(
         ham, circ
     )
 

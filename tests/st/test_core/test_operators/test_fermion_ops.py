@@ -21,7 +21,7 @@ import pickle
 import numpy as np
 import pytest
 
-from mindquantum.core.operators import FermionOperator
+from quafu.core.operators import FermionOperator
 
 _HAS_OPENFERMION = True
 try:
@@ -219,9 +219,9 @@ def test_of_fermion_trans():
     Expectation: success.
     """
     ofo_ops = OFFermionOperator("1^ 0", 1)
-    mq_ops = FermionOperator('1^ 0', 1)
-    assert mq_ops.to_openfermion() == ofo_ops
-    assert mq_ops == FermionOperator.from_openfermion(ofo_ops)
+    quafu_ops = FermionOperator('1^ 0', 1)
+    assert quafu_ops.to_openfermion() == ofo_ops
+    assert quafu_ops == FermionOperator.from_openfermion(ofo_ops)
 
 
 @pytest.mark.level0

@@ -13,7 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""Helper functions for building MindQuantum."""
+"""Helper functions for building quafu."""
 
 import contextlib
 import errno
@@ -26,7 +26,7 @@ import sys
 from operator import itemgetter
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).parent.parent / 'mindquantum' / 'utils'))
+sys.path.append(str(Path(__file__).parent.parent / 'quafu' / 'utils'))
 from fdopen import (  # noqa: E402 pylint: disable=wrong-import-position,import-error
     fdopen,
 )

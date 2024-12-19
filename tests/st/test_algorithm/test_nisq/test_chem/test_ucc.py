@@ -27,13 +27,13 @@ AVAILABLE_BACKEND = []
 try:
     import mindspore as ms
 
-    from mindquantum.algorithm.nisq import UCCAnsatz
-    from mindquantum.core.circuit import Circuit
-    from mindquantum.core.gates import X
-    from mindquantum.core.operators import Hamiltonian, QubitOperator
-    from mindquantum.framework import MQAnsatzOnlyLayer
-    from mindquantum.simulator import Simulator
-    from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+    from quafu.algorithm.nisq import UCCAnsatz
+    from quafu.core.circuit import Circuit
+    from quafu.core.gates import X
+    from quafu.core.operators import Hamiltonian, QubitOperator
+    from quafu.framework import QUAFUAnsatzOnlyLayer
+    from quafu.simulator import Simulator
+    from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
     AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
 
@@ -89,7 +89,7 @@ def test_uccsd(config):  # pylint: disable=too-many-locals
     total_circuit += ucc.circuit
     sim = Simulator(backend, total_circuit.n_qubits, dtype=dtype)
     f_g_ops = sim.get_expectation_with_grad(Hamiltonian(ham.real.astype(dtype)), total_circuit)
-    net = MQAnsatzOnlyLayer(f_g_ops)
+    net = QUAFUAnsatzOnlyLayer(f_g_ops)
     opti = ms.nn.Adagrad(net.trainable_params(), learning_rate=4e-2)
     train_net = ms.nn.TrainOneStepCell(net, opti)
     for i in range(50):

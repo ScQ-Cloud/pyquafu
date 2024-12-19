@@ -15,8 +15,8 @@
 """Test folding circuit."""
 import numpy as np
 
-from mindquantum.algorithm.error_mitigation import fold_at_random
-from mindquantum.utils import random_circuit
+from quafu.algorithm.error_mitigation import fold_at_random
+from quafu.utils import random_circuit
 
 
 def test_folding_circuit():

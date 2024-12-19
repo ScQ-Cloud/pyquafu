@@ -23,11 +23,11 @@ AVAILABLE_BACKEND = []
 try:
     import mindspore as ms
 
-    from mindquantum.algorithm.nisq import MaxCutAnsatz
-    from mindquantum.core.operators import Hamiltonian
-    from mindquantum.framework import MQAnsatzOnlyLayer
-    from mindquantum.simulator import Simulator
-    from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+    from quafu.algorithm.nisq import MaxCutAnsatz
+    from quafu.core.operators import Hamiltonian
+    from quafu.framework import QUAFUAnsatzOnlyLayer
+    from quafu.simulator import Simulator
+    from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
 
     AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
     ms.context.set_context(mode=ms.context.PYNATIVE_MODE, device_target="CPU")
@@ -58,7 +58,7 @@ def test_max_cut(config):
     ham = maxcut.hamiltonian
     f_g_ops = sim.get_expectation_with_grad(Hamiltonian(-ham, dtype=dtype), maxcut.circuit)
     ms.set_seed(42)
-    net = MQAnsatzOnlyLayer(f_g_ops)
+    net = QUAFUAnsatzOnlyLayer(f_g_ops)
     opti = ms.nn.Adagrad(net.trainable_params(), learning_rate=4e-1)
     train_net = ms.nn.TrainOneStepCell(net, opti)
     for _ in range(50):

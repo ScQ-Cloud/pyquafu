@@ -18,15 +18,15 @@
 import numpy as np
 import pytest
 
-from mindquantum.core.circuit import (
+from quafu.core.circuit import (
     Circuit,
     partial_psi_partial_psi,
     partial_psi_psi,
     qfi,
 )
-from mindquantum.core.parameterresolver import ParameterResolver as PR
-from mindquantum.simulator import Simulator
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafuparameterresolver import ParameterResolver as PR
+from quafuator import Simulator
+from quafuator.available_simulator import SUPPORTED_SIMULATOR
 
 AVAILABLE_BACKEND = list(filter(lambda x: x != 'stabilizer', SUPPORTED_SIMULATOR))
 
@@ -43,7 +43,7 @@ def test_qfi(config):
     """
     # pylint: disable=too-many-locals
     backend, dtype = config
-    if backend == 'mqmatrix':
+    if backend == 'quafumatrix':
         return
     a = PR('a')
     b = PR('b')

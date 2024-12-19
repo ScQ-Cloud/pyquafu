@@ -14,7 +14,7 @@
 # ============================================================================
 
 # pylint: disable=invalid-name
-"""Test method of mqmatrix simulator."""
+"""Test method of quafumatrix simulator."""
 
 import numpy as np
 import pytest
@@ -22,20 +22,20 @@ from scipy.linalg import logm, sqrtm
 from scipy.sparse import csr_matrix
 from scipy.stats import entropy
 
-import mindquantum as mq
-from mindquantum.core import gates as G
-from mindquantum.core.circuit import UN, Circuit
-from mindquantum.core.operators import Hamiltonian, QubitOperator
-from mindquantum.simulator import Simulator, fidelity
-from mindquantum.simulator.available_simulator import SUPPORTED_SIMULATOR
-from mindquantum.utils import random_circuit, random_hamiltonian
+import quafu
+from quafu.core import gates as G
+from quafu.core.circuit import UN, Circuit
+from quafu.core.operators import Hamiltonian, QubitOperator
+from quafu.simulator import Simulator, fidelity
+from quafu.simulator.available_simulator import SUPPORTED_SIMULATOR
+from quafu.utils import random_circuit, random_hamiltonian
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
 @pytest.mark.env_onecard
-@pytest.mark.parametrize("virtual_qc", ['mqmatrix'])
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("virtual_qc", ['quafumatrix'])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_set_qs_and_dm(virtual_qc, dtype):
     """
     Description: test setting density matrix
@@ -58,8 +58,8 @@ def test_set_qs_and_dm(virtual_qc, dtype):
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
 @pytest.mark.env_onecard
-@pytest.mark.parametrize("virtual_qc", ['mqmatrix'])
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("virtual_qc", ['quafumatrix'])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_get_partial_trace(virtual_qc, dtype):
     """
     Description: test partial trace of density matrix
@@ -79,8 +79,8 @@ def test_get_partial_trace(virtual_qc, dtype):
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
 @pytest.mark.env_onecard
-@pytest.mark.parametrize("virtual_qc", ['mqmatrix'])
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("virtual_qc", ['quafumatrix'])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_purity(virtual_qc, dtype):
     """
     Description: test purity of density matrix
@@ -98,8 +98,8 @@ def test_purity(virtual_qc, dtype):
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
 @pytest.mark.env_onecard
-@pytest.mark.parametrize("virtual_qc", ['mqmatrix'])
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("virtual_qc", ['quafumatrix'])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_get_pure_state_vector(virtual_qc, dtype):
     """
     Description: test get pure state vector from density matrix
@@ -158,7 +158,7 @@ def test_sampling(config):
     sim = Simulator(virtual_qc, 2, dtype=dtype)
     sim.set_qs(qs)
     res = sim.sampling(Circuit(UN(G.Measure(), [0, 1])), shots=shots)
-    if virtual_qc.startswith("mqmatrix"):
+    if virtual_qc.startswith("quafumatrix"):
         ref_distribution = sim.get_qs().diagonal().real
     else:
         ref_distribution = np.abs(qs) ** 2
@@ -262,7 +262,7 @@ def test_get_expectation_with_grad_batch_hams(config):
     # pylint: disable=too-many-locals
     virtual_qc, dtype = config
     init_state_circ = UN(G.H, range(5))
-    ansatz = mq.MaxCutAnsatz([(0, 1), (1, 2), (2, 3), (3, 4), (0, 4), (0, 2)], 4).circuit
+    ansatz = quafu.MaxCutAnsatz([(0, 1), (1, 2), (2, 3), (3, 4), (0, 4), (0, 2)], 4).circuit
     circ = init_state_circ + ansatz
     sim = Simulator(virtual_qc, 5, dtype=dtype)
 
@@ -308,7 +308,7 @@ def three_qubits_dm_evolution_in_py(dm, g, dtype):
     Expectation: success.
     """
     if isinstance(g, G.NoiseGate):
-        tmp = np.zeros((8, 8), dtype=mq.to_np_type(dtype))
+        tmp = np.zeros((8, 8), dtype=quafu.to_np_type(dtype))
         for m in g.matrix():
             if g.obj_qubits[0] == 0:
                 big_m = np.kron(np.eye(4, 4), m)
@@ -332,8 +332,8 @@ def three_qubits_dm_evolution_in_py(dm, g, dtype):
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
 @pytest.mark.env_onecard
-@pytest.mark.parametrize("virtual_qc", ['mqmatrix'])
-@pytest.mark.parametrize("dtype", [mq.complex64, mq.complex128])
+@pytest.mark.parametrize("virtual_qc", ['quafumatrix'])
+@pytest.mark.parametrize("dtype", [quafu.complex64, quafu.complex128])
 def test_noise_get_expectation_with_grad(virtual_qc, dtype):
     """
     Description: test noise circuit get expectation with gradient
@@ -391,7 +391,7 @@ def test_entropy(config):
     sim = Simulator(virtual_qc, 3, dtype=dtype)
     sim.apply_circuit(circ)
     e = sim.entropy()
-    if virtual_qc.startswith('mqvector'):
+    if virtual_qc.startswith('quafuvector'):
         ref_entropy = 0
     else:
         dm = sim.get_qs()
@@ -420,9 +420,9 @@ def test_fidelity(config1, config2):
     qs1 = sim1.get_qs()
     qs2 = sim2.get_qs()
     f = fidelity(qs1, qs2)
-    if virtual_qc1.startswith('mqvector'):
+    if virtual_qc1.startswith('quafuvector'):
         qs1 = np.outer(qs1, qs1.conj().T)
-    if virtual_qc2.startswith('mqvector'):
+    if virtual_qc2.startswith('quafuvector'):
         qs2 = np.outer(qs2, qs2.conj().T)
     ref_f = np.trace(sqrtm(sqrtm(qs1) @ qs2 @ sqrtm(qs1))).real ** 2
     assert np.allclose(f, ref_f, atol=1e-3)
