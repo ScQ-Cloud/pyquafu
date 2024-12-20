@@ -35,6 +35,8 @@ from ..elements import (
     QuantumGate,
     QuantumPulse,
     XYResonance,
+    KrausChannel, 
+    UnitaryChannel
 )
 from ..elements.quantum_gate import CircuitWrapper, ControlledCircuitWrapper
 from ..exceptions import CircuitError
@@ -74,6 +76,7 @@ class QuantumCircuit:
     @property
     def parameterized_gates(self):
         """Return the list of gates which the parameters are tunable"""
+        # FIXME: if we add parameterized gates after calling this function it will not work
         if not self._parameterized_gates:
             self._parameterized_gates = [g for g in self.gates if len(g.paras) != 0]
         return self._parameterized_gates
@@ -163,19 +166,21 @@ class QuantumCircuit:
             self.add_gate(ins)
         self.instructions.append(ins)
 
-    def add_noise(self, channel: str, channel_args, qubits=[], gates=[]):
+    def add_noise(self, channel: str, channel_args, qubits=[], gates=[], checkgates=True):
         if channel not in ["bitflip", "dephasing", "depolarizing", "ampdamping"]:
             raise ValueError("Invalid channel name")
 
-        for g in gates:
-            if g not in list(QuantumGate.gate_classes.keys()):
-                raise ValueError("Invalid gate name")
+        if checkgates:
+            for g in gates:
+                if g not in list(QuantumGate.gate_classes.keys()):
+                    raise ValueError("Invalid gate name")
 
         newinstructions = []
         newgates = []
         for op in self.instructions:
             newinstructions.append(op)
-            if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance)):
+            if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel, 
+    UnitaryChannel)):
                 newgates.append(op)
             if isinstance(op, QuantumGate):
                 add_q = False
@@ -272,11 +277,15 @@ class QuantumCircuit:
             order: For transplied circuit that change the order of variables,
             need pass the order to match untranspiled circuit's variable.
         """
-
+        if len(values) != len(self.variables):
+            raise CircuitError(
+                "The size of input values must be the same to the parameters"
+            )
         for i in range(len(values)):
             val = values[order[i]] if order else values[i]
             self._variables[i].value = val
 
+    # TODO: delete after 0.4.1
     def update_params(self, paras_list: List[Any]):
         """Update parameters of parameterized gates
         Args:

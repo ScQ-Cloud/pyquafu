@@ -125,21 +125,35 @@ class SimuResult(Result):
     def counts(self):
         return self["counts"]
 
-    def calc_probabilities(self):
-        psi = self.get_statevector()
+    def calc_probabilities(self, from_counts=True):
         num = self["qbitnum"]
-        measures = list(self["measures"].keys())
-        values_tmp = list(self["measures"].values())
-        values = np.argsort(values_tmp)
+        if from_counts and self._meta_data['counts']:
+            counts = self._meta_data["counts"]
+            total_counts = sum(counts.values())
+            probabilities = {}
+            for key in self._meta_data["counts"]:
+                probabilities[key] = counts[key] / total_counts
+            self._probabilities = np.zeros(2**num)
+            for key in probabilities:
+                self._probabilities[int(key, 2)] = probabilities[key]
 
-        from ..simulators.default_simulator import permutebits, ptrace
+        elif "statevector" in self._meta_data.keys():
+            psi = self.get_statevector()
+            measures = list(self["measures"].keys())
+            values_tmp = list(self["measures"].values())
+            values = np.argsort(values_tmp)
 
-        psi = permutebits(psi, range(num)[::-1])
-        if measures:
-            self._probabilities = ptrace(psi, measures)
-            self._probabilities = permutebits(self._probabilities, values)
+            from ..simulators.default_simulator import permutebits, ptrace
+
+            psi = permutebits(psi, range(num)[::-1])
+            if measures:
+                self._probabilities = ptrace(psi, measures)
+                self._probabilities = permutebits(self._probabilities, values)
+            else:
+                self._probabilities = np.abs(psi) ** 2
         else:
-            self._probabilities = np.abs(psi) ** 2
+            raise ValueError("No data saved for probs")
+           
 
     def plot_probabilities(
         self,
