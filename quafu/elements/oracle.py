@@ -11,12 +11,13 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+"""Oracle module."""
 import copy
 from abc import ABCMeta
 from typing import Dict, Iterable, List
 
-from quafu.elements import Instruction, QuantumGate, ControlledGate
+from .instruction import Instruction
+from .quantum_gate import ControlledGate, QuantumGate
 
 
 class OracleGateMeta(ABCMeta):
@@ -26,9 +27,7 @@ class OracleGateMeta(ABCMeta):
 
     def __init__(cls, name, bases, attrs):
         for attr_name in ["cls_name", "gate_structure", "qubit_num"]:
-            assert (
-                attr_name in attrs
-            ), f"OracleGateMeta: {attr_name} not found in {attrs}."
+            assert attr_name in attrs, f"OracleGateMeta: {attr_name} not found in {attrs}."
 
         # TODO: check if instructions inside gate_structure are valid
 
@@ -64,10 +63,8 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
             label: label when draw or plot
         """
         if not self.qubit_num == len(pos):
-            raise ValueError(
-                f"OracleGate: qubit number {self.qubit_num} does not match pos length {len(pos)}."
-            )
-        super().__init__(pos=pos, paras=paras)
+            raise ValueError(f"OracleGate: qubit number {self.qubit_num} does not match pos length {len(pos)}.")
+        super().__init__(pos=pos, paras=paras)  # pylint: disable=no-value-for-parameter
 
         self.__instantiate_gates__()
         self.label = label if label is not None else self.name
@@ -76,7 +73,7 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
     def matrix(self):
         # TODO: this should be finished according to usage in simulation
         #       to avoid store very large matrix
-        raise NotImplemented
+        raise NotImplementedError
 
     @property
     def named_pos(self) -> Dict:
@@ -87,23 +84,22 @@ class OracleGate(QuantumGate):  # TODO: Can it be related to OracleGateMeta expl
         # TODO: how to manage paras and the names?
         return self._named_pos
 
-    def to_qasm(self, with_para):
+    def to_qasm(self, with_para):  # pylint: disable=signature-differs
         # TODO: this is similar to QuantumCircuit.to_qasm
-        raise NotImplemented
+        raise NotImplementedError
 
     def __instantiate_gates__(self) -> None:
         """
         Instantiate the gate structure through coping ins and bit mapping.
         """
-        bit_mapping = {i: p for i, p in enumerate(self.pos)}
+        bit_mapping = dict(enumerate(self.pos))
 
         def map_pos(pos):
             if isinstance(pos, int):
                 return bit_mapping[pos]
-            elif isinstance(pos, Iterable):
+            if isinstance(pos, Iterable):
                 return [bit_mapping[p] for p in pos]
-            else:
-                raise ValueError
+            raise ValueError
 
         for gate in self.gate_structure:
             gate_ = copy.deepcopy(gate)
@@ -126,9 +122,7 @@ class ControlledOracle(OracleGate):
             if not isinstance(gate, ControlledGate):
                 raise ValueError(f"ControlledOracle: {gate} is not a controlled gate.")
             if not set(self.ctrls) in gate.ctrls:
-                raise ValueError(
-                    f"ControlledOracle: {gate} control qubits {gate.ctrls} does not match {self.ctrls}."
-                )
+                raise ValueError(f"ControlledOracle: {gate} control qubits {gate.ctrls} does not match {self.ctrls}.")
 
 
 def customize_gate(

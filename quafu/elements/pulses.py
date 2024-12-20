@@ -1,14 +1,31 @@
+# (C) Copyright 2024 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Quantum pulse module."""
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from quafu.elements.instruction import Instruction
+from scipy.special import erf
+
+from .instruction import Instruction
 
 TimeType = Union[np.ndarray, float, int]
 
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 class QuantumPulse(Instruction, ABC):
     pulse_classes = {}
 
@@ -29,7 +46,7 @@ class QuantumPulse(Instruction, ABC):
             duration (float, int): Pulse duration.
             unit (str): Duration unit.
         """
-        super().__init__()
+        super().__init__()  # pylint: disable=no-value-for-parameter
         self.pos = pos
         self.paras = paras
         self.duration = duration
@@ -41,7 +58,7 @@ class QuantumPulse(Instruction, ABC):
 
     @property
     def symbol(self):
-        return "%s(%d%s, %s)" % (self.name, self.duration, self.unit, self.channel)
+        return f"{self.name}({self.duration}{self.unit}, {self.channel})"
 
     @abstractmethod
     def time_func(self, t: Union[np.ndarray, float, int], **kwargs):
@@ -52,7 +69,6 @@ class QuantumPulse(Instruction, ABC):
             t (np.ndarray, float, int): Time list.
             kwargs (dict): Keyword arguments for the pulse.
         """
-        pass
 
     @classmethod
     def register_pulse(cls, subclass, name: str = None):
@@ -69,10 +85,10 @@ class QuantumPulse(Instruction, ABC):
         return self.__str__()
 
     def __str__(self):
-        symbol = "%s(%d%s" % (self.name, self.duration, self.unit)
+        symbol = f"{self.name}({self.duration}{self.unit}"
         for para in self.paras:
-            symbol += ", %s" % para
-        symbol += ", %s" % self.channel
+            symbol += f", {para}"
+        symbol += f", {self.channel}"
         symbol += ")"
         return symbol
 
@@ -94,15 +110,14 @@ class QuantumPulse(Instruction, ABC):
         window = np.logical_and(0 <= t, t <= self.duration)
         if args is None:
             return window * self.time_func(t - shift)
-        else:
-            return window * self.time_func(t - shift, **args)
+        return window * self.time_func(t - shift, **args)
 
     def __copy__(self):
         """Return a deepcopy of the pulse"""
         return deepcopy(self)
 
-    def to_qasm(self, with_para):
-        return self.__str__() + " q[%d]" % self.pos
+    def to_qasm(self, _):
+        return str(self) + f" q[{self.pos}]"
 
     def plot(
         self,
@@ -137,7 +152,7 @@ class QuantumPulse(Instruction, ABC):
             ax.plot(np.real(pulse_data), label="real", **plot_kws)
         if plot_imag:
             ax.plot(np.imag(pulse_data), label="imag", **plot_kws)
-        ax.set_xlabel("Time (%s)" % self.unit)
+        ax.set_xlabel(f"Time ({self.unit})")
         ax.set_ylabel("Pulse Amp (a.u.)")
         ax.legend()
         plt.show()
@@ -169,9 +184,9 @@ class RectPulse(QuantumPulse):
     def __call__(
         self,
         t: TimeType,
+        *args,
         shift: Union[float, int] = 0,
         offset: Union[float, int] = 0,
-        *args,
         **kwargs,
     ):
         args = {"amp": self.amp}
@@ -189,8 +204,6 @@ class FlattopPulse(QuantumPulse):
 
     def time_func(self, t, **kws):
         """flattop_time_func"""
-        from scipy.special import erf
-
         amp_, fwhm_ = kws["amp"], kws["fwhm"]
         sigma_ = fwhm_ / (2 * np.sqrt(np.log(2)))
         return amp_ * (erf((self.duration - t) / sigma_) + erf(t / sigma_) - 1.0)
@@ -198,9 +211,9 @@ class FlattopPulse(QuantumPulse):
     def __call__(
         self,
         t: TimeType,
+        *args,
         shift: Union[float, int] = 0,
         offset: Union[float, int] = 0,
-        *args,
         **kwargs,
     ):
         args = {"amp": self.amp, "fwhm": self.fwhm}
@@ -210,6 +223,7 @@ class FlattopPulse(QuantumPulse):
 class GaussianPulse(QuantumPulse):
     name = "gaussian"
 
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(self, pos, amp, fwhm, phase, duration, unit, channel):
         self.amp = amp
         if fwhm is None:
@@ -225,16 +239,14 @@ class GaussianPulse(QuantumPulse):
         amp_, fwhm_, phase_ = kws["amp"], kws["fwhm"], kws["phase"]
         # start: t = 0, center: t = 0.5 * duration, end: t = duration
         sigma_ = fwhm_ / np.sqrt(8 * np.log(2))  # fwhm to std. deviation
-        return amp_ * np.exp(
-            -((t - 0.5 * self.duration) ** 2) / (2 * sigma_**2) + 1j * phase_
-        )
+        return amp_ * np.exp(-((t - 0.5 * self.duration) ** 2) / (2 * sigma_**2) + 1j * phase_)
 
     def __call__(
         self,
         t: TimeType,
+        *args,
         shift: Union[float, int] = 0,
         offset: Union[float, int] = 0,
-        *args,
         **kwargs,
     ):
         args = {"amp": self.amp, "fwhm": self.fwhm, "phase": self.phase}
@@ -251,13 +263,21 @@ class Delay(Instruction):
             raise TypeError("duration must be int")
         super().__init__(pos)
         self.unit = unit
-        self.symbol = "Delay(%d%s)" % (duration, unit)
+        self.symbol = f"Delay({duration}{unit})"
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
 
-    def to_qasm(self, with_para):
-        return "delay(%d%s) q[%d]" % (self.duration, self.unit, self.pos)
+    def to_qasm(self, _):
+        return f"delay({self.duration}{self.unit}) q[{self.pos}]"
+
+    @property
+    def named_paras(self) -> Dict:
+        return {"duration": self.duration}
+
+    @property
+    def named_pos(self) -> Dict:
+        return {"pos": self.pos}
 
 
 class XYResonance(Instruction):
@@ -270,11 +290,11 @@ class XYResonance(Instruction):
             raise TypeError("duration must be int")
         super().__init__(list(range(qs, qe + 1)))
         self.unit = unit
-        self.symbol = "XY(%d%s)" % (duration, unit)
+        self.symbol = f"XY({duration}{unit})"
 
-    def to_qasm(self, with_para):
-        return "xy(%d%s) " % (self.duration, self.unit) + ",".join(
-            ["q[%d]" % p for p in range(min(self.pos), max(self.pos) + 1)]
+    def to_qasm(self, _):
+        return f"xy({self.duration}{self.unit}) " + ",".join(
+            [f"q[{p}]" for p in range(min(self.pos), max(self.pos) + 1)]
         )
 
 

@@ -1,10 +1,10 @@
 import unittest
 
-from numpy import pi
 import matplotlib.pyplot as plt
-
 import quafu.elements as qe
 import quafu.elements.element_gates as qeg
+from numpy import pi
+
 from quafu import QuantumCircuit
 
 
@@ -58,10 +58,44 @@ class TestGate(unittest.TestCase):
         mcz = qeg.MCZGate(ctrls=[0, 1, 2], targ=3)
         toffoli = qeg.ToffoliGate(ctrl1=0, ctrl2=1, targ=2)
 
-        all_gates = [x, y, z, i, w, sw, swdg, sx, sxdg, sy, sydg,
-                     h, s, sdg, t, tdg,
-                     ph, rx, ry, rz, rxx, ryy, rzz, swap, iswap, fredkin, cx, cy, cz, cs, ct, cp, mcx, mcy, mcz,
-                     toffoli]
+        all_gates = [
+            x,
+            y,
+            z,
+            i,
+            w,
+            sw,
+            swdg,
+            sx,
+            sxdg,
+            sy,
+            sydg,
+            h,
+            s,
+            sdg,
+            t,
+            tdg,
+            ph,
+            rx,
+            ry,
+            rz,
+            rxx,
+            ryy,
+            rzz,
+            swap,
+            iswap,
+            fredkin,
+            cx,
+            cy,
+            cz,
+            cs,
+            ct,
+            cp,
+            mcx,
+            mcy,
+            mcz,
+            toffoli,
+        ]
         self.assertTrue(len(all_gates) <= len(gate_classes))
         for gate in all_gates:
             self.assertIn(gate.name.lower(), gate_classes)

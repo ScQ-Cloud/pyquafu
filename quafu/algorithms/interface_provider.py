@@ -11,15 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from .interface.torch import TorchTransformer
-
-PROVIDERS = {"torch": TorchTransformer}
+"""Interface provider."""
 
 
+# pylint: disable=too-few-public-methods
 class InterfaceProvider:
+    _init = False
+    _providers = {}
+
     @classmethod
     def get(cls, name: str):
-        if name not in PROVIDERS:
+        if not cls._init:
+            # pylint: disable=import-outside-toplevel
+            from .interface.torch import TorchTransformer
+
+            cls._providers["torch"] = TorchTransformer
+
+            cls._init = True
+
+        if name not in cls._providers:
             raise NotImplementedError(f"Unsupported interface: {name}")
-        return PROVIDERS[name]
+        return cls._providers[name]

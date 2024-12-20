@@ -1,9 +1,21 @@
+# (C) Copyright 2024 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import random
 
-import matplotlib.pyplot as plt
 import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
-from quafu.visualisation.circuitPlot import CircuitPlotManager
 
 
 def get_const_oracle(qc: QuantumCircuit):
@@ -20,8 +32,8 @@ def get_balanced_oracle(qc: QuantumCircuit):
     b_str = "".join([random.choice("01") for _ in range(n)])
 
     # Place X-qu_gate
-    for qubit in range(len(b_str)):
-        if b_str[qubit] == "1":
+    for qubit, s in enumerate(b_str):
+        if s == "1":
             qc.x(qubit)
 
     # Use barrier as divider
@@ -34,8 +46,8 @@ def get_balanced_oracle(qc: QuantumCircuit):
     qc.barrier()
 
     # Place X-qu_gate
-    for qubit in range(len(b_str)):
-        if b_str[qubit] == "1":
+    for qubit, s in enumerate(b_str):
+        if s == "1":
             qc.x(qubit)
 
     qc.name = "Balanced Oracle"

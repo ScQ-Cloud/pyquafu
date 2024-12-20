@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""QFASM Exceptions."""
 from quafu.exceptions import QuafuError
 
 
@@ -20,16 +20,10 @@ class QfasmError(QuafuError):
     Base class for errors raised by Qfasm.
     """
 
-    pass
-
 
 class LexerError(Exception):
     """Errors raised while lexer get tokens"""
 
-    pass
-
 
 class ParserError(Exception):
     """Errors raised while parser OPENQASM"""
-
-    pass

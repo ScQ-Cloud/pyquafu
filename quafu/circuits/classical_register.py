@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Classical register."""
 
 
 class ClassicalRegister:
@@ -21,18 +22,17 @@ class ClassicalRegister:
     def __init__(self, num: int = 0, name: str = None):
         self.name = name
         self.num = num
-        self.cbits = {i: 0 for i in range(num)}
+        self.cbits = dict.fromkeys(range(num), 0)
         self.pos_start = 0
 
     def __getitem__(self, item):
         """Get mapped global pos"""
         if item < self.num:
             return self.pos_start + item
-        else:
-            raise IndexError("Index out of range:", item)
+        raise IndexError("Index out of range:", item)
 
     def __iter__(self):
-        self._i = 0
+        self._i = 0  # pylint: disable=attribute-defined-outside-init
         return self
 
     def __next__(self):
@@ -40,19 +40,18 @@ class ClassicalRegister:
             x = self._i
             self._i += 1
             return self.__getitem__(x)
-        else:
-            raise StopIteration
+        raise StopIteration
 
     def __len__(self):
         return self.num
 
     @property
-    def value(self, item: int = None):
+    def value(self, item: int = None):  # pylint: disable=property-with-parameters
         """Get value stored in register"""
         if item is None:
             return self.cbits
         if item >= self.num or item < 0:
-            raise Exception(f"index {item} out of range.")
+            raise RuntimeError(f"index {item} out of range.")
         return self.cbits[item]
 
     def __add__(self, other: "ClassicalRegister"):

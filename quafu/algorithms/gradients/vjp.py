@@ -51,7 +51,8 @@ def run_circ(
         estimator = Estimator(circ, backend=backend)
     if params is None:
         params = [g.paras for g in circ.parameterized_gates]
-    output = [estimator.run(obs, params) for obs in obs_list]
+    output = [estimator.run(obs, params, cache_key="00") for obs in obs_list]
+    estimator.clear_cache()
     return np.array(output)
 
 
@@ -66,6 +67,21 @@ def jacobian(
     Args:
         circ (QuantumCircuit): circ
         params_input (np.ndarray): params_input, with shape [batch_size, num_params]
+        estimator (Estimator): estimator for calculating expectations.
+
+
+    Notes:
+        Since now we only use Z-axis expectations for all qubits as outputs
+        i.e., the observable is Z0,Z1,..., for the same circuit we only need
+        to send one task and the execution results can be used for calculating
+        expectations for all these Pauli-Z operators.
+
+        Thus we use cache here, to uniquely identity a circuit, we use the id
+        of parameters. Here we have batch_size * num_parameters * 2 lists of
+        parameters. Let batch_size be $M$, $N = num_parameters * 2$,
+
+        let $i\\in\\[0, M-1\\]$, $j\\in\\[0, M-1\\]$, the cache_key is then set
+        to be "{i}{j}"
     """
     batch_size, num_params = params_input.shape
     obs_list = _generate_expval_z(circ.num)
@@ -75,15 +91,19 @@ def jacobian(
     calc_grad = ParamShift(estimator)
     output = np.zeros((batch_size, num_outputs, num_params))
     for i in range(batch_size):
+        # Same circuit, i.e., measurement results with the same parameters may be reused
+        cache_key_prefix = str(i)
         grad_list = [
-            np.array(calc_grad(obs, params_input[i, :].tolist())) for obs in obs_list
+            np.array(calc_grad(obs, params_input[i, :].tolist(), cache_key=cache_key_prefix)) for obs in obs_list
         ]
         output[i, :, :] = np.stack(grad_list)
+    estimator.clear_cache()
     return output
 
 
 def compute_vjp(jac: np.ndarray, dy: np.ndarray):
-    r"""compute vector-jacobian product
+    r"""
+    Compute vector-jacobian product.
 
     Args:
         jac (np.ndarray): jac with shape (batch_size, num_outputs, num_params)
@@ -96,9 +116,9 @@ def compute_vjp(jac: np.ndarray, dy: np.ndarray):
 
         .. math::
             \begin{bmatrix}
-	    \frac{\partial y_1}{\partial x_1} & \cdots & \frac{\partial y_1}{x_n} \\
-	    \vdots & \ddots & \vdots \\
-	    \frac{\partial y_m}{\partial x_1} & \cdots & \frac{\partial y_m}{x_n}
+        \frac{\partial y_1}{\partial x_1} & \cdots & \frac{\partial y_1}{x_n} \\
+        \vdots & \ddots & \vdots \\
+        \frac{\partial y_m}{\partial x_1} & \cdots & \frac{\partial y_m}{x_n}
             \end{bmatrix}
 
         `dy` is actually the vjp of dependent node
@@ -109,21 +129,9 @@ def compute_vjp(jac: np.ndarray, dy: np.ndarray):
 
         .. math:: \[ \frac{partial o}{partial x_1} \dots \frac{partial o}{partial x_n} \]
     """
-    batch_size, num_outputs, num_params = jac.shape
+    batch_size, num_outputs, _ = jac.shape
     assert dy.shape[0] == batch_size and dy.shape[1] == num_outputs
 
     # Compute vector-Jacobian product using Einstein summation convention
     #   the scripts simply mean 'jac-dims,dy-dims->vjp-dims'; so num_outputs is summed over
-    vjp = np.einsum("ijk,ij->ik", jac, dy)
-
-    return vjp
-
-
-# class QNode:
-#     """Quantum node which essentially wraps the execution of a quantum circuit"""
-#
-#     def __init__(self, circ: QuantumCircuit) -> None:
-#         self._circ = circ
-#
-#     def __call__(self):
-#         return execu
+    return np.einsum("ijk,ij->ik", jac, dy)

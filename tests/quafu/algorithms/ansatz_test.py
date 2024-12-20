@@ -13,15 +13,12 @@
 # limitations under the License.
 """TODO: test of ansatz needs improvement once ansatz has more featuers"""
 
-import numpy as np
-from quafu.algorithms.ansatz import AlterLayeredAnsatz, QAOAAnsatz, QuantumNeuralNetwork
+from quafu.algorithms.ansatz import AlterLayeredAnsatz, QAOAAnsatz
 from quafu.algorithms.hamiltonian import Hamiltonian, PauliOp
 
 
 class TestQAOACircuit:
-    TEST_HAM = Hamiltonian(
-        [PauliOp("Z0 Z1"), PauliOp("Z2 Z3"), PauliOp("Z1 Z2"), PauliOp("Z0 Z3")]
-    )
+    TEST_HAM = Hamiltonian([PauliOp("Z0 Z1"), PauliOp("Z2 Z3"), PauliOp("Z1 Z2"), PauliOp("Z0 Z3")])
 
     def test_build(self):
         qaoa = QAOAAnsatz(self.TEST_HAM, 4)
@@ -34,11 +31,4 @@ class TestQAOACircuit:
 
 class TestAlterLayeredAnsatz:
     def test_build(self):
-        circ = AlterLayeredAnsatz(4, 4)
-        # print("\n ::: testing ::: \n")
-        # circ.plot_circuit(save_path="TestAlterLayeredAnsatz.svg")
-
-
-class TestQuantumNeuralNetwork:
-    def test_build(self):
-        circ = QuantumNeuralNetwork(2, [])
+        AlterLayeredAnsatz(4, 4)

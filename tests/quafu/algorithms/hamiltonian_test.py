@@ -273,10 +273,8 @@ M_2 = np.array(
 
 class TestHamiltonian:
     def test_init(self):
-        h = Hamiltonian([PauliOp("Z0 Z1", 1), PauliOp("Z1 Z2", 1)])
-        h = Hamiltonian.from_pauli_list(
-            [("Z0 Z1", 1), ("Z0 Z2", 1), ("Z0 Z3", 1), ("Z0 Z4", 1)]
-        )
+        Hamiltonian([PauliOp("Z0 Z1", 1), PauliOp("Z1 Z2", 1)])
+        Hamiltonian.from_pauli_list([("Z0 Z1", 1), ("Z0 Z2", 1), ("Z0 Z3", 1), ("Z0 Z4", 1)])
 
     def test_to_matrix(self):
         h = Hamiltonian.from_pauli_list([("Z0 Z1", 1), ("Z0 Z2", 1), ("Z1 Z2", 1)])

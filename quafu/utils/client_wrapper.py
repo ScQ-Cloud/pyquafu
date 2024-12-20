@@ -18,11 +18,12 @@ from requests.exceptions import RequestException
 from ..exceptions import ServerError
 
 
+# pylint: disable=too-few-public-methods
 class ClientWrapper:
     @staticmethod
     def post(*args, **kwargs):
         try:
-            response = requests.post(*args, **kwargs)
+            response = requests.post(*args, **kwargs)  # pylint: disable=missing-timeout
             response.raise_for_status()
         except RequestException as err:
             raise ServerError(

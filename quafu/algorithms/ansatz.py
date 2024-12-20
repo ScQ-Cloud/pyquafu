@@ -11,12 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Ansatz circuits for VQA"""
+"""Ansatz circuits for VQA."""
 from abc import ABC, abstractmethod
 from typing import Any, List
 
 import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
+from quafu.elements import Parameter
 from quafu.synthesis.evolution import ProductFormula
 
 from .hamiltonian import Hamiltonian
@@ -45,15 +46,13 @@ class QAOAAnsatz(Ansatz):
 
     def __init__(self, hamiltonian: Hamiltonian, num_qubits: int, num_layers: int = 1):
         """Instantiate a QAOAAnsatz"""
-        # self._pauli_list = hamiltonian.pauli_list
-        # self._coeffs = hamiltonian.coeffs
         self._h = hamiltonian
         self._num_layers = num_layers
         self._evol = ProductFormula()
 
         # Initialize parameters
-        self._beta = np.zeros(num_layers)
-        self._gamma = np.zeros(num_layers)
+        self._beta = np.array([Parameter(f"beta_{i}", 0.0) for i in range(num_layers)])
+        self._gamma = np.array([Parameter(f"gamma_{i}", 0.0) for i in range(num_layers)])
 
         # Build circuit structure
         super().__init__(num_qubits)
@@ -94,11 +93,11 @@ class QAOAAnsatz(Ansatz):
             for i in range(self.num):
                 self.rx(i, self._beta[layer])
 
-    def update_params(self, params: List[float]):
+    def update_params(self, paras_list: List[float]):
         """Update parameters of QAOA circuit"""
         # First build parameter list
-        assert len(params) == 2 * self._num_layers
-        beta, gamma = params[: self._num_layers], params[self._num_layers :]
+        assert len(paras_list) == 2 * self._num_layers
+        beta, gamma = paras_list[: self._num_layers], paras_list[self._num_layers :]
         num_para_gates = len(self.parameterized_gates)
         assert num_para_gates % self._num_layers == 0
         self._beta, self._gamma = beta, gamma
@@ -122,7 +121,8 @@ class AlterLayeredAnsatz(Ansatz):
             layer: Number of layers.
         """
         self._layer = layer
-        self._theta = np.zeros((layer + 1, num_qubits))
+        self._theta = np.array([Parameter(f"theta_{i}", 0.0) for i in range((layer + 1) * num_qubits)])
+        self._theta = np.reshape(self._theta, (layer + 1, num_qubits))
         super().__init__(num_qubits)
 
     def _build(self):
@@ -145,33 +145,41 @@ class QuantumNeuralNetwork(Ansatz):
     """A Wrapper of quantum circuit as QNN"""
 
     # TODO(zhaoyilun): docs
-    def __init__(
-        self, num_qubits: int, layers: List[Any], interface="torch", backend="sim"
-    ):
+    def __init__(self, num_qubits: int, layers: List[Any], interface="torch", backend="sim"):
         """"""
         # Get transformer according to specified interface
         self._transformer = InterfaceProvider.get(interface)
         self._layers = layers
 
-        # FIXME(zhaoyilun): don't use this default value
-        self._weights = np.empty((1, 1))
+        self._weights = None
 
         self._backend = backend
         super().__init__(num_qubits)
 
-    def __call__(self, features):
+    def __call__(self, inputs):
         """Compute outputs of QNN given input features"""
-        from .estimator import Estimator
+        # pylint: disable=import-outside-toplevel
+        from quafu.algorithms.estimator import Estimator
 
         estimator = Estimator(self, backend=self._backend)
-        return self._transformer.execute(self, features, estimator=estimator)
+        return self._transformer.execute(self, inputs, estimator=estimator)
 
     def _build(self):
         """Essentially initialize weights using transformer"""
         self.add_gates(self._layers)
 
-        self._weights = self._transformer.init_weights((1, self.num_parameters))
+        self._weights = self._transformer.init_weights((1, self.num_tunable_parameters))
 
     @property
     def weights(self):
         return self._weights
+
+    @property
+    def num_tunable_parameters(self):
+        num_tunable_params = 0
+        for g in self.gates:
+            paras = g.paras
+            for p in paras:
+                if hasattr(p, "tunable") and p.tunable:
+                    num_tunable_params += 1
+        return num_tunable_params

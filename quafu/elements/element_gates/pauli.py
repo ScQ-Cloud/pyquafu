@@ -1,3 +1,8 @@
-from .element_gates import XGate, YGate, ZGate, IdGate
+from .element_gates import IdGate, XGate, YGate, ZGate
 
-__all__ = ['IdGate', 'XGate', 'YGate', 'ZGate']  # hint: "SZ" gate is S contained in Clifford gates
+__all__ = [
+    "IdGate",
+    "XGate",
+    "YGate",
+    "ZGate",
+]  # hint: "SZ" gate is S contained in Clifford gates

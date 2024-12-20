@@ -1,9 +1,9 @@
 import numpy as np
 
 
-def get_basis(ind, N):
+def get_basis(ind, n):
     basisstr = bin(int(ind))[2:]
-    basisstr = basisstr.zfill(N)
+    basisstr = basisstr.zfill(n)
     basis = [int(i) for i in basisstr]
     return np.array(basis)
 
@@ -14,13 +14,13 @@ def get_ind(basis):
     return int(ind)
 
 
-def reduce_probs(bitsA, res):
+def reduce_probs(bits_a, res):
     """The reduced probabilities from frequency"""
-    dim = 2 ** (len(bitsA))
+    dim = 2 ** (len(bits_a))
     probs = np.zeros(dim)
     for basestr in res:
         basis = np.array([int(i) for i in basestr])
-        ind = get_ind(basis[bitsA])
+        ind = get_ind(basis[bits_a])
         probs[ind] += res[basestr]
 
     probs = probs / np.sum(probs)
@@ -31,16 +31,15 @@ def measure_obs(bits, res):
     n = len(bits)
     baseobs = get_baselocal(n)
     prob_r = reduce_probs(bits, res)
-    result = np.dot(prob_r, baseobs)
-    return result
+    return np.dot(prob_r, baseobs)
 
 
 def get_baselocal(n):
-    NA = n
-    basisN = int(2**NA)
-    baseobs = np.zeros(basisN)
-    for i in range(basisN):
-        basisA = get_basis(i, NA)
-        baseobs[i] = (-1) ** (np.sum(basisA))
+    na = n
+    basis_n = int(2**na)
+    baseobs = np.zeros(basis_n)
+    for i in range(basis_n):
+        basis_a = get_basis(i, na)
+        baseobs[i] = (-1) ** (np.sum(basis_a))
 
     return baseobs

@@ -1,3 +1,17 @@
+# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from functools import reduce
 
 import numpy as np
@@ -24,23 +38,21 @@ def rx(phi):
 
 
 def ry(phi):
-    return np.array(
-        [[np.cos(phi / 2), -np.sin(phi / 2)], [np.sin(phi / 2), np.cos(phi / 2)]]
-    )
+    return np.array([[np.cos(phi / 2), -np.sin(phi / 2)], [np.sin(phi / 2), np.cos(phi / 2)]])
 
 
 def tensorl(ml):
     return reduce(sparse.kron, ml, 1)
 
 
-def Nbit_single(N):
+def n_bit_single(bit_num):
     sx_list = []
     sy_list = []
     sz_list = []
 
-    for n in range(N):
+    for n in range(bit_num):
         op_list = []
-        for m in range(N):
+        for _ in range(bit_num):
             op_list.append(si)
 
         op_list[n] = sx

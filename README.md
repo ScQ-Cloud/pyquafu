@@ -1,54 +1,64 @@
 # PyQuafu
-
-Python toolkit for submitting quantum circuits on the superconducting quantum computing cloud [Quafu](http://quafu.baqis.ac.cn/).
-
+[![License](https://img.shields.io/github/license/ScQ-Cloud/pyquafu.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
+[![](https://github.com/ScQ-Cloud/pyquafu/actions/workflows/unittest.yml/badge.svg)](https://github.com/ScQ-Cloud/pyquafu/actions/workflows/unittest.yml)
+[![](https://img.shields.io/github/release/ScQ-Cloud/pyquafu.svg?style=popout-square)](https://github.com/ScQ-Cloud/pyquafu/releases)
+[![](https://img.shields.io/pypi/dm/pyquafu?style=popout-square)](https://pypi.org/project/pyquafu/)
 
 ## Introduction
 
-PyQuafu is developed for the users of [Quafu](http://quafu.baqis.ac.cn/) to construct, compile and execute quantum circuits on real quantum devices. One can use PyQuafu to interact with different quantum backends provides by the experimental group of [Quafu](http://quafu.baqis.ac.cn/).
+**PyQuafu** is designed for users to construct, compile, and execute quantum circuits on quantum devices on [Quafu](http://quafu.baqis.ac.cn/) using Python. With PyQuafu, you can interact with various real quantum backends provided by the experimental group from [Quafu](http://quafu.baqis.ac.cn/).
 
 ## Installation
 
-You can directly install via PyPI,
+### Install via PyPI
 
-```
+You can install PyQuafu directly from PyPI:
+
+```bash
 pip install pyquafu
 ```
 
-or build from source
+### Build from Source
 
-```
+Alternatively, you can build PyQuafu from the source:
+
+```bash
 pip install -r requirements.txt
 python setup.py install
 ```
 
-Note that we visualize DAG(directed acyclic graph) through python package ``graphviz``. And if you need it, make sure [Graphviz software](https://graphviz.org/) being installed on your system. Refer to [graphviz · PyPI](https://pypi.org/project/graphviz/#description) for installation guidance.
+### Graphviz Dependency
 
-## GPU support
-To install PyQuafu with GPU-based circuit simulator, you need build from the source and make sure that [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) is installed. You can run
+If you need to visualize Directed Acyclic Graphs (DAGs), ensure that the [Graphviz software](https://graphviz.org/) is installed on your system. Refer to the [graphviz · PyPI](https://pypi.org/project/graphviz/#description) page for installation guidance.
 
-```
+### GPU Support
+
+To install PyQuafu with GPU-based circuit simulation, you need to build from the source and ensure that the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) is installed. Use the following command to install the GPU version:
+
+```bash
 python setup.py install -DUSE_GPU=ON
 ```
-to install the GPU version. If you further have [cuQuantum](https://developer.nvidia.com/cuquantum-sdk) installed, you can install PyQuafu with cuQuantum support.
-```
+
+If you also have [cuQuantum](https://developer.nvidia.com/cuquantum-sdk) installed, you can install PyQuafu with cuQuantum support:
+
+```bash
 python setup.py install -DUSE_GPU=ON -DUSE_CUQUANTUM=ON
 ```
 
+## Documentation
 
-## Document
-Please see the website [docs](https://scq-cloud.github.io/).
+For detailed documentation about usage, please visit the [PyQuafu documentation website](https://scq-cloud.github.io/).
 
-## Note
-If you are using an Apple silicon Mac and meet the error "illegal hardware instruction", please confirm whether you have updated to the arm64 version of Anaconda (see https://github.com/abess-team/abess/issues/310).
+## Note for Apple Silicon Mac Users
+
+If you encounter the error "illegal hardware instruction" on an Apple silicon Mac, ensure that you have updated to the arm64 version of Anaconda. See [this issue](https://github.com/abess-team/abess/issues/310) for more details.
 
 ## Examples
 
-### 1.quantum_rl
+### Quantum Reinforcement Learning
 
-The example shows quantum reinforcement learning interacts with Quafu to solve CartPole environment.
-
-Refer to https://github.com/enchanted123/quantum-RL-with-quafu for more details.
+This example demonstrates how quantum reinforcement learning interacts with Quafu to solve the CartPole environment. For more details, refer to the [quantum-RL-with-quafu repository](https://github.com/enchanted123/quantum-RL-with-quafu).
 
 ## Author
-This project is developed by the quantum cloud computing team at the Beijing Academy of Quantum Information Sciences and Shandong Yunhai Guochuang Innovative Technology Co., Ltd.
+
+This project is developed by the quantum cloud computing team at the Beijing Academy of Quantum Information Sciences.

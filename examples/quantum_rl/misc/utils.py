@@ -126,7 +126,7 @@ def get_obs_policy(obsw, beta):
     """
     Output the final policy.
     """
-    process = tf.keras.Sequential(
+    return tf.keras.Sequential(
         [
             Alternating_(obsw),
             tf.keras.layers.Lambda(lambda x: x * beta),
@@ -134,7 +134,6 @@ def get_obs_policy(obsw, beta):
         ],
         name="obs_policy",
     )
-    return process
 
 
 def get_height(position):
@@ -171,10 +170,7 @@ def gather_episodes(
 
     while not all(done):
         unfinished_ids = [i for i in range(n_episodes) if not done[i]]
-        normalized_states = [
-            s / state_bounds for i, s in enumerate(states) if not done[i]
-        ]
-        # height = [get_height(s[0]) for i, s in enumerate(states) if not done[i]]
+        normalized_states = [s / state_bounds for i, s in enumerate(states) if not done[i]]
 
         for i, state in zip(unfinished_ids, normalized_states):
             trajectories[i]["states"].append(state)
@@ -186,12 +182,9 @@ def gather_episodes(
             action_probs = model([states])
         elif backend == "quafu":
             newtheta, newlamda = get_model_circuit_params(qubits, genotype, model)
-            circuit, _, _ = generate_circuit(
-                qubits, genotype, newtheta, newlamda, states.numpy()[0]
-            )
+            circuit, _, _ = generate_circuit(qubits, genotype, newtheta, newlamda, states.numpy()[0])
             taskid, expectation = get_quafu_exp(circuit, n_qubits, backend_quafu, shots)
             tasklist.append(taskid)
-            # print('gather_episodes_exp:', expectation)
 
             obsw = model.get_layer("observables-policy").get_weights()[0]
             obspolicy = get_obs_policy(obsw, beta)

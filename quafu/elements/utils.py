@@ -11,13 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Utils."""
+# pylint: disable=no-member
 
+from typing import Iterable, List
 
-from typing import Iterable, List, Union
-import numpy as np
-from quafu.elements.parameters import ParameterType, Parameter, ParameterExpression
 import _operator
-import autograd.numpy as anp
+import autograd.numpy as anp  # pylint: disable=import-error
+import numpy as np
+from quafu.elements.parameters import Parameter, ParameterExpression, ParameterType
+
 
 def reorder_matrix(matrix: np.ndarray, pos: List):
     """Reorder the input sorted matrix to the pos order"""
@@ -34,43 +37,45 @@ def extract_float(paras):
         paras = [paras]
     paras_f = []
     for para in paras:
-        if isinstance(para, float) or isinstance(para, int):
+        if isinstance(para, (float, int)):
             paras_f.append(para)
-        elif isinstance(para, Parameter) or isinstance(para, ParameterExpression):
+        elif isinstance(para, (Parameter, ParameterExpression)):
             paras_f.append(para.get_value())
     return paras_f
 
+
+# pylint: disable=too-many-branches, too-many-return-statements
 def handle_expression(param: ParameterType):
-    if isinstance(param, float) or isinstance(param, int):
+    if isinstance(param, (float, int)):
         return param
     if param.latex:
         return param.latex
     retstr = handle_expression(param.pivot)
-    for i in range(len(param.funcs)):
-        if param.funcs[i] == _operator.add:
-            retstr = f"({retstr} + {handle_expression(param.operands[i])})"
-        elif param.funcs[i] == _operator.mul:
-            retstr = f"{retstr} * {handle_expression(param.operands[i])}"
-        elif param.funcs[i] == _operator.sub:
-            retstr = f"({retstr} - {handle_expression(param.operands[i])})"
-        elif param.funcs[i] == _operator.truediv:
-            retstr = f"{retstr} / {handle_expression(param.operands[i])}"
-        elif param.funcs[i] == _operator.pow:
-            retstr = f"({retstr}) ^ {handle_expression(param.operands[i])}"
-        elif param.funcs[i] == anp.sin:
-            retstr = f"sin({retstr})"
-        elif param.funcs[i] == anp.cos:
-            retstr = f"cos({retstr})"
-        elif param.funcs[i] == anp.tan:
-            retstr = f"tan({retstr})"
-        elif param.funcs[i] == anp.arcsin:
-            retstr = f"asin({retstr})"
-        elif param.funcs[i] == anp.arccos:
-            retstr = f"acos({retstr})"
-        elif param.funcs[i] == anp.arctan:
-            retstr = f"atan({retstr})"
-        elif param.funcs[i] == anp.exp:
-            retstr = f"exp({retstr})"
-        elif param.funcs[i] == anp.log:
-            retstr = f"ln({retstr})"
+    for i, func in enumerate(param.funcs):
+        if func == _operator.add:  # pylint: disable=comparison-with-callable
+            return f"({retstr} + {handle_expression(param.operands[i])})"
+        if func == _operator.mul:  # pylint: disable=comparison-with-callable
+            return f"{retstr} * {handle_expression(param.operands[i])}"
+        if func == _operator.sub:  # pylint: disable=comparison-with-callable
+            return f"({retstr} - {handle_expression(param.operands[i])})"
+        if func == _operator.truediv:  # pylint: disable=comparison-with-callable
+            return f"{retstr} / {handle_expression(param.operands[i])}"
+        if func == _operator.pow:  # pylint: disable=comparison-with-callable
+            return f"({retstr}) ^ {handle_expression(param.operands[i])}"
+        if func == anp.sin:
+            return f"sin({retstr})"
+        if func == anp.cos:
+            return f"cos({retstr})"
+        if func == anp.tan:
+            return f"tan({retstr})"
+        if func == anp.arcsin:
+            return f"asin({retstr})"
+        if func == anp.arccos:
+            return f"acos({retstr})"
+        if func == anp.arctan:
+            return f"atan({retstr})"
+        if func == anp.exp:
+            return f"exp({retstr})"
+        if func == anp.log:
+            return f"ln({retstr})"
     return retstr

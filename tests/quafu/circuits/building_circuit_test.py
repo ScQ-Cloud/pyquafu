@@ -1,12 +1,28 @@
-from quafu import QuantumCircuit, simulate
-from quafu.elements.element_gates import *
-from quafu.elements.parameters import Parameter
-import numpy as np
 import math
+
+import numpy as np
+from quafu.elements.element_gates import (
+    CRYGate,
+    CRZGate,
+    CXGate,
+    HGate,
+    PhaseGate,
+    RXGate,
+    RXXGate,
+    RYGate,
+    RYYGate,
+    RZZGate,
+    U3Gate,
+    XGate,
+)
+from quafu.elements.parameters import Parameter
+
+from quafu import QuantumCircuit, simulate
+
 
 class TestBuildingCircuit:
     def test_control(self):
-        q = QuantumCircuit(3) 
+        q = QuantumCircuit(3)
         q << (XGate(1))
         q << (CXGate(0, 2))
         q << (RXGate(0, 0.1))
@@ -20,10 +36,10 @@ class TestBuildingCircuit:
             print(e)
 
     def test_join(self):
-        q = QuantumCircuit(3) 
+        q = QuantumCircuit(3)
         q << (XGate(1))
         q << (CXGate(0, 2))
-        q1 =  QuantumCircuit(2)
+        q1 = QuantumCircuit(2)
         q1 << HGate(1) << CXGate(1, 0)
         q.join(q1, [2, 3])
         q.draw_circuit()
@@ -35,7 +51,7 @@ class TestBuildingCircuit:
         q << U3Gate(1, 0.2, 0.1, 0.3)
         q << U3Gate(1, 0.2, 0.1, 0.3)
         q << RYYGate(0, 1, 0.4)
-        q << RYYGate(0, 1, 0.4) 
+        q << RYYGate(0, 1, 0.4)
         q << RXGate(0, 0.2)
         q << RXGate(0, 0.2)
         q << CRYGate(0, 1, 0.23)
@@ -44,7 +60,7 @@ class TestBuildingCircuit:
         q1 << HGate(0)
         q1 << HGate(1)
         q1 << U3Gate(1, 0.2, 0.1, 0.3).power(2)
-        q1 << RYYGate(0, 1, 0.4).power(2) 
+        q1 << RYYGate(0, 1, 0.4).power(2)
         q1 << RXGate(0, 0.2).power(2)
         q1 << CRYGate(0, 1, 0.23).power(2)
 
@@ -68,10 +84,10 @@ class TestBuildingCircuit:
         q3 << CRZGate(2, 1, -0.2)
         q3 << CXGate(0, 1)
         q3 << RYGate(2, -0.1)
-        q3 << RXGate(2, -0.3)  
+        q3 << RXGate(2, -0.3)
         q3 << HGate(0)
         q3 << HGate(1)
-        q3 << HGate(2)    
+        q3 << HGate(2)
 
         sv1 = simulate(q.dagger()).get_statevector()
         sv3 = simulate(q3).get_statevector()
@@ -84,7 +100,7 @@ class TestBuildingCircuit:
 
         q1 = QuantumCircuit(2)
         q1 << U3Gate(1, 0.2, 0.1, 0.3)
-        q1 << RYYGate(0, 1, Parameter("p1", 0.4)) 
+        q1 << RYYGate(0, 1, Parameter("p1", 0.4))
         q1 << RXGate(0, 0.2)
         q1 << CRYGate(0, 1, 0.23)
         nq1 = q.join(q1.power(2), inplace=False)
@@ -93,6 +109,7 @@ class TestBuildingCircuit:
         nq1.draw_circuit()
         nq2.unwrap().draw_circuit()
         from quafu.simulators.simulator import SVSimulator
+
         backend = SVSimulator()
         sv1 = backend.run(nq1)["statevector"]
         sv2 = backend.run(nq2)["statevector"]
@@ -107,15 +124,16 @@ class TestBuildingCircuit:
         q1 = QuantumCircuit(3)
         q1 << CXGate(0, 1)
         q1 << RXGate(2, Parameter("p1", 0.2))
-        
+
         q = q.join(q1.wrap(), qbits=[2, 3, 4], inplace=inplace)
         q.draw_circuit()
         from quafu.simulators.simulator import SVSimulator
+
         backend = SVSimulator()
-        sv1 = backend.run(q)["statevector"]
+        backend.run(q)["statevector"]
         q.unwrap().draw_circuit()
 
-        #multi-wrapper
+        # multi-wrapper
         q2 = QuantumCircuit(3)
         q2 << XGate(0)
         q2 << CXGate(0, 1)
@@ -128,13 +146,12 @@ class TestBuildingCircuit:
         sv3 = backend.run(q2)["statevector"]
         assert math.isclose(np.abs(np.dot(sv2, sv3.conj())), 1.0)
 
-
     def test_control_wrapper(self):
         q = QuantumCircuit(3)
         q << HGate(0)
         q << HGate(1)
         q << HGate(2)
-    
+
         q1 = QuantumCircuit(3)
         q1 << CRYGate(0, 1, Parameter("p1", 0.3))
         q1 << RXGate(2, 0.2)
@@ -142,6 +159,7 @@ class TestBuildingCircuit:
         q.join(q1.wrap().add_controls([3, 4]), [2, 3, 4, 5, 6])
         q.draw_circuit()
         from quafu.simulators.simulator import SVSimulator
+
         backend = SVSimulator()
         sv1 = backend.run(q)["statevector"]
         q.unwrap()
@@ -149,5 +167,6 @@ class TestBuildingCircuit:
         sv2 = backend.run(q)["statevector"]
         assert math.isclose(np.abs(np.dot(sv1, sv2.conj())), 1.0)
 
-if  __name__ == "__main__":
+
+if __name__ == "__main__":
     TestBuildingCircuit().test_wrapper()

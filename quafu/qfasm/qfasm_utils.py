@@ -11,10 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""QFASM Utilities Module."""
 import quafu.elements.element_gates as qeg
 
+from ..elements import Barrier, Delay, Measure, XYResonance
 
+
+# pylint: disable=too-few-public-methods
 class Node:
     """
     Node created in reduction.
@@ -30,36 +33,47 @@ class Node:
         self.filename = None
 
 
+# pylint: disable=too-few-public-methods
 class UnaryExpr(Node):
-    def __init__(self, type, node: Node):
+    def __init__(self, type, node: Node):  # noqa: A002  # pylint: disable=redefined-builtin
+        super().__init__()
         self.type = type
         self.children = [node]
 
 
+# pylint: disable=too-few-public-methods
 class BinaryExpr(Node):
-    def __init__(self, type, left, right):
+
+    def __init__(self, type, left, right):  # noqa: A002  # pylint: disable=redefined-builtin
+        super().__init__()
         self.type = type
         self.children = [left, right]
 
 
+# pylint: disable=too-few-public-methods
 class Id(Node):
     def __init__(self, name, lineno, filename):
+        super().__init__()
         self.name = name
         self.lineno = lineno
         self.filename = filename
         self.num = 0
 
 
+# pylint: disable=too-few-public-methods
 class IndexedId(Node):
     def __init__(self, node: Node, index):
+        super().__init__()
         self.num = index
         self.name = node.name
         self.lineno = node.lineno
         self.filename = node.filename
 
 
+# pylint: disable=too-few-public-methods
 class GateInstruction:
     def __init__(self, node, qargs, cargs=None, cbits=None):
+        super().__init__()
         self.name = node.name
         self.lineno = node.lineno
         self.filename = node.filename
@@ -68,6 +82,7 @@ class GateInstruction:
         self.cbits = cbits
 
 
+# pylint: disable=too-few-public-methods
 class IfInstruction:
     def __init__(self, node, cbits, value: int, instruction):
         self.name = node.name
@@ -78,8 +93,11 @@ class IfInstruction:
         self.instruction = instruction
 
 
+# pylint: disable=too-few-public-methods,too-many-instance-attributes
 class SymtabNode(Node):
-    def __init__(self, type, node, is_global=True, is_qubit=False):
+
+    def __init__(self, type, node, is_global=True, is_qubit=False):  # noqa: A002 # pylint: disable=redefined-builtin
+        super().__init__()
         # qreg creg gate arg qarg
         self.type = type
         self.name = node.name
@@ -105,8 +123,6 @@ class SymtabNode(Node):
         if cargs:
             self.cargs = cargs
 
-
-from quafu.elements import Barrier, Delay, Measure, XYResonance
 
 gate_classes = {
     "x": qeg.XGate,

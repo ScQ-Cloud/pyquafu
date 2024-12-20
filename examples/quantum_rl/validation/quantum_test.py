@@ -4,27 +4,20 @@ import os
 import sys
 
 sys.path.insert(0, " ")
-import time
-from functools import reduce
+import time  # noqa: E402
+from functools import reduce  # noqa: E402
 
-import cirq
-import gym
-import models.quantum_genotypes as genotypes
-import numpy as np
-import tensorflow as tf
-from misc.utils import create_exp_dir, gather_episodes
-from models.quantum_models import generate_model_policy as Network
+import cirq  # noqa: E402
+import numpy as np  # noqa: E402
+from misc.utils import create_exp_dir, gather_episodes  # noqa: E402
+from models.quantum_models import generate_model_policy as Network  # noqa: E402
 
 parser = argparse.ArgumentParser("Quantum RL Inference")
 parser.add_argument("--save", type=str, default="qEXP_quafu", help="experiment name")
 parser.add_argument("--batch_size", type=int, default=1, help="batch size")
-parser.add_argument(
-    "--infer_episodes", type=int, default=100, help="the number of infer episodes"
-)
+parser.add_argument("--infer_episodes", type=int, default=100, help="the number of infer episodes")
 parser.add_argument("--gamma", type=float, default=1.0, help="discount parameter")
-parser.add_argument(
-    "--env_name", type=str, default="CartPole-v1", help="environment name"
-)
+parser.add_argument("--env_name", type=str, default="CartPole-v1", help="environment name")
 parser.add_argument(
     "--state_bounds",
     type=np.array,
@@ -33,9 +26,7 @@ parser.add_argument(
 )
 parser.add_argument("--n_qubits", type=int, default=4, help="the number of qubits")
 parser.add_argument("--n_actions", type=int, default=2, help="the number of actions")
-parser.add_argument(
-    "--arch", type=str, default="NSGANet_id10", help="which architecture to use"
-)
+parser.add_argument("--arch", type=str, default="NSGANet_id10", help="which architecture to use")
 parser.add_argument(
     "--model_path",
     type=str,
@@ -50,9 +41,7 @@ parser.add_argument(
     help="choose cirq simulator or quafu cloud platform",
 )
 parser.add_argument("--shots", type=int, default=1000, help="the number of sampling")
-parser.add_argument(
-    "--backend_quafu", type=str, default="ScQ-P10", help="which quafu backend to use"
-)
+parser.add_argument("--backend_quafu", type=str, default="ScQ-P10", help="which quafu backend to use")
 
 args = parser.parse_args(args=[])
 args.save = "infer-{}-{}".format(args.save, time.strftime("%Y%m%d-%H%M%S"))
@@ -78,14 +67,12 @@ observables = [reduce((lambda x, y: x * y), ops)]  # Z_0*Z_1*Z_2*Z_3
 def main():
     logging.info("args = %s", args)
 
-    model = Network(
-        qubits, genotype, args.n_actions, args.beta, observables, args.env_name
-    )
+    model = Network(qubits, genotype, args.n_actions, args.beta, observables, args.env_name)
 
     model.load_weights(args.model_path)
 
     # inference
-    valid_reward = infer(model)
+    infer(model)
 
 
 def infer(model):
@@ -110,15 +97,13 @@ def infer(model):
         logging.info(episodes)
 
         # Group states, actions and returns in numpy arrays
-        states = np.concatenate([ep["states"] for ep in episodes])
-        actions = np.concatenate([ep["actions"] for ep in episodes])
+        np.concatenate([ep["states"] for ep in episodes])
+        np.concatenate([ep["actions"] for ep in episodes])
         rewards = [ep["rewards"] for ep in episodes]
 
         # Store collected rewards
         for ep_rwds in rewards:
             episode_reward_history.append(np.sum(ep_rwds))
-
-        # avg_rewards = np.mean(episode_reward_history[-10:])
 
         logging.info("valid finished episode: %f", (batch + 1) * args.batch_size)
         logging.info("valid average rewards: %f", episode_reward_history[-1])

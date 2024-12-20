@@ -4,9 +4,7 @@ import sympy
 
 # Organize components defined below to quantum operations
 OPS = {
-    "variationalPQC": lambda qubits, position, params: generate_vpqc(
-        qubits, position, params
-    ),
+    "variationalPQC": lambda qubits, position, params: generate_vpqc(qubits, position, params),
     "dataencodingPQC": lambda qubits, position, count, params, state: generate_dpqc(
         qubits, position, count, params, state
     ),
@@ -31,9 +29,7 @@ def entangling_layer(qubits):
     Return a layer of CZ entangling gates on `qubits` (arranged in a circular topology).
     Note: for lower depth of compiled circuits, you can only choose adjacent CZ
     """
-    cz_ops = [cirq.CZ(q0, q1) for q0, q1 in zip(qubits, qubits[1:])]
-    # cz_ops += ([cirq.CZ(qubits[0], qubits[-1])] if len(qubits) != 2 else [])
-    return cz_ops
+    return [cirq.CZ(q0, q1) for q0, q1 in zip(qubits, qubits[1:])]
 
 
 def generate_vpqc(qubits, position, params=None):
@@ -42,10 +38,8 @@ def generate_vpqc(qubits, position, params=None):
     n_qubits = len(qubits)
 
     # Sympy symbols or load parameters for variational angles
-    if params == None:
-        params = sympy.symbols(
-            f"theta({3*position*n_qubits}:{3*(position+1)*n_qubits})"
-        )
+    if params is None:
+        params = sympy.symbols(f"theta({3*position*n_qubits}:{3*(position+1)*n_qubits})")
     else:
         params = params[3 * position * n_qubits : 3 * (position + 1) * n_qubits]
     params = np.asarray(params).reshape((n_qubits, 3))
@@ -54,9 +48,7 @@ def generate_vpqc(qubits, position, params=None):
     circuit = cirq.Circuit()
 
     # Variational layer
-    circuit += cirq.Circuit(
-        one_qubit_rotation(q, params[i]) for i, q in enumerate(qubits)
-    )
+    circuit += cirq.Circuit(one_qubit_rotation(q, params[i]) for i, q in enumerate(qubits))
 
     return circuit, list(params.flat)
 
@@ -67,7 +59,7 @@ def generate_dpqc(qubits, position, count, params=None, state=None):
     n_qubits = len(qubits)
 
     # Sympy symbols or load parameters for encoding angles
-    if params == None:
+    if params is None:
         inputs = sympy.symbols(f"x{position}" + f"_(0:{n_qubits})")
     else:
         inputs = params[count * n_qubits : (count + 1) * n_qubits]

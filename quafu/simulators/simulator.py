@@ -13,23 +13,34 @@
 # limitations under the License.
 """simulator for quantum circuit"""
 
-from ..elements import CircuitWrapper, QuantumGate, KrausChannel, UnitaryChannel
-from ..circuits import QuantumCircuit
-from abc  import ABC, abstractmethod
-from .qfvm import simulate_circuit, applyop_statevec, expect_statevec, sampling_statevec,simulate_circuit_clifford
+from abc import ABC, abstractmethod
+
 import numpy as np
+
+from ..algorithms.hamiltonian import Hamiltonian
+from ..circuits import QuantumCircuit
+from ..elements import CircuitWrapper, KrausChannel, QuantumGate, UnitaryChannel
 from ..exceptions import QuafuError
 from ..results.results import SimuResult
-from ..algorithms.hamiltonian import Hamiltonian
+from .qfvm import (  # pylint: disable=no-name-in-module,import-error
+    applyop_statevec,
+    expect_statevec,
+    sampling_statevec,
+    simulate_circuit,
+    simulate_circuit_clifford,
+)
 
+
+# pylint: disable=too-few-public-methods
 class Simulator(ABC):
     @abstractmethod
-    def run(self):
+    def run(self):  # pylint: disable=arguments-differ
         raise NotImplementedError
-    
+
+
 class SVSimulator(Simulator):
-    def __init__(self, use_gpu:bool=False, use_custatevec:bool=False):
-        self.use_gpu  = use_gpu
+    def __init__(self, use_gpu: bool = False, use_custatevec: bool = False):
+        self.use_gpu = use_gpu
         self.use_custatevec = use_custatevec
 
     def config(self, **kwargs):
@@ -40,17 +51,17 @@ class SVSimulator(Simulator):
                 raise ValueError("No such attribute")
 
     def _apply_op(self, op, psi):
-        #TODO: support GPU
-        if isinstance(op,CircuitWrapper):
+        # TODO: support GPU
+        if isinstance(op, CircuitWrapper):
             psi = self.run(op.circuit, psi)["statevector"]
             return psi
-        elif isinstance(op, QuantumGate):
+        if isinstance(op, QuantumGate):
             psi = applyop_statevec(op, psi)
             return psi
-        elif isinstance(op, KrausChannel):
+        if isinstance(op, KrausChannel):
             temppsi = np.copy(psi)
             norm0 = np.linalg.norm(psi)
-            s = 0.
+            s = 0.0
             r = np.random.rand()
             for kop in op.gatelist:
                 temppsi = applyop_statevec(kop, temppsi)
@@ -60,14 +71,12 @@ class SVSimulator(Simulator):
                     psi = temppsi
                     psi = psi / norm1
                     return psi
-                else:
-                    temppsi = np.copy(psi)
+                temppsi = np.copy(psi)
             return psi
-        else:
-            raise NotImplementedError
-    
+        raise NotImplementedError
+
     def _apply_hamil(self, hamil, psi):
-        psi_out = np.zeros(len(psi), dtype=complex) 
+        psi_out = np.zeros(len(psi), dtype=complex)
         for pauli in hamil.paulis:
             psi1 = np.copy(psi)
             for name, pos in zip(pauli.paulistr, pauli.pos):
@@ -75,32 +84,40 @@ class SVSimulator(Simulator):
                 psi1 = self._apply_op(op, psi1)
             psi1 = psi1 * pauli.coeff
             psi_out += psi1
-    
+
         return psi_out
 
-    def run(self, qc : QuantumCircuit, psi : np.ndarray= np.array([]), shots:int=0, hamiltonian:Hamiltonian=None):
+    def run(  # pylint: disable=arguments-differ
+        self,
+        qc: QuantumCircuit,
+        psi: np.ndarray = np.array([]),
+        shots: int = 0,
+        hamiltonian: Hamiltonian = None,
+    ):
         res_info = {}
         if qc.noised:
             raise QuafuError("Can not run noisy circuits with statevector simulator, please use the noisy version.")
-        
+
         if self.use_gpu:
-            if qc.executable_on_backend == False:
+            if not qc.executable_on_backend:
                 raise QuafuError("classical operation do not support gpu currently")
 
             if self.use_custatevec:
                 try:
+                    # pylint: disable=import-outside-toplevel
                     from .qfvm import simulate_circuit_custate
-                except ImportError:
-                    raise QuafuError("pyquafu isn't installed with cuquantum support")
+                except ImportError as exc:
+                    raise QuafuError("pyquafu isn't installed with cuquantum support") from exc
                 psi = simulate_circuit_custate(qc, psi)
                 count_dict = sampling_statevec(qc.measures, psi, shots)
                 res_info["statevector"] = psi
                 res_info["counts"] = count_dict
             else:
                 try:
+                    # pylint: disable=import-outside-toplevel
                     from .qfvm import simulate_circuit_gpu
-                except ImportError:
-                    raise QuafuError("you are not using the GPU version of pyquafu")
+                except ImportError as exc:
+                    raise QuafuError("you are not using the GPU version of pyquafu") from exc
                 psi = simulate_circuit_gpu(qc, psi)
                 count_dict = sampling_statevec(qc.measures, psi, shots)
         else:
@@ -111,38 +128,45 @@ class SVSimulator(Simulator):
         if hamiltonian:
             paulis = hamiltonian.paulis
             res = expect_statevec(res_info["statevector"], paulis)
-            for i in range(len(paulis)):
-                res[i] *= paulis[i].coeff
+            for i, j in enumerate(paulis):
+                res[i] *= j.coeff
             res_info["pauli_expects"] = res
         else:
             res_info["pauli_expects"] = []
         res_info["qbitnum"] = qc.num
-        res_info["measures"] =  qc.measures
+        res_info["measures"] = qc.measures
         res_info["simulator"] = "statevector"
         return SimuResult(res_info)
 
+
 class NoiseSVSimulator(Simulator):
-    def __init__(self, use_gpu:bool=False, use_custatevec:bool=False):
+    def __init__(self, use_gpu: bool = False, use_custatevec: bool = False):
         self.backend = SVSimulator(use_gpu=use_gpu, use_custatevec=use_custatevec)
 
-    def run_once(self, qc : QuantumCircuit, psi, hamiltonian=None):
+    def run_once(self, qc: QuantumCircuit, psi, hamiltonian=None):
         newqc = self.gen_circuit(qc)
         for op in newqc.instructions:
-            psi = self.backend._apply_op(op, psi)
+            psi = self.backend._apply_op(op, psi)  # pylint: disable=protected-access
         sample = list(sampling_statevec(qc.measures, psi, 1).keys())[0]
 
         if hamiltonian:
             paulis = hamiltonian.paulis
             res = expect_statevec(psi, paulis)
-            for i in range(len(paulis)):
-                res[i] *= paulis[i].coeff
+            for i, j in enumerate(paulis):
+                res[i] *= j.coeff
             return sample, res
         return sample, None
 
-    def run(self, qc:QuantumCircuit,  psi : np.ndarray= np.array([]), shots:int=0, hamiltonian:Hamiltonian=None):
+    def run(  # pylint: disable=arguments-differ
+        self,
+        qc: QuantumCircuit,
+        psi: np.ndarray = np.array([]),
+        shots: int = 0,
+        hamiltonian: Hamiltonian = None,
+    ):
         counts = {}
-        pauli_expects = 0.
-        
+        pauli_expects = 0.0
+
         for _ in range(shots):
             if not psi:
                 tpsi = np.zeros(2**qc.num, dtype=complex)
@@ -150,7 +174,7 @@ class NoiseSVSimulator(Simulator):
             else:
                 tpsi = np.copy(psi)
             sample, pauli_res = self.run_once(qc, tpsi, hamiltonian)
-            if sample in counts.keys():
+            if sample in counts:
                 counts[sample] += 1
             else:
                 counts[sample] = 1
@@ -161,9 +185,9 @@ class NoiseSVSimulator(Simulator):
             pauli_expects = []
         else:
             pauli_expects = list(pauli_expects)
-        res_info = {"counts":counts, "pauli_expects": pauli_expects}
+        res_info = {"counts": counts, "pauli_expects": pauli_expects}
         res_info["qbitnum"] = qc.num
-        res_info["measures"] =  qc.measures 
+        res_info["measures"] = qc.measures
         res_info["simulator"] = "noisy statevector"
         return SimuResult(res_info)
 
@@ -171,11 +195,11 @@ class NoiseSVSimulator(Simulator):
     def gen_circuit(qc):
         """
         sample circuit from noise circuit
-        """ 
+        """
         num = qc.num
         new_qc = QuantumCircuit(num)
         temp_qc = QuantumCircuit(num)
-        if qc._has_wrap:
+        if qc._has_wrap:  # pylint: disable=protected-access
             qc.unwarp()
 
         for op in qc.instructions:
@@ -188,12 +212,15 @@ class NoiseSVSimulator(Simulator):
             elif isinstance(op, KrausChannel):
                 new_qc << temp_qc.wrap()
                 new_qc << op
-                temp_qc =  QuantumCircuit(num)
+                temp_qc = QuantumCircuit(num)
         new_qc << temp_qc.wrap()
         return new_qc
-    
+
+
+# pylint: disable=too-few-public-methods
 class CliffordSimulator(Simulator):
-     def run(self, qc : QuantumCircuit, shots:int=0):
+
+    def run(self, qc: QuantumCircuit, shots: int = 0):  # pylint: disable=arguments-differ
         res_info = {}
         count_dict = simulate_circuit_clifford(qc, shots)
         res_info["qbitnum"] = qc.num
@@ -201,4 +228,3 @@ class CliffordSimulator(Simulator):
         res_info["measures"] = qc.measures
         res_info["simuator"] = "clifford"
         return SimuResult(res_info)
-     

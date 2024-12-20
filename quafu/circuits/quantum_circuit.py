@@ -11,45 +11,54 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+"""Quantum circuit module."""
+# pylint: disable=too-many-lines
 import copy
 from contextlib import contextmanager
-from typing import Any, Iterable, List, Optional
+from typing import Any, Iterable, List, Optional, Union
 
 import numpy as np
-import quafu.elements.element_gates as qeg
-from quafu.elements import Measure, Reset, UnitaryDecomposer
-from quafu.elements.classical_element import Cif
-from quafu.elements.instruction import Instruction
-from quafu.elements.parameters import Parameter, ParameterExpression, ParameterType
 
 from ..elements import (
     Barrier,
+    Cif,
     CircuitWrapper,
     ControlledCircuitWrapper,
     ControlledGate,
-    ControlledOracle,
     Delay,
+    Instruction,
     KrausChannel,
-    OracleGate,
+    Measure,
+    Parameter,
+    ParameterExpression,
+    ParameterType,
     QuantumGate,
     QuantumPulse,
+    Reset,
+    UnitaryDecomposer,
     XYResonance,
     KrausChannel, 
     UnitaryChannel
 )
-from ..elements.quantum_gate import CircuitWrapper, ControlledCircuitWrapper
+from ..elements import element_gates as qeg
 from ..exceptions import CircuitError
 from .classical_register import ClassicalRegister
 from .quantum_register import QuantumRegister
 
 
+# pylint: disable=too-many-public-methods,too-many-instance-attributes
 class QuantumCircuit:
     """
     Representation of quantum circuit.
     """
 
-    def __init__(self, qnum: int, cnum: Optional[int] = None, name="", *args, **kwargs):
+    def __init__(
+        self,
+        qnum: int,
+        cnum: Optional[int] = None,
+        name="",
+        **kwargs,  # pylint: disable=unused-argument
+    ):
         """
         Initialize a QuantumCircuit object
 
@@ -72,6 +81,8 @@ class QuantumCircuit:
         self._parameter_grads = {}
         self._variables = []
         self._has_wrap = False
+        self._def_para_name = "theta_inner"  # default parameter name prefix
+        self._para_id = 0  # current parameter index
 
     @property
     def parameterized_gates(self):
@@ -83,7 +94,7 @@ class QuantumCircuit:
 
     @property
     def num(self):
-        return sum([len(qreg) for qreg in self.qregs])
+        return sum(len(qreg) for qreg in self.qregs)
 
     @num.setter
     def num(self, num: int):
@@ -92,7 +103,7 @@ class QuantumCircuit:
 
     @property
     def cbits_num(self):
-        return sum([len(creg) for creg in self.cregs])
+        return sum(len(creg) for creg in self.cregs)
 
     @property
     def used_qubits(self) -> List:
@@ -123,9 +134,7 @@ class QuantumCircuit:
         self._gates = gates
 
     def __lshift__(self, operation: Instruction):
-        max_pos = (
-            max(operation.pos) if isinstance(operation.pos, Iterable) else operation.pos
-        )
+        max_pos = max(operation.pos) if isinstance(operation.pos, Iterable) else operation.pos
         if max_pos >= self.num:
             raise CircuitError("Operation act on qubit that not allocated")
         self.add_ins(operation)
@@ -166,13 +175,20 @@ class QuantumCircuit:
             self.add_gate(ins)
         self.instructions.append(ins)
 
-    def add_noise(self, channel: str, channel_args, qubits=[], gates=[], checkgates=True):
+    # pylint: disable=too-many-branches
+    def add_noise(
+        self, channel: str, channel_args, qubits: Union[None, List[int]] = None, gates: Union[None, List[str]] = None
+    ,checkgates=True):
+        if qubits is None:
+            qubits = []
+        if gates is None:
+            gates = []
         if channel not in ["bitflip", "dephasing", "depolarizing", "ampdamping"]:
             raise ValueError("Invalid channel name")
 
         if checkgates:
             for g in gates:
-                if g not in list(QuantumGate.gate_classes.keys()):
+                if g not in QuantumGate.gate_classes:
                     raise ValueError("Invalid gate name")
 
         newinstructions = []
@@ -201,12 +217,8 @@ class QuantumCircuit:
                 if add_q and add_g:
                     for q in op.pos:
                         if q in qubits:
-                            newinstructions.append(
-                                Instruction.ins_classes[channel](q, *channel_args)
-                            )
-                            newgates.append(
-                                Instruction.ins_classes[channel](q, *channel_args)
-                            )
+                            newinstructions.append(Instruction.ins_classes[channel](q, *channel_args))
+                            newgates.append(Instruction.ins_classes[channel](q, *channel_args))
         self.instructions = newinstructions
         self._gates = newgates
         return self
@@ -223,15 +235,13 @@ class QuantumCircuit:
 
     def get_parameter_grads(self):
         if self._has_wrap:
-            print(
-                "warning: The circuit has wrapped gates, it will unwarp automaticllay"
-            )
+            print("warning: The circuit has wrapped gates, it will unwarp automaticllay")
             self.unwrap()
         self._parameter_grads = {}
         for i, op in enumerate(self.gates):
             for j, para in enumerate(op.paras):
                 if isinstance(para, Parameter):
-                    if para not in self._parameter_grads.keys():
+                    if para not in self._parameter_grads:
                         self._parameter_grads[para] = [[(i, j), 1.0]]
                     else:
                         self._parameter_grads[para].append([(i, j), 1.0])
@@ -239,15 +249,11 @@ class QuantumCircuit:
                 elif isinstance(para, ParameterExpression):
                     para_grads = para.grad()
                     for var in para._variables:
-                        if var not in self._parameter_grads.keys():
-                            self._parameter_grads[var] = [
-                                [(i, j), para_grads[para._variables[var]]]
-                            ]
+                        if var not in self._parameter_grads:
+                            self._parameter_grads[var] = [[(i, j), para_grads[para._variables[var]]]]
                         else:
-                            self._parameter_grads[var].append(
-                                [(i, j), para_grads[para._variables[var]]]
-                            )
-        self._variables = list(self._parameter_grads.keys())
+                            self._parameter_grads[var].append([(i, j), para_grads[para._variables[var]]])
+        self._variables = list(self._parameter_grads)
         return self._parameter_grads
 
     def _calc_parameter_grads(self):
@@ -269,7 +275,7 @@ class QuantumCircuit:
         self._variables = list(self.get_parameter_grads().keys())
         return self._variables
 
-    def _update_params(self, values, order=[]):
+    def _update_params(self, values, order: Union[None, List] = None):
         """
         Update variables' value, not variables
         Args:
@@ -277,12 +283,12 @@ class QuantumCircuit:
             order: For transplied circuit that change the order of variables,
             need pass the order to match untranspiled circuit's variable.
         """
+        if order is None:
+            order = []
         if len(values) != len(self.variables):
-            raise CircuitError(
-                "The size of input values must be the same to the parameters"
-            )
-        for i in range(len(values)):
-            val = values[order[i]] if order else values[i]
+            raise CircuitError("The size of input values must be the same to the parameters")
+        for i, v in enumerate(values):
+            val = values[order[i]] if order else v
             self._variables[i].value = val
 
     # TODO: delete after 0.4.1
@@ -295,14 +301,22 @@ class QuantumCircuit:
             CircuitError
         """
         if len(paras_list) != len(self.parameterized_gates):
-            raise CircuitError(
-                "`params_list` must have the same size with parameterized gates"
-            )
+            raise CircuitError("`params_list` must have the same size with parameterized gates")
 
         # TODO(): Support updating part of params of a single gate
         for gate, paras in zip(self.parameterized_gates, paras_list):
             gate.update_params(paras)
 
+    def angles2parameters(self):
+        """Transform all float value params to `Parameter`"""
+        for g in self.gates:
+            if all(isinstance(x, float) for x in g.paras):
+                for i, para in enumerate(g.paras):
+                    g.paras[i] = Parameter(f"{self._def_para_name}_{self._para_id}", value=para)
+                    self._para_id += 1
+        self.get_parameter_grads()
+
+    # pylint: disable=too-many-branches
     def layered_circuit(self) -> np.ndarray:
         """
         Make layered circuit from the gate sequence self.gates.
@@ -315,7 +329,7 @@ class QuantumCircuit:
         gateQlist = [[] for i in range(num)]
         used_qubits = []
         for gate in gatelist:
-            if isinstance(gate, Delay) or isinstance(gate, QuantumPulse):
+            if isinstance(gate, (Delay, QuantumPulse)):
                 gateQlist[gate.pos].append(gate)
                 if gate.pos not in used_qubits:
                     used_qubits.append(gate.pos)
@@ -331,7 +345,7 @@ class QuantumCircuit:
                     if pos not in used_qubits:
                         used_qubits.append(pos)
 
-                maxlayer = max([len(gateQlist[j]) for j in range(pos1, pos2 + 1)])
+                maxlayer = max(len(gateQlist[j]) for j in range(pos1, pos2 + 1))
                 for j in range(pos1, pos2 + 1):
                     layerj = len(gateQlist[j])
                     pos = layerj - 1
@@ -350,7 +364,7 @@ class QuantumCircuit:
                             used_q.append(pos)
                 elif isinstance(ins, Barrier):
                     continue
-                elif isinstance(ins.pos, int):
+                if isinstance(ins.pos, int):
                     if ins.pos not in used_q:
                         used_q.append(ins.pos)
                 elif isinstance(ins.pos, list):
@@ -367,7 +381,7 @@ class QuantumCircuit:
                     if pos not in used_qubits:
                         used_qubits.append(pos)
 
-        maxdepth = max([len(gateQlist[i]) for i in range(num)])
+        maxdepth = max(len(gateQlist[i]) for i in range(num))
 
         for gates in gateQlist:
             gates.extend([None] * (maxdepth - len(gates)))
@@ -378,8 +392,7 @@ class QuantumCircuit:
         used_qubits = np.sort(used_qubits)
 
         new_gateQlist = []
-        for old_qi in range(len(gateQlist)):
-            gates = gateQlist[old_qi]
+        for old_qi, gates in enumerate(gateQlist):
             if old_qi in used_qubits:
                 new_gateQlist.append(gates)
 
@@ -389,6 +402,7 @@ class QuantumCircuit:
         self._used_qubits = list(used_qubits)
         return self.circuit
 
+    # pylint: disable=inconsistent-return-statements, too-many-branches
     def draw_circuit(self, width: int = 4, return_str: bool = False):
         """
         Draw layered circuit using ASCII, print in terminal.
@@ -405,6 +419,8 @@ class QuantumCircuit:
 
         reduce_map = dict(zip(gateQlist[:, 0], range(num)))
         reduce_map_inv = dict(zip(range(num), gateQlist[:, 0]))
+
+        # pylint: disable=too-many-nested-blocks
         for l in range(depth):
             layergates = gateQlist[:, l + 1]
             maxlen = 1 + width
@@ -438,9 +454,7 @@ class QuantumCircuit:
                             tq2 = reduce_map[max(gate.targs)]
                             printlist[tq1 * 2, l] = "#"
                             printlist[tq2 * 2, l] = "#"
-                            if tq1 + tq2 in [
-                                reduce_map[ctrl] * 2 for ctrl in gate.ctrls
-                            ]:
+                            if tq1 + tq2 in [reduce_map[ctrl] * 2 for ctrl in gate.ctrls]:
                                 printlist[tq1 + tq2, l] = "*" + gate.symbol
                             else:
                                 printlist[tq1 + tq2, l] = gate.symbol
@@ -460,34 +474,25 @@ class QuantumCircuit:
         circuitstr = []
         for j in range(2 * num - 1):
             if j % 2 == 0:
-                linestr = ("q[%d]" % (reduce_map_inv[j // 2])).ljust(6) + "".join(
-                    [
-                        printlist[j, l].center(int(printlist[-1, l]), "-")
-                        for l in range(depth)
-                    ]
-                )
+                linestr = f'q[{reduce_map_inv[j // 2]}]'.ljust(6)
+                linestr += ''.join([printlist[j, l].center(int(printlist[-1, l]), "-") for l in range(depth)])
                 if reduce_map_inv[j // 2] in self.measures.keys():
-                    linestr += " M->c[%d]" % self.measures[reduce_map_inv[j // 2]]
+                    linestr += f" M->c[{self.measures[reduce_map_inv[j // 2]]}]"
                 circuitstr.append(linestr)
             else:
                 circuitstr.append(
-                    "".ljust(6)
-                    + "".join(
-                        [
-                            printlist[j, l].center(int(printlist[-1, l]), " ")
-                            for l in range(depth)
-                        ]
-                    )
+                    "".ljust(6) + "".join([printlist[j, l].center(int(printlist[-1, l]), " ") for l in range(depth)])
                 )
         circuitstr = "\n".join(circuitstr)
 
         if return_str:
             return circuitstr
-        else:
-            print(circuitstr)
+        print(circuitstr)
+        return  # noqa:R502
 
     def plot_circuit(self, *args, **kwargs):
-        from quafu.visualisation.circuitPlot import CircuitPlotManager
+        # pylint: disable=import-outside-toplevel
+        from quafu.visualisation.circuit_plot import CircuitPlotManager
 
         cmp = CircuitPlotManager(self)
         return cmp(*args, **kwargs)
@@ -498,6 +503,7 @@ class QuantumCircuit:
         Args:
             openqasm: input openqasm str.
         """
+        # pylint: disable=import-outside-toplevel
         from quafu.qfasm.qfasm_convertor import qasm2_to_quafu_qc
 
         return qasm2_to_quafu_qc(self, openqasm)
@@ -510,14 +516,12 @@ class QuantumCircuit:
             openqasm text.
         """
 
-        valid_gates = list(
-            QuantumGate.gate_classes.keys()
-        )  # TODO:include instruction futher
+        valid_gates = list(QuantumGate.gate_classes.keys())  # TODO:include instruction futher
         valid_gates.extend(["barrier", "delay", "reset"])
 
         qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\n'
-        qasm += "qreg q[%d];\n" % self.num
-        qasm += "creg meas[%d];\n" % self.cbits_num
+        qasm += f"qreg q[{self.num}];\n"
+        qasm += f"creg meas[{self.cbits_num}];\n"
         if with_para:
             for variable in self.variables:
                 qasm += f"{variable.latex} = {variable.value};\n"
@@ -530,7 +534,7 @@ class QuantumCircuit:
                     f"gate {gate.name} can not convert to qasm2 directly, you may decompose it manuallly"
                 )
         for key in self.measures:
-            qasm += "measure q[%d] -> meas[%d];\n" % (key, self.measures[key])
+            qasm += f"measure q[{key}] -> meas[{self.measures[key]}];\n"
 
         self.openqasm = qasm
         return qasm
@@ -539,14 +543,14 @@ class QuantumCircuit:
         """
         Wrap the circuit to a subclass of QuantumGate, create by metaclass.
         """
+        # pylint: disable=import-outside-toplevel
         from copy import deepcopy
 
         from quafu.elements.oracle import customize_gate
 
         # TODO: check validity of instructions
         gate_structure = [deepcopy(ins) for ins in self.instructions]
-        customized = customize_gate(name, gate_structure, self.num)
-        return customized
+        return customize_gate(name, gate_structure, self.num)
 
     def _reallocate(self, num, qbits: List[int]):
         """Remap the qubits and gates to new positions."""
@@ -558,19 +562,23 @@ class QuantumCircuit:
         qbits_map = dict(zip(range(len(qbits)), qbits))
         gates = self.instructions
         for op in gates:
-            for i in range(len(op.pos)):
-                op.pos[i] = qbits_map[op.pos[i]]
+            for i, ops in enumerate(op.pos):
+                op.pos[i] = qbits_map[ops]
 
             if isinstance(op, ControlledGate):
-                for i in range(len(op.ctrls)):
-                    op.ctrls[i] = qbits_map[op.ctrls[i]]
+                for i, ctrl in enumerate(op.ctrls):
+                    op.ctrls[i] = qbits_map[ctrl]
 
-                for i in range(len(op.targs)):
-                    op.targs[i] = qbits_map[op.targs[i]]
+                for i, targ in enumerate(op.targs):
+                    op.targs[i] = qbits_map[targ]
 
     def add_controls(
-        self, ctrlnum, ctrls: List[int] = [], targs: List[int] = [], inplace=False
+        self, ctrlnum, ctrls: Union[None, List[int]] = None, targs: Union[None, List[int]] = None, inplace=False
     ) -> "QuantumCircuit":
+        if ctrls is None:
+            ctrls = []
+        if targs is None:
+            targs = []
         num = 0
         instrs = []
         if len(ctrls + targs) == 0:
@@ -580,35 +588,36 @@ class QuantumCircuit:
         else:
             if len(ctrls) == 0 or len(targs) == 0:
                 raise ValueError("Must provide both ctrls and targs")
+            assert len(targs) == self.num
+            assert len(ctrls) == ctrlnum
+            num = max(ctrls + targs) + 1
+            if inplace:
+                self._reallocate(num, targs)
             else:
-                assert len(targs) == self.num
-                assert len(ctrls) == ctrlnum
-                num = max(ctrls + targs) + 1
-                if inplace:
-                    self._reallocate(num, targs)
-                else:
-                    temp = copy.deepcopy(self)
-                    temp._reallocate(num, targs)
-                    instrs = temp.instructions
+                temp = copy.deepcopy(self)
+                temp._reallocate(num, targs)
+                instrs = temp.instructions
 
         if inplace:
             for op in self.instructions:
                 if isinstance(op, QuantumGate):
                     op = op.ctrl_by(ctrls)
             return self
-        else:
-            qc = QuantumCircuit(num)
-            for op in instrs:
-                if isinstance(op, QuantumGate):
-                    qc << op.ctrl_by(ctrls)
+        qc = QuantumCircuit(num)
+        for op in instrs:
+            if isinstance(op, QuantumGate):
+                qc << op.ctrl_by(ctrls)
         return qc
 
+    # pylint: disable=too-many-branches
     def join(
         self,
-        qc: ["QuantumCircuit", CircuitWrapper, ControlledCircuitWrapper],
-        qbits: List[int] = [],
+        qc: Union["QuantumCircuit", CircuitWrapper, ControlledCircuitWrapper],
+        qbits: Union[None, List[int]] = None,
         inplace=True,
     ) -> "QuantumCircuit":
+        if qbits is None:
+            qbits = []
         num = self.num
         rnum = 0
         if isinstance(qc, QuantumCircuit):
@@ -619,7 +628,7 @@ class QuantumCircuit:
         if len(qbits) == 0:
             num = max(self.num, rnum)
         else:
-            num = max(self.num - 1, max(qbits)) + 1
+            num = max(self.num - 1, max(qbits)) + 1  # pylint: disable=nested-min-max
 
         nqc = QuantumCircuit(num)
         if inplace:
@@ -650,13 +659,12 @@ class QuantumCircuit:
             for _ in range(n - 1):
                 self.instructions += self.instructions
             return self
-        else:
-            nq = QuantumCircuit(self.num)
-            for _ in range(n):
-                for op in self.instructions:
-                    nq << op
-            nq.measures = self.measures
-            return nq
+        nq = QuantumCircuit(self.num)
+        for _ in range(n):
+            for op in self.instructions:
+                nq << op
+        nq.measures = self.measures
+        return nq
 
     def dagger(self, inplace=False):
         if inplace:
@@ -665,18 +673,18 @@ class QuantumCircuit:
                 if isinstance(op, QuantumGate):
                     op = op.dagger()
             return self
-        else:
-            nq = QuantumCircuit(self.num)
-            for op in self.instructions[::-1]:
-                if isinstance(op, QuantumGate):
-                    nq << op.dagger()
-                else:
-                    nq << op
-            nq.measures = self.measures
-            return nq
+        nq = QuantumCircuit(self.num)
+        for op in self.instructions[::-1]:
+            if isinstance(op, QuantumGate):
+                nq << op.dagger()
+            else:
+                nq << op
+        nq.measures = self.measures
+        return nq
 
-    def wrap(self, qbits=[]):
-        # TODO:use OracleGate
+    def wrap(self, qbits=None):
+        if qbits is None:
+            qbits = []
         name = self.name if self.name else "Oracle"
         return CircuitWrapper(name, self, qbits)
 
@@ -688,15 +696,11 @@ class QuantumCircuit:
                 circ = op.circuit.unwrap()
                 for op_ in circ.instructions:
                     instructions.append(op_)
-                    if isinstance(
-                        op_, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel)
-                    ):
+                    if isinstance(op_, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel)):
                         gates.append(op_)
             else:
                 instructions.append(op)
-                if isinstance(
-                    op, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel)
-                ):
+                if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel)):
                     gates.append(op)
 
         self.instructions = instructions
@@ -705,7 +709,7 @@ class QuantumCircuit:
         return self
 
     # # # # # # # # # # # # # # helper functions # # # # # # # # # # # # # #
-    def id(self, pos: int) -> "QuantumCircuit":
+    def id(self, pos: int) -> "QuantumCircuit":  # noqa: A003
         """
         Identity gate.
 
@@ -1030,7 +1034,9 @@ class QuantumCircuit:
         Add barrier for qubits in qlist.
 
         Args:
-            qlist (list[int]): A list contain the qubit need add barrier. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
+            qlist (list[int]): A list contain the qubit need add barrier. When qlist contain at least two qubit,
+                the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create
+                barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
         """
         if qlist is None:
             qlist = list(range(self.num))
@@ -1048,7 +1054,8 @@ class QuantumCircuit:
             unit: time unit of duration.
 
         """
-        self.add_ins(XYResonance(qs, qe, duration, unit=unit))
+        # TODO: XYResonance is abstract class
+        self.add_ins(XYResonance(qs, qe, duration, unit=unit))  # pylint: disable=abstract-class-instantiated
         return self
 
     def rxx(self, q1: int, q2: int, theta):
@@ -1145,7 +1152,9 @@ class QuantumCircuit:
         Add reset for qubits in qlist.
 
         Args:
-            qlist (list[int]): A list contain the qubit need add reset. When qlist contain at least two qubit, the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2]) create barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
+            qlist (list[int]): A list contain the qubit need add reset. When qlist contain at least two qubit,
+                the barrier will be added from minimum qubit to maximum qubit. For example: barrier([0, 2])
+                create barrier for qubits 0, 1, 2. To create discrete barrier, using barrier([0]), barrier([2]).
 
         Note: reset only support for simulator `qfvm_circ`.
         """
@@ -1178,17 +1187,13 @@ class QuantumCircuit:
             if not len(set(cbits)) == len(cbits):
                 raise ValueError("Classical bits not uniquely assigned.")
             if not len(cbits) == n_num:
-                raise ValueError(
-                    "Number of measured bits should equal to the number of classical bits"
-                )
+                raise ValueError("Number of measured bits should equal to the number of classical bits")
         else:
             cbits = list(range(e_num, e_num + n_num))
 
         for cbit in cbits:
             if cbit < 0 or cbit > self.cbits_num:
                 raise ValueError("Cbits index out of range.")
-        # _sorted_indices = sorted(range(n_num), key=lambda k: cbits[k])
-        # cbits = [_sorted_indices.index(i) + e_num for i in range(n_num)]
 
         measure = Measure(dict(zip(pos, cbits)))
         self._measures.append(measure)
@@ -1235,13 +1240,9 @@ class QuantumCircuit:
 
         instructions = []
         for i in range(len(self.instructions) - 1, -1, -1):
-            if (
-                isinstance(self.instructions[i], Cif)
-                and self.instructions[i].instructions is None
-            ):
+            if isinstance(self.instructions[i], Cif) and self.instructions[i].instructions is None:
                 instructions.reverse()
                 self.instructions[i].set_ins(instructions)
                 self.instructions = self.instructions[0 : i + 1]
                 return
-            else:
-                instructions.append(self.instructions[i])
+            instructions.append(self.instructions[i])

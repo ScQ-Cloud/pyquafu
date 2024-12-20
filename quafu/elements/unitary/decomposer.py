@@ -1,15 +1,30 @@
+# (C) Copyright 2024 Beijing Academy of Quantum Information Sciences
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Unitary decomposer module."""
 import cmath
 import math
+import re
 
 import numpy as np
 import scipy
 from numpy import ndarray
-
-from quafu.elements.matrices import rz_mat, ry_mat, CXMatrix
+from quafu.elements.matrices import CXMatrix
 from quafu.elements.matrices import mat_utils as mu
+from quafu.elements.matrices import ry_mat, rz_mat
 
 
-class UnitaryDecomposer(object):
+class UnitaryDecomposer:
     def __init__(self, array: ndarray, qubits, verbose: bool = False):
         self.array = array
         self.qubit_num = len(qubits)
@@ -18,9 +33,7 @@ class UnitaryDecomposer(object):
         self.qubits = qubits
         self.verbose = verbose
 
-        self.Mk_table = genMk_table(
-            self.qubit_num
-        )  # initialize the general M^k lookup table
+        self.Mk_table = genMk_table(self.qubit_num)  # initialize the general M^k lookup table
         self.gate_list = []
 
     def __call__(self, *args, **kwargs):
@@ -39,34 +52,23 @@ class UnitaryDecomposer(object):
         qubit_num = len(qubits)
         self._check_unitary(_matrix, qubit_num)
         if qubit_num == 1:
-            # self.gates_list.append((_matrix, qubits, 'U'))
             # ZYZ decomposition for single-qubit gate
-            gamma, beta, alpha, global_phase = zyz_decomposition(_matrix)
+            gamma, beta, alpha, _ = zyz_decomposition(_matrix)
             self.gate_list.append((rz_mat(gamma), qubits, "RZ", gamma))
             self.gate_list.append((ry_mat(beta), qubits, "RY", beta))
             self.gate_list.append((rz_mat(alpha), qubits, "RZ", alpha))
-            return None
+            return
 
-        # if num_qubit == 2:
-        # self.circuit.append((_matrix, qubits))
-        #    print("Two qubit gate do not need to decompose.")
-        # zyz_decomp(matrix)
         U00, U01, U10, U11 = mu.split_matrix(_matrix)
 
-        # if bottomLeftCorner(n)==0 and topRightCorner(n)==0:
         if mu.is_zero(U01) and mu.is_zero(U10):
             if mu.is_approx(U00, U11):
                 if self.verbose:
-                    print(
-                        "Optimization: Unitaries are equal, "
-                        "skip one step in the recursion for unitaries of size"
-                    )
+                    print("Optimization: Unitaries are equal, skip one step in the recursion for unitaries of size")
                 self._decompose_matrix(U00, qubits[1:])
             else:
                 if self.verbose:
-                    print(
-                        "Optimization: q2 is zero, only demultiplexing will be performed."
-                    )
+                    print("Optimization: q2 is zero, only demultiplexing will be performed.")
                 V, D, W = demultiplexing(U00, U11)
                 self._decompose_matrix(W, qubits[1:])
                 self.multi_controlled_z(D, qubits[1:], qubits[0])
@@ -75,12 +77,10 @@ class UnitaryDecomposer(object):
         # By checking if the first row is equal to the second row one over, and if the last two rows are equal
         # Which means the last qubit is not affected by this gate
         elif mu.is_kron_with_id2(_matrix):
-            # print("The last qubits not affect.")
             nsize = len(_matrix)
             self._decompose_matrix(_matrix[0:nsize:2, 0:nsize:2], qubits[:-1])
         else:
-            # print("CSD decomposition.")
-            L0, L1, R0, R1, c, s = fat_csd(_matrix)
+            L0, L1, R0, R1, _, s = fat_csd(_matrix)
             V, D, W = demultiplexing(R0, R1)
 
             self._decompose_matrix(W, qubits[1:])
@@ -97,21 +97,17 @@ class UnitaryDecomposer(object):
         print(D.shape[0])
         assert len(qubits) == int(math.log(D.shape[0], 2))
         num_qubit = len(qubits)
-        # print("The size of D matrix {}".format(len(qubits)))
-        # print(qubits)
 
-        # alphas = -2*1j*np.log(np.diag(D))
         alphas = 2 * 1j * np.log(np.diag(D))
         Mk = self.Mk_table[num_qubit - 1]
         thetas = np.linalg.solve(Mk, alphas)
-        # print(thetas)
         assert len(thetas) == 2**num_qubit
 
         index = get_multi_control_index(num_qubit)
         assert len(index) == len(thetas)
 
-        for i in range(len(index)):
-            control_qubit = qubits[index[i]]
+        for i, j in enumerate(index):
+            control_qubit = qubits[j]
             self.gate_list.append((rz_mat(thetas[i]), [target_qubit], "RZ", thetas[i]))
             self.gate_list.append((CXMatrix, [control_qubit, target_qubit], "CX"))
 
@@ -122,14 +118,13 @@ class UnitaryDecomposer(object):
         alphas = -2 * np.arcsin(np.diag(ss))
         Mk = self.Mk_table[num_qubit - 1]
         thetas = np.linalg.solve(Mk, alphas)
-        # print(thetas)
         assert len(thetas) == 2**num_qubit
 
         index = get_multi_control_index(num_qubit)
         assert len(index) == len(thetas)
 
-        for i in range(len(index)):
-            control_qubit = qubits[index[i]]
+        for i, j in enumerate(index):
+            control_qubit = qubits[j]
             self.gate_list.append((ry_mat(thetas[i]), [target_qubit], "RY", thetas[i]))
             self.gate_list.append((CXMatrix, [control_qubit, target_qubit], "CX"))
 
@@ -145,12 +140,12 @@ class UnitaryDecomposer(object):
             elif g[2] == "RZ":
                 qc.rz(g[1][0], g[3].real)
             elif g[2] == "U":
-                gamma, beta, alpha, global_phase = zyz_decomposition(g[0])
+                gamma, beta, alpha, _ = zyz_decomposition(g[0])
                 qc.rz(g[1][0], gamma)
                 qc.ry(g[1][0], beta)
                 qc.rz(g[1][0], alpha)
             else:
-                raise Exception("Unknown gate type or incorrect str: {}".format(g[2]))
+                raise RuntimeError(f"Unknown gate type or incorrect str: {g[2]}")
 
         return qc
 
@@ -173,14 +168,14 @@ def zyz_decomposition(unitary):
         alpha = t1 + t2
         gamma = t1 - t2
     else:
-        raise Exception("ZYZ decomposition only applies to single-qubit gate.")
+        raise RuntimeError("ZYZ decomposition only applies to single-qubit gate.")
     return gamma, beta, alpha, global_phase
 
 
 # # # # # # # Cosine-Sine Decomposition # # # # # # # # # # # #
 def _thin_csd(q1, q2):
     p = q1.shape[0]
-    print("the size of q1/q2: {}".format(p))
+    print(f"the size of q1/q2: {p}")
 
     u1, c, v1 = np.linalg.svd(q1)
     v1d = np.conjugate(v1).T
@@ -201,19 +196,16 @@ def _thin_csd(q1, q2):
             k = i
 
     k = k + 1
-    print("the k size: {}".format(k))
+    print(f"the k size: {k}")
 
     u2, _ = np.linalg.qr(q2[:, 0:k], mode="complete")
-    # u2, _= np.linalg.qr(q2, mode='complete')
-    print("the size of u2: {}".format(u2.shape))
-    # print("the u2 matrix: {}".format(u2))
+    print(f"the size of u2: {u2.shape}")
     s = np.conjugate(u2).T @ q2
-    print("the size of s: {}".format(s.shape))
-    # print("the s matrix: {}".format(np.real(s)))
+    print(f"the size of s: {s.shape}")
 
     if k < p:
         r2 = s[k:p, k:p]
-        print("the size of rs: {}".format(r2.shape))
+        print(f"the size of rs: {r2.shape}")
         ut, ss, vt = np.linalg.svd(r2)
         vtd = np.conjugate(vt).T
         s[k:p, k:p] = np.diag(ss)
@@ -242,7 +234,6 @@ def fat_csd(matrix):
     U = [U00, U01] = [u1    ][c  s][v1  ]
         [U10, U11] = [    u2][-s c][   v2]
     """
-    # print(matrix)
     U00, U01, U10, U11 = mu.split_matrix(matrix)
 
     L0, L1, R0, cc, ss = _thin_csd(U00, U10)
@@ -316,7 +307,7 @@ def demultiplexing(u1, u2):
 def _graycode(n):
     for i in range(1 << n):
         gray = i ^ (i >> 1)
-        yield "{0:0{1}b}".format(gray, n)
+        yield f"{gray:0{n}b}"
 
 
 def get_multi_control_index(n):
@@ -339,7 +330,6 @@ def genMk_table(nqubits):
     """
     TODO: add docstring
     """
-    import re
 
     def bin2gray(num):
         return num ^ int((num >> 1))
@@ -349,7 +339,7 @@ def genMk_table(nqubits):
         for i in range(2**k):
             for j in range(2**k):
                 p = i & bin2gray(j)
-                strbin = "{0:b}".format(p)
+                strbin = f"{p:b}"
                 tmp = [m.start() for m in re.finditer("1", strbin)]
                 Mk[i, j] = (-1) ** len(tmp)
 

@@ -1,5 +1,5 @@
-from .circuits.quantum_circuit import QuantumCircuit
 from .algorithms.hamiltonian import Hamiltonian
+from .circuits.quantum_circuit import QuantumCircuit
 from .circuits.quantum_register import QuantumRegister, Qubit
 from .results.results import ExecResult, SimuResult
 from .simulators import simulate
@@ -21,4 +21,4 @@ __all__ = [
 
 
 def get_version():
-    return "0.4.0"
+    return "0.4.2"
