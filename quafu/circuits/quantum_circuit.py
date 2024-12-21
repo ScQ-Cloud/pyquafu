@@ -177,8 +177,7 @@ class QuantumCircuit:
 
     # pylint: disable=too-many-branches
     def add_noise(
-        self, channel: str, channel_args, qubits: Union[None, List[int]] = None, gates: Union[None, List[str]] = None
-    ,checkgates=True):
+        self, channel: str, channel_args, qubits: Union[None, List[int]] = None, gates: Union[None, List[str]] = None, checkgates=True):
         if qubits is None:
             qubits = []
         if gates is None:

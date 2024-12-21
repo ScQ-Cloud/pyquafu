@@ -25,7 +25,7 @@ def simulate(
     qc: Union[QuantumCircuit, str],
     psi: np.ndarray = np.array([]),
     simulator: str = "statevector",
-    shots: int = 100,
+    shots: int = 0,
     hamiltonian=None,
     use_gpu: bool = False,
     use_custatevec: bool = False,

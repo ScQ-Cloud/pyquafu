@@ -34,7 +34,7 @@ def assemble_grads(para_grads, gate_grads):
     return grads
 
 
-def grad_para_shift(qc: QuantumCircuit, hamiltonian, backend=SVSimulator()):
+def grad_para_shift(qc: QuantumCircuit, hamiltonian, backend=SVSimulator(), psi_in = np.array([], dtype=complex)):
     """
     Parameter shift gradients. Each gate must have one parameter
     """
@@ -50,23 +50,23 @@ def grad_para_shift(qc: QuantumCircuit, hamiltonian, backend=SVSimulator()):
                         " You may need compile the circuit first"
                     )
                 op.paras[0] = op.paras[0] + np.pi / 2
-                res1 = sum(backend.run(qc, hamiltonian=hamiltonian)["pauli_expects"])
+                res1 = sum(backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"])
                 op.paras[0] = op.paras[0] - np.pi
-                res2 = sum(backend.run(qc, hamiltonian=hamiltonian)["pauli_expects"])
+                res2 = sum(backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"])
                 op.paras[0]._undo(2)
                 gate_grads[i].append((res1 - res2) / 2.0)
 
     return assemble_grads(para_grads, gate_grads)
 
 
-def grad_finit_diff(qc, hamiltonian, backend=SVSimulator()):
+def grad_finit_diff(qc, hamiltonian, backend=SVSimulator(), psi_in = np.array([], dtype=complex)):
     variables = qc.variables
     grads = []
     for v in variables:
         v.value += 1e-10
-        res1 = sum(backend.run(qc, hamiltonian=hamiltonian)["pauli_expects"])
+        res1 = sum(backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"])
         v.value -= 2 * 1e-10
-        res2 = sum(backend.run(qc, hamiltonian=hamiltonian)["pauli_expects"])
+        res2 = sum(backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"])
         v.value += 1e-10
         grads.append((res1 - res2) / (2 * 1e-10))
 

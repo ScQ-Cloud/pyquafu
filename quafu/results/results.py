@@ -142,7 +142,7 @@ class SimuResult(Result):
     def counts(self):
         return self["counts"]
 
-    def calc_probabilities(self, from_counts=True):
+    def calc_probabilities(self, from_counts=False):
         num = self["qbitnum"]
         if from_counts and self._meta_data['counts']:
             counts = self._meta_data["counts"]
@@ -161,7 +161,7 @@ class SimuResult(Result):
             values = np.argsort(values_tmp)
 
         # pylint: disable=import-outside-toplevel
-        from quafu.simulators.default_simulator import permutebits, ptrace
+            from quafu.simulators.default_simulator import permutebits, ptrace
 
             psi = permutebits(psi, range(num)[::-1])
             if measures:
