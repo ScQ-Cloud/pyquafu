@@ -153,6 +153,7 @@ class TestSimulatorBasis(BaseTest):
         self.circuit = BellCircuits.bell_measure_atlast()
         result = simulate(qc=self.circuit)
         probs = result.probabilities
+        # print(probs)
         self.assertAlmostEqual(probs[0], 1 / 2)
         self.assertAlmostEqual(probs[1], 0)
         self.assertAlmostEqual(probs[2], 0)
@@ -314,3 +315,6 @@ class TestCliffordSimulatorBasis(BaseTest):
         result = simulate(qc=self.circuit, shots=10, simulator="clifford")
         counts = result.counts
         self.assert_dict_almost_equal(counts, {"0101": 10})
+
+if __name__ == "__main__":
+    TestSimulatorBasis().test_measure_atlast_collapse()

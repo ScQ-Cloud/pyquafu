@@ -37,6 +37,8 @@ from ..elements import (
     Reset,
     UnitaryDecomposer,
     XYResonance,
+    KrausChannel, 
+    UnitaryChannel
 )
 from ..elements import element_gates as qeg
 from ..exceptions import CircuitError
@@ -175,8 +177,7 @@ class QuantumCircuit:
 
     # pylint: disable=too-many-branches
     def add_noise(
-        self, channel: str, channel_args, qubits: Union[None, List[int]] = None, gates: Union[None, List[str]] = None
-    ):
+        self, channel: str, channel_args, qubits: Union[None, List[int]] = None, gates: Union[None, List[str]] = None, checkgates=True):
         if qubits is None:
             qubits = []
         if gates is None:
@@ -184,15 +185,17 @@ class QuantumCircuit:
         if channel not in ["bitflip", "dephasing", "depolarizing", "ampdamping"]:
             raise ValueError("Invalid channel name")
 
-        for g in gates:
-            if g not in QuantumGate.gate_classes:
-                raise ValueError("Invalid gate name")
+        if checkgates:
+            for g in gates:
+                if g not in QuantumGate.gate_classes:
+                    raise ValueError("Invalid gate name")
 
         newinstructions = []
         newgates = []
         for op in self.instructions:
             newinstructions.append(op)
-            if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance)):
+            if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel, 
+    UnitaryChannel)):
                 newgates.append(op)
             if isinstance(op, QuantumGate):
                 add_q = False
