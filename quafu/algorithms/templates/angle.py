@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Angel Embedding in Quantum Data embedding."""
+import numpy as np
 import quafu.elements.element_gates as qeg
 from quafu.elements import Parameter, QuantumGate
+
+from .base_embedding import BaseEmebdding
 
 ROT = {"X": qeg.RXGate, "Y": qeg.RYGate, "Z": qeg.RZGate}
 
 
-class AngleEmbedding:
+class AngleEmbedding(BaseEmebdding):
     def __init__(self, features, num_qubits: int, rotation="X"):
         """
         Args:
@@ -26,6 +29,7 @@ class AngleEmbedding:
             num_qubits(int): the number of qubit
             rotation(str): type of rotations used
         """
+        features = np.array(features)
         if rotation not in ROT:
             raise ValueError(f"Rotation option {rotation} not recognized.")
         if features.ndim == 1:

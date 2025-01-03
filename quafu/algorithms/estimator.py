@@ -17,6 +17,7 @@ import time
 from typing import List, Optional
 
 import numpy as np
+from quafu.algorithms.ansatz import QuantumNeuralNetwork
 from quafu.exceptions.quafu_error import CircuitError
 from quafu.results.results import ExecResult, merge_measure
 
@@ -187,7 +188,26 @@ class Estimator:
             Expectation value
         """
         if params is not None:
-            self._circ._update_params(params)
+            if isinstance(self._circ, QuantumNeuralNetwork):  # currently circ with this attr is QuantumNeuralNetwork
+                # For QuantumNeuralNetwork after v0.4.4, circ structure is determined at runtime
+                # thus only update tunable parameters, i.e., weights
+                if not self._circ.is_legacy_if():
+                    # In this case, we are handling QuantumNeuralNetwork after v0.4.4
+                    # First we extract the input parameters for embedding
+                    dim_weights = self._circ.num_tunable_parameters
+                    dim_embed_in = len(params) - dim_weights
+                    embed_in = params[:dim_embed_in]
+                    # Then we re-construct the circuit
+                    self._circ.reconstruct(embed_in)
+                    num_params = len(self._circ.variables)
+                    # Finally we update tunable parameters
+                    new_params = np.zeros((num_params,))
+                    new_params[-dim_weights:] = params[-dim_weights:]
+                    self._circ._update_params(new_params, tunable_only=True)
+                else:
+                    self._circ._update_params(params)
+            else:
+                self._circ._update_params(params)
 
         if self._backend == "sim":
             return self._run_simulation(observables)

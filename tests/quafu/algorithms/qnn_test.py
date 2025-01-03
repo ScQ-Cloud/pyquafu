@@ -22,6 +22,7 @@ from quafu.algorithms.interface.torch import (  # noqa: E402
     ModuleWrapper,
     TorchTransformer,
 )
+from quafu.algorithms.templates.amplitude import AmplitudeEmbedding  # noqa: E402
 from quafu.algorithms.templates.angle import AngleEmbedding  # noqa: E402
 from quafu.algorithms.templates.basic_entangle import BasicEntangleLayers  # noqa: E402
 from quafu.circuits.quantum_circuit import QuantumCircuit  # noqa: E402
@@ -30,7 +31,7 @@ from torch import nn  # noqa: E402
 from torch.utils.data import DataLoader, TensorDataset  # noqa: E402
 
 
-def _generate_random_dataset(num_inputs, num_samples):
+def _generate_random_dataset(num_inputs, num_samples, one_hot: bool = True):
     """
     Generate random dataset
 
@@ -49,7 +50,9 @@ def _generate_random_dataset(num_inputs, num_samples):
     y[torch.arange(num_samples), y01] = 1
 
     # Create a PyTorch dataset
-    return TensorDataset(x, y)
+    if one_hot:
+        return TensorDataset(x, y)
+    return TensorDataset(x, y[:, 1].to(torch.double))
 
 
 class MLP(nn.Module):
@@ -313,5 +316,134 @@ class TestLayers:
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels.argmax(dim=1)).sum().item()
+
+        print(f"Accuracy: {100 * correct / total:.2f}%")
+
+    def test_runtime_qnn_construction(self, num_epochs, batch_size):
+        """Test a pure quantum nn training using a synthetic dataset
+
+        Args:
+            num_epochs: number of epoches for training
+            batch_size: batch size for training
+
+        """
+        # Define the hyperparameters
+        num_inputs = 2
+        num_classes = 2
+        learning_rate = 0.01
+
+        # Generate the dataset
+        dataset = _generate_random_dataset(num_inputs, 100)
+
+        # Create QNN
+        num_qubits = num_classes
+        weights = np.random.randn(num_qubits, 2)
+        encoder_layer = AngleEmbedding(np.random.random((2,)), num_qubits=2)
+        entangle_layer = BasicEntangleLayers(weights, 2)
+        qnn = QuantumNeuralNetwork(num_qubits, [encoder_layer, entangle_layer])
+
+        # Create hybrid model
+        model = ModuleWrapper(qnn)
+
+        # Define the loss function and optimizer
+        criterion = nn.CrossEntropyLoss()
+        optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+        # Create data loader
+        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+        # Train the model
+        for epoch in range(num_epochs):
+            for inputs, labels in data_loader:
+                # Forward pass
+                outputs = model(inputs)
+
+                # Compute the loss
+                loss = criterion(outputs, labels)
+
+                # Backward pass
+                optimizer.zero_grad()
+                loss.backward()
+
+                # Update the parameters
+                optimizer.step()
+
+            # Print the loss
+            print(f"Epoch {epoch + 1}/{num_epochs}: Loss = {loss.item()}")
+
+        # Evaluate the model on the dataset
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for inputs, labels in data_loader:
+                outputs = model(inputs)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels.argmax(dim=1)).sum().item()
+
+        print(f"Accuracy: {100 * correct / total:.2f}%")
+
+    def test_emplitude_embedding(self, num_epochs, batch_size):
+        """Test a pure quantum nn training using a synthetic dataset
+
+        Args:
+            num_epochs: number of epoches for training
+            batch_size: batch size for training
+
+        """
+        # Define the hyperparameters
+        num_inputs = 2
+        learning_rate = 0.01
+
+        # Generate the dataset
+        dataset = _generate_random_dataset(num_inputs, 100, one_hot=False)
+
+        # Create QNN
+        num_qubits = 1
+        weights = np.random.randn(num_qubits, num_qubits)
+        encoder_layer = AmplitudeEmbedding(np.random.random((2,)), num_qubits=num_qubits)
+        entangle_layer = BasicEntangleLayers(weights, num_qubits)
+        qnn = QuantumNeuralNetwork(num_qubits, [encoder_layer, entangle_layer])
+
+        # Create hybrid model
+        model = ModuleWrapper(qnn)
+
+        # Define the loss function and optimizer
+        criterion = nn.MSELoss()
+        optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+        # Create data loader
+        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+        # Train the model
+        for epoch in range(num_epochs):
+            for inputs, labels in data_loader:
+                # Forward pass
+                outputs = model(inputs)
+
+                # Compute the loss
+                loss = criterion(outputs, labels)
+
+                # Backward pass
+                optimizer.zero_grad()
+                loss.backward()
+
+                # Update the parameters
+                optimizer.step()
+
+            # Print the loss
+            print(f"Epoch {epoch + 1}/{num_epochs}: Loss = {loss.item()}")
+
+        # Evaluate the model on the dataset
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for inputs, labels in data_loader:
+                # Forward pass
+                outputs = model(inputs)
+                # Since outputs are 1D, use rounding to classify (assuming binary classification, 0 or 1)
+                predicted = (outputs > 0.5).int()  # Convert probabilities to binary predictions
+                total += labels.size(0)
+                correct += (predicted.squeeze() == labels.int()).sum().item()  # Compare predictions with labels
 
         print(f"Accuracy: {100 * correct / total:.2f}%")

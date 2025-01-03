@@ -35,10 +35,9 @@ from ..elements import (
     QuantumGate,
     QuantumPulse,
     Reset,
+    UnitaryChannel,
     UnitaryDecomposer,
     XYResonance,
-    KrausChannel, 
-    UnitaryChannel
 )
 from ..elements import element_gates as qeg
 from ..exceptions import CircuitError
@@ -175,9 +174,15 @@ class QuantumCircuit:
             self.add_gate(ins)
         self.instructions.append(ins)
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-arguments,too-many-positional-arguments
     def add_noise(
-        self, channel: str, channel_args, qubits: Union[None, List[int]] = None, gates: Union[None, List[str]] = None, checkgates=True):
+        self,
+        channel: str,
+        channel_args,
+        qubits: Union[None, List[int]] = None,
+        gates: Union[None, List[str]] = None,
+        checkgates=True,
+    ):
         if qubits is None:
             qubits = []
         if gates is None:
@@ -194,8 +199,7 @@ class QuantumCircuit:
         newgates = []
         for op in self.instructions:
             newinstructions.append(op)
-            if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel, 
-    UnitaryChannel)):
+            if isinstance(op, (QuantumGate, Delay, Barrier, XYResonance, KrausChannel, UnitaryChannel)):
                 newgates.append(op)
             if isinstance(op, QuantumGate):
                 add_q = False
@@ -274,7 +278,7 @@ class QuantumCircuit:
         self._variables = list(self.get_parameter_grads().keys())
         return self._variables
 
-    def _update_params(self, values, order: Union[None, List] = None):
+    def _update_params(self, values, order: Union[None, List] = None, tunable_only: bool = False):
         """
         Update variables' value, not variables
         Args:
@@ -288,7 +292,13 @@ class QuantumCircuit:
             raise CircuitError("The size of input values must be the same to the parameters")
         for i, v in enumerate(values):
             val = values[order[i]] if order else v
-            self._variables[i].value = val
+
+            if tunable_only:
+                if self._variables[i].tunable:
+                    # only update tunable parameters
+                    self._variables[i].value = val
+            else:
+                self._variables[i].value = val
 
     # TODO: delete after 0.4.1
     def update_params(self, paras_list: List[Any]):

@@ -45,7 +45,7 @@ requirements = parse_requirements("requirements.txt")
 
 setup(
     name="pyquafu",
-    version="0.4.3",
+    version="0.4.4",
     author="ssli",
     author_email="ssli@iphy.ac.cn",
     url="https://github.com/ScQ-Cloud/pyquafu",

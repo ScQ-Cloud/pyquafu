@@ -31,3 +31,6 @@ doc/pages
 # lsp
 .cache
 compile_commands.json
+
+# vim
+*.swp
