@@ -35,9 +35,12 @@ class ParamShift:
             estimator (Estimator): estimator to calculate expectation values
             params (List[float]): params to optimize
         """
-        if self._est._backend != "sim":
-            return self.grad(obs, params, cache_key=cache_key)
-        return self.new_grad(obs, params)
+        # if self._est._backend != "sim":
+        #     return self.grad(obs, params, cache_key=cache_key) # noqa: E800
+        # return self.new_grad(obs, params) # noqa: E800
+        # TODO: require additional effort to support new_grad because it does not use estimator
+        # and thus cannot construct circuit at runtime
+        return self.grad(obs, params, cache_key=cache_key)
 
     def _gen_param_shift_vals(self, params):
         """Given a param list with n values, replicate to 2*n param list"""

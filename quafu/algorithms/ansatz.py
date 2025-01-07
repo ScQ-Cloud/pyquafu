@@ -1,5 +1,3 @@
-# (C) Copyright 2023 Beijing Academy of Quantum Information Sciences
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,11 +15,12 @@ from typing import Any, List
 
 import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
-from quafu.elements import Parameter
+from quafu.elements import Parameter, QuantumGate
 from quafu.synthesis.evolution import ProductFormula
 
 from .hamiltonian import Hamiltonian
 from .interface_provider import InterfaceProvider
+from .templates.base_embedding import BaseEmebdding
 
 
 class Ansatz(QuantumCircuit, ABC):
@@ -141,6 +140,7 @@ class AlterLayeredAnsatz(Ansatz):
             self.ry(qubit, self._theta[self._layer, qubit])
 
 
+# pylint: disable=too-many-instance-attributes
 class QuantumNeuralNetwork(Ansatz):
     """A Wrapper of quantum circuit as QNN"""
 
@@ -154,7 +154,46 @@ class QuantumNeuralNetwork(Ansatz):
         self._weights = None
 
         self._backend = backend
+
+        self._num_tunable_params = 0
+
+        if isinstance(layers[0], QuantumGate):
+            self._legacy_if = True
+        else:
+            if isinstance(layers[0], BaseEmebdding):
+                self._legacy_if = False
+            else:
+                raise TypeError(f"expect the first layer to be an embedding layer, but get a {type(layers[0])}")
         super().__init__(num_qubits)
+
+    def _reset_circ(self):
+        self.gates = []
+        self.instructions = []
+        self._variables = []
+        self._parameter_grads = {}
+
+    def is_legacy_if(self) -> bool:
+        return self._legacy_if
+
+    def reconstruct(self, inputs):
+        """
+        Args:
+            inputs (List[float]): inputs to the qnn
+
+        Notes:
+            Before v0.4.3, only <list of gates> can be passed as `layers` to QuantumNeuralNetwork
+            thus circuit structure is statically determined at creation time.
+            However, we should allow circuit structure to be dynamically determined at runtime to
+            accommodate embedding methods other than angle embedding
+            thus this api is used by estimator to construct circuit at runtime
+        """
+        self._reset_circ()
+        assert isinstance(self._layers[0], BaseEmebdding)
+        circ = self._layers[0](inputs, self.num)
+        for layer in self._layers[1:]:
+            circ += layer
+        self.add_gates(circ)
+        self.get_parameter_grads()
 
     def __call__(self, inputs):
         """Compute outputs of QNN given input features"""
@@ -166,7 +205,15 @@ class QuantumNeuralNetwork(Ansatz):
 
     def _build(self):
         """Essentially initialize weights using transformer"""
-        self.add_gates(self._layers)
+
+        if self.is_legacy_if():
+            self.add_gates(self._layers)
+        else:
+            circ = self._layers[0]
+            if len(self._layers) > 1:
+                for layer in self._layers[1:]:
+                    circ += layer
+            self.add_gates(circ)
 
         self._weights = self._transformer.init_weights((1, self.num_tunable_parameters))
 
@@ -176,10 +223,19 @@ class QuantumNeuralNetwork(Ansatz):
 
     @property
     def num_tunable_parameters(self):
-        num_tunable_params = 0
-        for g in self.gates:
-            paras = g.paras
-            for p in paras:
-                if hasattr(p, "tunable") and p.tunable:
-                    num_tunable_params += 1
-        return num_tunable_params
+        """
+        Return the number of tunable parameters
+
+        Notes:
+            We use _num_tunable_params to store the value not only for better efficiency but also
+            for correctness because when updating parameters using parameter shift, the parameters become
+            ParameterExpression and has no attribute `tunable`. So this value is only calculated at the first time
+            and we assume it will be changed later.
+        """
+        if not self._num_tunable_params:
+            for g in self.gates:
+                paras = g.paras
+                for p in paras:
+                    if hasattr(p, "tunable") and p.tunable:
+                        self._num_tunable_params += 1
+        return self._num_tunable_params

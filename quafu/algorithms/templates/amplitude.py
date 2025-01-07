@@ -16,10 +16,13 @@
 import numpy as np
 import quafu.elements.element_gates as qeg
 from quafu.elements import QuantumGate
+from quafu.elements.parameters import Parameter
+
+from .base_embedding import BaseEmebdding
 
 
-class AmplitudeEmbedding:
-    def __init__(self, state, num_qubits, pad_with=None, normalize=False):
+class AmplitudeEmbedding(BaseEmebdding):
+    def __init__(self, state, num_qubits, pad_with=None, normalize=True):
         """
         Args:
             state(np.array): The state to be embedded
@@ -131,6 +134,14 @@ class AmplitudeEmbedding:
                 if len(alpha_z_k) > 0:
                     gate_list.extend(_apply_uniform_rotation_dagger(qeg.RZGate, alpha_z_k, control, target))
 
+        idx = 0
+        for g in gate_list:
+            if g.paras is not None:
+                new_paras = []
+                for val in g.paras:
+                    p = Parameter(name=f"phi_{idx}", value=val, tunable=False)
+                    new_paras.append(p)
+                g.paras = new_paras
         return gate_list
 
 
