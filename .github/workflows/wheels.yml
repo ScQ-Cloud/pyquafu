@@ -1,6 +1,7 @@
 name: Build
 
 on:
+
   push:
     branches:
       - master
@@ -38,6 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+
       # Used to host cibuildwheel
       - uses: actions/setup-python@v3
         with:
@@ -66,3 +68,4 @@ jobs:
           draft: true
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
+
