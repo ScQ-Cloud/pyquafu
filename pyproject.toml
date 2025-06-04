@@ -36,12 +36,12 @@ cmake.build-type = "Release"
 wheel.packages = ["quafu"]
 wheel.license-files = ["LICENSE"]
 build.verbose = true
-# Select the editable mode to use. Can be "redirect" (default) or "inplace".
-editable.mode = "redirect"
+# Change from "redirect" to "inplace" to actually copy the built files to source directory
+editable.mode = "inplace"
 # Turn on verbose output for the editable mode rebuilds.
 editable.verbose = true
-# Rebuild the project when the package is imported.
-editable.rebuild = false
+# Enable automatic rebuilding for better development experience
+editable.rebuild = true
 
 
 [tool.scikit-build.cmake.define]
