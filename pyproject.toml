@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "pyquafu"
-version = "0.4.4"
+version = "0.5.0"
 description = "Python toolkit for Quafu-Cloud"
 readme = "README.md"
 requires-python = ">=3.8"
