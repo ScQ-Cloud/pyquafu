@@ -28,6 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest"]
+dev = ["pytest", "pre-commit"]
 
 [tool.scikit-build]
 wheel.install-dir = "quafu/simulators"
@@ -41,6 +42,8 @@ build-dir = "_skbuild"
 editable.mode = "redirect"
 editable.verbose = true
 editable.rebuild = false
+# Automatically install dev dependencies in editable mode
+editable.extras = ["dev"]
 
 
 [tool.scikit-build.cmake.define]

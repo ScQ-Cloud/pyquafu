@@ -19,6 +19,14 @@ You can install PyQuafu directly from PyPI:
 pip install pyquafu
 ```
 
+### Development Installation
+
+For development purposes, use the editable installation which automatically includes development dependencies (pytest, pre-commit):
+
+```bash
+pip install -e .
+```
+
 ### Build from Source
 
 Alternatively, you can build PyQuafu from the source:
