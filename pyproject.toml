@@ -36,7 +36,7 @@ dependencies = [
 test = ["pytest"]
 
 [tool.scikit-build]
-cmake.version = "3.14"
+cmake.version = ">=3.14"
 cmake.build-type = "Release"
 wheel.packages = ["quafu"]
 wheel.install-dir = {qfvm = "quafu/simulators/"}
