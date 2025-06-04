@@ -29,10 +29,10 @@ pip install .
 
 ### Development Installation
 
-For development purposes, use the editable installation which automatically includes development dependencies (pytest, pre-commit):
+For developers, it is recommended to use the editable installation below, which automatically includes development dependencies (`pytest`, `pre-commit`):
 
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 ```
 
 To run unit tests, you can use:

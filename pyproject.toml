@@ -27,7 +27,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest"]
 dev = ["pytest", "pre-commit"]
 
 [tool.scikit-build]
