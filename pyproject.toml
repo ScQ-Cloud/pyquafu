@@ -36,13 +36,12 @@ dependencies = [
 test = ["pytest"]
 
 [tool.scikit-build]
-cmake.minimum-version = "3.14"
+cmake.version = "3.14"
 cmake.build-type = "Release"
 wheel.packages = ["quafu"]
-cmake.install-dir = "quafu/simulators/"
+wheel.install-dir = {qfvm = "quafu/simulators/"}
 wheel.license-files = ["LICENSE"]
-package-data = {"quafu" = ["qfasm/*.inc"]}
-cmake.verbose = true
+build.verbose = true
 
 [tool.scikit-build.cmake.define]
 # Default values (can be overridden during install)
