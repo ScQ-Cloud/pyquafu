@@ -30,17 +30,17 @@ dependencies = [
 test = ["pytest"]
 
 [tool.scikit-build]
-wheel.install-dir = "quafu/simulators/"
+wheel.install-dir = "quafu/simulators"
 cmake.version = ">=3.14"
 cmake.build-type = "Release"
 wheel.packages = ["quafu"]
 wheel.license-files = ["LICENSE"]
 build.verbose = true
-# Change from "redirect" to "inplace" to actually copy the built files to source directory
+# Add build directory to contain CMake files
+build-dir = "_skbuild"
+# Keep inplace mode to ensure files are copied to source directory
 editable.mode = "inplace"
-# Turn on verbose output for the editable mode rebuilds.
 editable.verbose = true
-# Enable automatic rebuilding for better development experience
 editable.rebuild = false
 
 
