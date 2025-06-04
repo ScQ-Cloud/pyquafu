@@ -1,9 +1,5 @@
 [build-system]
-requires = [
-  "scikit-build-core>=0.5.0",
-  "pybind11>=2.10.3",
-  "cmake>=3.14",
-]
+requires = ["scikit-build-core>=0.5.0", "pybind11>=2.10.3", "cmake>=3.14"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -12,16 +8,14 @@ version = "0.4.4"
 description = "Python toolkit for Quafu-Cloud"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "Apache-2.0"}
-authors = [
-  {name = "ssli", email = "ssli@iphy.ac.cn"},
-]
-urls = {Homepage = "https://github.com/ScQ-Cloud/pyquafu"}
+license = { text = "Apache-2.0" }
+authors = [{ name = "ssli", email = "ssli@iphy.ac.cn" }]
+urls = { Homepage = "https://github.com/ScQ-Cloud/pyquafu" }
 
 dependencies = [
   "autograd>=1.6.2",
   "graphviz>=0.14.2",
-  "ipython>=8.14.0", 
+  "ipython>=8.14.0",
   "matplotlib>=3.5.2",
   "networkx>=2.6.3",
   "numpy>=1.20.3,<2.0.0",
@@ -36,12 +30,19 @@ dependencies = [
 test = ["pytest"]
 
 [tool.scikit-build]
+wheel.install-dir = "quafu/simulators/"
 cmake.version = ">=3.14"
 cmake.build-type = "Release"
 wheel.packages = ["quafu"]
-wheel.install-dir = {qfvm = "quafu/simulators/"}
 wheel.license-files = ["LICENSE"]
 build.verbose = true
+# Select the editable mode to use. Can be "redirect" (default) or "inplace".
+editable.mode = "redirect"
+# Turn on verbose output for the editable mode rebuilds.
+editable.verbose = true
+# Rebuild the project when the package is imported.
+editable.rebuild = false
+
 
 [tool.scikit-build.cmake.define]
 # Default values (can be overridden during install)
