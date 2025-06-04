@@ -38,8 +38,7 @@ wheel.license-files = ["LICENSE"]
 build.verbose = true
 # Add build directory to contain CMake files
 build-dir = "_skbuild"
-# Keep inplace mode to ensure files are copied to source directory
-editable.mode = "inplace"
+editable.mode = "redirect"
 editable.verbose = true
 editable.rebuild = false
 

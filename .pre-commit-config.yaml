@@ -19,15 +19,6 @@ repos:
     -   id: requirements-txt-fixer
     -   id: sort-simple-yaml
 
--   repo: https://gitee.com/mirrors_PyCQA/pylint
-    rev: v3.3.1
-    hooks:
-    -   id: pylint
-        name: pylint-strict
-        exclude: (.*_test\.py)$
-        args: [--score=n, --load-plugins=pylint_secure_coding_standard]
-        additional_dependencies: [pylint-secure-coding-standard, numpy, pytest, matplotlib, scipy, torch, requests, graphviz, tabulate, rich, sparse, autograd, ply]
-
 -   repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks.git
     rev: v2.14.0
     hooks:
@@ -37,12 +28,12 @@ repos:
     rev: v2.4.0
     hooks:
     -   id: pycln
-# -   repo: https://github.com/pre-commit/mirrors-clang-format
-#     rev: v15.0.7
-#     hooks:
-#     -   id: clang-format
-#         args: [-style=file]
-# Using this mirror lets us use mypyc-compiled black, which is about 2x faster
+  # -   repo: https://github.com/pre-commit/mirrors-clang-format
+  #     rev: v15.0.7
+  #     hooks:
+  #     -   id: clang-format
+  #         args: [-style=file]
+  # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
 -   repo: https://github.com/psf/black-pre-commit-mirror
     rev: 24.10.0
     hooks:
@@ -57,38 +48,38 @@ repos:
 -   repo: https://gitee.com/dnguyen/cmake-pre-commit-hooks-mirror
     rev: v1.5.3
     hooks:
-    # -   id: clang-format
-    #     require_serial: false
-    #     args: [-i]
-    #     files: .*\.(h|hpp|tpp|cpp|cc)$
-    #     additional_dependencies: [clang-format==14.*]
-    # -   id: cpplint
-    #     require_serial: false
-    #     args: [--quiet]
-    #     files: .*\.(h|hpp|tpp|cpp|cc)$
-    #     additional_dependencies: [cpplint]
+      # -   id: clang-format
+      #     require_serial: false
+      #     args: [-i]
+      #     files: .*\.(h|hpp|tpp|cpp|cc)$
+      #     additional_dependencies: [clang-format==14.*]
+      # -   id: cpplint
+      #     require_serial: false
+      #     args: [--quiet]
+      #     files: .*\.(h|hpp|tpp|cpp|cc)$
+      #     additional_dependencies: [cpplint]
     -   id: lizard
         require_serial: false
         files: .*\.(h|hpp|tpp|cpp|cc|py)$
         args: [-l, cpp, -l, python, -l, java, -C, '19', -L, '100', -x, '*/tests/*', -x, '*/test/*', -x, '*/third_party/*', -W.whitelizard.txt, -w]
         additional_dependencies: [lizard]
-  #     - id: clang-tidy
-  #       stages: [manual]
-  #       args: [-Bbuild, -B.pre-commit-build]
-  #       exclude: >-
-  #         (?x)^(
-  #           .*/kernel[0-9]+\.hpp|
-  #           .*third_party/.*|
-  #           .*\.cu
-  #         )$
+    #     - id: clang-tidy
+    #       stages: [manual]
+    #       args: [-Bbuild, -B.pre-commit-build]
+    #       exclude: >-
+    #         (?x)^(
+    #           .*/kernel[0-9]+\.hpp|
+    #           .*third_party/.*|
+    #           .*\.cu
+    #         )$
 
-# TODO: Ignore cpp file check.
-# -   repo: https://gitee.com/btcong/pre-commit-hooks
-#     rev: v1.3.5
-#     hooks:
-#     -   id: cppcheck
-#         files: .*\.(h|hpp|tpp|cpp|cc)$
-#         args: [--force, --enable=all, --error-exitcode=1, --inline-suppr, --std=c++14, --language=c++, --suppressions-list=.cppcheck.suppressions]
+  # TODO: Ignore cpp file check.
+  # -   repo: https://gitee.com/btcong/pre-commit-hooks
+  #     rev: v1.3.5
+  #     hooks:
+  #     -   id: cppcheck
+  #         files: .*\.(h|hpp|tpp|cpp|cc)$
+  #         args: [--force, --enable=all, --error-exitcode=1, --inline-suppr, --std=c++14, --language=c++, --suppressions-list=.cppcheck.suppressions]
 
 -   repo: https://gitee.com/mirrors/flake8
     rev: 5.0.4
