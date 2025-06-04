@@ -1,4 +1,5 @@
 # PyQuafu
+
 [![License](https://img.shields.io/github/license/ScQ-Cloud/pyquafu.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
 [![](https://github.com/ScQ-Cloud/pyquafu/actions/workflows/unittest.yml/badge.svg)](https://github.com/ScQ-Cloud/pyquafu/actions/workflows/unittest.yml)
 [![](https://img.shields.io/github/release/ScQ-Cloud/pyquafu.svg?style=popout-square)](https://github.com/ScQ-Cloud/pyquafu/releases)
@@ -23,8 +24,21 @@ pip install pyquafu
 Alternatively, you can build PyQuafu from the source:
 
 ```bash
-pip install -r requirements.txt
-python setup.py install
+pip install .
+```
+
+### Development Installation
+
+For developers, it is recommended to use the editable installation below, which automatically includes development dependencies (`pytest`, `pre-commit`):
+
+```bash
+pip install -e ".[dev]"
+```
+
+To run unit tests, you can use:
+
+```bash
+python -m pytest tests
 ```
 
 ### Graphviz Dependency
