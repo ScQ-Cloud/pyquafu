@@ -42,9 +42,7 @@ build-dir = "_skbuild"
 editable.mode = "redirect"
 editable.verbose = true
 editable.rebuild = false
-# Automatically install dev dependencies in editable mode
-editable.extras = ["dev"]
-
+# The editable.extras option is not supported by scikit-build-core
 
 [tool.scikit-build.cmake.define]
 # Default values (can be overridden during install)
