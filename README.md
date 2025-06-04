@@ -19,6 +19,14 @@ You can install PyQuafu directly from PyPI:
 pip install pyquafu
 ```
 
+### Build from Source
+
+Alternatively, you can build PyQuafu from the source:
+
+```bash
+pip install .
+```
+
 ### Development Installation
 
 For development purposes, use the editable installation which automatically includes development dependencies (pytest, pre-commit):
@@ -27,13 +35,10 @@ For development purposes, use the editable installation which automatically incl
 pip install -e .
 ```
 
-### Build from Source
-
-Alternatively, you can build PyQuafu from the source:
+To run unit tests, you can use:
 
 ```bash
-pip install -r requirements.txt
-python setup.py install
+python -m pytest tests
 ```
 
 ### Graphviz Dependency
