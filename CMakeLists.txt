@@ -129,4 +129,4 @@ if (USE_GPU)
 	endif()
 endif()
 
-install(TARGETS ${PROJECT_NAME} DESTINATION quafu/simulators)
+install(TARGETS ${PROJECT_NAME} DESTINATION .)
