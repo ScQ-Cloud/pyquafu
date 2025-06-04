@@ -1,38 +1,59 @@
 [build-system]
 requires = [
-  "setuptools>=42",
-  "pybind11>=2.9.2",
-  "cmake>=3.22",
-  "scikit-build>=0.15.0",
+  "scikit-build-core>=0.5.0",
+  "pybind11>=2.10.3",
+  "cmake>=3.14",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pyquafu"
+version = "0.4.4"
+description = "Python toolkit for Quafu-Cloud"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "Apache-2.0"}
+authors = [
+  {name = "ssli", email = "ssli@iphy.ac.cn"},
+]
+urls = {Homepage = "https://github.com/ScQ-Cloud/pyquafu"}
+
+dependencies = [
+  "autograd>=1.6.2",
+  "graphviz>=0.14.2",
+  "ipython>=8.14.0", 
+  "matplotlib>=3.5.2",
+  "networkx>=2.6.3",
+  "numpy>=1.20.3,<2.0.0",
+  "ply~=3.11",
+  "pybind11>=2.10.3",
+  "requests>=2.26.0",
+  "scipy>=1.8.1",
+  "sparse>=0.13.0",
 ]
 
-build-backend = "setuptools.build_meta"
+[project.optional-dependencies]
+test = ["pytest"]
 
-[tool.cibuildwheel.windows]
-archs = ["AMD64"]
+[tool.scikit-build]
+cmake.minimum-version = "3.14"
+cmake.build-type = "Release"
+wheel.packages = ["quafu"]
+cmake.install-dir = "quafu/simulators/"
+wheel.license-files = ["LICENSE"]
+package-data = {"quafu" = ["qfasm/*.inc"]}
+cmake.verbose = true
 
-
-[tool.cibuildwheel.linux]
-repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel} --plat manylinux2014_x86_64"
-archs = ["x86_64"]
-
-
-[tool.cibuildwheel.macos]
-environment = { MACOSX_DEPLOYMENT_TARGET = "13.6" }
-archs = ["x86_64", "arm64"]
-
-repair-wheel-command = [
-  "delocate-listdeps {wheel}",
-  "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} {wheel}",
-]
+[tool.scikit-build.cmake.define]
+# Default values (can be overridden during install)
+USE_GPU = "OFF"
+USE_CUQUANTUM = "OFF"
 
 [tool.black]
-
 line-length = 120
 skip-string-normalization = true
 
 [tool.pylint.format]
-
 max-line-length = 120
 
 [tool.pylint]
@@ -59,5 +80,19 @@ ignore = ["conftest.py", "doc/run.py", "doc/source/conf.py", "setup.py"]
 ignore-paths = ['examples', 'doc']
 
 [tool.isort]
-
 profile = "black"
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
+
+[tool.cibuildwheel.linux]
+repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel} --plat manylinux2014_x86_64"
+archs = ["x86_64"]
+
+[tool.cibuildwheel.macos]
+environment = { MACOSX_DEPLOYMENT_TARGET = "13.6" }
+archs = ["x86_64", "arm64"]
+repair-wheel-command = [
+  "delocate-listdeps {wheel}",
+  "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} {wheel}",
+]
