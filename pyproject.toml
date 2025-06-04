@@ -41,7 +41,7 @@ editable.mode = "inplace"
 # Turn on verbose output for the editable mode rebuilds.
 editable.verbose = true
 # Enable automatic rebuilding for better development experience
-editable.rebuild = true
+editable.rebuild = false
 
 
 [tool.scikit-build.cmake.define]
