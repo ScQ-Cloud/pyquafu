@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Brickwall circuit."""
+
 from numpy import random
 from quafu.circuits.quantum_circuit import QuantumCircuit
 

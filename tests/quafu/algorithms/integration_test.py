@@ -40,7 +40,9 @@ class TestQAOA:
 
         # Transform to binary string
         num_bit = len(correct_answers[0])
-        eval_answers = sorted([bin(eans)[2:].rjust(num_bit, "0") for eans in eval_answers])
+        eval_answers = sorted(
+            [bin(eans)[2:].rjust(num_bit, "0") for eans in eval_answers]
+        )
 
         assert eval_answers == sorted(correct_answers)
 
@@ -91,7 +93,9 @@ class TestQAOA:
         ansatz_multi = QAOAAnsatz(hamiltonian_multi, 5, num_layers=num_layers)
         ansatz_multi.draw_circuit()
 
-    @pytest.mark.skipif(sys.platform == "darwin", reason="Avoid error on MacOS arm arch.")
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_run(self):
         """
         A simple graph with 5 nodes and connected as below
@@ -105,7 +109,9 @@ class TestQAOA:
         num_layers = 2
         print("The test for ansatz.")
 
-        hamiltonian = Hamiltonian.from_pauli_list([("Z0 Z1", 1), ("Z0 Z2", 1), ("Z0 Z3", 1), ("Z0 Z4", 1)])
+        hamiltonian = Hamiltonian.from_pauli_list(
+            [("Z0 Z1", 1), ("Z0 Z2", 1), ("Z0 Z3", 1), ("Z0 Z4", 1)]
+        )
 
         ref_mat = np.load("tests/quafu/algorithms/data/qaoa_hamiltonian.npy")
         assert np.array_equal(ref_mat, hamiltonian.get_matrix(5).toarray())
@@ -128,7 +134,9 @@ class TestQAOA:
 
 
 class TestVQE:
-    @pytest.mark.skipif(sys.platform == "darwin", reason="Avoid error on MacOS arm arch.")
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_run(self):
         """A sample VQE algorithm"""
 

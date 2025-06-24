@@ -38,7 +38,9 @@ def rx(phi):
 
 
 def ry(phi):
-    return np.array([[np.cos(phi / 2), -np.sin(phi / 2)], [np.sin(phi / 2), np.cos(phi / 2)]])
+    return np.array(
+        [[np.cos(phi / 2), -np.sin(phi / 2)], [np.sin(phi / 2), np.cos(phi / 2)]]
+    )
 
 
 def tensorl(ml):

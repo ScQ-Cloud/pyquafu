@@ -66,7 +66,9 @@ class TestEstimator:
         circ.draw_circuit()
         measures = list(range(5))
         circ.measure(measures)
-        test_ising = Hamiltonian([PauliOp("Z0 Z1"), PauliOp("Z3 Z4"), PauliOp("Z2 Z3"), PauliOp("Z0 Z4")])
+        test_ising = Hamiltonian(
+            [PauliOp("Z0 Z1"), PauliOp("Z3 Z4"), PauliOp("Z2 Z3"), PauliOp("Z0 Z4")]
+        )
         return circ, test_ising
 
     @patch("quafu.users.userapi.User._load_account", autospec=True)
@@ -85,7 +87,9 @@ class TestEstimator:
         res_org, obsexp_org = task.submit(circ, test_ising.to_pauli_list())
         assert expectation == sum(obsexp_org)
 
-    @pytest.mark.skipif(sys.platform == "darwin", reason="Avoid error on MacOS arm arch.")
+    @pytest.mark.skipif(
+        sys.platform == "darwin", reason="Avoid error on MacOS arm arch."
+    )
     def test_run_sim(self):
         circ, test_ising = self.build_circuit()
         estimator = Estimator(circ)

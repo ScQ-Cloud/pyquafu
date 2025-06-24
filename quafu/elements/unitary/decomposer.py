@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Unitary decomposer module."""
+
 import cmath
 import math
 import re
@@ -33,7 +34,9 @@ class UnitaryDecomposer:
         self.qubits = qubits
         self.verbose = verbose
 
-        self.Mk_table = genMk_table(self.qubit_num)  # initialize the general M^k lookup table
+        self.Mk_table = genMk_table(
+            self.qubit_num
+        )  # initialize the general M^k lookup table
         self.gate_list = []
 
     def __call__(self, *args, **kwargs):
@@ -64,11 +67,15 @@ class UnitaryDecomposer:
         if mu.is_zero(U01) and mu.is_zero(U10):
             if mu.is_approx(U00, U11):
                 if self.verbose:
-                    print("Optimization: Unitaries are equal, skip one step in the recursion for unitaries of size")
+                    print(
+                        "Optimization: Unitaries are equal, skip one step in the recursion for unitaries of size"
+                    )
                 self._decompose_matrix(U00, qubits[1:])
             else:
                 if self.verbose:
-                    print("Optimization: q2 is zero, only demultiplexing will be performed.")
+                    print(
+                        "Optimization: q2 is zero, only demultiplexing will be performed."
+                    )
                 V, D, W = demultiplexing(U00, U11)
                 self._decompose_matrix(W, qubits[1:])
                 self.multi_controlled_z(D, qubits[1:], qubits[0])

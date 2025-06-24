@@ -93,7 +93,12 @@ class QuantumGate(Instruction):
         properties_values = [getattr(self, x) for x in properties_names]
         return "%s:\n%s" % (
             self.__class__.__name__,
-            "\n".join([f"{x} = {repr(properties_values[i])}" for i, x in enumerate(properties_names)]),
+            "\n".join(
+                [
+                    f"{x} = {repr(properties_values[i])}"
+                    for i, x in enumerate(properties_names)
+                ]
+            ),
         )
 
     def __repr__(self):
@@ -190,9 +195,9 @@ class QuantumGate(Instruction):
         qstr = f"{self.name.lower()}"
         if self.paras:
             if with_para:
-                qstr += f"({','.join([f'{handle_expression(para)}'  for para in self.paras])})"
+                qstr += f"({','.join([f'{handle_expression(para)}' for para in self.paras])})"
             else:
-                qstr += f"({','.join([f'{para}'  for para in self._paras])})"
+                qstr += f"({','.join([f'{para}' for para in self._paras])})"
         qstr += " "
         qstr += ",".join([f"q[{p}]" for p in self.pos])
         return qstr
@@ -245,9 +250,11 @@ class QuantumGate(Instruction):
         name = self.name + f"^{n}"
         raw_matrix = self._raw_matrix
         if isinstance(self._raw_matrix, Callable):
-            raw_matrix = lambda paras: np.linalg.matrix_power(  # pylint: disable=unnecessary-lambda-assignment
-                self._raw_matrix(paras), n
-            )
+
+            def raw_matrix_func(paras):
+                return np.linalg.matrix_power(self._raw_matrix(paras), n)
+
+            raw_matrix = raw_matrix_func
         else:
             raw_matrix = np.linalg.matrix_power(self._raw_matrix, n)
         return QuantumGate(name, self.pos, self.paras, raw_matrix)
@@ -266,7 +273,11 @@ class QuantumGate(Instruction):
         name = self.name + "^†"
         raw_matrix = self._raw_matrix
         if isinstance(self._raw_matrix, Callable):
-            raw_matrix = lambda paras: self._raw_matrix(paras).conj().T  # pylint: disable=unnecessary-lambda-assignment
+
+            def raw_matrix_func(paras):
+                return self._raw_matrix(paras).conj().T
+
+            raw_matrix = raw_matrix_func
         else:
             raw_matrix = raw_matrix.conj().T
         return QuantumGate(name, self.pos, self.paras, raw_matrix)
@@ -368,9 +379,11 @@ class ControlledGate(QuantumGate):
         name = self.name + f"^{n}"
         targ_matrix = self._targ_matrix
         if isinstance(self._targ_matrix, Callable):
-            targ_matrix = lambda paras: np.linalg.matrix_power(  # pylint: disable=unnecessary-lambda-assignment
-                self._targ_matrix(paras), n
-            )
+
+            def targ_matrix_func(paras):
+                return np.linalg.matrix_power(self._targ_matrix(paras), n)
+
+            targ_matrix = targ_matrix_func
         else:
             targ_matrix = np.linalg.matrix_power(self._targ_matrix, n)
         return ControlledGate(
@@ -397,9 +410,11 @@ class ControlledGate(QuantumGate):
         name = self.name + "^†"
         targ_matrix = self._targ_matrix
         if isinstance(self._targ_matrix, Callable):
-            targ_matrix = (
-                lambda paras: self._targ_matrix(paras).conj().T  # pylint: disable=unnecessary-lambda-assignment
-            )
+
+            def targ_matrix_func(paras):
+                return self._targ_matrix(paras).conj().T
+
+            targ_matrix = targ_matrix_func
         else:
             targ_matrix = targ_matrix.conj().T
 
@@ -451,7 +466,9 @@ class ControlledU(ControlledGate):
     def __init__(self, name, ctrls: List[int], U: QuantumGate):
         self.targ_gate = U
         targs = U.pos
-        super().__init__(name, U.name, ctrls, targs, U.paras, targ_matrix=self.targ_gate._raw_matrix)
+        super().__init__(
+            name, U.name, ctrls, targs, U.paras, targ_matrix=self.targ_gate._raw_matrix
+        )
 
 
 class CircuitWrapper(QuantumGate):
@@ -498,7 +515,6 @@ class CircuitWrapper(QuantumGate):
 
 
 class ControlledCircuitWrapper(CircuitWrapper):
-
     # pylint: disable=super-init-not-called
     def __init__(self, name: str, circwrp: CircuitWrapper, ctrls: List[int]):
         self.name = name

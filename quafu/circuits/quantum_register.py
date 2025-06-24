@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Quantum register module."""
+
 from collections import OrderedDict
 
 
@@ -58,7 +59,9 @@ class QuantumRegister:
 
     def __init__(self, num: int = 0, name: str = None):
         self.name = name
-        self.qubits = OrderedDict({i: Qubit(logic_pos=i, reg_name=name) for i in range(num)})
+        self.qubits = OrderedDict(
+            {i: Qubit(logic_pos=i, reg_name=name) for i in range(num)}
+        )
 
     def __getitem__(self, item):
         if item < len(self.qubits):

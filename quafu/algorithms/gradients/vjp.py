@@ -94,7 +94,10 @@ def jacobian(
         # Same circuit, i.e., measurement results with the same parameters may be reused
         cache_key_prefix = str(i)
         grad_list = [
-            np.array(calc_grad(obs, params_input[i, :].tolist(), cache_key=cache_key_prefix)) for obs in obs_list
+            np.array(
+                calc_grad(obs, params_input[i, :].tolist(), cache_key=cache_key_prefix)
+            )
+            for obs in obs_list
         ]
         output[i, :, :] = np.stack(grad_list)
     estimator.clear_cache()

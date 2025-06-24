@@ -22,7 +22,9 @@ class NoisySimuTest:
         q = QuantumCircuit(5)
         q << HGate(0)
         q << CXGate(0, 1) << CXGate(1, 2) << CXGate(2, 3) << CXGate(3, 4)
-        q.add_noise("depolarizing", channel_args=(0.02,), gates=["cx"], qubits=[0, 2, 3])
+        q.add_noise(
+            "depolarizing", channel_args=(0.02,), gates=["cx"], qubits=[0, 2, 3]
+        )
         q.measure([0, 4])
         q.draw_circuit()
         simulator = NoiseSVSimulator()

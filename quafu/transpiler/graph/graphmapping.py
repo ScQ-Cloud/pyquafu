@@ -94,7 +94,9 @@ def initial_layout_fidelity(circuit, coupling):
 
     while g1_dict:
         max_g1_d = max(g1_dict.keys())
-        if max_g1_d == 0:  # The node degree is 0, which means that there is no two-qubit gate for this qubit
+        if (
+            max_g1_d == 0
+        ):  # The node degree is 0, which means that there is no two-qubit gate for this qubit
             remaining_node = g1_dict[max_g1_d]
             remaining_qubit = [i for k, v in g2_dict.items() for i in v]
             for i, j in enumerate(remaining_node):
@@ -125,11 +127,15 @@ def initial_layout_fidelity(circuit, coupling):
                 g2_dict[max_g2_d].remove(best_node)
 
             g1_dict.pop(max_g1_d)
-        elif len(g1_dict[max_g1_d]) > 1:  # When the node degrees are the same, compare the edge weights.
+        elif (
+            len(g1_dict[max_g1_d]) > 1
+        ):  # When the node degrees are the same, compare the edge weights.
             max_g1_weight = 0
             best_g1_node = 0
             for node in g1_dict[max_g1_d]:
-                edge = list(max(g1.edges(node), key=lambda e: g1.get_edge_data(*e)["weight"]))
+                edge = list(
+                    max(g1.edges(node), key=lambda e: g1.get_edge_data(*e)["weight"])
+                )
                 weight = g1.get_edge_data(edge[0], edge[1])["weight"]
                 if weight > max_g1_weight:
                     max_g1_weight = weight

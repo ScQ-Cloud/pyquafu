@@ -123,7 +123,9 @@ class TestLayers:
         """Test one forward pass and gradient calculation of a model"""
 
         # TODO(zhaoyilun): Make out dimension configurable
-        features = torch.randn(batch_size, 2, requires_grad=True, dtype=torch.double)  # batch_size=4, num_params=3
+        features = torch.randn(
+            batch_size, 2, requires_grad=True, dtype=torch.double
+        )  # batch_size=4, num_params=3
         outputs = model(features)
         targets = torch.randn(batch_size, 2, dtype=torch.double)
         criterion = nn.MSELoss()
@@ -143,7 +145,9 @@ class TestLayers:
     def test_torch_layer_standard_circuit(self):
         batch_size = 1
         model = ModelStandardCircuit(self.circ)
-        features = torch.randn(batch_size, 3, requires_grad=True, dtype=torch.double)  # batch_size=4, num_params=3
+        features = torch.randn(
+            batch_size, 3, requires_grad=True, dtype=torch.double
+        )  # batch_size=4, num_params=3
         outputs = model(features)
         targets = torch.randn(batch_size, 2, dtype=torch.double)
         criterion = nn.MSELoss()
@@ -186,7 +190,9 @@ class TestLayers:
         qlayer = ModuleWrapper(qnn)
         params = qlayer.parameters()
 
-        assert np.allclose(qlayer.weights.detach().numpy(), params.__next__().detach().numpy())
+        assert np.allclose(
+            qlayer.weights.detach().numpy(), params.__next__().detach().numpy()
+        )
 
     def test_classify_random_dataset_quantum(self, num_epochs, batch_size):
         """Test a pure quantum nn training using a synthetic dataset
@@ -401,7 +407,9 @@ class TestLayers:
         # Create QNN
         num_qubits = 1
         weights = np.random.randn(num_qubits, num_qubits)
-        encoder_layer = AmplitudeEmbedding(np.random.random((2,)), num_qubits=num_qubits)
+        encoder_layer = AmplitudeEmbedding(
+            np.random.random((2,)), num_qubits=num_qubits
+        )
         entangle_layer = BasicEntangleLayers(weights, num_qubits)
         qnn = QuantumNeuralNetwork(num_qubits, [encoder_layer, entangle_layer])
 
@@ -442,8 +450,12 @@ class TestLayers:
                 # Forward pass
                 outputs = model(inputs)
                 # Since outputs are 1D, use rounding to classify (assuming binary classification, 0 or 1)
-                predicted = (outputs > 0.5).int()  # Convert probabilities to binary predictions
+                predicted = (
+                    outputs > 0.5
+                ).int()  # Convert probabilities to binary predictions
                 total += labels.size(0)
-                correct += (predicted.squeeze() == labels.int()).sum().item()  # Compare predictions with labels
+                correct += (
+                    (predicted.squeeze() == labels.int()).sum().item()
+                )  # Compare predictions with labels
 
         print(f"Accuracy: {100 * correct / total:.2f}%")

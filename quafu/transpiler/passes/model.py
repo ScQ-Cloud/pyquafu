@@ -27,7 +27,9 @@ class Model:
         _layout (List[int]): Layout of the quantum system.
     """
 
-    def __init__(self, backend: Backend, layout: Dict = None, datadict: DataDict = None):
+    def __init__(
+        self, backend: Backend, layout: Dict = None, datadict: DataDict = None
+    ):
         self._backend = backend
         self._layout = {"initial_layout": None, "final_layout": None}
         self.set_layout(layout)

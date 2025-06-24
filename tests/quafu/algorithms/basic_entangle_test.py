@@ -24,5 +24,7 @@ class TestBasicEntangleLayers:
         num_qubits = 3
         qc = QuantumCircuit(num_qubits)
         weights = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.7, 0.8, 0.9]])
-        qc.add_gates(BasicEntangleLayers(weights=weights, num_qubits=num_qubits, rotation="Y"))
+        qc.add_gates(
+            BasicEntangleLayers(weights=weights, num_qubits=num_qubits, rotation="Y")
+        )
         qc.draw_circuit(width=num_qubits)

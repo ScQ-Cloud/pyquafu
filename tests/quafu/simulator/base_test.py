@@ -17,7 +17,9 @@
 class BaseTest:
     """Test simulator of quafu."""
 
-    def assert_dict_almost_equal(self, dict1, dict2, delta=None, places=None, default_value=-1):
+    def assert_dict_almost_equal(
+        self, dict1, dict2, delta=None, places=None, default_value=-1
+    ):
         """
         Assert two dictionaries with numeric values with a threshold.
 

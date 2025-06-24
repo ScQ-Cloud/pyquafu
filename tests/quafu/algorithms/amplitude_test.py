@@ -23,12 +23,18 @@ class TestAmplitudeEmbedding:
         num_qubits = 2
         qc = QuantumCircuit(num_qubits)
         state = np.array([6, -12.5, 11.15, 7])
-        qc.add_gates(AmplitudeEmbedding(state=state, num_qubits=num_qubits, normalize=True))
+        qc.add_gates(
+            AmplitudeEmbedding(state=state, num_qubits=num_qubits, normalize=True)
+        )
         qc.draw_circuit(width=num_qubits)
 
     def test_build_pad(self):
         num_qubits = 2
         qc = QuantumCircuit(num_qubits)
         state = np.array([6, -12.5, 11.15])
-        qc.add_gates(AmplitudeEmbedding(state=state, num_qubits=num_qubits, pad_with=7, normalize=True))
+        qc.add_gates(
+            AmplitudeEmbedding(
+                state=state, num_qubits=num_qubits, pad_with=7, normalize=True
+            )
+        )
         qc.draw_circuit(width=num_qubits)

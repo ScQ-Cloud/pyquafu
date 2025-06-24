@@ -68,4 +68,3 @@ jobs:
           draft: true
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
-

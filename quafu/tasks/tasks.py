@@ -54,8 +54,12 @@ class Task:
         self.submit_history = {}
         self._available_backends = {}
         if self.user.backend_type == "quafu":
-            self._available_backends = self.user.get_available_backends(print_info=False)
-            self.backend = self._available_backends[list(self._available_backends.keys())[0]]
+            self._available_backends = self.user.get_available_backends(
+                print_info=False
+            )
+            self.backend = self._available_backends[
+                list(self._available_backends.keys())[0]
+            ]
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments
     def config(
@@ -106,7 +110,9 @@ class Task:
         """
         return self.backend.get_chip_info(self.user)
 
-    def submit(self, qc: QuantumCircuit, obslist: Union[None, List] = None) -> Tuple[List[ExecResult], List[int]]:
+    def submit(
+        self, qc: QuantumCircuit, obslist: Union[None, List] = None
+    ) -> Tuple[List[ExecResult], List[int]]:
         """
         Execute the circuit with observable expectation measurement task.
         Args:
@@ -139,7 +145,9 @@ class Task:
         for obs in obslist:
             for p in obs[1]:
                 if p not in measures:
-                    raise CircuitError(f"Qubit {p} in observer {obs[0]} is not measured.")
+                    raise CircuitError(
+                        f"Qubit {p} in observer {obs[0]} is not measured."
+                    )
 
         measure_basis, targlist = merge_measure(obslist)
         print("Job start, need measured in ", measure_basis)
@@ -197,7 +205,9 @@ class Task:
         url = User.url + User.exec_api
         return ClientWrapper.post(url, headers=headers, json=data)
 
-    def send(self, qc: QuantumCircuit, name: str = "", group: str = "", wait: bool = False) -> ExecResult:
+    def send(
+        self, qc: QuantumCircuit, name: str = "", group: str = "", wait: bool = False
+    ) -> ExecResult:
         """
         Run the circuit on experimental device.
 
@@ -299,7 +309,9 @@ class Task:
         res_dict = response.json()
         return ExecResult(res_dict)
 
-    def retrieve_group(self, group: str, history: Dict = None, verbose: bool = True) -> List[ExecResult]:
+    def retrieve_group(
+        self, group: str, history: Dict = None, verbose: bool = True
+    ) -> List[ExecResult]:
         """
         Retrieve the results of submited task by group name.
 
@@ -319,7 +331,11 @@ class Task:
         if verbose:
             group = group if group else "Untitled group"
             print("Group: ", group)
-            print((" " * 5).join(["task_id".ljust(16), "task_name".ljust(10), "status".ljust(10)]))
+            print(
+                (" " * 5).join(
+                    ["task_id".ljust(16), "task_name".ljust(10), "status".ljust(10)]
+                )
+            )
         for taskid in taskids:
             res = self.retrieve(taskid)
             taskname = res.taskname
@@ -349,7 +365,9 @@ class Task:
             valid_gates = self.backend.get_valid_gates()
             for gate in qc.gates:
                 if gate.name.lower() not in valid_gates:
-                    raise CircuitError(f"Invalid operations '{gate.name}' for backend '{self.backend.name}'")
+                    raise CircuitError(
+                        f"Invalid operations '{gate.name}' for backend '{self.backend.name}'"
+                    )
 
         else:
             # TODO: use system_id for ScQ-S41
@@ -358,4 +376,6 @@ class Task:
             if self.backend.system_id == 2:  # ScQ-P136
                 for gate in qc.gates:
                     if gate.name.lower() in ["xy"]:
-                        raise CircuitError(f"Invalid operations '{gate.name}' for backend '{self.backend.name}'")
+                        raise CircuitError(
+                            f"Invalid operations '{gate.name}' for backend '{self.backend.name}'"
+                        )

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """QFASM Utilities Module."""
+
 import quafu.elements.element_gates as qeg
 
 from ..elements import Barrier, Delay, Measure, XYResonance
@@ -43,7 +44,6 @@ class UnaryExpr(Node):
 
 # pylint: disable=too-few-public-methods
 class BinaryExpr(Node):
-
     def __init__(self, type, left, right):  # noqa: A002  # pylint: disable=redefined-builtin
         super().__init__()
         self.type = type
@@ -95,7 +95,6 @@ class IfInstruction:
 
 # pylint: disable=too-few-public-methods,too-many-instance-attributes
 class SymtabNode(Node):
-
     def __init__(self, type, node, is_global=True, is_qubit=False):  # noqa: A002 # pylint: disable=redefined-builtin
         super().__init__()
         # qreg creg gate arg qarg

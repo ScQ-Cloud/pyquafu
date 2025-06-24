@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Optimizer."""
+
 import numpy as np
 
 
@@ -36,7 +37,9 @@ def adam(
 
     traj = []
     if verbose:
-        print((" " * 5).join(["step".ljust(10), "loss".ljust(10), "grad_norm".ljust(10)]))
+        print(
+            (" " * 5).join(["step".ljust(10), "loss".ljust(10), "grad_norm".ljust(10)])
+        )
 
     grads_norm = 0.0
     for j in range(maxiter):
@@ -104,7 +107,9 @@ def spsa(
     A: <=10% of max_iter"""
     traj = [func(x, *args)]
     if verbose:
-        print((" " * 5).join(["step".ljust(10), "loss".ljust(10), "grad_norm".ljust(10)]))
+        print(
+            (" " * 5).join(["step".ljust(10), "loss".ljust(10), "grad_norm".ljust(10)])
+        )
 
     grads_norm = 0.0
     for k in range(max_iter):

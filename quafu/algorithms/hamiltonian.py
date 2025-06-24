@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Hamiltonian module."""
+
 from typing import Iterable
 
 import numpy as np
@@ -177,8 +178,13 @@ def merge_paulis(obslist):
                 interset, intobsi, intbasei = intersec(obs.pos, measure_base.pos)
                 diffset, diffobsi = diff(obs.pos, measure_base.pos)
                 if len(interset) != 0:
-                    if all(np.array(list(obs.paulistr))[intobsi] == np.array(list(measure_base.paulistr))[intbasei]):
-                        measure_base.paulistr += "".join(np.array(list(obs.paulistr))[diffobsi])
+                    if all(
+                        np.array(list(obs.paulistr))[intobsi]
+                        == np.array(list(measure_base.paulistr))[intbasei]
+                    ):
+                        measure_base.paulistr += "".join(
+                            np.array(list(obs.paulistr))[diffobsi]
+                        )
                         measure_base.pos.extend(diffset)
                         targ_basis.append(mi)
                         added = 1

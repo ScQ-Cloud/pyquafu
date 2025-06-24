@@ -20,7 +20,9 @@ from quafu import simulate
 
 
 class BaseTest:
-    def assert_dict_almost_equal(self, dict1, dict2, delta=None, places=None, default_value=-1):
+    def assert_dict_almost_equal(
+        self, dict1, dict2, delta=None, places=None, default_value=-1
+    ):
         """
         Assert two dictionaries with numeric values are almost equal.
 

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Instruction Node."""
+
 import dataclasses
 from typing import Any, Dict, List, Union
 
@@ -60,7 +61,7 @@ class InstructionNode:
     def __str__(self):
         if self.name == "measure":
             args = ",".join(str(q) for q in self.pos.keys())
-            args += f'=>{",".join(str(c) for c in self.pos.values())}'
+            args += f"=>{','.join(str(c) for c in self.pos.values())}"
         else:
             args = ",".join(str(q) for q in self.pos)
 

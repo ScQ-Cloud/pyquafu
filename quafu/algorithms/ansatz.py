@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Ansatz circuits for VQA."""
+
 from abc import ABC, abstractmethod
 from typing import Any, List
 
@@ -51,7 +52,9 @@ class QAOAAnsatz(Ansatz):
 
         # Initialize parameters
         self._beta = np.array([Parameter(f"beta_{i}", 0.0) for i in range(num_layers)])
-        self._gamma = np.array([Parameter(f"gamma_{i}", 0.0) for i in range(num_layers)])
+        self._gamma = np.array(
+            [Parameter(f"gamma_{i}", 0.0) for i in range(num_layers)]
+        )
 
         # Build circuit structure
         super().__init__(num_qubits)
@@ -120,7 +123,9 @@ class AlterLayeredAnsatz(Ansatz):
             layer: Number of layers.
         """
         self._layer = layer
-        self._theta = np.array([Parameter(f"theta_{i}", 0.0) for i in range((layer + 1) * num_qubits)])
+        self._theta = np.array(
+            [Parameter(f"theta_{i}", 0.0) for i in range((layer + 1) * num_qubits)]
+        )
         self._theta = np.reshape(self._theta, (layer + 1, num_qubits))
         super().__init__(num_qubits)
 
@@ -145,7 +150,9 @@ class QuantumNeuralNetwork(Ansatz):
     """A Wrapper of quantum circuit as QNN"""
 
     # TODO(zhaoyilun): docs
-    def __init__(self, num_qubits: int, layers: List[Any], interface="torch", backend="sim"):
+    def __init__(
+        self, num_qubits: int, layers: List[Any], interface="torch", backend="sim"
+    ):
         """"""
         # Get transformer according to specified interface
         self._transformer = InterfaceProvider.get(interface)
@@ -163,7 +170,9 @@ class QuantumNeuralNetwork(Ansatz):
             if isinstance(layers[0], BaseEmebdding):
                 self._legacy_if = False
             else:
-                raise TypeError(f"expect the first layer to be an embedding layer, but get a {type(layers[0])}")
+                raise TypeError(
+                    f"expect the first layer to be an embedding layer, but get a {type(layers[0])}"
+                )
         super().__init__(num_qubits)
 
     def _reset_circ(self):

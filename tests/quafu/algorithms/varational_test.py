@@ -128,7 +128,6 @@ class TestVariational:
 
     @pytest.mark.skip("Cannot reproduce stably due to randomness")
     def test_vqe(self):
-
         n = 5
         d = 6
         g = 0.5
@@ -147,7 +146,7 @@ class TestVariational:
                 pq << CXGate(i, (i + 1) % n)
 
         pq.get_parameter_grads()
-        ising_terms = [PauliOp(f"Z{j} Z{j+1}", -1.0) for j in range(n - 1)]
+        ising_terms = [PauliOp(f"Z{j} Z{j + 1}", -1.0) for j in range(n - 1)]
         ising_terms.extend([PauliOp(f"X{j}", g) for j in range(n)])
         hamil = Hamiltonian(ising_terms)
         h_mat = hamil.get_matrix(n)
@@ -175,7 +174,9 @@ class TestVariational:
 
         from quafu.algorithms.optimizer import adam
 
-        sol, f, traj = adam(cost, x0, grad, (pq, hamil, backend), verbose=True, maxiter=300)
+        sol, f, traj = adam(
+            cost, x0, grad, (pq, hamil, backend), verbose=True, maxiter=300
+        )
         print(f)
         assert abs(f - exact) < 0.01
         import matplotlib.pyplot as plt
@@ -187,7 +188,6 @@ class TestVariational:
 
     @pytest.mark.skip("Cannot reproduce stably due to randomness")
     def test_vqe_with_wrap(self):
-
         n = 5
         d = 6
         g = 0.5
@@ -204,7 +204,12 @@ class TestVariational:
         def u3_layer(thetas):
             _u3_layer = QuantumCircuit(n, name="linear-layer")
             for i in range(n):
-                (_u3_layer << RZGate(i, thetas[i, 0]) << RYGate(i, thetas[i, 1]) << RZGate(i, thetas[i, 2]))
+                (
+                    _u3_layer
+                    << RZGate(i, thetas[i, 0])
+                    << RYGate(i, thetas[i, 1])
+                    << RZGate(i, thetas[i, 2])
+                )
 
             return _u3_layer.wrap()
 
@@ -215,7 +220,7 @@ class TestVariational:
         pq.draw_circuit()
         pq.get_parameter_grads()
         pq.draw_circuit()
-        ising_terms = [PauliOp(f"Z{j} Z{j+1}", -1.0) for j in range(n - 1)]
+        ising_terms = [PauliOp(f"Z{j} Z{j + 1}", -1.0) for j in range(n - 1)]
         ising_terms.extend([PauliOp(f"X{j}", g) for j in range(n)])
         hamil = Hamiltonian(ising_terms)
         h_mat = hamil.get_matrix(n)
@@ -243,7 +248,9 @@ class TestVariational:
 
         from quafu.algorithms.optimizer import adam
 
-        sol, f, traj = adam(cost, x0, grad, (pq, hamil, backend), verbose=True, maxiter=300)
+        sol, f, traj = adam(
+            cost, x0, grad, (pq, hamil, backend), verbose=True, maxiter=300
+        )
 
         assert abs(f - exact) < 0.1
         import matplotlib.pyplot as plt

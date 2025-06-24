@@ -39,7 +39,7 @@ class Instruction {
         return !(name_ == "empty");
     }
 
-    
+
     // interface
     virtual vector<double> paras() const {
         return {};
