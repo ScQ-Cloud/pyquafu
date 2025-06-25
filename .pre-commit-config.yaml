@@ -19,6 +19,7 @@ repos:
       - id: requirements-txt-fixer
       - id: sort-simple-yaml
 
+
   - repo: https://gitee.com/dnguyen/cmake-pre-commit-hooks-mirror
     rev: v1.5.3
     hooks:
@@ -34,8 +35,10 @@ repos:
       #     additional_dependencies: [cpplint]
       - id: lizard
         require_serial: false
+
         # files: .*\.(h|hpp|tpp|cpp|cc|py)$
         files: .*\.(h|hpp|tpp|cpp|cc)$
+
         args:
           [
             -l,
