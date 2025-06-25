@@ -149,7 +149,9 @@ class CircuitPlotManager:
 
         # step2: initialize bit-label
         self.q_label = {y: r"$|q_{%d}\rangle$" % i for i, y in self.used_qbit_y.items()}
-        self.c_label = {self.used_qbit_y[iq]: r"c_{%d}" % ic for iq, ic in qc.measures.items()}
+        self.c_label = {
+            self.used_qbit_y[iq]: r"c_{%d}" % ic for iq, ic in qc.measures.items()
+        }
 
         # step3: figure coordination
         self.xs = np.arange(-3 / 2, self.depth + 3 / 2)
@@ -214,7 +216,9 @@ class CircuitPlotManager:
     def _process_ins(self, ins: Instruction, append: bool = True):
         name = ins.name.lower()
         if name not in Instruction.ins_classes:
-            raise ValueError(f"Name: {name} not registered, if this should occur, please report a bug.")
+            raise ValueError(
+                f"Name: {name} not registered, if this should occur, please report a bug."
+            )
 
         _which = slice(np.min(ins.pos), np.max(ins.pos) + 1)
         depth = np.max(self.dorders[_which])
@@ -240,7 +244,8 @@ class CircuitPlotManager:
             self._delay(depth, ins.pos, ins.duration, ins.unit)
         else:
             raise NotImplementedError(
-                f"Gate {name} is not supported yet.\n" f"If this should occur, please report a bug."
+                f"Gate {name} is not supported yet.\n"
+                f"If this should occur, please report a bug."
             )
         if append:
             self.dorders[_which] = depth + 1
@@ -584,7 +589,9 @@ class CircuitPlotManager:
         # iswap-cirlces
         i_circles = []
         for x, y in self._iswap_points:
-            circle = Circle((x, y), radius=2 ** (1 / 2) * r, lw=3, ec="#3B82F6", fill=False)
+            circle = Circle(
+                (x, y), radius=2 ** (1 / 2) * r, lw=3, ec="#3B82F6", fill=False
+            )
             i_circles.append(circle)
         collection = PatchCollection(
             i_circles,
@@ -595,7 +602,9 @@ class CircuitPlotManager:
 
     def _render_measure(self):
         stroke = pe.withStroke(linewidth=4, foreground="white")
-        arcs = PatchCollection(self._mea_arc_patches, match_original=True, capstyle="round", zorder=4)
+        arcs = PatchCollection(
+            self._mea_arc_patches, match_original=True, capstyle="round", zorder=4
+        )
         arcs.set_path_effects([stroke])
 
         plt.gca().add_collection(arcs)
@@ -609,7 +618,9 @@ class CircuitPlotManager:
         plt.gca().add_collection(pointers)
 
     def _render_barrier(self):
-        barrier = PolyCollection(self._barrier_points, closed=True, fc="lightgray", hatch="///", zorder=4)
+        barrier = PolyCollection(
+            self._barrier_points, closed=True, fc="lightgray", hatch="///", zorder=4
+        )
         plt.gca().add_collection(barrier)
 
     def _render_txt(self):

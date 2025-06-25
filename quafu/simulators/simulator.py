@@ -96,7 +96,9 @@ class SVSimulator(Simulator):
     ):
         res_info = {}
         if qc.noised:
-            raise QuafuError("Can not run noisy circuits with statevector simulator, please use the noisy version.")
+            raise QuafuError(
+                "Can not run noisy circuits with statevector simulator, please use the noisy version."
+            )
 
         if self.use_gpu:
             if not qc.executable_on_backend:
@@ -107,7 +109,9 @@ class SVSimulator(Simulator):
                     # pylint: disable=import-outside-toplevel
                     from .qfvm import simulate_circuit_custate
                 except ImportError as exc:
-                    raise QuafuError("pyquafu isn't installed with cuquantum support") from exc
+                    raise QuafuError(
+                        "pyquafu isn't installed with cuquantum support"
+                    ) from exc
                 psi = simulate_circuit_custate(qc, psi)
                 count_dict = sampling_statevec(qc.measures, psi, shots)
                 res_info["statevector"] = psi
@@ -117,7 +121,9 @@ class SVSimulator(Simulator):
                     # pylint: disable=import-outside-toplevel
                     from .qfvm import simulate_circuit_gpu
                 except ImportError as exc:
-                    raise QuafuError("you are not using the GPU version of pyquafu") from exc
+                    raise QuafuError(
+                        "you are not using the GPU version of pyquafu"
+                    ) from exc
                 psi = simulate_circuit_gpu(qc, psi)
                 count_dict = sampling_statevec(qc.measures, psi, shots)
         else:
@@ -219,7 +225,6 @@ class NoiseSVSimulator(Simulator):
 
 # pylint: disable=too-few-public-methods
 class CliffordSimulator(Simulator):
-
     def run(self, qc: QuantumCircuit, shots: int = 0):  # pylint: disable=arguments-differ
         res_info = {}
         count_dict = simulate_circuit_clifford(qc, shots)

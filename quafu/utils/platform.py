@@ -23,4 +23,6 @@ def get_homedir():
         return os.environ["USERPROFILE"]
     if sys.platform in ["darwin", "linux"]:
         return os.environ["HOME"]
-    raise QuafuError(f"unsupported platform:{sys.platform}. " f"You may raise a request issue on github.")
+    raise QuafuError(
+        f"unsupported platform:{sys.platform}. You may raise a request issue on github."
+    )

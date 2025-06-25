@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Matrices library."""
+
 import numpy as np
 
 IdMatrix = np.eye(2, dtype=complex)
@@ -23,7 +24,9 @@ SXMatrix = np.array([[1.0, 1.0j], [1.0j, 1.0]], dtype=complex) / np.sqrt(2)
 SYMatrix = np.array([[1.0, -1.0], [1.0, 1.0]], dtype=complex) / np.sqrt(2)
 TMatrix = np.array([[1.0, 0.0], [0.0, np.exp(1.0j * np.pi / 4)]], dtype=complex)
 WMatrix = (XMatrix + YMatrix) / np.sqrt(2)
-SWMatrix = np.array([[0.5 + 0.5j, -np.sqrt(0.5) * 1j], [np.sqrt(0.5), 0.5 + 0.5j]], dtype=complex)
+SWMatrix = np.array(
+    [[0.5 + 0.5j, -np.sqrt(0.5) * 1j], [np.sqrt(0.5), 0.5 + 0.5j]], dtype=complex
+)
 HMatrix = (XMatrix + ZMatrix) / np.sqrt(2)
 SwapMatrix = np.array(
     [
@@ -130,7 +133,9 @@ def ry_mat(theta):
 
 
 def rz_mat(theta):
-    return np.array([[np.exp(-0.5j * theta), 0.0], [0.0, np.exp(0.5j * theta)]], dtype=complex)
+    return np.array(
+        [[np.exp(-0.5j * theta), 0.0], [0.0, np.exp(0.5j * theta)]], dtype=complex
+    )
 
 
 def pmatrix(labda):

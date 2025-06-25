@@ -31,7 +31,9 @@ class User:
     exec_recall_api = "qbackend/scq_task_recall/"
     backend_type = "quafu"
 
-    def __init__(self, api_token: Optional[str] = None, token_dir: Optional[str] = None):
+    def __init__(
+        self, api_token: Optional[str] = None, token_dir: Optional[str] = None
+    ):
         """
         Initialize user account and load backend information.
 
@@ -96,7 +98,9 @@ class User:
                 try:
                     data = json.load(f)
                 except Exception as e:  # pylint: disable=broad-exception-caught
-                    warnings.warn(f"Jsonfy api file failed due to {type(e)}:{e}. overriding...")
+                    warnings.warn(
+                        f"Jsonfy api file failed due to {type(e)}:{e}. overriding..."
+                    )
                     data = {"url": self.url}
             data["token"] = self.api_token
         else:
@@ -156,7 +160,9 @@ class User:
         )
 
         backends_info = self._get_backends_info()
-        self._available_backends = {info["system_name"]: Backend(info) for info in backends_info}
+        self._available_backends = {
+            info["system_name"]: Backend(info) for info in backends_info
+        }
 
         if print_info:
             print("\t ".join(["system_name".ljust(10), "qubits".ljust(5), "status"]))

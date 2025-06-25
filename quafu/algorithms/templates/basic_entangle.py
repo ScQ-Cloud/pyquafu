@@ -43,14 +43,19 @@ class BasicEntangleLayers:
             if weights.ndim > 2:
                 raise ValueError("Weights tensor must be 2-dimensional ")
 
-            if not (len(shape) == 3 or len(shape) == 2):  # 3 is when batching, 2 is no batching
+            if not (
+                len(shape) == 3 or len(shape) == 2
+            ):  # 3 is when batching, 2 is no batching
                 raise ValueError(
-                    f"Weights tensor must be 2-dimensional " f"or 3-dimensional if batching; got shape {shape}"
+                    f"Weights tensor must be 2-dimensional "
+                    f"or 3-dimensional if batching; got shape {shape}"
                 )
 
             if shape[-1] != num_qubits:
                 # index with -1 since we may or may not have batching in first dimension
-                raise ValueError(f"Weights tensor must have last dimension of length {num_qubits}; got {shape[-1]}")
+                raise ValueError(
+                    f"Weights tensor must have last dimension of length {num_qubits}; got {shape[-1]}"
+                )
         else:
             self.weights = None
             if repeat is None:
@@ -69,13 +74,18 @@ class BasicEntangleLayers:
         if self.weights is not None:
             repeat = np.shape(self.weights)[-2]
             theta = [
-                Parameter(f"theta_{(layer * self.num_qubits + i)}", self.weights[layer][i])
+                Parameter(
+                    f"theta_{(layer * self.num_qubits + i)}", self.weights[layer][i]
+                )
                 for layer in range(repeat)
                 for i in range(self.num_qubits)
             ]
         else:
             repeat = self.repeat
-            theta = [Parameter(f"theta_{j}", np.round(np.random.rand(), 3)) for j in range(repeat * self.num_qubits)]
+            theta = [
+                Parameter(f"theta_{j}", np.round(np.random.rand(), 3))
+                for j in range(repeat * self.num_qubits)
+            ]
         for layer in range(repeat):
             j = layer * self.num_qubits
             for i in range(self.num_qubits):

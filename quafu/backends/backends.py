@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Backend."""
+
 import re
 
 import matplotlib.pyplot as plt
@@ -83,19 +84,33 @@ class Backend:
 
         elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9]
         esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9]
-        elarge_labels = {(u, v): f"{d['weight']:.3f}" for (u, v, d) in G.edges(data=True) if d["weight"] >= 0.9}
-        esmall_labels = {(u, v): f"{d['weight']:.3f}" for (u, v, d) in G.edges(data=True) if d["weight"] < 0.9}
+        elarge_labels = {
+            (u, v): f"{d['weight']:.3f}"
+            for (u, v, d) in G.edges(data=True)
+            if d["weight"] >= 0.9
+        }
+        esmall_labels = {
+            (u, v): f"{d['weight']:.3f}"
+            for (u, v, d) in G.edges(data=True)
+            if d["weight"] < 0.9
+        }
 
         pos = nx.spring_layout(G, seed=1)
         fig, ax = plt.subplots()
         nx.draw_networkx_nodes(G, pos, node_size=400, ax=ax)
 
         nx.draw_networkx_edges(G, pos, edgelist=elarge, width=2, ax=ax)
-        nx.draw_networkx_edges(G, pos, edgelist=esmall, width=2, alpha=0.5, style="dashed", ax=ax)
+        nx.draw_networkx_edges(
+            G, pos, edgelist=esmall, width=2, alpha=0.5, style="dashed", ax=ax
+        )
 
         nx.draw_networkx_labels(G, pos, font_size=14, font_family="sans-serif", ax=ax)
-        nx.draw_networkx_edge_labels(G, pos, elarge_labels, font_size=12, font_color="green", ax=ax)
-        nx.draw_networkx_edge_labels(G, pos, esmall_labels, font_size=12, font_color="red", ax=ax)
+        nx.draw_networkx_edge_labels(
+            G, pos, elarge_labels, font_size=12, font_color="green", ax=ax
+        )
+        nx.draw_networkx_edge_labels(
+            G, pos, esmall_labels, font_size=12, font_color="red", ax=ax
+        )
         fig.set_figwidth(14)
         fig.set_figheight(14)
         fig.tight_layout()

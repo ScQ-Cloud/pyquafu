@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """DAG Circuit module."""
+
 import copy
 from typing import Any, List
 
@@ -92,10 +93,14 @@ def gate_to_node(input_gate, specific_label):
     gate.duration = getattr(gate, "duration", None) or None
     gate.unit = getattr(gate, "unit", None) or None
 
-    if gate.paras and not isinstance(gate.paras, list):  # if paras is True and not a list, make it a list
+    if gate.paras and not isinstance(
+        gate.paras, list
+    ):  # if paras is True and not a list, make it a list
         gate.paras = [gate.paras]
 
-    return InstructionNode(gate.name, gate.pos, gate.paras, gate.duration, gate.unit, label=specific_label)
+    return InstructionNode(
+        gate.name, gate.pos, gate.paras, gate.duration, gate.unit, label=specific_label
+    )
 
 
 # Building a DAG Graph using DAGCircuit from a QuantumCircuit
@@ -156,7 +161,9 @@ def circuit_to_dag(circuit: QuantumCircuit, measure_flag=True):
     if measure_flag:
         # Add measure_gate node
         measure_pos = copy.deepcopy(circuit.measures)  # circuit.measures is a dict
-        measure_gate = InstructionNode("measure", measure_pos, None, None, None, label="m")
+        measure_gate = InstructionNode(
+            "measure", measure_pos, None, None, None, label="m"
+        )
         g.add_node(measure_gate, color="blue")
         # Add edges from qubit_last_use[qubit] to measure_gate
         for qubit in measure_gate.pos:
@@ -470,7 +477,9 @@ def nodes_list_mapping(nodes_list, nodes_qubit_mapping_dict):
                 node_new.pos = {}
                 # the values of the dict are void, so we need to copy the values from the original dict
                 for qubit in node.pos:
-                    node_new.pos[nodes_qubit_mapping_dict[qubit]] = copy.deepcopy(node.pos[qubit])
+                    node_new.pos[nodes_qubit_mapping_dict[qubit]] = copy.deepcopy(
+                        node.pos[qubit]
+                    )
         nodes_list_mapping_res.append(node_new)
     return nodes_list_mapping_res
 

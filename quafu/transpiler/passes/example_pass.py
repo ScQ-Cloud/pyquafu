@@ -94,7 +94,9 @@ class TestPass(BasePass):
             dag = copy_dag(circ_dag)
             circuit = dag_to_circuit(circ_dag, circ_dag.circuit_qubits)
         else:
-            raise TypeError("Error: TestPass only supports QuantumCircuit or DAGCircuit.")
+            raise TypeError(
+                "Error: TestPass only supports QuantumCircuit or DAGCircuit."
+            )
 
         # Traverse the DAG and print all gates
         print("Traversing the DAG and printing all the meaningful node gates:")

@@ -25,7 +25,9 @@ class CouplingGraph:
         Args:
             coupling_list (list): [[q0,q1,fidelity], [q1,q0,fidelity], ...]
         """
-        self.graph = nx.DiGraph()  # the qubits coupling structure graph of a quantum chip
+        self.graph = (
+            nx.DiGraph()
+        )  # the qubits coupling structure graph of a quantum chip
         self._distance_matrix = None  # adjacency matrix for coupling graph
         self._qubits_list = None  # list of physical qubits in the coupling graph
         self._num_qubits = None  # number of qubits in the coupling graph
@@ -33,11 +35,15 @@ class CouplingGraph:
 
         if coupling_list is not None:
             # Sort nodes
-            nodeset = sorted({item for sublist in coupling_list for item in sublist[0:2]})
+            nodeset = sorted(
+                {item for sublist in coupling_list for item in sublist[0:2]}
+            )
             self.graph.add_nodes_from(nodeset)
             if len(coupling_list[0]) == 3:
                 for edge in coupling_list:
-                    self.graph.add_edges_from([(edge[0], edge[1], {"fidelity": edge[2]})])
+                    self.graph.add_edges_from(
+                        [(edge[0], edge[1], {"fidelity": edge[2]})]
+                    )
             elif len(coupling_list[0]) == 2:
                 for edge in coupling_list:
                     self.graph.add_edges_from([(edge[0], edge[1], {"fidelity": 1.0})])
@@ -124,7 +130,9 @@ class CouplingGraph:
         """
         path = nx.shortest_path(self.graph, source=source_qubit, target=target_qubit)
         if not path:
-            raise ValueError(f"Error: Nodes {source_qubit} and {target_qubit} are not connected.")
+            raise ValueError(
+                f"Error: Nodes {source_qubit} and {target_qubit} are not connected."
+            )
         return path
 
     @property
@@ -143,38 +151,66 @@ class CouplingGraph:
                 for n2 in range(n1 + 1, nodes):
                     swap_path = nx.shortest_path(self.graph, n1, n2)
                     if len(swap_path) == 2:  # not need swap
-                        self._path_fidelity[(n1, n2)] = np.log(self.edge_dict[(swap_path[0], swap_path[1])])
+                        self._path_fidelity[(n1, n2)] = np.log(
+                            self.edge_dict[(swap_path[0], swap_path[1])]
+                        )
                     else:
                         fidelity = 0
-                        for i in range(len(swap_path) - 2):  # SWAP gates need to be inserted
+                        for i in range(
+                            len(swap_path) - 2
+                        ):  # SWAP gates need to be inserted
                             min_f = min(
-                                np.log(self.edge_dict[(swap_path[i], swap_path[i + 1])]),
-                                np.log(self.edge_dict[(swap_path[i + 1], swap_path[i])]),
+                                np.log(
+                                    self.edge_dict[(swap_path[i], swap_path[i + 1])]
+                                ),
+                                np.log(
+                                    self.edge_dict[(swap_path[i + 1], swap_path[i])]
+                                ),
                             )
                             max_f = max(
-                                np.log(self.edge_dict[(swap_path[i], swap_path[i + 1])]),
-                                np.log(self.edge_dict[(swap_path[i + 1], swap_path[i])]),
+                                np.log(
+                                    self.edge_dict[(swap_path[i], swap_path[i + 1])]
+                                ),
+                                np.log(
+                                    self.edge_dict[(swap_path[i + 1], swap_path[i])]
+                                ),
                             )
                             fidelity += 2 * max_f + min_f
-                        fidelity += np.log(self.edge_dict[(swap_path[-1], swap_path[-2])])
+                        fidelity += np.log(
+                            self.edge_dict[(swap_path[-1], swap_path[-2])]
+                        )
                         self._path_fidelity[(n1, n2)] = fidelity
 
                     swap_path = nx.shortest_path(self.graph, n2, n1)
                     if len(swap_path) == 2:  # not need swap
-                        self._path_fidelity[(n2, n1)] = np.log(self.edge_dict[(swap_path[0], swap_path[1])])
+                        self._path_fidelity[(n2, n1)] = np.log(
+                            self.edge_dict[(swap_path[0], swap_path[1])]
+                        )
                     else:
                         fidelity = 0
-                        for i in range(len(swap_path) - 2):  # SWAP gates need to be inserted
+                        for i in range(
+                            len(swap_path) - 2
+                        ):  # SWAP gates need to be inserted
                             min_f = min(
-                                np.log(self.edge_dict[(swap_path[i], swap_path[i + 1])]),
-                                np.log(self.edge_dict[(swap_path[i + 1], swap_path[i])]),
+                                np.log(
+                                    self.edge_dict[(swap_path[i], swap_path[i + 1])]
+                                ),
+                                np.log(
+                                    self.edge_dict[(swap_path[i + 1], swap_path[i])]
+                                ),
                             )
                             max_f = max(
-                                np.log(self.edge_dict[(swap_path[i], swap_path[i + 1])]),
-                                np.log(self.edge_dict[(swap_path[i + 1], swap_path[i])]),
+                                np.log(
+                                    self.edge_dict[(swap_path[i], swap_path[i + 1])]
+                                ),
+                                np.log(
+                                    self.edge_dict[(swap_path[i + 1], swap_path[i])]
+                                ),
                             )
                             fidelity += 2 * max_f + min_f
-                        fidelity += np.log(self.edge_dict[(swap_path[-1], swap_path[-2])])
+                        fidelity += np.log(
+                            self.edge_dict[(swap_path[-1], swap_path[-2])]
+                        )
                         self._path_fidelity[(n2, n1)] = fidelity
 
         return self._path_fidelity

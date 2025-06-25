@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """DAG Circuit."""
+
 from typing import Dict
 
 import networkx as nx
@@ -29,7 +30,9 @@ class DAGCircuit(MultiDiGraph):
     identifying and merging common subcircuits.
     """
 
-    def __init__(self, qubits_used=None, cbits_used=None, incoming_graph_data=None, **attr):
+    def __init__(
+        self, qubits_used=None, cbits_used=None, incoming_graph_data=None, **attr
+    ):
         """
         Create a DAGCircuit.
 
@@ -88,7 +91,9 @@ class DAGCircuit(MultiDiGraph):
         """
         if -1 not in self.nodes:
             raise ValueError("-1 should be in DAGCircuit, please add it first")
-        self.qubits_used = {int(edge[2]["label"][1:]) for edge in self.out_edges(-1, data=True)}
+        self.qubits_used = {
+            int(edge[2]["label"][1:]) for edge in self.out_edges(-1, data=True)
+        }
         return self.qubits_used
 
     def update_cbits_used(self):
@@ -115,7 +120,9 @@ class DAGCircuit(MultiDiGraph):
         if -1 not in self.nodes:
             raise ValueError("-1 should be in DAGCircuit, please add it first")
         if float("inf") not in self.nodes:
-            raise ValueError('float("inf") should be in DAGCircuit, please add it first')
+            raise ValueError(
+                'float("inf") should be in DAGCircuit, please add it first'
+            )
         self.num_instruction_nodes = len(self.nodes) - 2
 
         return self.num_instruction_nodes
@@ -186,7 +193,9 @@ class DAGCircuit(MultiDiGraph):
             raise ValueError("-1 has no predecessors")
 
         predecessor_nodes = [edge[0] for edge in self.in_edges(node, data=True)]
-        qubits_labels = [int(edge[2]["label"][1:]) for edge in self.in_edges(node, data=True)]
+        qubits_labels = [
+            int(edge[2]["label"][1:]) for edge in self.in_edges(node, data=True)
+        ]
         return dict(zip(qubits_labels, predecessor_nodes))
 
     def node_qubits_successors(self, node: InstructionNode):
@@ -204,7 +213,9 @@ class DAGCircuit(MultiDiGraph):
         if node in [float("inf")]:
             raise ValueError('float("inf") has no successors')
         successor_nodes = [edge[1] for edge in self.out_edges(node, data=True)]
-        qubits_labels = [int(edge[2]["label"][1:]) for edge in self.out_edges(node, data=True)]
+        qubits_labels = [
+            int(edge[2]["label"][1:]) for edge in self.out_edges(node, data=True)
+        ]
         return dict(zip(qubits_labels, successor_nodes))
 
     def node_qubits_inedges(self, node: InstructionNode):
@@ -221,7 +232,9 @@ class DAGCircuit(MultiDiGraph):
             raise ValueError("-1 has no predecessors")
 
         inedges = list(self.in_edges(node, data=True, keys=True))  # we can get u,v,k,d
-        qubits_labels = [int(edge[2]["label"][1:]) for edge in self.in_edges(node, data=True)]
+        qubits_labels = [
+            int(edge[2]["label"][1:]) for edge in self.in_edges(node, data=True)
+        ]
         return dict(zip(qubits_labels, inedges))
 
     def node_qubits_outedges(self, node: InstructionNode):
@@ -236,8 +249,12 @@ class DAGCircuit(MultiDiGraph):
             raise ValueError("node should be in DAGCircuit")
         if node in [float("inf")]:
             raise ValueError('float("inf") has no successors')
-        outedges = list(self.out_edges(node, data=True, keys=True))  # we can get u,v,k,d
-        qubits_labels = [int(edge[2]["label"][1:]) for edge in self.out_edges(node, data=True)]
+        outedges = list(
+            self.out_edges(node, data=True, keys=True)
+        )  # we can get u,v,k,d
+        qubits_labels = [
+            int(edge[2]["label"][1:]) for edge in self.out_edges(node, data=True)
+        ]
         return dict(zip(qubits_labels, outedges))
 
     def remove_instruction_node(self, gate: InstructionNode):
@@ -256,13 +273,17 @@ class DAGCircuit(MultiDiGraph):
         qubits_predecessors = self.node_qubits_predecessors(gate)
         qubits_successors = self.node_qubits_successors(gate)
         for qubit in gate.pos:
-            if qubits_predecessors[qubit] != -1 and qubits_successors[qubit] != float("inf"):
+            if qubits_predecessors[qubit] != -1 and qubits_successors[qubit] != float(
+                "inf"
+            ):
                 self.add_edge(
                     qubits_predecessors[qubit],
                     qubits_successors[qubit],
                     label=f"q{qubit}",
                 )
-            elif qubits_predecessors[qubit] == -1 and qubits_successors[qubit] != float("inf"):
+            elif qubits_predecessors[qubit] == -1 and qubits_successors[qubit] != float(
+                "inf"
+            ):
                 self.add_edge(
                     qubits_predecessors[qubit],
                     qubits_successors[qubit],
@@ -351,7 +372,9 @@ class DAGCircuit(MultiDiGraph):
         for qubit in gate.pos:
             if qubit in self.qubits_used:
                 pre_out_edges = self.node_qubits_outedges(predecessors_dict[qubit])
-                qubits_pre_out_edges.append((pre_out_edges[qubit][:3]))  # use [:3] to get the key of the edge:u,v,k.
+                qubits_pre_out_edges.append(
+                    (pre_out_edges[qubit][:3])
+                )  # use [:3] to get the key of the edge:u,v,k.
 
                 suc_in_edges = self.node_qubits_inedges(successors_dict[qubit])
                 qubits_suc_in_edges.append((suc_in_edges[qubit][:3]))
@@ -363,11 +386,15 @@ class DAGCircuit(MultiDiGraph):
         self.add_node(gate, color="blue")
         for qubit in gate.pos:
             if predecessors_dict[qubit] == -1:
-                self.add_edge(predecessors_dict[qubit], gate, label=f"q{qubit}", color="green")
+                self.add_edge(
+                    predecessors_dict[qubit], gate, label=f"q{qubit}", color="green"
+                )
             else:
                 self.add_edge(predecessors_dict[qubit], gate, label=f"q{qubit}")
             if successors_dict[qubit] == float("inf"):
-                self.add_edge(gate, successors_dict[qubit], label=f"q{qubit}", color="red")
+                self.add_edge(
+                    gate, successors_dict[qubit], label=f"q{qubit}", color="red"
+                )
             else:
                 self.add_edge(gate, successors_dict[qubit], label=f"q{qubit}")
 
@@ -407,9 +434,13 @@ class DAGCircuit(MultiDiGraph):
             # and the successor of the new node is float('inf')
             gate_successors_dict = {qubit: float("inf") for qubit in gate.pos}
             # add the new node and edges using add_instruction_node method
-            self.add_instruction_node(gate, gate_predecessors_dict, gate_successors_dict)
+            self.add_instruction_node(
+                gate, gate_predecessors_dict, gate_successors_dict
+            )
         else:
-            raise ValueError('DAGCircuit should have -1 and float("inf") at the same time')
+            raise ValueError(
+                'DAGCircuit should have -1 and float("inf") at the same time'
+            )
 
     # pylint: disable=inconsistent-return-statements
     def substitute_node_with_dag(self, gate: InstructionNode, input_dag):
@@ -434,7 +465,9 @@ class DAGCircuit(MultiDiGraph):
 
         # qubits set of input_dag should be the same as gate‘s qubits
         if input_dag.update_qubits_used() != set(gate.pos):
-            raise ValueError("qubits set of input_dag should be the same as the gate‘s qubits")
+            raise ValueError(
+                "qubits set of input_dag should be the same as the gate‘s qubits"
+            )
 
         # Find all predecessors and successors of the node to be replaced
         predecessors_dict = self.node_qubits_predecessors(gate)
@@ -475,7 +508,9 @@ class DAGCircuit(MultiDiGraph):
                     color="red",
                 )
             else:
-                self.add_edge(input_dag_endnodes[qubit], successors_dict[qubit], label=f"q{qubit}")
+                self.add_edge(
+                    input_dag_endnodes[qubit], successors_dict[qubit], label=f"q{qubit}"
+                )
 
         # Add nodes and edges from input_dag to self
         self.add_nodes_from(input_dag.nodes(data=True))

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Pre-build wrapper to calculate expectation value."""
+
 import copy
 import time
 from typing import List, Optional
@@ -38,7 +39,13 @@ def execute_circuit(circ: QuantumCircuit, observables: Hamiltonian):
 class Estimator:
     """Estimate expectation for quantum circuits and observables"""
 
-    def __init__(self, circ: QuantumCircuit, backend: str = "sim", task: Optional[Task] = None, **task_options) -> None:
+    def __init__(
+        self,
+        circ: QuantumCircuit,
+        backend: str = "sim",
+        task: Optional[Task] = None,
+        **task_options,
+    ) -> None:
         """
         Args:
             circ: quantum circuit.
@@ -60,7 +67,9 @@ class Estimator:
         # Caching expectation calculation results
         self._exp_cache = {}
 
-    def _run_real_machine(self, observables: Hamiltonian, cache_key: Optional[str] = None):
+    def _run_real_machine(
+        self, observables: Hamiltonian, cache_key: Optional[str] = None
+    ):
         """
         Execute the circuit with observable expectation measurement task.
         Args:
@@ -99,7 +108,9 @@ class Estimator:
         for obs in obslist:
             for p in obs[1]:
                 if p not in measures:
-                    raise CircuitError(f"Qubit {p} in observer {obs[0]} is not measured.")
+                    raise CircuitError(
+                        f"Qubit {p} in observer {obs[0]} is not measured."
+                    )
 
         measure_basis, targlist = merge_measure(obslist)
         print("Job start, need measured in ", measure_basis)
@@ -136,7 +147,9 @@ class Estimator:
 
         return sum(measure_results)
 
-    def _measure_obs(self, qc: QuantumCircuit, measure_base: Optional[List] = None) -> ExecResult:
+    def _measure_obs(
+        self, qc: QuantumCircuit, measure_base: Optional[List] = None
+    ) -> ExecResult:
         """Single run for measurement task.
 
         Args:
@@ -188,7 +201,9 @@ class Estimator:
             Expectation value
         """
         if params is not None:
-            if isinstance(self._circ, QuantumNeuralNetwork):  # currently circ with this attr is QuantumNeuralNetwork
+            if isinstance(
+                self._circ, QuantumNeuralNetwork
+            ):  # currently circ with this attr is QuantumNeuralNetwork
                 # For QuantumNeuralNetwork after v0.4.4, circ structure is determined at runtime
                 # thus only update tunable parameters, i.e., weights
                 if not self._circ.is_legacy_if():

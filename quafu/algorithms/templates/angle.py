@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Angel Embedding in Quantum Data embedding."""
+
 import numpy as np
 import quafu.elements.element_gates as qeg
 from quafu.elements import Parameter, QuantumGate
@@ -48,7 +49,9 @@ class AngleEmbedding(BaseEmebdding):
         gate_list = []
         for j in range(self.batch_size):
             for i in range(self.num_qubits):
-                gate = self.op(i, Parameter(f"phi_{i}", self.features[j, i], tunable=False))
+                gate = self.op(
+                    i, Parameter(f"phi_{i}", self.features[j, i], tunable=False)
+                )
                 gate_list.append(gate)
         return gate_list
 

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Quantum pulse module."""
+
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import Dict, Optional, Union
@@ -239,7 +240,9 @@ class GaussianPulse(QuantumPulse):
         amp_, fwhm_, phase_ = kws["amp"], kws["fwhm"], kws["phase"]
         # start: t = 0, center: t = 0.5 * duration, end: t = duration
         sigma_ = fwhm_ / np.sqrt(8 * np.log(2))  # fwhm to std. deviation
-        return amp_ * np.exp(-((t - 0.5 * self.duration) ** 2) / (2 * sigma_**2) + 1j * phase_)
+        return amp_ * np.exp(
+            -((t - 0.5 * self.duration) ** 2) / (2 * sigma_**2) + 1j * phase_
+        )
 
     def __call__(
         self,

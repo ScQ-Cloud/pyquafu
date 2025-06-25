@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Noise channel module."""
+
 import copy
 from typing import List, Union
 
@@ -69,7 +70,11 @@ class KrausChannel(Instruction):
 
 class UnitaryChannel(KrausChannel):
     def __init__(
-        self, name, pos: int, gatelist: Union[None, List[QuantumGate]] = None, probs: Union[None, List[float]] = None
+        self,
+        name,
+        pos: int,
+        gatelist: Union[None, List[QuantumGate]] = None,
+        probs: Union[None, List[float]] = None,
     ):
         if gatelist is None:
             gatelist = []
@@ -145,7 +150,9 @@ class Decoherence(KrausChannel):
         self.pos = [pos]
         self.paras = [t, T1, T2]
         kmat0 = np.array([[1.0, 0.0], [0.0, np.exp(-t / T2)]], dtype=complex)
-        kmat1 = np.array([[0.0, np.sqrt(1 - np.exp(-t / T1))], [0.0, 0.0]], dtype=complex)
+        kmat1 = np.array(
+            [[0.0, np.sqrt(1 - np.exp(-t / T1))], [0.0, 0.0]], dtype=complex
+        )
         kmat2 = np.array(
             [[1.0, 0.0], [0.0, np.sqrt(np.exp(-t / T1) - np.exp(-2 * t / T2))]],
             dtype=complex,

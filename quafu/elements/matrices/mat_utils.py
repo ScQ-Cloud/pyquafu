@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Matrices utils module."""
+
 import cmath
 from typing import List
 
@@ -140,4 +141,6 @@ def matrix_distance_squared(unitary1, unitary2):
         Float : A single value between 0 and 1 indicating how closely unitary1 and unitary2 match.
         A value close to 0 indicates that unitary1 and unitary2 are the same unitary.
     """
-    return np.abs(1 - np.abs(np.sum(np.multiply(unitary1, np.conj(unitary2)))) / unitary1.shape[0])
+    return np.abs(
+        1 - np.abs(np.sum(np.multiply(unitary1, np.conj(unitary2)))) / unitary1.shape[0]
+    )

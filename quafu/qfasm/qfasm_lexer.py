@@ -17,6 +17,7 @@
 # support more instructions (classical or quantum) to enable
 # interaction with quantum hardware
 """Qfasm Lexer."""
+
 import os
 
 from ply import lex
@@ -207,7 +208,7 @@ class QfasmLexer:
             print(tok)
 
     def test_file(self):
-        with open('lex.txt', 'w+') as print_file:  # noqa:SCS109  # pylint: disable=unspecified-encoding
+        with open("lex.txt", "w+") as print_file:  # noqa:SCS109  # pylint: disable=unspecified-encoding
             while True:
                 tok = self.lexer.token()
                 if not tok:

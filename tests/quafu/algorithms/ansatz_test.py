@@ -18,7 +18,9 @@ from quafu.algorithms.hamiltonian import Hamiltonian, PauliOp
 
 
 class TestQAOACircuit:
-    TEST_HAM = Hamiltonian([PauliOp("Z0 Z1"), PauliOp("Z2 Z3"), PauliOp("Z1 Z2"), PauliOp("Z0 Z3")])
+    TEST_HAM = Hamiltonian(
+        [PauliOp("Z0 Z1"), PauliOp("Z2 Z3"), PauliOp("Z1 Z2"), PauliOp("Z0 Z3")]
+    )
 
     def test_build(self):
         qaoa = QAOAAnsatz(self.TEST_HAM, 4)

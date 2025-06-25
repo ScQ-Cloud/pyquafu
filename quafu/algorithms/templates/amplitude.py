@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Amplitude Embedding by a decomposition into gates."""
+
 import numpy as np
 import quafu.elements.element_gates as qeg
 from quafu.elements import QuantumGate
@@ -75,7 +76,9 @@ class AmplitudeEmbedding(BaseEmebdding):
 
             # check shape
             if len(shape) != 1:
-                raise ValueError(f"state must be a one-dimensional tensor; got shape {shape}.")
+                raise ValueError(
+                    f"state must be a one-dimensional tensor; got shape {shape}."
+                )
 
             n_state = shape[0]
             dim = 2**num_qubits
@@ -87,7 +90,9 @@ class AmplitudeEmbedding(BaseEmebdding):
 
             if pad_with is not None:
                 if n_state > dim:
-                    raise ValueError(f"state must be of length {dim} or smaller to be padded; got length {n_state}.")
+                    raise ValueError(
+                        f"state must be of length {dim} or smaller to be padded; got length {n_state}."
+                    )
 
                 # pad
                 if n_state < dim:
@@ -109,7 +114,11 @@ class AmplitudeEmbedding(BaseEmebdding):
                     )
             new_state_batch.append(feature_set)
 
-        return np.stack(new_state_batch).astype(np.complex128) if batched else new_state_batch[0].astype(np.complex128)
+        return (
+            np.stack(new_state_batch).astype(np.complex128)
+            if batched
+            else new_state_batch[0].astype(np.complex128)
+        )
 
     def _build(self):
         a = np.abs(self.state)
@@ -123,7 +132,9 @@ class AmplitudeEmbedding(BaseEmebdding):
             alpha_y_k = _get_alpha_y(a, len(qubits_reverse), k)
             control = qubits_reverse[k:]
             target = qubits_reverse[k - 1]
-            gate_list.extend(_apply_uniform_rotation_dagger(qeg.RYGate, alpha_y_k, control, target))
+            gate_list.extend(
+                _apply_uniform_rotation_dagger(qeg.RYGate, alpha_y_k, control, target)
+            )
 
         # If necessary, apply inverse z rotation cascade to prepare correct phases of amplitudes
         if not np.allclose(omega, 0):
@@ -132,7 +143,11 @@ class AmplitudeEmbedding(BaseEmebdding):
                 control = qubits_reverse[k:]
                 target = qubits_reverse[k - 1]
                 if len(alpha_z_k) > 0:
-                    gate_list.extend(_apply_uniform_rotation_dagger(qeg.RZGate, alpha_z_k, control, target))
+                    gate_list.extend(
+                        _apply_uniform_rotation_dagger(
+                            qeg.RZGate, alpha_z_k, control, target
+                        )
+                    )
 
         idx = 0
         for g in gate_list:
@@ -214,7 +229,8 @@ def _apply_uniform_rotation_dagger(gate, alpha, control_wires, target_wire):
     num_selections = len(code)
 
     control_indices = [
-        int(np.log2(int(code[i], 2) ^ int(code[(i + 1) % num_selections], 2))) for i in range(num_selections)
+        int(np.log2(int(code[i], 2) ^ int(code[(i + 1) % num_selections], 2)))
+        for i in range(num_selections)
     ]
 
     for i, control_index in enumerate(control_indices):
@@ -226,10 +242,12 @@ def _apply_uniform_rotation_dagger(gate, alpha, control_wires, target_wire):
 
 def _get_alpha_z(omega, n, k):
     indices1 = [
-        [(2 * j - 1) * 2 ** (k - 1) + l - 1 for l in range(1, 2 ** (k - 1) + 1)] for j in range(1, 2 ** (n - k) + 1)
+        [(2 * j - 1) * 2 ** (k - 1) + idx - 1 for idx in range(1, 2 ** (k - 1) + 1)]
+        for j in range(1, 2 ** (n - k) + 1)
     ]
     indices2 = [
-        [(2 * j - 2) * 2 ** (k - 1) + l - 1 for l in range(1, 2 ** (k - 1) + 1)] for j in range(1, 2 ** (n - k) + 1)
+        [(2 * j - 2) * 2 ** (k - 1) + idx - 1 for idx in range(1, 2 ** (k - 1) + 1)]
+        for j in range(1, 2 ** (n - k) + 1)
     ]
 
     term1 = np.take(omega, indices=indices1, axis=-1)
@@ -241,12 +259,15 @@ def _get_alpha_z(omega, n, k):
 
 def _get_alpha_y(a, n, k):
     indices_numerator = [
-        [(2 * (j + 1) - 1) * 2 ** (k - 1) + l for l in range(2 ** (k - 1))] for j in range(2 ** (n - k))
+        [(2 * (j + 1) - 1) * 2 ** (k - 1) + idx for idx in range(2 ** (k - 1))]
+        for j in range(2 ** (n - k))
     ]
     numerator = np.take(a, indices=indices_numerator, axis=-1)
     numerator = np.sum(np.abs(numerator) ** 2, axis=-1)
 
-    indices_denominator = [[j * 2**k + l for l in range(2**k)] for j in range(2 ** (n - k))]
+    indices_denominator = [
+        [j * 2**k + idx for idx in range(2**k)] for j in range(2 ** (n - k))
+    ]
     denominator = np.take(a, indices=indices_denominator, axis=-1)
     denominator = np.sum(np.abs(denominator) ** 2, axis=-1)
 

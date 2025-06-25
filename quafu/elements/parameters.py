@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Parameter module."""
+
 # pylint: disable=no-member
 import copy
 from typing import Union
@@ -23,7 +24,9 @@ from autograd import grad
 
 class ParameterExpression:
     # pylint: disable=too-many-arguments,too-many-positional-arguments
-    def __init__(self, pivot: "Parameter", value=0.0, operands=None, funcs=None, latex=""):
+    def __init__(
+        self, pivot: "Parameter", value=0.0, operands=None, funcs=None, latex=""
+    ):
         if operands is None:
             operands = []
         if funcs is None:

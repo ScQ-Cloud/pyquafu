@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Get gradient of parameterized circuit."""
+
 import numpy as np
 from quafu.circuits.quantum_circuit import QuantumCircuit
 from quafu.elements import ControlledGate, Parameter, ParameterExpression, QuantumGate
@@ -34,7 +35,12 @@ def assemble_grads(para_grads, gate_grads):
     return grads
 
 
-def grad_para_shift(qc: QuantumCircuit, hamiltonian, backend=SVSimulator(), psi_in = np.array([], dtype=complex)):
+def grad_para_shift(
+    qc: QuantumCircuit,
+    hamiltonian,
+    backend=SVSimulator(),
+    psi_in=np.array([], dtype=complex),
+):
     """
     Parameter shift gradients. Each gate must have one parameter
     """
@@ -50,23 +56,37 @@ def grad_para_shift(qc: QuantumCircuit, hamiltonian, backend=SVSimulator(), psi_
                         " You may need compile the circuit first"
                     )
                 op.paras[0] = op.paras[0] + np.pi / 2
-                res1 = sum(backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"])
+                res1 = sum(
+                    backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)[
+                        "pauli_expects"
+                    ]
+                )
                 op.paras[0] = op.paras[0] - np.pi
-                res2 = sum(backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"])
+                res2 = sum(
+                    backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)[
+                        "pauli_expects"
+                    ]
+                )
                 op.paras[0]._undo(2)
                 gate_grads[i].append((res1 - res2) / 2.0)
 
     return assemble_grads(para_grads, gate_grads)
 
 
-def grad_finit_diff(qc, hamiltonian, backend=SVSimulator(), psi_in = np.array([], dtype=complex)):
+def grad_finit_diff(
+    qc, hamiltonian, backend=SVSimulator(), psi_in=np.array([], dtype=complex)
+):
     variables = qc.variables
     grads = []
     for v in variables:
         v.value += 1e-10
-        res1 = sum(backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"])
+        res1 = sum(
+            backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"]
+        )
         v.value -= 2 * 1e-10
-        res2 = sum(backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"])
+        res2 = sum(
+            backend.run(qc, hamiltonian=hamiltonian, psi=psi_in)["pauli_expects"]
+        )
         v.value += 1e-10
         grads.append((res1 - res2) / (2 * 1e-10))
 
@@ -134,14 +154,18 @@ def grad_adjoint(qc, hamiltonian, psi_in=np.array([], dtype=complex)):
     end = len(qc.gates)
     gate_grads = [[] for _ in range(end)]
     for i, op in enumerate(qc.gates):
-        if len(op.paras) > 0 and (isinstance(op.paras[0], (Parameter, ParameterExpression))):
+        if len(op.paras) > 0 and (
+            isinstance(op.paras[0], (Parameter, ParameterExpression))
+        ):
             begin = i
             break
 
     for i in range(begin, end)[::-1]:
         op = qc.gates[i]
         phi = backend._apply_op(op.dagger(), phi)
-        if len(op.paras) > 0 and (isinstance(op.paras[0], (Parameter, ParameterExpression))):
+        if len(op.paras) > 0 and (
+            isinstance(op.paras[0], (Parameter, ParameterExpression))
+        ):
             mu = np.copy(phi)
             mu = backend._apply_op(grad_gate(op), mu)
             gate_grads[i].append(np.real(2.0 * np.inner(lam.conj(), mu)))

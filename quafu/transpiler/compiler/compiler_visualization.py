@@ -76,7 +76,9 @@ class CompilerVis:
             circuit_before = deepcopy(circuit)
             if hasattr(pass_instance, "set_model"):
                 pass_instance.set_model(self.model)
-            layout_before = deepcopy(self.model.get_layout()["final_layout"])  # get the pass initial layout
+            layout_before = deepcopy(
+                self.model.get_layout()["final_layout"]
+            )  # get the pass initial layout
             gates_count_before = len(circuit_before.gates)
             circuit_depth_before = len(circuit_before.layered_circuit().T) - 1
             mutil_qubit_gates_before = 0
@@ -92,10 +94,16 @@ class CompilerVis:
             # timing the end time <--- end
 
             pass_execution_time = (pass_end_time - pass_start_time) * 1000  # ms
-            pass_execution_time = round(pass_execution_time, 2)  # round to 2 decimal places
+            pass_execution_time = round(
+                pass_execution_time, 2
+            )  # round to 2 decimal places
 
-            total_execution_time += pass_execution_time  # ms , add the execution time of each pass
-            total_execution_time = round(total_execution_time, 2)  # round to 2 decimal places
+            total_execution_time += (
+                pass_execution_time  # ms , add the execution time of each pass
+            )
+            total_execution_time = round(
+                total_execution_time, 2
+            )  # round to 2 decimal places
 
             # Get the circuit , layout and others  after the pass
             circuit_after = deepcopy(circuit)
@@ -151,8 +159,12 @@ class CompilerVis:
         }
 
         # change the final layout of info's model
-        all_layouts["initial_layout"] = deepcopy(info["Total"]["model"].get_layout()["initial_layout"])
-        all_layouts["final_layout"] = deepcopy(info["Total"]["model"].get_layout()["final_layout"])
+        all_layouts["initial_layout"] = deepcopy(
+            info["Total"]["model"].get_layout()["initial_layout"]
+        )
+        all_layouts["final_layout"] = deepcopy(
+            info["Total"]["model"].get_layout()["final_layout"]
+        )
         info["Total"]["model"].set_layout(all_layouts)
 
         # make a copy of short info
@@ -181,7 +193,9 @@ def draw_allpass_circuits(info_dict, only_original_and_last=False):
             # draw the circuit before and after the pass
             # print the divider line
             print("*" * 100)
-            print(f"Drawing the circuit before and after {key}:", pass_info["Pass Name"])
+            print(
+                f"Drawing the circuit before and after {key}:", pass_info["Pass Name"]
+            )
             print("Circuit Before:")
             pass_info["Circuit Before"].draw_circuit()
             print("Circuit After:")
@@ -252,7 +266,9 @@ def dynamic_draw(info_dict, short_info):
             "Please input 'm' to check the model,\n"
             "or input 'q' to quit compilation information visualization,\n"
             "or input 'c' to check the statistics of all passes,\n"
-            "or input the int (0-" + str(len(short_info) - 2) + ") index of the pass you want to draw:"
+            "or input the int (0-"
+            + str(len(short_info) - 2)
+            + ") index of the pass you want to draw:"
         )
 
         input_str = input()
@@ -345,7 +361,9 @@ def dynamic_draw_tabulate(info_dict, short_info, tablefmt="fancy_grid"):
             "Please input 'm' to check the model,\n"
             "or input 'q' to quit compilation information visualization,\n"
             "or input 'c' to check the statistics of all passes,\n"
-            "or input the int (0-" + str(len(short_info) - 2) + ") index of the pass you want to draw:"
+            "or input the int (0-"
+            + str(len(short_info) - 2)
+            + ") index of the pass you want to draw:"
         )
 
         input_str = input()

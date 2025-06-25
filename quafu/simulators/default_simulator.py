@@ -47,7 +47,9 @@ def global_op(gate: QuantumGate, global_qubits: List) -> coo_matrix:
     return kron(kron(eye(2**num_left), center_mat), eye(2**num_right))
 
 
-def permutebits(mat: Union[SparseArray, np.ndarray], order: Iterable) -> Union[SparseArray, np.ndarray]:
+def permutebits(
+    mat: Union[SparseArray, np.ndarray], order: Iterable
+) -> Union[SparseArray, np.ndarray]:
     """permute qubits for operators or states"""
     num = len(order)
     order = np.array(order)

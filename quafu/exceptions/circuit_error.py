@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Exceptions Module for PyQuafu."""
+
 from .quafu_error import CircuitError
 
 

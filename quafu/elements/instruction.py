@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 """Instruction Module."""
+
 import warnings
 from abc import ABC, abstractmethod
 from typing import Dict, List, Union
@@ -47,7 +48,9 @@ class Instruction(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        raise NotImplementedError(f"name is not implemented for {self.__class__.__name__}, this should never happen.")
+        raise NotImplementedError(
+            f"name is not implemented for {self.__class__.__name__}, this should never happen."
+        )
 
     @property
     @abstractmethod
@@ -63,7 +66,9 @@ class Instruction(ABC):
 
     @name.setter
     def name(self, _):
-        warnings.warn("Invalid assignment, names of standard instructions are not alterable.")
+        warnings.warn(
+            "Invalid assignment, names of standard instructions are not alterable."
+        )
 
     @classmethod
     def register_ins(cls, subclass, name: str = None):
@@ -111,7 +116,9 @@ class Barrier(Instruction):
         return f"{self.__class__.__name__}"
 
     def to_qasm(self, _):
-        return "barrier " + ",".join([f"q[{p}]" for p in range(min(self.pos), max(self.pos) + 1)])
+        return "barrier " + ",".join(
+            [f"q[{p}]" for p in range(min(self.pos), max(self.pos) + 1)]
+        )
 
 
 class Reset(Instruction):
@@ -140,7 +147,9 @@ class Reset(Instruction):
         return f"{self.__class__.__name__}"
 
     def to_qasm(self, _):
-        return "reset " + ",".join([f"q[{p}]" for p in range(min(self.pos), max(self.pos) + 1)])
+        return "reset " + ",".join(
+            [f"q[{p}]" for p in range(min(self.pos), max(self.pos) + 1)]
+        )
 
 
 class Measure(Instruction):
@@ -164,7 +173,9 @@ class Measure(Instruction):
         return self.named_paras
 
     def to_qasm(self, with_para):
-        lines = [f"measure q[{q}] -> meas[{c}];\n" for q, c in zip(self.qbits, self.cbits)]
+        lines = [
+            f"measure q[{q}] -> meas[{c}];\n" for q, c in zip(self.qbits, self.cbits)
+        ]
         return "".join(lines)
 
 

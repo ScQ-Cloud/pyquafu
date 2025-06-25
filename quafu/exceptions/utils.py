@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Exceptions utils."""
+
 from .quafu_error import CircuitError, CompileError, ServerError
 from .user_error import UserError
 
@@ -20,7 +21,13 @@ def validate_server_resp(res):
     """Check results returned by backend service"""
 
     status_code = res["status"] if "status" in res else res["code"]
-    err_msg = res["message"] if "message" in res else res["msg"] if "msg" in res else "No error message"
+    err_msg = (
+        res["message"]
+        if "message" in res
+        else res["msg"]
+        if "msg" in res
+        else "No error message"
+    )
 
     if status_code in [201, 205, 400]:
         raise UserError(err_msg)

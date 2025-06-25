@@ -13,7 +13,7 @@
 #  limitations under the License.
 # pylint: disable=signature-differs
 
-""" Actual classes of quantum gates.
+"""Actual classes of quantum gates.
 
 The ideal about structuring is roughly "Gate + Ctrl-Gate".
 
@@ -243,8 +243,12 @@ class RZGate(QuantumGate):
 
 @QuantumGate.register()
 class U3Gate(QuantumGate):
-    def __init__(self, pos: int, theta: ParameterType, phi: ParameterType, _lambda: ParameterType):
-        super().__init__("U3", [pos], [theta, phi, _lambda], matrix=wrap_para(mat.u3matrix))
+    def __init__(
+        self, pos: int, theta: ParameterType, phi: ParameterType, _lambda: ParameterType
+    ):
+        super().__init__(
+            "U3", [pos], [theta, phi, _lambda], matrix=wrap_para(mat.u3matrix)
+        )
 
 
 @QuantumGate.register(name="p")

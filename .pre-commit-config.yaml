@@ -19,27 +19,6 @@ repos:
       - id: requirements-txt-fixer
       - id: sort-simple-yaml
 
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.4.0
-    hooks:
-      - id:
-          pycln
-          # -   repo: https://github.com/pre-commit/mirrors-clang-format
-          #     rev: v15.0.7
-          #     hooks:
-          #     -   id: clang-format
-          #         args: [-style=file]
-          # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.10.0
-    hooks:
-      - id: black
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        name: isort (python)
-        args: [--profile, black, --filter-files]
 
   - repo: https://gitee.com/dnguyen/cmake-pre-commit-hooks-mirror
     rev: v1.5.3
@@ -56,7 +35,10 @@ repos:
       #     additional_dependencies: [cpplint]
       - id: lizard
         require_serial: false
-        files: .*\.(h|hpp|tpp|cpp|cc|py)$
+
+        # files: .*\.(h|hpp|tpp|cpp|cc|py)$
+        files: .*\.(h|hpp|tpp|cpp|cc)$
+
         args:
           [
             -l,
@@ -97,37 +79,14 @@ repos:
           #     -   id: cppcheck
           #         files: .*\.(h|hpp|tpp|cpp|cc)$
           #         args: [--force, --enable=all, --error-exitcode=1, --inline-suppr, --std=c++14, --language=c++, --suppressions-list=.cppcheck.suppressions]
-
-  - repo: https://gitee.com/mirrors/flake8
-    rev: 5.0.4
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.12.0
     hooks:
-      - id: flake8
-        args: [--docstring-convention, google]
-        name: flake8-strict
-        exclude: (.*_test\.py)$
-        additional_dependencies:
-          [
-            flake8-breakpoint,
-            flake8-builtins,
-            flake8-comprehensions,
-            flake8-continuation,
-            flake8-docstrings,
-            flake8-eradicate,
-            flake8-mutable,
-            flake8-return,
-            pep8-naming,
-            flake8-secure-coding-standard,
-          ]
-      - id: flake8
-        name: flake8-test-files
-        files: (.*_test\.py)$
-        additional_dependencies:
-          [
-            flake8-breakpoint,
-            flake8-builtins,
-            flake8-comprehensions,
-            flake8-continuation,
-            flake8-eradicate,
-            flake8-mutable,
-            flake8-return,
-          ]
+      # Run the linter.
+      - id: ruff-check
+        exclude: examples/.*
+        args: [--fix]
+      # Run the formatter.
+      - id: ruff-format
+        exclude: examples/.*

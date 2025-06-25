@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Measurement result."""
+
 import copy
 from collections import OrderedDict
 
@@ -130,7 +131,9 @@ class SimuResult(Result):
         try:
             return self["statevector"]
         except KeyError as exc:
-            raise KeyError(f"no statevector saved from {self['simulator']} simulator") from exc
+            raise KeyError(
+                f"no statevector saved from {self['simulator']} simulator"
+            ) from exc
 
     @property
     def probabilities(self):
@@ -144,7 +147,7 @@ class SimuResult(Result):
 
     def calc_probabilities(self, from_counts=False):
         num = self["qbitnum"]
-        if from_counts and self._meta_data['counts']:
+        if from_counts and self._meta_data["counts"]:
             counts = self._meta_data["counts"]
             total_counts = sum(counts.values())
             probabilities = {}
@@ -160,7 +163,7 @@ class SimuResult(Result):
             values_tmp = list(self["measures"].values())
             values = np.argsort(values_tmp)
 
-        # pylint: disable=import-outside-toplevel
+            # pylint: disable=import-outside-toplevel
             from quafu.simulators.default_simulator import permutebits, ptrace
 
             psi = permutebits(psi, range(num)[::-1])
@@ -171,7 +174,6 @@ class SimuResult(Result):
                 self._probabilities = np.abs(psi) ** 2
         else:
             raise ValueError("No data saved for probs")
-           
 
     def plot_probabilities(
         self,
@@ -284,7 +286,10 @@ def merge_measure(obslist):
                 interset, intobsi, intbasei = intersec(obs[1], measure_base[1])
                 diffset, diffobsi = diff(obs[1], measure_base[1])
                 if len(interset) != 0:
-                    if all(np.array(list(obs[0]))[intobsi] == np.array(list(measure_base[0]))[intbasei]):
+                    if all(
+                        np.array(list(obs[0]))[intobsi]
+                        == np.array(list(measure_base[0]))[intbasei]
+                    ):
                         measure_base[0] += "".join(np.array(list(obs[0]))[diffobsi])
                         measure_base[1].extend(diffset)
                         targ_basis.append(mi)

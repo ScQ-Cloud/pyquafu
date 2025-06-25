@@ -13,6 +13,7 @@
 # limitations under the License.
 # pylint: disable=abstract-method
 """Quafu PyTorch quantum layer."""
+
 from typing import Optional
 
 import numpy as np
