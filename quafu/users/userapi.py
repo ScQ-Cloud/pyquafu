@@ -155,9 +155,7 @@ class User:
         """
         Get available backends
         """
-        from quafu.backends.backends import (  # pylint: disable=import-outside-toplevel
-            Backend,
-        )
+        from quafu.backends.backends import Backend
 
         backends_info = self._get_backends_info()
         self._available_backends = {
@@ -165,14 +163,15 @@ class User:
         }
 
         if print_info:
-            print("\t ".join(["system_name".ljust(10), "qubits".ljust(5), "status"]))
+            print("\t ".join(["system_name".ljust(12), "qubits".ljust(6), "status".ljust(10), "tasks_queued"]))
             for backend in self._available_backends.values():
                 print(
                     "\t ".join(
                         [
-                            backend.name.ljust(10),
-                            str(backend.qubit_num).ljust(5),
-                            backend.status,
+                            backend.name.ljust(12),
+                            str(backend.qubit_num).ljust(6),
+                            backend.status.ljust(10),
+                            str(backend.task_in_queue),
                         ]
                     )
                 )
