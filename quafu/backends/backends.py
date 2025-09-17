@@ -22,7 +22,7 @@ from quafu.users.userapi import User
 from quafu.utils.client_wrapper import ClientWrapper
 
 
-class Backend:
+class Backend(object):
     def __init__(self, backend_info: dict):
         self.name = backend_info["system_name"]
         self._valid_gates = backend_info["valid_gates"]
@@ -30,6 +30,7 @@ class Backend:
         self.system_id = backend_info["system_id"]
         self.status = backend_info["status"]
         self.qv = backend_info["QV"]
+        self.task_in_queue = backend_info["queued_len"]
 
     def get_chip_info(self, user: User = None):
         user = User() if user is None else user
@@ -122,3 +123,4 @@ class Backend:
 
     def get_valid_gates(self):
         return self._valid_gates
+
