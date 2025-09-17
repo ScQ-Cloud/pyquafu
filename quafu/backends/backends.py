@@ -29,7 +29,7 @@ class Backend(object):
         self.system_id = backend_info["system_id"]
         self.status = backend_info["status"]
         self.qv = backend_info["QV"]
-        # self.task_in_queue = backend_info["task_in_queue"]
+        self.task_in_queue = backend_info["queued_len"]
 
     def get_chip_info(self, user: User = None):
         user = User() if user is None else user
@@ -123,3 +123,4 @@ class Backend(object):
 
     def get_valid_gates(self):
         return self._valid_gates
+
