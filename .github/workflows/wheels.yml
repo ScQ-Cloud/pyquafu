@@ -25,7 +25,7 @@ jobs:
           - os-arch: win_amd64
             os: windows-latest
           - os-arch: macosx_x86_64
-            os: macos-latest-large
+            os: macos-13
           - os-arch: macosx_arm64
             os: macos-latest
     runs-on: ${{ matrix.os }}
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v5
 
       # Used to host cibuildwheel
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
