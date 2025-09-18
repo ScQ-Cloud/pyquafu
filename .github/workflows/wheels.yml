@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os-arch: [manylinux_x86_64, win_amd64, macosx_x86_64, macosx_arm64]
-        python-version: ["3.10"]
+        python-version: ["3.12"]
         cibw-python: [cp38, cp39, cp310, cp311, cp312]
         include:
           - os-arch: manylinux_x86_64
@@ -36,10 +36,10 @@ jobs:
       TWINE_USERNAME: __token__
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       # Used to host cibuildwheel
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
