@@ -1,7 +1,6 @@
 name: Build
 
 on:
-
   push:
     branches:
       - master
@@ -24,11 +23,11 @@ jobs:
           - os-arch: manylinux_x86_64
             os: ubuntu-latest
           - os-arch: win_amd64
-            os: windows-2019
+            os: windows-latest
           - os-arch: macosx_x86_64
-            os: macos-13
+            os: macos-latest-large
           - os-arch: macosx_arm64
-            os: macos-13
+            os: macos-latest
     runs-on: ${{ matrix.os }}
 
     env:
@@ -38,7 +37,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
 
       # Used to host cibuildwheel
       - uses: actions/setup-python@v3
