@@ -34,7 +34,7 @@ from .qfvm import (  # pylint: disable=no-name-in-module,import-error
 # pylint: disable=too-few-public-methods
 class Simulator(ABC):
     @abstractmethod
-    def run(self):  # pylint: disable=arguments-differ
+    def run(self, *args, **kwargs):  # pylint: disable=arguments-differ
         raise NotImplementedError
 
 
@@ -88,11 +88,11 @@ class SVSimulator(Simulator):
         return psi_out
 
     def run(  # pylint: disable=arguments-differ
-        self,
-        qc: QuantumCircuit,
-        psi: np.ndarray = np.array([]),
-        shots: int = 0,
-        hamiltonian: Hamiltonian = None,
+            self,
+            qc: QuantumCircuit,
+            psi: np.ndarray = np.array([]),
+            shots: int = 0,
+            hamiltonian: Hamiltonian = None,
     ):
         res_info = {}
         if qc.noised:
@@ -164,18 +164,18 @@ class NoiseSVSimulator(Simulator):
         return sample, None
 
     def run(  # pylint: disable=arguments-differ
-        self,
-        qc: QuantumCircuit,
-        psi: np.ndarray = np.array([]),
-        shots: int = 0,
-        hamiltonian: Hamiltonian = None,
+            self,
+            qc: QuantumCircuit,
+            psi: np.ndarray = np.array([]),
+            shots: int = 0,
+            hamiltonian: Hamiltonian = None,
     ):
         counts = {}
-        pauli_expects = 0.0
+        pauli_expects = np.zeros(1)
 
         for _ in range(shots):
-            if not psi:
-                tpsi = np.zeros(2**qc.num, dtype=complex)
+            if np.size(psi) == 0:
+                tpsi = np.zeros(2 ** qc.num, dtype=complex)
                 tpsi[0] = 1.0
             else:
                 tpsi = np.copy(psi)
@@ -191,10 +191,13 @@ class NoiseSVSimulator(Simulator):
             pauli_expects = []
         else:
             pauli_expects = list(pauli_expects)
-        res_info = {"counts": counts, "pauli_expects": pauli_expects}
-        res_info["qbitnum"] = qc.num
-        res_info["measures"] = qc.measures
-        res_info["simulator"] = "noisy statevector"
+        res_info = {
+            "counts": counts,
+            "pauli_expects": pauli_expects,
+            "qbitnum": qc.num,
+            "measures": qc.measures,
+            "simulator": "noisy statevector"
+        }
         return SimuResult(res_info)
 
     @staticmethod
