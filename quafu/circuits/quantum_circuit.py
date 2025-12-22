@@ -190,7 +190,7 @@ class QuantumCircuit:
             qubits = []
         if gates is None:
             gates = []
-        if channel not in ["bitflip", "dephasing", "depolarizing", "ampdamping"]:
+        if channel not in ["bitflip", "dephasing", "depolarizing", "ampdamping", "decoherence"]:
             raise ValueError("Invalid channel name")
 
         if checkgates:
